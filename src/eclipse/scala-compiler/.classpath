@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="lib/ant/ant.jar"/>
 	<classpathentry kind="lib" path="lib/jline.jar"/>
 	<classpathentry kind="lib" path="lib/msil.jar"/>
+	<classpathentry kind="lib" path="lib/extra/antlr-3.4.jar"/>
 	<classpathentry kind="output" path="build-quick-compiler"/>
 </classpath>
