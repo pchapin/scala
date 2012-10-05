@@ -7,8 +7,8 @@
 package edu.uvm.scalaness
 
 /**
- * Superclass of all exceptions raised by the Scalaness plugin itself. Additional exception types are defined by
- * the Mininess handling code and by the ANTLR parser.
+ * Superclass of all exceptions raised by the Scalaness plugin itself. Additional exception
+ * types are defined by the Mininess handling code and by the ANTLR parser.
  *
  * @param message The message associated with the exception.
  */

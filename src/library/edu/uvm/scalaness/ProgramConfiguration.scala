@@ -9,8 +9,8 @@ package edu.uvm.scalaness
 import java.io.BufferedWriter
 
 /**
- * Immutable class representing nesC configurations. Each configuration contains a set of named components that comprise
- * the configuration along with the wires that connect them.
+ * Immutable class representing nesC configurations. Each configuration contains a set of named
+ * components that comprise the configuration along with the wires that connect them.
  * 
  * @param componentSet The set of NamedProgramComponents that comprise this configuration.
  * @param wireList The wires joining the program components in this configuration.
@@ -43,8 +43,9 @@ class ProgramConfiguration(
   }
 
   /**
-   * Writes the configuration implementation to the specified output file. Only the components line and the wiring is
-   * output by this method. The configurations header and specification are assumed to have already been written.
+   * Writes the configuration implementation to the specified output file. Only the components
+   * line and the wiring is output by this method. The configurations header and specification
+   * are assumed to have already been written.
    * 
    * @param outputFile The file into which the configuration should be written.
    */

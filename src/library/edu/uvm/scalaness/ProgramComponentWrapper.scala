@@ -9,12 +9,16 @@ package edu.uvm.scalaness
 import language.postfixOps
 
 /**
- * Defines a ProgramComponent that wraps a named program component with a trivial configuration. Named program components
- * by themselves are not useful for composition because they don't have any associated configuration information.
+ * Defines a ProgramComponent that wraps a named program component with a trivial configuration.
+ * Named program components by themselves are not useful for composition because they don't have
+ * any associated configuration information.
  *
  * @param component The NamedProgramComponent to wrap.
  */
-class ProgramComponentWrapper(val component: NamedProgramComponent, val targetFolder: String) extends ProgramComponent(
+class ProgramComponentWrapper(
+    val component   : NamedProgramComponent,
+    val targetFolder: String) extends ProgramComponent(
+        
   typeParameters  = component.typeParameters,
   valueParameters = component.valueParameters,
   imports         = component.imports map { (_, List(component)) } toMap,

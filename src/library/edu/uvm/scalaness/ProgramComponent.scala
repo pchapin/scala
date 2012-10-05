@@ -9,10 +9,11 @@ package edu.uvm.scalaness
 import java.io._
 
 /**
- * Immutable class to represent a program component. Unlike named program components these program components are
- * anonymous. They also contain configuration information since, in general, they represent an entire collection of
- * named program components. For now I will just represent imports and exports of a program component by their names.
- * Eventually I'll have to also track their parameter types and return types. Thus a more complex data structure will be
+ * Immutable class to represent a program component. Unlike named program components these
+ * program components are anonymous. They also contain configuration information since, in
+ * general, they represent an entire collection of named program components. For now I will just
+ * represent imports and exports of a program component by their names. Eventually I'll have to
+ * also track their parameter types and return types. Thus a more complex data structure will be
  * needed later.
  * 
  * @param typeParameters A set of type parameter names. The bounds are not included.
@@ -31,8 +32,8 @@ class ProgramComponent(
   private val targetFolder   : String) extends Traversable[NamedProgramComponent] {
 
   /**
-   * Exception thrown if the composition of components fails. The type system should rule this out, but the exception
-   * exists for now since the full type checking is not yet implemented.
+   * Exception thrown if the composition of components fails. The type system should rule this
+   * out, but the exception exists for now since the full type checking is not yet implemented.
    */
   class CompositionException(message: String) extends Exception(message)
 
@@ -44,33 +45,37 @@ class ProgramComponent(
 
 
   /**
-   * Perform a map merge of the type parameters. This is the stage #1 run time manifestation of the map merge operation
-   * described in the theory.
+   * Perform a map merge of the type parameters. This is the stage #1 run time manifestation of
+   * the map merge operation described in the theory.
    * 
-   * @param otherTypeParameters A collection of type parameters to merge into the type parameters of this object.
+   * @param otherTypeParameters A collection of type parameters to merge into the type
+   * parameters of this object.
    * @return The merged result.
    */
   private def mergeTypeParameters(otherTypeParameters: Set[String]) = {
-    // The bounds on common type parameters should be identical. In theory this is handled as part of compile time type
-    // checking and thus should never be wrong during run time. It might be nice to verify them anyway as a kind of
-    // sanity check. On the other hand that would require passing type parameter bound information to the run time
-    // system which currently isn't done.
+    // The bounds on common type parameters should be identical. In theory this is handled as
+    // part of compile time type checking and thus should never be wrong during run time. It
+    // might be nice to verify them anyway as a kind of sanity check. On the other hand that
+    // would require passing type parameter bound information to the run time system which
+    // currently isn't done.
     //
     typeParameters ++ otherTypeParameters
   }
 
 
   /**
-   * Perform a map merge of the value parameters. This is the stage #1 run time manifestation of the map merge operation
-   * described in the theory.
+   * Perform a map merge of the value parameters. This is the stage #1 run time manifestation of
+   * the map merge operation described in the theory.
    * 
-   * @param otherValueParameters A collection of value parameters to merge into the value parameters of this object.
+   * @param otherValueParameters A collection of value parameters to merge into the value
+   * parameters of this object.
    * @return The merged result.
    */
   private def mergeValueParameters(otherValueParameters: Set[String]) = {
-    // The types on common values should be identical. In theory this is handled as part of compile time type checking
-    // and thus should never be wrong during run time. It might be nice to verify them anyway as a kind of sanity check.
-    // On the other hand that would require passing type information to the run time system which currently isn't done.
+    // The types on common values should be identical. In theory this is handled as part of
+    // compile time type checking and thus should never be wrong during run time. It might be
+    // nice to verify them anyway as a kind of sanity check. On the other hand that would
+    // require passing type information to the run time system which currently isn't done.
     //
     valueParameters ++ otherValueParameters
   }
@@ -108,14 +113,17 @@ class ProgramComponent(
 
 
   /**
-   * Combine the targetFolder values of two program components. The components must have "compatible" target folders
-   * before a meaningful target folder for the composed component can be defined.
+   * Combine the targetFolder values of two program components. The components must have
+   * "compatible" target folders before a meaningful target folder for the composed component
+   * can be defined.
    *
    * @param otherTargetFolder The target folder of the other component.
-   * @return The compatible target folder based on 'this' component and the given target folder of the other component.
+   * @return The compatible target folder based on 'this' component and the given target folder
+   * of the other component.
    */
   private def mergeTargetFolders(otherTargetFolder: String) = {
-    // TODO: Add some real logic here. Roughly: the two target folders have to be the same, else exception.
+    // TODO: Add some real logic here.
+    // Roughly: the two target folders have to be the same, else exception.
     targetFolder
   }
 
@@ -124,7 +132,8 @@ class ProgramComponent(
    * Composes two ProgramComponents.
    * 
    * @param other The ProgramComponent to blend into this component.
-   * @return A new ProgramComponent that wraps a configuration consisting of the two input components joined together.
+   * @return A new ProgramComponent that wraps a configuration consisting of the two input
+   * components joined together.
    */
   def +(other: ProgramComponent) = {
     val newTypeParameters  = mergeTypeParameters(other.typeParameters)
@@ -147,7 +156,8 @@ class ProgramComponent(
   /**
    * Output this ProgramComponent as a nesC configuration.
    * 
-   * @param outputFolder The folder into which the output file is written. The file has the name "AppC.nc" in all cases.
+   * @param outputFolder The folder into which the output file is written. The file has the name
+   * "AppC.nc" in all cases.
    */
   def display(outputFolder: File) {
     val outputFile = new BufferedWriter(new FileWriter(new File(outputFolder, "AppC.nc")))
@@ -155,8 +165,9 @@ class ProgramComponent(
     try {
       outputFile.write("configuration AppC {\n")
  
-      // It's not clear that the overall exports need to be displayed on the top level configuration. However, a check
-      // should probably be done to verify that there are no overall imports.
+      // It's not clear that the overall exports need to be displayed on the top level
+      // configuration. However, a check should probably be done to verify that there are no
+      // overall imports.
       // 
       // // TODO: Full declarations for the imports and exports should be displayed.
       // 
@@ -180,15 +191,16 @@ class ProgramComponent(
 
 
   /**
-   * Validates the configuration. At compile time, special type checking is done. At run time the generated program is
-   * written to disk. Note that the location of the top level configuration is fixed here.
+   * Validates the configuration. At compile time, special type checking is done. At run time
+   * the generated program is written to disk. Note that the location of the top level
+   * configuration is fixed here.
    */
   def validate() {
     val outputFolder = new File(targetFolder)
 
     // Copy the Makefile.
     val MakefileReader =
-      new BufferedReader(new InputStreamReader(getClass.getResourceAsStream("/Makefile")))
+      new BufferedReader(new InputStreamReader(new FileInputStream("Makefile")))
     val MakefileWriter =
       new BufferedWriter(new FileWriter(new File(outputFolder, "Makefile")))
     var line: String = null

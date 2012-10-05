@@ -12,15 +12,16 @@ import org.antlr.runtime.tree.CommonTree
 package object parser {
 
   /**
-   * Parse the specified nesC file. This method locates the file, parses it, and reports parse errors. It does not do
-   * any type checking on the resulting Mininess AST.
+   * Parse the specified nesC file. This method locates the file, parses it, and reports parse
+   * errors. It does not do any type checking on the resulting Mininess AST.
    * 
-   * @param source The name of the Mininess file to parse. Names with paths (absolute or relative) should be treated
-   *               "as is," and names without paths should be located using some sort of configurable search method.
+   * @param source The name of the Mininess file to parse. Names with paths (absolute or
+   * relative) should be treated "as is," and names without paths should be located using some
+   * sort of configurable search method.
    * 
-   * @param typeVars A collection of type variable names that come from the type parameters in the Scalaness program.
-   *                 This list, together with a few standard "built-in" types form the top level collection of known
-   *                 type names used during parsing.
+   * @param typeVars A collection of type variable names that come from the type parameters in
+   * the Scalaness program. This list, together with a few standard "built-in" types form the
+   * top level collection of known type names used during parsing.
    * 
    * @return The abstract syntax tree of the Mininess inclusion.
    */

@@ -9,17 +9,19 @@ package edu.uvm.scalaness
 object LiftableTypes {
   
   /**
-   * Marker trait so that types that can exist in the second stage are indicated as such. Certain aspects of the runtime
-   * system are intended to process any possible Mininess type, but not types that are only known to Scala.
+   * Marker trait so that types that can exist in the second stage are indicated as such.
+   * Certain aspects of the runtime system are intended to process any possible Mininess type,
+   * but not types that are only known to Scala.
    */
   trait Liftable
 
   /** Represents the Mininess type void */
   class Uninit extends Liftable
 
-  // Note that case classes can't be used because "case-to-case" inheritance is buggy and "unlikely to be fixed." Since
-  // I don't care about pattern matching I will introduce explicit companion objects with an apply method. This
-  // simplifies the construction of primitive values.
+  // Note that case classes can't be used because "case-to-case" inheritance is buggy and
+  // "unlikely to be fixed." Since I don't care about pattern matching I will introduce explicit
+  // companion objects with an apply method. This simplifies the construction of primitive
+  // values.
   
   // TODO: Is this a situation with Scala 2.10 value classes would be useful?
 
@@ -31,12 +33,14 @@ object LiftableTypes {
   
   object Char { def apply(value: scala.Char) = new Char(value) }
 
-  // There is a compile-time type safety problem with the unsigned types. Since Scala does not have any unsigned types
-  // natively a signed type with sufficient range must be used as a substitute. Thus expressions like UInt8(1000) can't
-  // be ruled out at compile time. Instead the value is checked at run time. This is a form of overflow checking.
+  // There is a compile-time type safety problem with the unsigned types. Since Scala does not
+  // have any unsigned types natively a signed type with sufficient range must be used as a
+  // substitute. Thus expressions like UInt8(1000) can't be ruled out at compile time. Instead
+  // the value is checked at run time. This is a form of overflow checking.
   // 
-  // The signed types (below) don't have this problem because they can take advantage of Scala's build in handling of
-  // types Byte, Short, and Int. However, no overflow checking is done for these types during computations.
+  // The signed types (below) don't have this problem because they can take advantage of Scala's
+  // build in handling of types Byte, Short, and Int. However, no overflow checking is done for
+  // these types during computations.
 
   /**
    * Exception thrown when an value is constructed with an overly large initializer.

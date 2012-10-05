@@ -10,10 +10,11 @@ import java.io.{File, PrintStream}
 import edu.uvm.mininess.{ASTNode, SyntaxViewer}
 
 /**
- * Immutable class to represent a named program component during first stage execution. These are the components
- * actually created by the Scalaness programmer. Because these components do not contain any embedded components their
- * import and export lists are simplified compared to the more general ProgramComponent type. They also do not contain
- * any configuration information but they do contain the abstract syntax of the Mininess code they represent.
+ * Immutable class to represent a named program component during first stage execution. These
+ * are the components actually created by the Scalaness programmer. Because these components do
+ * not contain any embedded components their import and export lists are simplified compared to
+ * the more general ProgramComponent type. They also do not contain any configuration
+ * information but they do contain the abstract syntax of the Mininess code they represent.
  * 
  * @param name The name of the component as provided by the programmer.
  * @param typeParameters A set of type parameter names. The bounds are not included.
@@ -31,12 +32,13 @@ class NamedProgramComponent(
   val exports        : Set[String],
   val abstractSyntax : ASTNode) {
 
-  // NOTE: NamedProgramComponent can't be a subclass of ProgramComponent because translating the class parameters from
-  // one type to the other can't be done in the 'extends' clause of the NamedProgramComponent class definition.
+  // NOTE: NamedProgramComponent can't be a subclass of ProgramComponent because translating the
+  // class parameters from one type to the other can't be done in the 'extends' clause of the
+  // NamedProgramComponent class definition.
 
   /**
-   * Outputs the NamedProgramComponent to a file. This method serializes the AST of the component back to ordinary nesC
-   * source code.
+   * Outputs the NamedProgramComponent to a file. This method serializes the AST of the
+   * component back to ordinary nesC source code.
    * 
    * @param outputFolder The folder into which this named component should be generated.
    */
