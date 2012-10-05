@@ -26,5 +26,10 @@
 			<type>2</type>
 			<locationURI>SCALA_BASEDIR/src/library</locationURI>
 		</link>
+		<link>
+			<name>lib</name>
+			<type>2</type>
+			<locationURI>SCALA_BASEDIR/lib</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>

@@ -666,6 +666,7 @@ LOCAL REFERENCE BUILD (LOCKER)
         <compilerarg line="${javac.args} -XDignore.symbol.file"/>
         <classpath>
           <path refid="forkjoin.classpath"/>
+          <path refid="lib.extra"/>
           <pathelement location="${build-locker.dir}/classes/library"/>
         </classpath>
     </javac>
@@ -683,6 +684,7 @@ LOCAL REFERENCE BUILD (LOCKER)
       <compilationpath>
         <pathelement location="${build-locker.dir}/classes/library"/>
         <path refid="forkjoin.classpath"/>
+        <path refid="lib.extra"/>
       </compilationpath>
     </scalacfork>
     <propertyfile file="${build-locker.dir}/classes/library/library.properties">
@@ -798,18 +800,6 @@ LOCAL REFERENCE BUILD (LOCKER)
         <property name="locker.comp.msil" value="${build-locker.dir}/classes/compiler"/>
       </else>
     </if>
-    <!-- Compile Java components of Scalaness extension. -->
-    <javac
-      srcdir="${src.dir}/compiler/edu/uvm"
-      destdir="${build-locker.dir}/classes/compiler"
-      classpath="${build-locker.dir}/classes/compiler"
-      includes="**/*.java"
-      excludes="**/tests/**"
-      debug="true"
-      target="1.6" source="1.5">
-        <compilerarg line="${javac.args}"/>
-        <classpath refid="lib.extra"/>
-    </javac>
     <scalacfork
       destdir="${build-locker.dir}/classes/compiler"
       compilerpathref="starr.classpath"
@@ -1052,6 +1042,7 @@ QUICK BUILD (QUICK)
       <compilerarg line="${javac.args} -XDignore.symbol.file"/>
       <classpath>
         <path refid="forkjoin.classpath"/>
+        <path refid="lib.extra"/>
         <pathelement location="${build-quick.dir}/classes/library"/>
       </classpath>
     </javac>
@@ -1074,7 +1065,10 @@ QUICK BUILD (QUICK)
       srcdir="${src.dir}/library"
       jvmargs="${scalacfork.jvmargs}">
       <include name="**/*.scala"/>
-      <compilationpath refid="quick.compilation.path"/>
+      <compilationpath>
+        <path refid="quick.compilation.path"/>
+        <path refid="lib.extra"/>
+      </compilationpath>
     </scalacfork>
     <scalacfork
       destdir="${build-quick.dir}/classes/library"
@@ -1186,18 +1180,6 @@ QUICK BUILD (QUICK)
       debug="true"
       target="1.6" source="1.4">
         <compilerarg line="${javac.args}"/>
-    </javac>
-    <!-- Compile Java components of Scalaness extension. -->
-    <javac
-      srcdir="${src.dir}/compiler/edu/uvm"
-      destdir="${build-quick.dir}/classes/compiler"
-      classpath="${build-quick.dir}/classes/compiler"
-      includes="**/*.java"
-      excludes="**/tests/**"
-      debug="true"
-      target="1.6" source="1.5">
-        <compilerarg line="${javac.args}"/>
-        <classpath refid="lib.extra"/>
     </javac>
     <scalacfork
       destdir="${build-quick.dir}/classes/compiler"
