@@ -8,7 +8,7 @@ package internal
 
 import scala.collection.{ mutable, immutable }
 import scala.collection.mutable.ListBuffer
-import util.Statistics
+import util.{ Statistics, shortClassOfInstance }
 import Flags._
 import scala.annotation.tailrec
 import scala.reflect.io.AbstractFile
@@ -91,8 +91,8 @@ trait Symbols extends api.Symbols { self: SymbolTable =>
     def module                            = sourceModule
     def thisPrefix: Type                  = thisType
     def selfType: Type                    = typeOfThis
-    def typeSignature: Type               = info
-    def typeSignatureIn(site: Type): Type = site memberInfo this
+    def typeSignature: Type               = { fullyInitializeSymbol(this); info }
+    def typeSignatureIn(site: Type): Type = { fullyInitializeSymbol(this); site memberInfo this }
 
     def toType: Type = tpe
     def toTypeIn(site: Type): Type = site.memberType(this)
@@ -182,7 +182,7 @@ trait Symbols extends api.Symbols { self: SymbolTable =>
       if (isGADTSkolem) " (this is a GADT skolem)"
       else ""
 
-    def shortSymbolClass = getClass.getName.split('.').last.stripPrefix("Symbols$")
+    def shortSymbolClass = shortClassOfInstance(this)
     def symbolCreationString: String = (
       "%s%25s | %-40s | %s".format(
         if (settings.uniqid.value) "%06d | ".format(id) else "",
@@ -2973,7 +2973,7 @@ trait Symbols extends api.Symbols { self: SymbolTable =>
     }
 
     override def derivedValueClassUnbox =
-      (info.decl(nme.unbox)) orElse
+      // (info.decl(nme.unbox)) orElse      uncomment once we accept unbox methods
       (info.decls.find(_ hasAllFlags PARAMACCESSOR | METHOD) getOrElse
        NoSymbol)
 
