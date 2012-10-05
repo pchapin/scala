@@ -18,6 +18,7 @@ tokens {
     IF             = 'if';
     INT            = 'int';
     LONG           = 'long';
+    NX_STRUCT      = 'nx_struct';
     RETURN         = 'return';
     SHORT          = 'short';
     SIGNED         = 'signed';
@@ -36,6 +37,9 @@ tokens {
     UINT8_T        = 'uint8_t';
     UINT16_T       = 'uint16_t';
     UINT32_T       = 'uint32_t';
+    NX_UINT8_T     = 'nx_uint8_t';
+    NX_UINT16_T    = 'nx_uint16_t';
+    NX_UINT32_T    = 'nx_uint32_t';
     
     // nesC extensions to Standard C
     CALL           = 'call';
@@ -375,6 +379,9 @@ type_specifier
     |   UINT8_T           // Temporary hack?
     |   UINT16_T          // Temporary hack?
     |   UINT32_T          // Temporary hack?
+    |   NX_UINT8_T        // Temporary hack?
+    |   NX_UINT16_T       // Temporary hack?
+    |   NX_UINT32_T       // Temporary hack?
     |   struct_or_union_specifier
     |   enum_specifier
     |   typedef_name;
@@ -387,7 +394,8 @@ struct_or_union_specifier
     
 // Unions are not actually supported. The 'or_union' is retained for future reference.
 struct_or_union
-    :    STRUCT;
+    :    STRUCT
+    |    NX_STRUCT;
 
 // BUG: If structure declarations are nested the value of inStructDeclaration is mishandled when
 // the inner declaration is left.
