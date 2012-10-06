@@ -7,7 +7,8 @@
 package edu.uvm.scalaness
 
 import java.io.{BufferedReader, FileInputStream, InputStreamReader}
-import edu.uvm.mininess.{InterfaceUnwrapper, parser}
+import edu.uvm.mininess
+import edu.uvm.mininess.InterfaceUnwrapper
 
 object Parser {
   
@@ -27,7 +28,7 @@ object Parser {
       new BufferedReader(new InputStreamReader(new FileInputStream(mininessFileName)))
     // TODO: Use two different parsing methods in the compiler and in the runtime system.
     val abstractSyntax = try {
-      parser.parseMininessInclusion(MininessReader, typeVars)
+      mininess.parser.parseMininessInclusion(MininessReader, typeVars)
     }
     finally MininessReader.close()
     // TODO: Make the location of the interface definitions configurable.
