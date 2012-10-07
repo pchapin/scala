@@ -24,7 +24,7 @@ import symtab.Flags._
  *  @author  Martin Odersky
  *  @version 1.0
  */
-trait Typers extends Modes with Adaptations with Tags {
+trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper {
   self: Analyzer =>
 
   import global._
@@ -1692,6 +1692,7 @@ trait Typers extends Modes with Adaptations with Tags {
             m.moduleClass.addAnnotation(AnnotationInfo(ann.atp, ann.args, List()))
         }
       }
+      scalanessCheck(ClassDef(typedMods, cdef.name, tparams1, impl2))
       treeCopy.ClassDef(cdef, typedMods, cdef.name, tparams1, impl2)
         .setType(NoType)
     }
@@ -1729,6 +1730,7 @@ trait Typers extends Modes with Adaptations with Tags {
       }
       val impl2  = finishMethodSynthesis(impl1, clazz, context)
 
+      scalanessCheck(ModuleDef(typedMods, mdef.name, impl2))
       treeCopy.ModuleDef(mdef, typedMods, mdef.name, impl2) setType NoType
     }
     /** In order to override this in the TreeCheckers Typer so synthetics aren't re-added

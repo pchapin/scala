@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------
-// FILE    : Typer.scala
+// FILE    : MininessTyper.scala
 // SUBJECT : Class for type checking Mininess inclusions.
 // AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //                             and Michael P. Watson <mpwatson@uvm.edu>
@@ -9,9 +9,9 @@ package edu.uvm.mininess
 
 import parser.MininessLexer
 
-object Typer {
+object MininessTyper {
 
-  class PositionalNesCTypeException(
+  class PositionalMininessTypeException(
         message: String,
     val line   : Int,
     val column : Int) extends Exception(message) {
@@ -31,17 +31,16 @@ object Typer {
  *                     second.
  * @param debugFlag    Set to true if debugging information should be dumped during the check.
  */
-class Typer(
+class MininessTyper(
   typeVars    : Map[String, MininessTypes.Representation],
   valueVars   : Map[String, MininessTypes.Representation],
   typeRelation: TypeCompatibilityRelation,
   debugFlag   : Boolean = false) {
 
   // For convenience
+  import MininessTyper._
   import MininessTypes._
-  import Typer._
   import InterfaceDirectionality._
-
 
   
   /**
@@ -57,7 +56,7 @@ class Typer(
   def checkMininessInclusion(node: ASTNode, depth: Int = 0): Option[Representation] = {
 
     class TypeException(message: String) extends
-      PositionalNesCTypeException(message, node.line, node.positionInLine)
+      PositionalMininessTypeException(message, node.line, node.positionInLine)
 
   if (debugFlag && (node.parent == None)) TreeConverter.dumpAST(node)
       
@@ -425,7 +424,7 @@ class Typer(
   def checkMininessExpression(node: ASTNode, depth: Int): Option[Representation] = {
 
     class TypeException(message: String) extends
-      PositionalNesCTypeException(message, node.line, node.positionInLine)
+      PositionalMininessTypeException(message, node.line, node.positionInLine)
 
 
     def getSiblingType(
