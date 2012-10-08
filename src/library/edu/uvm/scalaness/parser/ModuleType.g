@@ -8,6 +8,7 @@ options {
 
 tokens {
     // Types
+    VOID   = 'Void';
     INT8   = 'Int8';
     INT16  = 'Int16';
     INT32  = 'Int32';
@@ -30,6 +31,7 @@ tokens {
     // Pseudo-tokens used during AST construction.
     EXISTENTIAL_LIST;
     EXPORT_LIST;
+    FUNCTION_DECLARATION;
     IMPORT_LIST;
     MODULE_TYPE;
     PARAMETER_LIST;
@@ -99,13 +101,13 @@ type_parameter_list
     :    coercion_list? -> ^(TYPE_PARAMETER_LIST coercion_list?);
 
 value_parameter_list
-    :    declaration_list? -> ^(VALUE_PARAMETER_LIST declaration_list?);
+    :    simple_declaration_list? -> ^(VALUE_PARAMETER_LIST simple_declaration_list?);
 
 import_list
-    :    declaration_list? -> ^(IMPORT_LIST declaration_list?);
+    :    function_declaration_list? -> ^(IMPORT_LIST function_declaration_list?);
 
 export_list
-    :    declaration_list? -> ^(EXPORT_LIST declaration_list?);
+    :    function_declaration_list? -> ^(EXPORT_LIST function_declaration_list?);
 
 coercion_list
     :   coercion (','! coercion)*;
@@ -113,19 +115,30 @@ coercion_list
 coercion
     :   IDENTIFIER '<:'^ type_name;
 
-declaration_list
-    :    declaration (','! declaration)*;
+simple_declaration_list
+    :    simple_declaration (','! simple_declaration)*;
 
-declaration
-    :    IDENTIFIER ':'^ (type_name | IDENTIFIER);
+simple_declaration
+    :    IDENTIFIER ':'^ generalized_type_name;
+
+function_declaration_list
+    :    function_declaration (','! function_declaration)*;
+
+function_declaration
+    :    name=IDENTIFIER '(' simple_declaration_list? ')' ':' return_type=generalized_type_name
+         -> ^(FUNCTION_DECLARATION $name $return_type simple_declaration_list?);
 
 type_name
-    :    INT8
+    :    VOID
+    |    INT8
     |    INT16
     |    INT32
     |    UINT8
     |    UINT16
     |    UINT32;
+
+generalized_type_name
+    :    type_name | IDENTIFIER;
 
 /* =========== */
 /* Lexer rules */

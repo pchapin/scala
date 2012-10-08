@@ -19,8 +19,6 @@ trait ModuleTypeParser {
     // TODO: Deal with parse errors!
     // TODO: Check that we only process the "value" association. Deal with other associations.
     val parsedTypes = for ((name, value) <- associations) yield {
-      println("Annotation value = " + value.toString)
-
       val lexer  = new ModuleTypeLexer(new ANTLRStringStream(value.toString))
       val tokens = new CommonTokenStream(lexer)
       val parser = new edu.uvm.scalaness.parser.ModuleTypeParser(tokens)

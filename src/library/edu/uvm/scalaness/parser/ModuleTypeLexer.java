@@ -1,4 +1,4 @@
-// $ANTLR 3.4 ModuleType.g 2012-10-08 14:51:06
+// $ANTLR 3.4 ModuleType.g 2012-10-08 18:43:57
 
     package edu.uvm.scalaness.parser;
 
@@ -17,27 +17,29 @@ public class ModuleTypeLexer extends Lexer {
     public static final int COMMENT2=7;
     public static final int EXISTENTIAL_LIST=8;
     public static final int EXPORT_LIST=9;
-    public static final int IDENTIFIER=10;
-    public static final int IMPORT_LIST=11;
-    public static final int INT16=12;
-    public static final int INT32=13;
-    public static final int INT8=14;
-    public static final int LANGLE=15;
-    public static final int LBRACE=16;
-    public static final int LPARENS=17;
-    public static final int MODULE_TYPE=18;
-    public static final int PARAMETER_LIST=19;
-    public static final int RANGLE=20;
-    public static final int RBRACE=21;
-    public static final int RPARENS=22;
-    public static final int SEMI=23;
-    public static final int SUBTYPE=24;
-    public static final int TYPE_PARAMETER_LIST=25;
-    public static final int UINT16=26;
-    public static final int UINT32=27;
-    public static final int UINT8=28;
-    public static final int VALUE_PARAMETER_LIST=29;
-    public static final int WHITESPACE=30;
+    public static final int FUNCTION_DECLARATION=10;
+    public static final int IDENTIFIER=11;
+    public static final int IMPORT_LIST=12;
+    public static final int INT16=13;
+    public static final int INT32=14;
+    public static final int INT8=15;
+    public static final int LANGLE=16;
+    public static final int LBRACE=17;
+    public static final int LPARENS=18;
+    public static final int MODULE_TYPE=19;
+    public static final int PARAMETER_LIST=20;
+    public static final int RANGLE=21;
+    public static final int RBRACE=22;
+    public static final int RPARENS=23;
+    public static final int SEMI=24;
+    public static final int SUBTYPE=25;
+    public static final int TYPE_PARAMETER_LIST=26;
+    public static final int UINT16=27;
+    public static final int UINT32=28;
+    public static final int UINT8=29;
+    public static final int VALUE_PARAMETER_LIST=30;
+    public static final int VOID=31;
+    public static final int WHITESPACE=32;
 
         // This is mostly just a placeholder.
         private final int VERSION = 1;
@@ -408,13 +410,36 @@ public class ModuleTypeLexer extends Lexer {
     }
     // $ANTLR end "UINT8"
 
+    // $ANTLR start "VOID"
+    public final void mVOID() throws RecognitionException {
+        try {
+            int _type = VOID;
+            int _channel = DEFAULT_TOKEN_CHANNEL;
+            // ModuleType.g:26:6: ( 'Void' )
+            // ModuleType.g:26:8: 'Void'
+            {
+            match("Void"); 
+
+
+
+            }
+
+            state.type = _type;
+            state.channel = _channel;
+        }
+        finally {
+        	// do for sure before leaving
+        }
+    }
+    // $ANTLR end "VOID"
+
     // $ANTLR start "IDENTIFIER"
     public final void mIDENTIFIER() throws RecognitionException {
         try {
             int _type = IDENTIFIER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:135:5: ( ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )* )
-            // ModuleType.g:135:10: ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
+            // ModuleType.g:148:5: ( ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )* )
+            // ModuleType.g:148:10: ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
             {
             if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
                 input.consume();
@@ -426,7 +451,7 @@ public class ModuleTypeLexer extends Lexer {
             }
 
 
-            // ModuleType.g:135:42: ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
+            // ModuleType.g:148:42: ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
             loop1:
             do {
                 int alt1=2;
@@ -476,10 +501,10 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = WHITESPACE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:138:5: ( ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+ )
-            // ModuleType.g:138:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
+            // ModuleType.g:151:5: ( ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+ )
+            // ModuleType.g:151:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
             {
-            // ModuleType.g:138:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
+            // ModuleType.g:151:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
             int cnt2=0;
             loop2:
             do {
@@ -525,35 +550,35 @@ public class ModuleTypeLexer extends Lexer {
 
                 switch (alt2) {
             	case 1 :
-            	    // ModuleType.g:138:12: '\\t'
+            	    // ModuleType.g:151:12: '\\t'
             	    {
             	    match('\t'); 
 
             	    }
             	    break;
             	case 2 :
-            	    // ModuleType.g:138:19: ' '
+            	    // ModuleType.g:151:19: ' '
             	    {
             	    match(' '); 
 
             	    }
             	    break;
             	case 3 :
-            	    // ModuleType.g:138:25: '\\r'
+            	    // ModuleType.g:151:25: '\\r'
             	    {
             	    match('\r'); 
 
             	    }
             	    break;
             	case 4 :
-            	    // ModuleType.g:138:32: '\\n'
+            	    // ModuleType.g:151:32: '\\n'
             	    {
             	    match('\n'); 
 
             	    }
             	    break;
             	case 5 :
-            	    // ModuleType.g:138:39: '\\\\n'
+            	    // ModuleType.g:151:39: '\\\\n'
             	    {
             	    match("\\n"); 
 
@@ -562,14 +587,14 @@ public class ModuleTypeLexer extends Lexer {
             	    }
             	    break;
             	case 6 :
-            	    // ModuleType.g:138:47: '\\f'
+            	    // ModuleType.g:151:47: '\\f'
             	    {
             	    match('\f'); 
 
             	    }
             	    break;
             	case 7 :
-            	    // ModuleType.g:138:54: '\"'
+            	    // ModuleType.g:151:54: '\"'
             	    {
             	    match('\"'); 
 
@@ -604,14 +629,14 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = COMMENT1;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:141:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
-            // ModuleType.g:141:10: '/*' ( options {greedy=false; } : . )* '*/'
+            // ModuleType.g:154:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
+            // ModuleType.g:154:10: '/*' ( options {greedy=false; } : . )* '*/'
             {
             match("/*"); 
 
 
 
-            // ModuleType.g:141:15: ( options {greedy=false; } : . )*
+            // ModuleType.g:154:15: ( options {greedy=false; } : . )*
             loop3:
             do {
                 int alt3=2;
@@ -636,7 +661,7 @@ public class ModuleTypeLexer extends Lexer {
 
                 switch (alt3) {
             	case 1 :
-            	    // ModuleType.g:141:42: .
+            	    // ModuleType.g:154:42: .
             	    {
             	    matchAny(); 
 
@@ -671,14 +696,14 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = COMMENT2;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:144:5: ( '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' ) )
-            // ModuleType.g:144:10: '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' )
+            // ModuleType.g:157:5: ( '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' ) )
+            // ModuleType.g:157:10: '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' )
             {
             match("//"); 
 
 
 
-            // ModuleType.g:144:15: ( options {greedy=false; } : . )*
+            // ModuleType.g:157:15: ( options {greedy=false; } : . )*
             loop4:
             do {
                 int alt4=2;
@@ -694,7 +719,7 @@ public class ModuleTypeLexer extends Lexer {
 
                 switch (alt4) {
             	case 1 :
-            	    // ModuleType.g:144:42: .
+            	    // ModuleType.g:157:42: .
             	    {
             	    matchAny(); 
 
@@ -731,8 +756,8 @@ public class ModuleTypeLexer extends Lexer {
     // $ANTLR end "COMMENT2"
 
     public void mTokens() throws RecognitionException {
-        // ModuleType.g:1:8: ( COLON | COMMA | INT16 | INT32 | INT8 | LANGLE | LBRACE | LPARENS | RANGLE | RBRACE | RPARENS | SEMI | SUBTYPE | UINT16 | UINT32 | UINT8 | IDENTIFIER | WHITESPACE | COMMENT1 | COMMENT2 )
-        int alt5=20;
+        // ModuleType.g:1:8: ( COLON | COMMA | INT16 | INT32 | INT8 | LANGLE | LBRACE | LPARENS | RANGLE | RBRACE | RPARENS | SEMI | SUBTYPE | UINT16 | UINT32 | UINT8 | VOID | IDENTIFIER | WHITESPACE | COMMENT1 | COMMENT2 )
+        int alt5=21;
         switch ( input.LA(1) ) {
         case ':':
             {
@@ -749,54 +774,54 @@ public class ModuleTypeLexer extends Lexer {
             int LA5_3 = input.LA(2);
 
             if ( (LA5_3=='n') ) {
-                int LA5_15 = input.LA(3);
+                int LA5_16 = input.LA(3);
 
-                if ( (LA5_15=='t') ) {
+                if ( (LA5_16=='t') ) {
                     switch ( input.LA(4) ) {
                     case '1':
                         {
-                        int LA5_23 = input.LA(5);
+                        int LA5_26 = input.LA(5);
 
-                        if ( (LA5_23=='6') ) {
-                            int LA5_27 = input.LA(6);
+                        if ( (LA5_26=='6') ) {
+                            int LA5_31 = input.LA(6);
 
-                            if ( ((LA5_27 >= '0' && LA5_27 <= '9')||(LA5_27 >= 'A' && LA5_27 <= 'Z')||LA5_27=='_'||(LA5_27 >= 'a' && LA5_27 <= 'z')) ) {
-                                alt5=17;
+                            if ( ((LA5_31 >= '0' && LA5_31 <= '9')||(LA5_31 >= 'A' && LA5_31 <= 'Z')||LA5_31=='_'||(LA5_31 >= 'a' && LA5_31 <= 'z')) ) {
+                                alt5=18;
                             }
                             else {
                                 alt5=3;
                             }
                         }
                         else {
-                            alt5=17;
+                            alt5=18;
                         }
                         }
                         break;
                     case '3':
                         {
-                        int LA5_24 = input.LA(5);
+                        int LA5_27 = input.LA(5);
 
-                        if ( (LA5_24=='2') ) {
-                            int LA5_28 = input.LA(6);
+                        if ( (LA5_27=='2') ) {
+                            int LA5_32 = input.LA(6);
 
-                            if ( ((LA5_28 >= '0' && LA5_28 <= '9')||(LA5_28 >= 'A' && LA5_28 <= 'Z')||LA5_28=='_'||(LA5_28 >= 'a' && LA5_28 <= 'z')) ) {
-                                alt5=17;
+                            if ( ((LA5_32 >= '0' && LA5_32 <= '9')||(LA5_32 >= 'A' && LA5_32 <= 'Z')||LA5_32=='_'||(LA5_32 >= 'a' && LA5_32 <= 'z')) ) {
+                                alt5=18;
                             }
                             else {
                                 alt5=4;
                             }
                         }
                         else {
-                            alt5=17;
+                            alt5=18;
                         }
                         }
                         break;
                     case '8':
                         {
-                        int LA5_25 = input.LA(5);
+                        int LA5_28 = input.LA(5);
 
-                        if ( ((LA5_25 >= '0' && LA5_25 <= '9')||(LA5_25 >= 'A' && LA5_25 <= 'Z')||LA5_25=='_'||(LA5_25 >= 'a' && LA5_25 <= 'z')) ) {
-                            alt5=17;
+                        if ( ((LA5_28 >= '0' && LA5_28 <= '9')||(LA5_28 >= 'A' && LA5_28 <= 'Z')||LA5_28=='_'||(LA5_28 >= 'a' && LA5_28 <= 'z')) ) {
+                            alt5=18;
                         }
                         else {
                             alt5=5;
@@ -804,16 +829,16 @@ public class ModuleTypeLexer extends Lexer {
                         }
                         break;
                     default:
-                        alt5=17;
+                        alt5=18;
                     }
 
                 }
                 else {
-                    alt5=17;
+                    alt5=18;
                 }
             }
             else {
-                alt5=17;
+                alt5=18;
             }
             }
             break;
@@ -864,57 +889,57 @@ public class ModuleTypeLexer extends Lexer {
             int LA5_11 = input.LA(2);
 
             if ( (LA5_11=='I') ) {
-                int LA5_18 = input.LA(3);
+                int LA5_19 = input.LA(3);
 
-                if ( (LA5_18=='n') ) {
-                    int LA5_22 = input.LA(4);
+                if ( (LA5_19=='n') ) {
+                    int LA5_24 = input.LA(4);
 
-                    if ( (LA5_22=='t') ) {
+                    if ( (LA5_24=='t') ) {
                         switch ( input.LA(5) ) {
                         case '1':
                             {
-                            int LA5_30 = input.LA(6);
+                            int LA5_34 = input.LA(6);
 
-                            if ( (LA5_30=='6') ) {
-                                int LA5_35 = input.LA(7);
+                            if ( (LA5_34=='6') ) {
+                                int LA5_40 = input.LA(7);
 
-                                if ( ((LA5_35 >= '0' && LA5_35 <= '9')||(LA5_35 >= 'A' && LA5_35 <= 'Z')||LA5_35=='_'||(LA5_35 >= 'a' && LA5_35 <= 'z')) ) {
-                                    alt5=17;
+                                if ( ((LA5_40 >= '0' && LA5_40 <= '9')||(LA5_40 >= 'A' && LA5_40 <= 'Z')||LA5_40=='_'||(LA5_40 >= 'a' && LA5_40 <= 'z')) ) {
+                                    alt5=18;
                                 }
                                 else {
                                     alt5=14;
                                 }
                             }
                             else {
-                                alt5=17;
+                                alt5=18;
                             }
                             }
                             break;
                         case '3':
                             {
-                            int LA5_31 = input.LA(6);
+                            int LA5_35 = input.LA(6);
 
-                            if ( (LA5_31=='2') ) {
-                                int LA5_36 = input.LA(7);
+                            if ( (LA5_35=='2') ) {
+                                int LA5_41 = input.LA(7);
 
-                                if ( ((LA5_36 >= '0' && LA5_36 <= '9')||(LA5_36 >= 'A' && LA5_36 <= 'Z')||LA5_36=='_'||(LA5_36 >= 'a' && LA5_36 <= 'z')) ) {
-                                    alt5=17;
+                                if ( ((LA5_41 >= '0' && LA5_41 <= '9')||(LA5_41 >= 'A' && LA5_41 <= 'Z')||LA5_41=='_'||(LA5_41 >= 'a' && LA5_41 <= 'z')) ) {
+                                    alt5=18;
                                 }
                                 else {
                                     alt5=15;
                                 }
                             }
                             else {
-                                alt5=17;
+                                alt5=18;
                             }
                             }
                             break;
                         case '8':
                             {
-                            int LA5_32 = input.LA(6);
+                            int LA5_36 = input.LA(6);
 
-                            if ( ((LA5_32 >= '0' && LA5_32 <= '9')||(LA5_32 >= 'A' && LA5_32 <= 'Z')||LA5_32=='_'||(LA5_32 >= 'a' && LA5_32 <= 'z')) ) {
-                                alt5=17;
+                            if ( ((LA5_36 >= '0' && LA5_36 <= '9')||(LA5_36 >= 'A' && LA5_36 <= 'Z')||LA5_36=='_'||(LA5_36 >= 'a' && LA5_36 <= 'z')) ) {
+                                alt5=18;
                             }
                             else {
                                 alt5=16;
@@ -922,20 +947,53 @@ public class ModuleTypeLexer extends Lexer {
                             }
                             break;
                         default:
-                            alt5=17;
+                            alt5=18;
                         }
 
                     }
                     else {
-                        alt5=17;
+                        alt5=18;
                     }
                 }
                 else {
-                    alt5=17;
+                    alt5=18;
                 }
             }
             else {
-                alt5=17;
+                alt5=18;
+            }
+            }
+            break;
+        case 'V':
+            {
+            int LA5_12 = input.LA(2);
+
+            if ( (LA5_12=='o') ) {
+                int LA5_20 = input.LA(3);
+
+                if ( (LA5_20=='i') ) {
+                    int LA5_25 = input.LA(4);
+
+                    if ( (LA5_25=='d') ) {
+                        int LA5_30 = input.LA(5);
+
+                        if ( ((LA5_30 >= '0' && LA5_30 <= '9')||(LA5_30 >= 'A' && LA5_30 <= 'Z')||LA5_30=='_'||(LA5_30 >= 'a' && LA5_30 <= 'z')) ) {
+                            alt5=18;
+                        }
+                        else {
+                            alt5=17;
+                        }
+                    }
+                    else {
+                        alt5=18;
+                    }
+                }
+                else {
+                    alt5=18;
+                }
+            }
+            else {
+                alt5=18;
             }
             }
             break;
@@ -958,7 +1016,6 @@ public class ModuleTypeLexer extends Lexer {
         case 'R':
         case 'S':
         case 'T':
-        case 'V':
         case 'W':
         case 'X':
         case 'Y':
@@ -991,7 +1048,7 @@ public class ModuleTypeLexer extends Lexer {
         case 'y':
         case 'z':
             {
-            alt5=17;
+            alt5=18;
             }
             break;
         case '\t':
@@ -1002,22 +1059,22 @@ public class ModuleTypeLexer extends Lexer {
         case '\"':
         case '\\':
             {
-            alt5=18;
+            alt5=19;
             }
             break;
         case '/':
             {
-            int LA5_14 = input.LA(2);
+            int LA5_15 = input.LA(2);
 
-            if ( (LA5_14=='*') ) {
-                alt5=19;
-            }
-            else if ( (LA5_14=='/') ) {
+            if ( (LA5_15=='*') ) {
                 alt5=20;
+            }
+            else if ( (LA5_15=='/') ) {
+                alt5=21;
             }
             else {
                 NoViableAltException nvae =
-                    new NoViableAltException("", 5, 14, input);
+                    new NoViableAltException("", 5, 15, input);
 
                 throw nvae;
 
@@ -1162,31 +1219,39 @@ public class ModuleTypeLexer extends Lexer {
                 }
                 break;
             case 17 :
-                // ModuleType.g:1:116: IDENTIFIER
+                // ModuleType.g:1:116: VOID
+                {
+                mVOID(); 
+
+
+                }
+                break;
+            case 18 :
+                // ModuleType.g:1:121: IDENTIFIER
                 {
                 mIDENTIFIER(); 
 
 
                 }
                 break;
-            case 18 :
-                // ModuleType.g:1:127: WHITESPACE
+            case 19 :
+                // ModuleType.g:1:132: WHITESPACE
                 {
                 mWHITESPACE(); 
 
 
                 }
                 break;
-            case 19 :
-                // ModuleType.g:1:138: COMMENT1
+            case 20 :
+                // ModuleType.g:1:143: COMMENT1
                 {
                 mCOMMENT1(); 
 
 
                 }
                 break;
-            case 20 :
-                // ModuleType.g:1:147: COMMENT2
+            case 21 :
+                // ModuleType.g:1:152: COMMENT2
                 {
                 mCOMMENT2(); 
 
