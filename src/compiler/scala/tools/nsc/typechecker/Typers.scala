@@ -1854,6 +1854,14 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       val annots = sym.annotations
       var tpt1 = checkNoEscaping.privates(sym, typer1.typedType(vdef.tpt))
       checkNonCyclic(vdef, tpt1)
+      
+      // Search for Scalaness ModuleType annotations and process them.
+      for (annotation <- annots) {
+        if (annotation.tpe.toString == "edu.uvm.scalaness.ModuleType") {
+          val moduleTypeAST = parseScalanessAnnotation(annotation.assocs)
+          println(moduleTypeAST)
+        }
+      }
 
       if (sym.hasAnnotation(definitions.VolatileAttr) && !sym.isMutable)
           VolatileValueError(vdef)

@@ -1,4 +1,4 @@
-// $ANTLR 3.4 ModuleType.g 2012-10-05 19:48:28
+// $ANTLR 3.4 ModuleType.g 2012-10-08 14:51:06
 
     package edu.uvm.scalaness.parser;
 
@@ -476,34 +476,102 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = WHITESPACE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:138:5: ( ( '\\t' | ' ' | '\\r' | '\\n' | '\\f' )+ )
-            // ModuleType.g:138:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\f' )+
+            // ModuleType.g:138:5: ( ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+ )
+            // ModuleType.g:138:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
             {
-            // ModuleType.g:138:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\f' )+
+            // ModuleType.g:138:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
             int cnt2=0;
             loop2:
             do {
-                int alt2=2;
-                int LA2_0 = input.LA(1);
-
-                if ( ((LA2_0 >= '\t' && LA2_0 <= '\n')||(LA2_0 >= '\f' && LA2_0 <= '\r')||LA2_0==' ') ) {
+                int alt2=8;
+                switch ( input.LA(1) ) {
+                case '\t':
+                    {
                     alt2=1;
-                }
+                    }
+                    break;
+                case ' ':
+                    {
+                    alt2=2;
+                    }
+                    break;
+                case '\r':
+                    {
+                    alt2=3;
+                    }
+                    break;
+                case '\n':
+                    {
+                    alt2=4;
+                    }
+                    break;
+                case '\\':
+                    {
+                    alt2=5;
+                    }
+                    break;
+                case '\f':
+                    {
+                    alt2=6;
+                    }
+                    break;
+                case '\"':
+                    {
+                    alt2=7;
+                    }
+                    break;
 
+                }
 
                 switch (alt2) {
             	case 1 :
-            	    // ModuleType.g:
+            	    // ModuleType.g:138:12: '\\t'
             	    {
-            	    if ( (input.LA(1) >= '\t' && input.LA(1) <= '\n')||(input.LA(1) >= '\f' && input.LA(1) <= '\r')||input.LA(1)==' ' ) {
-            	        input.consume();
-            	    }
-            	    else {
-            	        MismatchedSetException mse = new MismatchedSetException(null,input);
-            	        recover(mse);
-            	        throw mse;
-            	    }
+            	    match('\t'); 
 
+            	    }
+            	    break;
+            	case 2 :
+            	    // ModuleType.g:138:19: ' '
+            	    {
+            	    match(' '); 
+
+            	    }
+            	    break;
+            	case 3 :
+            	    // ModuleType.g:138:25: '\\r'
+            	    {
+            	    match('\r'); 
+
+            	    }
+            	    break;
+            	case 4 :
+            	    // ModuleType.g:138:32: '\\n'
+            	    {
+            	    match('\n'); 
+
+            	    }
+            	    break;
+            	case 5 :
+            	    // ModuleType.g:138:39: '\\\\n'
+            	    {
+            	    match("\\n"); 
+
+
+
+            	    }
+            	    break;
+            	case 6 :
+            	    // ModuleType.g:138:47: '\\f'
+            	    {
+            	    match('\f'); 
+
+            	    }
+            	    break;
+            	case 7 :
+            	    // ModuleType.g:138:54: '\"'
+            	    {
+            	    match('\"'); 
 
             	    }
             	    break;
@@ -931,6 +999,8 @@ public class ModuleTypeLexer extends Lexer {
         case '\f':
         case '\r':
         case ' ':
+        case '\"':
+        case '\\':
             {
             alt5=18;
             }

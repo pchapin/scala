@@ -40,7 +40,9 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
     with Trees
     with Printers
     with DocComments
-    with Positions { self =>
+    with Positions
+    // TODO: It seems inappropriate to mix this into Global. Is there a better way?
+    with edu.uvm.scalaness.ModuleTypeParser { self =>
 
   // the mirror --------------------------------------------------
 

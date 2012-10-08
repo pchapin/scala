@@ -85,7 +85,7 @@ tokens {
 module_type
     :    '{' existential_list '}'
          '<' type_parameter_list ';' value_parameter_list '>'
-         '{' import_list ';' export_list '}'
+         '{' import_list ';' export_list '}' EOF
     -> ^(MODULE_TYPE existential_list
                      type_parameter_list
                      value_parameter_list
@@ -117,7 +117,7 @@ declaration_list
     :    declaration (','! declaration)*;
 
 declaration
-    :    IDENTIFIER ':'^ type_name;
+    :    IDENTIFIER ':'^ (type_name | IDENTIFIER);
 
 type_name
     :    INT8
@@ -135,7 +135,7 @@ IDENTIFIER
     :    ('_' | 'a' .. 'z' | 'A' .. 'Z') ('_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9')*;
     
 WHITESPACE
-    :    ( '\t' | ' ' | '\r' | '\n' | '\f' )+  {$channel = HIDDEN;};
+    :    ( '\t' | ' ' | '\r' | '\n' | '\\n' | '\f' | '"')+  {$channel = HIDDEN;};
     
 COMMENT1
     :    '/*' (options {greedy=false;} : .)* '*/' {$channel = HIDDEN;};
