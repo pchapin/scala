@@ -22,9 +22,18 @@ trait MininessComponent {
 
   /**
    * This method is used by the Scalaness programmer to compose two declared Mininess modules.
+   * 
    * @param other The other component to compose with 'this' component.
    */
   def +(other: MininessComponent) = this.configuration + other.configuration
+  
+  /**
+   * This method is used by the Scalaness programmer to compose a declared Mininess module with
+   * another program component (presumably the result of other compositions).
+   * 
+   * @param other The program component to compose with 'this' component.
+   */
+  def +(other: ProgramComponent) = this.configuration + other
 
   /**
    * Returns a map of type parameter names to their current values. This is used during the

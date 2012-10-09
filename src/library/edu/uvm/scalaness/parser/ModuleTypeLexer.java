@@ -1,4 +1,4 @@
-// $ANTLR 3.4 ModuleType.g 2012-10-08 18:43:57
+// $ANTLR 3.4 ModuleType.g 2012-10-09 19:06:26
 
     package edu.uvm.scalaness.parser;
 
@@ -438,8 +438,8 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = IDENTIFIER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:148:5: ( ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )* )
-            // ModuleType.g:148:10: ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
+            // ModuleType.g:171:5: ( ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )* )
+            // ModuleType.g:171:10: ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
             {
             if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
                 input.consume();
@@ -451,7 +451,7 @@ public class ModuleTypeLexer extends Lexer {
             }
 
 
-            // ModuleType.g:148:42: ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
+            // ModuleType.g:171:42: ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
             loop1:
             do {
                 int alt1=2;
@@ -501,10 +501,10 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = WHITESPACE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:151:5: ( ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+ )
-            // ModuleType.g:151:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
+            // ModuleType.g:174:5: ( ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+ )
+            // ModuleType.g:174:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
             {
-            // ModuleType.g:151:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
+            // ModuleType.g:174:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
             int cnt2=0;
             loop2:
             do {
@@ -550,35 +550,35 @@ public class ModuleTypeLexer extends Lexer {
 
                 switch (alt2) {
             	case 1 :
-            	    // ModuleType.g:151:12: '\\t'
+            	    // ModuleType.g:174:12: '\\t'
             	    {
             	    match('\t'); 
 
             	    }
             	    break;
             	case 2 :
-            	    // ModuleType.g:151:19: ' '
+            	    // ModuleType.g:174:19: ' '
             	    {
             	    match(' '); 
 
             	    }
             	    break;
             	case 3 :
-            	    // ModuleType.g:151:25: '\\r'
+            	    // ModuleType.g:174:25: '\\r'
             	    {
             	    match('\r'); 
 
             	    }
             	    break;
             	case 4 :
-            	    // ModuleType.g:151:32: '\\n'
+            	    // ModuleType.g:174:32: '\\n'
             	    {
             	    match('\n'); 
 
             	    }
             	    break;
             	case 5 :
-            	    // ModuleType.g:151:39: '\\\\n'
+            	    // ModuleType.g:174:39: '\\\\n'
             	    {
             	    match("\\n"); 
 
@@ -587,14 +587,14 @@ public class ModuleTypeLexer extends Lexer {
             	    }
             	    break;
             	case 6 :
-            	    // ModuleType.g:151:47: '\\f'
+            	    // ModuleType.g:174:47: '\\f'
             	    {
             	    match('\f'); 
 
             	    }
             	    break;
             	case 7 :
-            	    // ModuleType.g:151:54: '\"'
+            	    // ModuleType.g:174:54: '\"'
             	    {
             	    match('\"'); 
 
@@ -629,14 +629,14 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = COMMENT1;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:154:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
-            // ModuleType.g:154:10: '/*' ( options {greedy=false; } : . )* '*/'
+            // ModuleType.g:177:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
+            // ModuleType.g:177:10: '/*' ( options {greedy=false; } : . )* '*/'
             {
             match("/*"); 
 
 
 
-            // ModuleType.g:154:15: ( options {greedy=false; } : . )*
+            // ModuleType.g:177:15: ( options {greedy=false; } : . )*
             loop3:
             do {
                 int alt3=2;
@@ -661,7 +661,7 @@ public class ModuleTypeLexer extends Lexer {
 
                 switch (alt3) {
             	case 1 :
-            	    // ModuleType.g:154:42: .
+            	    // ModuleType.g:177:42: .
             	    {
             	    matchAny(); 
 
@@ -696,14 +696,14 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = COMMENT2;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:157:5: ( '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' ) )
-            // ModuleType.g:157:10: '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' )
+            // ModuleType.g:180:5: ( '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' ) )
+            // ModuleType.g:180:10: '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' )
             {
             match("//"); 
 
 
 
-            // ModuleType.g:157:15: ( options {greedy=false; } : . )*
+            // ModuleType.g:180:15: ( options {greedy=false; } : . )*
             loop4:
             do {
                 int alt4=2;
@@ -719,7 +719,7 @@ public class ModuleTypeLexer extends Lexer {
 
                 switch (alt4) {
             	case 1 :
-            	    // ModuleType.g:157:42: .
+            	    // ModuleType.g:180:42: .
             	    {
             	    matchAny(); 
 
