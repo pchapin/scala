@@ -57,7 +57,7 @@ object MininessTypes {
     val finalType = delta.get(t) match {
       case Some(TypeVariable(tvar)) => promote(delta, tvar)
       case Some(structuredType) => structuredType 
-      case None => throw new MininessTypeException("Type Variable must exist in Delta")
+      case None => throw new MininessTypeException(s"Type Variable $t must exist in Delta")
     }
     finalType
   } // Recursively looks up the type variable until a structured type is found or returns Uninit.

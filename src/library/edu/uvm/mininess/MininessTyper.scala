@@ -44,11 +44,12 @@ class MininessTyper(
 
   
   /**
-   * Type check a Mininess inclusion. Calling this method on an ASTNode causes that node and all its child nodes to be
-   * type checked. If this method returns normally (and not by way of an exception) then there are no type errors.
+   * Type check a Mininess inclusion. Calling this method on an ASTNode causes that node and all
+   * its child nodes to be type checked. If this method returns normally (and not by way of an
+   * exception) then there are no type errors.
    *
-   * @param node The AST node to be type checked. This check extends recursively to all child nodes, however the node
-   *             provided to this method should be a non-expression node.
+   * @param node The AST node to be type checked. This check extends recursively to all child
+   * nodes, however the node provided to this method should be a non-expression node.
    *
    * @return The representation of the node's type or None if the node does not have a type.
    * @throws PositionalNesCTypeException if a type error is detected.
@@ -344,6 +345,12 @@ class MininessTyper(
         }
         else throw new TypeException("'switch' condition must be an integer")
       }
+      
+      case ASTNode(MininessLexer.TYPEDEF, _, children, _, _) => {
+        for (child <- children)
+          checkMininessInclusion(child, depth + 1)
+        Some(Okay)
+      } // If children type check, then OKAY
 
       case ASTNode(MininessLexer.UINT8_T, _, children, _, _) => {
         for (child <- children)

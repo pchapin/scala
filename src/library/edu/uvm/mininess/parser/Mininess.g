@@ -159,29 +159,52 @@ tokens {
         symbols = globalSymbols;
     }
 
-    // The following two magic methods, together with the @rulecatch section below cause the
-    // parser to exit immediately with an exception when an error is encountered. This is useful
-    // for testing but is probably not desired in a production system. I'm not sure right now
-    // how to provide both behaviors in the same executable. I'll figure that out later!
+    // Provide more detailed error messages for debugging. This is from Definitive ANTLR. This
+    // is useful for grammer debugging but should be changed for "production" use.
     //
-    protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow)
-        throws RecognitionException
+    public String getErrorMessage(RecognitionException e, String[] tokenNames)
     {
-        throw new MismatchedTokenException(ttype, input);
+        List stack = getRuleInvocationStack(e, this.getClass().getName());
+        String msg = null;
+        if ( e instanceof NoViableAltException ) {
+            NoViableAltException nvae = (NoViableAltException)e;
+            msg = " no viable alt; token=" + e.token +
+                  " (decision=" + nvae.decisionNumber +
+                  " state " + nvae.stateNumber + ")" +
+                  " decision=<<" + nvae.grammarDecisionDescription + ">>";
+        }
+        else {
+            msg = super.getErrorMessage(e, tokenNames);
+        }
+        return stack + " " + msg;
     }
-    
-    public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow)
-        throws RecognitionException
+
+    public String getTokenErrorDisplay(Token t)
     {
-        throw e;
+        return t.toString();
     }
+
+//     // The following two magic methods, together with the @rulecatch section below cause the
+//     // parser to exit immediately with an exception when an error is encountered.
+//     //
+//     protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow)
+//         throws RecognitionException
+//     {
+//         throw new MismatchedTokenException(ttype, input);
+//     }
+//    
+//     public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow)
+//         throws RecognitionException
+//     {
+//         throw e;
+//     }
 }
 
-@parser::rulecatch {
-    catch (RecognitionException e) {
-        throw e;
-    }
-}
+// @parser::rulecatch {
+//     catch (RecognitionException e) {
+//         throw e;
+//     }
+// }
 
 @lexer::members {
     // This is mostly just a placeholder.
