@@ -170,7 +170,7 @@ trait ScalanessTyper {
       bodyItem match {
         case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
           // TODO: Handle the case where there are multiple constructors.
-          if (name.toString == "<init>") {
+          if (name.toString == "instantiate" /* "<init>" */) {
             if (vparamss.length > 1)
               reporter.error(null, "Mininess modules can't have multiple parameter lists")
 
@@ -270,14 +270,14 @@ trait ScalanessTyper {
                 debugFlag    = (debugSetting == "true"))
               unwrappedAbstractSyntax.symbolTable = Some(Symbols(
                 Map[String, MininessTypes.Representation](),
-                Map(("int"      -> MininessTypes.Int16),
-                    ("char"     -> MininessTypes.Char ),
-                    ("int8_t"   -> MininessTypes.Int8 ),
-                    ("int16_t"  -> MininessTypes.Int16),
-                    ("int32_t"  -> MininessTypes.Int32),
-                    ("uint8_t"  -> MininessTypes.UInt8),
+                Map(("int"      -> MininessTypes.Int16 ),
+                    ("char"     -> MininessTypes.Char  ),
+                    ("uint8_t"  -> MininessTypes.UInt8 ),
                     ("uint16_t" -> MininessTypes.UInt16),
-                    ("uint32_t" -> MininessTypes.UInt32)),
+                    ("uint32_t" -> MininessTypes.UInt32),
+                    ("int8_t"   -> MininessTypes.Int8  ),
+                    ("int16_t"  -> MininessTypes.Int16 ),
+                    ("int32_t"  -> MininessTypes.Int32 )),
                 valueParameters)
                 )
               typeChecker.checkMininessInclusion(unwrappedAbstractSyntax)
