@@ -270,11 +270,14 @@ trait ScalanessTyper {
                 debugFlag    = (debugSetting == "true"))
               unwrappedAbstractSyntax.symbolTable = Some(Symbols(
                 Map[String, MininessTypes.Representation](),
-                Map(("int"     -> MininessTypes.Int16),
-                    ("char"    -> MininessTypes.Char ),
-                    ("int8_t"  -> MininessTypes.Int8 ),
-                    ("int16_t" -> MininessTypes.Int16),
-                    ("int32_t" -> MininessTypes.Int32)),
+                Map(("int"      -> MininessTypes.Int16 ),
+                    ("char"     -> MininessTypes.Char  ),
+                    ("uint8_t"  -> MininessTypes.UInt8 ),
+                    ("uint16_t" -> MininessTypes.UInt16),
+                    ("uint32_t" -> MininessTypes.UInt32),
+                    ("int8_t"   -> MininessTypes.Int8  ),
+                    ("int16_t"  -> MininessTypes.Int16 ),
+                    ("int32_t"  -> MininessTypes.Int32 )),
                 valueParameters)
                 )
               typeChecker.checkMininessInclusion(unwrappedAbstractSyntax)
