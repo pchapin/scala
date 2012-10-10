@@ -170,7 +170,7 @@ trait ScalanessTyper {
       bodyItem match {
         case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
           // TODO: Handle the case where there are multiple constructors.
-          if (name.toString == "<init>") {
+          if (name.toString == "instantiate" /* "<init>" */) {
             if (vparamss.length > 1)
               reporter.error(null, "Mininess modules can't have multiple parameter lists")
 
