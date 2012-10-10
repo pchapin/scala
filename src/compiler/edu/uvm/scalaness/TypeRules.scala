@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
-// FILE    : TestMethods.scala
-// SUBJECT : An object to test Scalaness typing
+// FILE    : TypeRules.scala
+// SUBJECT : An object that implements the special typing rules of Scalaness.
 // AUTHOR  : (C) Copyright 2012 by Michael P. Watson <mpwatson@uvm.edu>
 //
 //-----------------------------------------------------------------------
@@ -10,55 +10,59 @@ import edu.uvm.mininess.parser.MininessLexer
 import edu.uvm.mininess.MininessTypes._
 
 
-class TestMethods {
-  // These are the Mininess types of two modules that will be used to test the Scalaness Typing
-  // The actual typing will be done on Scalaness types that correspond to these mininess types
-  // The scalaness types may not be exact, but should be close enough to have this be a good
-  // start
-  val testBlinkModule = Module(List((TypeVariable("flashCountType"),Int32),(TypeVariable("periodType"),Int16)),
-                               List(("period",Int16)),
-                               List(("led0Toggle",Function(Uninit,List())),("led1Toggle",Function(Uninit,List())),("led2Toggle",Function(Uninit,List())),
-                                    ("get_initial_count",Function(TypeVariable("flashCountType"),List())),("startPeriodic",Function(Uninit,List(Int32)))),
-                               List(("fired",Function(Uninit,List())),("booted",Function(Uninit,List())))
-                               )
-  val testCompoModule = Module(List((TypeVariable("flashCountType"),Int32)),
-                               List(("blinkCount",Int32)),
-                               List(),
-                               List(("get_initial_count",Function(TypeVariable("flashCountType"),List())))
-                               )
-                               
+object TypeRules {
+  
+  def check = {
+    // These are the Mininess types of two modules that will be used to test the Scalaness
+    // type rules. The actual typing will be done on Scalaness types that correspond to these
+    // Mininess types. The scalaness types may not be exact, but should be close enough to have
+    // this be a good start.
+    val testBlinkModule =
+      Module(List((TypeVariable("flashCountType"),Int32),(TypeVariable("periodType"),Int16)),
+             List(("period",Int16)),
+             List(("led0Toggle",Function(Uninit,List())),("led1Toggle",Function(Uninit,List())),("led2Toggle",Function(Uninit,List())),
+                  ("get_initial_count",Function(TypeVariable("flashCountType"),List())),("startPeriodic",Function(Uninit,List(Int32)))),
+             List(("fired",Function(Uninit,List())),("booted",Function(Uninit,List()))))
+           
+    val testCompoModule =
+      Module(List((TypeVariable("flashCountType"),Int32)),
+             List(("blinkCount",Int32)),
+             List(),
+             List(("get_initial_count",Function(TypeVariable("flashCountType"),List()))))
                               
-  println("First Test:  ModuleT")
-  val adultBlinkModule = practiceModuleT(testBlinkModule)
-  val adultCompoModule = practiceModuleT(testCompoModule)
-  println("Second Test: Wire")
-  val composedMod = practiceWire(adultBlinkModule,adultCompoModule)
-  println("Third Test: Instantiate")
-  val instMod = practiceInstantiate(adultBlinkModule, List(Int32, Int16), List(Int16))
-  println("Fourth Test: Validate")
-  practiceValidate(instMod)
+    println("First Test:  ModuleT")
+    val adultBlinkModule = practiceModuleT(testBlinkModule)
+    val adultCompoModule = practiceModuleT(testCompoModule)
   
-  // If its a NesT module, return it in the Scalaness form, it has a type judgement in front of
-  // it
-  def practiceModuleT(mod: Module):(Map[TypeVariable, Representation],Module) = {
+    println("Second Test: Wire")
+    val composedMod = practiceWire(adultBlinkModule, adultCompoModule)
   
-    val returnModule = mod match {
+    println("Third Test: Instantiate")
+    val instMod = practiceInstantiate(adultBlinkModule, List(Int32, Int16), List(Int16))
+  
+    println("Fourth Test: Validate")
+    practiceValidate(instMod)
+  }
+  
+  
+  // If its a nesT module, return it in the Scalaness form, it has a type judgement in front of
+  // it.
+  def practiceModuleT(mod: Module): (Map[TypeVariable, Representation], Module) = {
+    mod match {
       case Module(typePars, valPars, imports, exports) => {
-        (Map[TypeVariable, Representation](),mod)
+        (Map[TypeVariable, Representation](), mod)
       }
       case _ => {
         throw new Exception("Expected module type")
       }
     }
-    
-    return returnModule
-  
   }
   
 
-  // Wire two modules together, follow the proposed type rules
-  def practiceWire(modOne: (Map[TypeVariable,Representation],Module), 
-                   modTwo: (Map[TypeVariable,Representation],Module)):(Map[TypeVariable,Representation],Module) = {
+  // Wire two modules together, follow the proposed type rules.
+  def practiceWire(
+      modOne: (Map[TypeVariable,Representation], Module), 
+      modTwo: (Map[TypeVariable,Representation], Module)): (Map[TypeVariable, Representation], Module) = {
 
     val (typeMapOne, typeOne, valOne, impOne, expOne) = modOne match {
       case (typeMap, Module(typePars, valPars, imports, exports)) => {
@@ -78,20 +82,20 @@ class TestMethods {
       }
     }
     val impOneRemoved = removeDomain(impOne, expTwo)
-    val expTwoKept = keepDomain(expTwo, impOne)
-    val typeMap  = nonExclusiveTypeMapMerge(typeMapOne.toList, typeMapTwo.toList)
-    val typeVars = nonExclusiveTypeMapMerge(typeOne, typeTwo)
-    val valVars  = nonExclusiveMapMerge(valOne, valTwo)
-    val imports = impOneRemoved:::impTwo
-    val exports = expTwoKept:::expOne
+    val expTwoKept    = keepDomain(expTwo, impOne)
+    val typeMap       = nonExclusiveTypeMapMerge(typeMapOne.toList, typeMapTwo.toList)
+    val typeVars      = nonExclusiveTypeMapMerge(typeOne, typeTwo)
+    val valVars       = nonExclusiveMapMerge(valOne, valTwo)
+    val imports       = impOneRemoved:::impTwo
+    val exports       = expTwoKept:::expOne
     
-
-    return (typeMap.toMap, Module(typeVars,valVars,imports,exports))
-
+    (typeMap.toMap, Module(typeVars,valVars,imports,exports))
   }
   
-  def practiceInstantiate(mod: (Map[TypeVariable,Representation],Module), 
-                          listT1: List[Representation], listT2: List[Representation]): (Map[TypeVariable,Representation],Module) = {
+  
+  def practiceInstantiate(
+      mod: (Map[TypeVariable, Representation], Module), 
+      listT1: List[Representation], listT2: List[Representation]): (Map[TypeVariable, Representation],Module) = {
   
     val (typeParList, valParList, impList, expList) = mod match {
       case (typeMap, Module(typePars, valPars, imports, exports)) => {
@@ -134,30 +138,25 @@ class TestMethods {
     
     val typeVarMap = newTypeMap(tList.toList, listT1)
     
-    return (typeVarMap, Module(List(),List(),impList,expList))
-  
-  
+    (typeVarMap, Module(List(),List(),impList,expList))
   }
  
-  def practiceValidate(mod: (Map[TypeVariable,Representation],Module)): (Map[TypeVariable,Representation],Module) = {
-    
-    val returnMod = mod match {
+  
+  def practiceValidate(mod: (Map[TypeVariable, Representation], Module)): (Map[TypeVariable, Representation], Module) = {
+    mod match {
       case (typeMap, Module(List(), List(), imports, exports)) => {
         (typeMap, Module(List(), List(), imports, exports))
       }
       case _ => throw new Exception("Validate expects runnable Module type")
     }
-    
-    return returnMod
-    
   }
   
   
-  // Double arrows pointing down operation in NesT paper
-  def nonExclusiveMapMerge(first: List[(String, Representation)], second: List[(String, Representation)]):List[(String, Representation)] = {
-    val firstMap = first.toMap
-    val secondMap = second.toMap
-    val firstKeys = getListKeys(first)
+  // Double arrows pointing down operation in nesT paper
+  def nonExclusiveMapMerge(first: List[(String,  Representation)], second: List[(String, Representation)]): List[(String, Representation)] = {
+    val firstMap   = first.toMap
+    val secondMap  = second.toMap
+    val firstKeys  = getListKeys(first)
     val secondKeys = getListKeys(second)
     var doubles = List[Any]()
     for (i <- 0 until firstKeys.length) {
@@ -172,16 +171,17 @@ class TestMethods {
     returnList :::= first
     for (i <- 0 until second.length) {
       if (!(doubles.contains(secondKeys(i))))
-         returnList ::=second(i)
+         returnList ::= second(i)
     }                   
-    return returnList
+    returnList
   }
   
+  
   def nonExclusiveTypeMapMerge(first : List[(TypeVariable, Representation)], 
-                               second: List[(TypeVariable, Representation)]):List[(TypeVariable, Representation)] = {
-    val firstMap = first.toMap
-    val secondMap = second.toMap
-    val firstKeys = getListTypeKeys(first)
+                               second: List[(TypeVariable, Representation)]): List[(TypeVariable, Representation)] = {
+    val firstMap   = first.toMap
+    val secondMap  = second.toMap
+    val firstKeys  = getListTypeKeys(first)
     val secondKeys = getListTypeKeys(second)
     var doubles = List[Any]()
     for (i <- 0 until firstKeys.length) {
@@ -196,73 +196,79 @@ class TestMethods {
     returnList :::= first
     for (i <- 0 until second.length) {
       if (!(doubles.contains(secondKeys(i))))
-         returnList ::=second(i)
+         returnList ::= second(i)
     }                   
-    return returnList
+    returnList
   }
+  
   
   // SLASH operation in NesT paper
   def removeDomain(first: List[(String, Representation)], second: List[(String, Representation)]):List[(String, Representation)] = {
-    val firstKeys = getListKeys(first)
+    val firstKeys  = getListKeys(first)
     val secondKeys = getListKeys(second)
     var returnList = List[(String, Representation)]()
     for (i <- 0 until first.length) {
       if (!(secondKeys.contains(firstKeys(i))))
         returnList ::= first(i)
     }
-    return returnList
+    returnList
   }
+  
   
   // LINE | operation in NesT paper - first undefined on elements not in second
   def keepDomain(first: List[(String, Representation)], second: List[(String, Representation)]):List[(String, Representation)] = {
-    val firstKeys = getListKeys(first)
+    val firstKeys  = getListKeys(first)
     val secondKeys = getListKeys(second)
     var returnList = List[(String, Representation)]()    
     for (i <- 0 until first.length) {
       if (secondKeys.contains(firstKeys(i)))
         returnList ::= first(i)
     }
-    return returnList
+    returnList
   }
+  
   
   def getListKeys(myList: List[(String, Representation)]):List[String] = {
     val myKeys = for (i <- 0 until myList.length) yield {
-                   val (key, lock) = myList(i)
+                   val (key, _) = myList(i)
                    key
                  }
-     return myKeys.toList
+     myKeys.toList
   }
+  
   
   def getListTypeKeys(myList: List[(TypeVariable, Representation)]):List[TypeVariable] = {
     val myKeys = for (i <- 0 until myList.length) yield {
-                   val (key, lock) = myList(i)
+                   val (key, _) = myList(i)
                    key
                  }
-     return myKeys.toList
+     myKeys.toList
   }
   
-  def seriesSubType(listOne: List[Representation], listTwo: List[Representation]):Boolean = {
+  
+  def seriesSubType(listOne: List[Representation], listTwo: List[Representation]): Boolean = {
     var returnBool = true
     if (listOne.length == listTwo.length) {
       for (i <- 0 until listOne.length) {
-        if (!(areSubtypes(listOne(i),listTwo(i))))
+        if (!(areSubtypes(listOne(i), listTwo(i))))
           returnBool = false
       }
     }
     else 
       throw new Exception("Parameter lists must be of equal length")
       
-    return returnBool
+    returnBool
   }
   
+  
   // Take a set of type values and add a new upper bound
-  def newTypeMap(listOne: List[TypeVariable], listTwo: List[Representation]):Map[TypeVariable,Representation] = {
+  def newTypeMap(listOne: List[TypeVariable], listTwo: List[Representation]): Map[TypeVariable, Representation] = {
     
     val returnList = for (i <- 0 until listOne.length) yield {
-      (listOne(i),listTwo(i))
+      (listOne(i), listTwo(i))
     }
     
-    return returnList.toMap
+    returnList.toMap
   }
   
 }

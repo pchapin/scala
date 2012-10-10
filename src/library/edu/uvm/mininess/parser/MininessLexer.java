@@ -1,4 +1,4 @@
-// $ANTLR 3.4 Mininess.g 2012-10-09 14:50:57
+// $ANTLR 3.4 Mininess.g 2012-10-10 18:56:45
 
     package edu.uvm.mininess.parser;
 
@@ -11,10 +11,10 @@ import java.util.ArrayList;
 @SuppressWarnings({"all", "warnings", "unchecked"})
 public class MininessLexer extends Lexer {
     public static final int EOF=-1;
-    public static final int T__138=138;
     public static final int T__139=139;
     public static final int T__140=140;
     public static final int T__141=141;
+    public static final int T__142=142;
     public static final int ADDRESS_OF=4;
     public static final int AMP=5;
     public static final int AND=6;
@@ -57,98 +57,99 @@ public class MininessLexer extends Lexer {
     public static final int ENUM=43;
     public static final int ENUMERATOR=44;
     public static final int EQUAL=45;
-    public static final int EVENT=46;
-    public static final int FILE=47;
-    public static final int FOR=48;
-    public static final int FOR_CONDITION=49;
-    public static final int FOR_INITIALIZE=50;
-    public static final int FOR_ITERATION=51;
-    public static final int FUNCTION_DEFINITION=52;
-    public static final int GREATER=53;
-    public static final int GREATEREQUAL=54;
-    public static final int HASH=55;
-    public static final int HEX_DIGIT=56;
-    public static final int HEX_NUMBER=57;
-    public static final int IDENTIFIER_PATH=58;
-    public static final int IF=59;
-    public static final int IMPLEMENTATION=60;
-    public static final int INITIALIZER_LIST=61;
-    public static final int INIT_DECLARATOR=62;
-    public static final int INT=63;
-    public static final int INT16_T=64;
-    public static final int INT32_T=65;
-    public static final int INT8_T=66;
-    public static final int INTERFACE=67;
-    public static final int LBRACE=68;
-    public static final int LBRACKET=69;
-    public static final int LESS=70;
-    public static final int LESSEQUAL=71;
-    public static final int LINE_DIRECTIVE=72;
-    public static final int LONG=73;
-    public static final int LPARENS=74;
-    public static final int LSHIFT=75;
-    public static final int LSHIFTASSIGN=76;
-    public static final int MINUS=77;
-    public static final int MINUSASSIGN=78;
-    public static final int MINUSMINUS=79;
-    public static final int MODASSIGN=80;
-    public static final int MODULE=81;
-    public static final int MODULUS=82;
-    public static final int MULASSIGN=83;
-    public static final int NOT=84;
-    public static final int NOTEQUAL=85;
-    public static final int NULL=86;
-    public static final int NUMBER=87;
-    public static final int NUMBER_PREFIX=88;
-    public static final int NUMBER_SUFFIX=89;
-    public static final int NX_STRUCT=90;
-    public static final int NX_UINT16_T=91;
-    public static final int NX_UINT32_T=92;
-    public static final int NX_UINT8_T=93;
-    public static final int OR=94;
-    public static final int PARAMETER=95;
-    public static final int PARAMETER_LIST=96;
-    public static final int PLUS=97;
-    public static final int PLUSASSIGN=98;
-    public static final int PLUSPLUS=99;
-    public static final int POINTER_QUALIFIER=100;
-    public static final int POST=101;
-    public static final int POSTFIX_EXPRESSION=102;
-    public static final int POST_DECREMENT=103;
-    public static final int POST_INCREMENT=104;
-    public static final int PRE_DECREMENT=105;
-    public static final int PRE_INCREMENT=106;
-    public static final int PROVIDES=107;
-    public static final int RAW_IDENTIFIER=108;
-    public static final int RBRACE=109;
-    public static final int RBRACKET=110;
-    public static final int RETURN=111;
-    public static final int RPARENS=112;
-    public static final int RSHIFT=113;
-    public static final int RSHIFTASSIGN=114;
-    public static final int SHORT=115;
-    public static final int SIGNED=116;
-    public static final int SIZEOF=117;
-    public static final int SIZEOF_EXPRESSION=118;
-    public static final int SIZEOF_TYPE=119;
-    public static final int SPECIFICATION=120;
-    public static final int STAR=121;
-    public static final int STATEMENT=122;
-    public static final int STRING_LITERAL=123;
-    public static final int STRUCT=124;
-    public static final int SWITCH=125;
-    public static final int TASK=126;
-    public static final int TYPEDEF=127;
-    public static final int UINT16_T=128;
-    public static final int UINT32_T=129;
-    public static final int UINT8_T=130;
-    public static final int UNARY_MINUS=131;
-    public static final int UNARY_PLUS=132;
-    public static final int UNSIGNED=133;
-    public static final int USES=134;
-    public static final int VOID=135;
-    public static final int WHILE=136;
-    public static final int WHITESPACE=137;
+    public static final int ERROR_T=46;
+    public static final int EVENT=47;
+    public static final int FILE=48;
+    public static final int FOR=49;
+    public static final int FOR_CONDITION=50;
+    public static final int FOR_INITIALIZE=51;
+    public static final int FOR_ITERATION=52;
+    public static final int FUNCTION_DEFINITION=53;
+    public static final int GREATER=54;
+    public static final int GREATEREQUAL=55;
+    public static final int HASH=56;
+    public static final int HEX_DIGIT=57;
+    public static final int HEX_NUMBER=58;
+    public static final int IDENTIFIER_PATH=59;
+    public static final int IF=60;
+    public static final int IMPLEMENTATION=61;
+    public static final int INITIALIZER_LIST=62;
+    public static final int INIT_DECLARATOR=63;
+    public static final int INT=64;
+    public static final int INT16_T=65;
+    public static final int INT32_T=66;
+    public static final int INT8_T=67;
+    public static final int INTERFACE=68;
+    public static final int LBRACE=69;
+    public static final int LBRACKET=70;
+    public static final int LESS=71;
+    public static final int LESSEQUAL=72;
+    public static final int LINE_DIRECTIVE=73;
+    public static final int LONG=74;
+    public static final int LPARENS=75;
+    public static final int LSHIFT=76;
+    public static final int LSHIFTASSIGN=77;
+    public static final int MINUS=78;
+    public static final int MINUSASSIGN=79;
+    public static final int MINUSMINUS=80;
+    public static final int MODASSIGN=81;
+    public static final int MODULE=82;
+    public static final int MODULUS=83;
+    public static final int MULASSIGN=84;
+    public static final int NOT=85;
+    public static final int NOTEQUAL=86;
+    public static final int NULL=87;
+    public static final int NUMBER=88;
+    public static final int NUMBER_PREFIX=89;
+    public static final int NUMBER_SUFFIX=90;
+    public static final int NX_STRUCT=91;
+    public static final int NX_UINT16_T=92;
+    public static final int NX_UINT32_T=93;
+    public static final int NX_UINT8_T=94;
+    public static final int OR=95;
+    public static final int PARAMETER=96;
+    public static final int PARAMETER_LIST=97;
+    public static final int PLUS=98;
+    public static final int PLUSASSIGN=99;
+    public static final int PLUSPLUS=100;
+    public static final int POINTER_QUALIFIER=101;
+    public static final int POST=102;
+    public static final int POSTFIX_EXPRESSION=103;
+    public static final int POST_DECREMENT=104;
+    public static final int POST_INCREMENT=105;
+    public static final int PRE_DECREMENT=106;
+    public static final int PRE_INCREMENT=107;
+    public static final int PROVIDES=108;
+    public static final int RAW_IDENTIFIER=109;
+    public static final int RBRACE=110;
+    public static final int RBRACKET=111;
+    public static final int RETURN=112;
+    public static final int RPARENS=113;
+    public static final int RSHIFT=114;
+    public static final int RSHIFTASSIGN=115;
+    public static final int SHORT=116;
+    public static final int SIGNED=117;
+    public static final int SIZEOF=118;
+    public static final int SIZEOF_EXPRESSION=119;
+    public static final int SIZEOF_TYPE=120;
+    public static final int SPECIFICATION=121;
+    public static final int STAR=122;
+    public static final int STATEMENT=123;
+    public static final int STRING_LITERAL=124;
+    public static final int STRUCT=125;
+    public static final int SWITCH=126;
+    public static final int TASK=127;
+    public static final int TYPEDEF=128;
+    public static final int UINT16_T=129;
+    public static final int UINT32_T=130;
+    public static final int UINT8_T=131;
+    public static final int UNARY_MINUS=132;
+    public static final int UNARY_PLUS=133;
+    public static final int UNSIGNED=134;
+    public static final int USES=135;
+    public static final int VOID=136;
+    public static final int WHILE=137;
+    public static final int WHITESPACE=138;
 
         // This is mostly just a placeholder.
         private final int VERSION = 1;
@@ -705,13 +706,36 @@ public class MininessLexer extends Lexer {
     }
     // $ANTLR end "EQUAL"
 
+    // $ANTLR start "ERROR_T"
+    public final void mERROR_T() throws RecognitionException {
+        try {
+            int _type = ERROR_T;
+            int _channel = DEFAULT_TOKEN_CHANNEL;
+            // Mininess.g:34:9: ( 'error_t' )
+            // Mininess.g:34:11: 'error_t'
+            {
+            match("error_t"); 
+
+
+
+            }
+
+            state.type = _type;
+            state.channel = _channel;
+        }
+        finally {
+        	// do for sure before leaving
+        }
+    }
+    // $ANTLR end "ERROR_T"
+
     // $ANTLR start "EVENT"
     public final void mEVENT() throws RecognitionException {
         try {
             int _type = EVENT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:34:7: ( 'event' )
-            // Mininess.g:34:9: 'event'
+            // Mininess.g:35:7: ( 'event' )
+            // Mininess.g:35:9: 'event'
             {
             match("event"); 
 
@@ -733,8 +757,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = FOR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:35:5: ( 'for' )
-            // Mininess.g:35:7: 'for'
+            // Mininess.g:36:5: ( 'for' )
+            // Mininess.g:36:7: 'for'
             {
             match("for"); 
 
@@ -756,8 +780,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = GREATER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:36:9: ( '>' )
-            // Mininess.g:36:11: '>'
+            // Mininess.g:37:9: ( '>' )
+            // Mininess.g:37:11: '>'
             {
             match('>'); 
 
@@ -777,8 +801,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = GREATEREQUAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:37:14: ( '>=' )
-            // Mininess.g:37:16: '>='
+            // Mininess.g:38:14: ( '>=' )
+            // Mininess.g:38:16: '>='
             {
             match(">="); 
 
@@ -800,8 +824,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = HASH;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:38:6: ( '#' )
-            // Mininess.g:38:8: '#'
+            // Mininess.g:39:6: ( '#' )
+            // Mininess.g:39:8: '#'
             {
             match('#'); 
 
@@ -821,8 +845,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = IF;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:39:4: ( 'if' )
-            // Mininess.g:39:6: 'if'
+            // Mininess.g:40:4: ( 'if' )
+            // Mininess.g:40:6: 'if'
             {
             match("if"); 
 
@@ -844,8 +868,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = IMPLEMENTATION;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:40:16: ( 'implementation' )
-            // Mininess.g:40:18: 'implementation'
+            // Mininess.g:41:16: ( 'implementation' )
+            // Mininess.g:41:18: 'implementation'
             {
             match("implementation"); 
 
@@ -867,8 +891,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = INT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:41:5: ( 'int' )
-            // Mininess.g:41:7: 'int'
+            // Mininess.g:42:5: ( 'int' )
+            // Mininess.g:42:7: 'int'
             {
             match("int"); 
 
@@ -890,8 +914,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = INT16_T;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:42:9: ( 'int16_t' )
-            // Mininess.g:42:11: 'int16_t'
+            // Mininess.g:43:9: ( 'int16_t' )
+            // Mininess.g:43:11: 'int16_t'
             {
             match("int16_t"); 
 
@@ -913,8 +937,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = INT32_T;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:43:9: ( 'int32_t' )
-            // Mininess.g:43:11: 'int32_t'
+            // Mininess.g:44:9: ( 'int32_t' )
+            // Mininess.g:44:11: 'int32_t'
             {
             match("int32_t"); 
 
@@ -936,8 +960,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = INT8_T;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:44:8: ( 'int8_t' )
-            // Mininess.g:44:10: 'int8_t'
+            // Mininess.g:45:8: ( 'int8_t' )
+            // Mininess.g:45:10: 'int8_t'
             {
             match("int8_t"); 
 
@@ -959,8 +983,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = INTERFACE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:45:11: ( 'interface' )
-            // Mininess.g:45:13: 'interface'
+            // Mininess.g:46:11: ( 'interface' )
+            // Mininess.g:46:13: 'interface'
             {
             match("interface"); 
 
@@ -982,8 +1006,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = LBRACE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:46:8: ( '{' )
-            // Mininess.g:46:10: '{'
+            // Mininess.g:47:8: ( '{' )
+            // Mininess.g:47:10: '{'
             {
             match('{'); 
 
@@ -1003,8 +1027,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = LBRACKET;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:47:10: ( '[' )
-            // Mininess.g:47:12: '['
+            // Mininess.g:48:10: ( '[' )
+            // Mininess.g:48:12: '['
             {
             match('['); 
 
@@ -1024,8 +1048,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = LESS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:48:6: ( '<' )
-            // Mininess.g:48:8: '<'
+            // Mininess.g:49:6: ( '<' )
+            // Mininess.g:49:8: '<'
             {
             match('<'); 
 
@@ -1045,8 +1069,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = LESSEQUAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:49:11: ( '<=' )
-            // Mininess.g:49:13: '<='
+            // Mininess.g:50:11: ( '<=' )
+            // Mininess.g:50:13: '<='
             {
             match("<="); 
 
@@ -1068,8 +1092,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = LONG;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:50:6: ( 'long' )
-            // Mininess.g:50:8: 'long'
+            // Mininess.g:51:6: ( 'long' )
+            // Mininess.g:51:8: 'long'
             {
             match("long"); 
 
@@ -1091,8 +1115,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = LPARENS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:51:9: ( '(' )
-            // Mininess.g:51:11: '('
+            // Mininess.g:52:9: ( '(' )
+            // Mininess.g:52:11: '('
             {
             match('('); 
 
@@ -1112,8 +1136,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = LSHIFT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:52:8: ( '<<' )
-            // Mininess.g:52:10: '<<'
+            // Mininess.g:53:8: ( '<<' )
+            // Mininess.g:53:10: '<<'
             {
             match("<<"); 
 
@@ -1135,8 +1159,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = LSHIFTASSIGN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:53:14: ( '<<=' )
-            // Mininess.g:53:16: '<<='
+            // Mininess.g:54:14: ( '<<=' )
+            // Mininess.g:54:16: '<<='
             {
             match("<<="); 
 
@@ -1158,8 +1182,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = MINUS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:54:7: ( '-' )
-            // Mininess.g:54:9: '-'
+            // Mininess.g:55:7: ( '-' )
+            // Mininess.g:55:9: '-'
             {
             match('-'); 
 
@@ -1179,8 +1203,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = MINUSASSIGN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:55:13: ( '-=' )
-            // Mininess.g:55:15: '-='
+            // Mininess.g:56:13: ( '-=' )
+            // Mininess.g:56:15: '-='
             {
             match("-="); 
 
@@ -1202,8 +1226,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = MINUSMINUS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:56:12: ( '--' )
-            // Mininess.g:56:14: '--'
+            // Mininess.g:57:12: ( '--' )
+            // Mininess.g:57:14: '--'
             {
             match("--"); 
 
@@ -1225,8 +1249,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = MODASSIGN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:57:11: ( '%=' )
-            // Mininess.g:57:13: '%='
+            // Mininess.g:58:11: ( '%=' )
+            // Mininess.g:58:13: '%='
             {
             match("%="); 
 
@@ -1248,8 +1272,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = MODULE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:58:8: ( 'module' )
-            // Mininess.g:58:10: 'module'
+            // Mininess.g:59:8: ( 'module' )
+            // Mininess.g:59:10: 'module'
             {
             match("module"); 
 
@@ -1271,8 +1295,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = MODULUS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:59:9: ( '%' )
-            // Mininess.g:59:11: '%'
+            // Mininess.g:60:9: ( '%' )
+            // Mininess.g:60:11: '%'
             {
             match('%'); 
 
@@ -1292,8 +1316,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = MULASSIGN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:60:11: ( '*=' )
-            // Mininess.g:60:13: '*='
+            // Mininess.g:61:11: ( '*=' )
+            // Mininess.g:61:13: '*='
             {
             match("*="); 
 
@@ -1315,8 +1339,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = NOT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:61:5: ( '!' )
-            // Mininess.g:61:7: '!'
+            // Mininess.g:62:5: ( '!' )
+            // Mininess.g:62:7: '!'
             {
             match('!'); 
 
@@ -1336,8 +1360,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = NOTEQUAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:62:10: ( '!=' )
-            // Mininess.g:62:12: '!='
+            // Mininess.g:63:10: ( '!=' )
+            // Mininess.g:63:12: '!='
             {
             match("!="); 
 
@@ -1359,8 +1383,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = NX_STRUCT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:63:11: ( 'nx_struct' )
-            // Mininess.g:63:13: 'nx_struct'
+            // Mininess.g:64:11: ( 'nx_struct' )
+            // Mininess.g:64:13: 'nx_struct'
             {
             match("nx_struct"); 
 
@@ -1382,8 +1406,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = NX_UINT16_T;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:64:13: ( 'nx_uint16_t' )
-            // Mininess.g:64:15: 'nx_uint16_t'
+            // Mininess.g:65:13: ( 'nx_uint16_t' )
+            // Mininess.g:65:15: 'nx_uint16_t'
             {
             match("nx_uint16_t"); 
 
@@ -1405,8 +1429,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = NX_UINT32_T;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:65:13: ( 'nx_uint32_t' )
-            // Mininess.g:65:15: 'nx_uint32_t'
+            // Mininess.g:66:13: ( 'nx_uint32_t' )
+            // Mininess.g:66:15: 'nx_uint32_t'
             {
             match("nx_uint32_t"); 
 
@@ -1428,8 +1452,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = NX_UINT8_T;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:66:12: ( 'nx_uint8_t' )
-            // Mininess.g:66:14: 'nx_uint8_t'
+            // Mininess.g:67:12: ( 'nx_uint8_t' )
+            // Mininess.g:67:14: 'nx_uint8_t'
             {
             match("nx_uint8_t"); 
 
@@ -1451,8 +1475,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = OR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:67:4: ( '||' )
-            // Mininess.g:67:6: '||'
+            // Mininess.g:68:4: ( '||' )
+            // Mininess.g:68:6: '||'
             {
             match("||"); 
 
@@ -1474,8 +1498,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = PLUS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:68:6: ( '+' )
-            // Mininess.g:68:8: '+'
+            // Mininess.g:69:6: ( '+' )
+            // Mininess.g:69:8: '+'
             {
             match('+'); 
 
@@ -1495,8 +1519,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = PLUSASSIGN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:69:12: ( '+=' )
-            // Mininess.g:69:14: '+='
+            // Mininess.g:70:12: ( '+=' )
+            // Mininess.g:70:14: '+='
             {
             match("+="); 
 
@@ -1518,8 +1542,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = PLUSPLUS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:70:10: ( '++' )
-            // Mininess.g:70:12: '++'
+            // Mininess.g:71:10: ( '++' )
+            // Mininess.g:71:12: '++'
             {
             match("++"); 
 
@@ -1541,8 +1565,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = POST;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:71:6: ( 'post' )
-            // Mininess.g:71:8: 'post'
+            // Mininess.g:72:6: ( 'post' )
+            // Mininess.g:72:8: 'post'
             {
             match("post"); 
 
@@ -1564,8 +1588,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = PROVIDES;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:72:10: ( 'provides' )
-            // Mininess.g:72:12: 'provides'
+            // Mininess.g:73:10: ( 'provides' )
+            // Mininess.g:73:12: 'provides'
             {
             match("provides"); 
 
@@ -1587,8 +1611,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = RBRACE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:73:8: ( '}' )
-            // Mininess.g:73:10: '}'
+            // Mininess.g:74:8: ( '}' )
+            // Mininess.g:74:10: '}'
             {
             match('}'); 
 
@@ -1608,8 +1632,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = RBRACKET;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:74:10: ( ']' )
-            // Mininess.g:74:12: ']'
+            // Mininess.g:75:10: ( ']' )
+            // Mininess.g:75:12: ']'
             {
             match(']'); 
 
@@ -1629,8 +1653,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = RETURN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:75:8: ( 'return' )
-            // Mininess.g:75:10: 'return'
+            // Mininess.g:76:8: ( 'return' )
+            // Mininess.g:76:10: 'return'
             {
             match("return"); 
 
@@ -1652,8 +1676,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = RPARENS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:76:9: ( ')' )
-            // Mininess.g:76:11: ')'
+            // Mininess.g:77:9: ( ')' )
+            // Mininess.g:77:11: ')'
             {
             match(')'); 
 
@@ -1673,8 +1697,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = RSHIFT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:77:8: ( '>>' )
-            // Mininess.g:77:10: '>>'
+            // Mininess.g:78:8: ( '>>' )
+            // Mininess.g:78:10: '>>'
             {
             match(">>"); 
 
@@ -1696,8 +1720,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = RSHIFTASSIGN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:78:14: ( '>>=' )
-            // Mininess.g:78:16: '>>='
+            // Mininess.g:79:14: ( '>>=' )
+            // Mininess.g:79:16: '>>='
             {
             match(">>="); 
 
@@ -1719,8 +1743,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = SHORT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:79:7: ( 'short' )
-            // Mininess.g:79:9: 'short'
+            // Mininess.g:80:7: ( 'short' )
+            // Mininess.g:80:9: 'short'
             {
             match("short"); 
 
@@ -1742,8 +1766,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = SIGNED;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:80:8: ( 'signed' )
-            // Mininess.g:80:10: 'signed'
+            // Mininess.g:81:8: ( 'signed' )
+            // Mininess.g:81:10: 'signed'
             {
             match("signed"); 
 
@@ -1765,8 +1789,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = SIZEOF;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:81:8: ( 'sizeof' )
-            // Mininess.g:81:10: 'sizeof'
+            // Mininess.g:82:8: ( 'sizeof' )
+            // Mininess.g:82:10: 'sizeof'
             {
             match("sizeof"); 
 
@@ -1788,8 +1812,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = STAR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:82:6: ( '*' )
-            // Mininess.g:82:8: '*'
+            // Mininess.g:83:6: ( '*' )
+            // Mininess.g:83:8: '*'
             {
             match('*'); 
 
@@ -1809,8 +1833,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = STRUCT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:83:8: ( 'struct' )
-            // Mininess.g:83:10: 'struct'
+            // Mininess.g:84:8: ( 'struct' )
+            // Mininess.g:84:10: 'struct'
             {
             match("struct"); 
 
@@ -1832,8 +1856,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = SWITCH;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:84:8: ( 'switch' )
-            // Mininess.g:84:10: 'switch'
+            // Mininess.g:85:8: ( 'switch' )
+            // Mininess.g:85:10: 'switch'
             {
             match("switch"); 
 
@@ -1855,8 +1879,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = TASK;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:85:6: ( 'task' )
-            // Mininess.g:85:8: 'task'
+            // Mininess.g:86:6: ( 'task' )
+            // Mininess.g:86:8: 'task'
             {
             match("task"); 
 
@@ -1878,8 +1902,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = TYPEDEF;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:86:9: ( 'typedef' )
-            // Mininess.g:86:11: 'typedef'
+            // Mininess.g:87:9: ( 'typedef' )
+            // Mininess.g:87:11: 'typedef'
             {
             match("typedef"); 
 
@@ -1901,8 +1925,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = UINT16_T;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:87:10: ( 'uint16_t' )
-            // Mininess.g:87:12: 'uint16_t'
+            // Mininess.g:88:10: ( 'uint16_t' )
+            // Mininess.g:88:12: 'uint16_t'
             {
             match("uint16_t"); 
 
@@ -1924,8 +1948,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = UINT32_T;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:88:10: ( 'uint32_t' )
-            // Mininess.g:88:12: 'uint32_t'
+            // Mininess.g:89:10: ( 'uint32_t' )
+            // Mininess.g:89:12: 'uint32_t'
             {
             match("uint32_t"); 
 
@@ -1947,8 +1971,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = UINT8_T;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:89:9: ( 'uint8_t' )
-            // Mininess.g:89:11: 'uint8_t'
+            // Mininess.g:90:9: ( 'uint8_t' )
+            // Mininess.g:90:11: 'uint8_t'
             {
             match("uint8_t"); 
 
@@ -1970,8 +1994,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = UNSIGNED;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:90:10: ( 'unsigned' )
-            // Mininess.g:90:12: 'unsigned'
+            // Mininess.g:91:10: ( 'unsigned' )
+            // Mininess.g:91:12: 'unsigned'
             {
             match("unsigned"); 
 
@@ -1993,8 +2017,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = USES;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:91:6: ( 'uses' )
-            // Mininess.g:91:8: 'uses'
+            // Mininess.g:92:6: ( 'uses' )
+            // Mininess.g:92:8: 'uses'
             {
             match("uses"); 
 
@@ -2016,8 +2040,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = VOID;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:92:6: ( 'void' )
-            // Mininess.g:92:8: 'void'
+            // Mininess.g:93:6: ( 'void' )
+            // Mininess.g:93:8: 'void'
             {
             match("void"); 
 
@@ -2039,8 +2063,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = WHILE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:93:7: ( 'while' )
-            // Mininess.g:93:9: 'while'
+            // Mininess.g:94:7: ( 'while' )
+            // Mininess.g:94:9: 'while'
             {
             match("while"); 
 
@@ -2057,38 +2081,17 @@ public class MininessLexer extends Lexer {
     }
     // $ANTLR end "WHILE"
 
-    // $ANTLR start "T__138"
-    public final void mT__138() throws RecognitionException {
-        try {
-            int _type = T__138;
-            int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:94:8: ( '...' )
-            // Mininess.g:94:10: '...'
-            {
-            match("..."); 
-
-
-
-            }
-
-            state.type = _type;
-            state.channel = _channel;
-        }
-        finally {
-        	// do for sure before leaving
-        }
-    }
-    // $ANTLR end "T__138"
-
     // $ANTLR start "T__139"
     public final void mT__139() throws RecognitionException {
         try {
             int _type = T__139;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:95:8: ( ':' )
-            // Mininess.g:95:10: ':'
+            // Mininess.g:95:8: ( '...' )
+            // Mininess.g:95:10: '...'
             {
-            match(':'); 
+            match("..."); 
+
+
 
             }
 
@@ -2106,10 +2109,10 @@ public class MininessLexer extends Lexer {
         try {
             int _type = T__140;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:96:8: ( ';' )
-            // Mininess.g:96:10: ';'
+            // Mininess.g:96:8: ( ':' )
+            // Mininess.g:96:10: ':'
             {
-            match(';'); 
+            match(':'); 
 
             }
 
@@ -2127,10 +2130,10 @@ public class MininessLexer extends Lexer {
         try {
             int _type = T__141;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:97:8: ( '?' )
-            // Mininess.g:97:10: '?'
+            // Mininess.g:97:8: ( ';' )
+            // Mininess.g:97:10: ';'
             {
-            match('?'); 
+            match(';'); 
 
             }
 
@@ -2143,13 +2146,34 @@ public class MininessLexer extends Lexer {
     }
     // $ANTLR end "T__141"
 
+    // $ANTLR start "T__142"
+    public final void mT__142() throws RecognitionException {
+        try {
+            int _type = T__142;
+            int _channel = DEFAULT_TOKEN_CHANNEL;
+            // Mininess.g:98:8: ( '?' )
+            // Mininess.g:98:10: '?'
+            {
+            match('?'); 
+
+            }
+
+            state.type = _type;
+            state.channel = _channel;
+        }
+        finally {
+        	// do for sure before leaving
+        }
+    }
+    // $ANTLR end "T__142"
+
     // $ANTLR start "RAW_IDENTIFIER"
     public final void mRAW_IDENTIFIER() throws RecognitionException {
         try {
             int _type = RAW_IDENTIFIER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:726:5: ( ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )* )
-            // Mininess.g:726:10: ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
+            // Mininess.g:730:5: ( ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )* )
+            // Mininess.g:730:10: ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
             {
             if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
                 input.consume();
@@ -2161,7 +2185,7 @@ public class MininessLexer extends Lexer {
             }
 
 
-            // Mininess.g:726:42: ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
+            // Mininess.g:730:42: ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
             loop1:
             do {
                 int alt1=2;
@@ -2211,8 +2235,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = CONSTANT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:729:5: ( NUMBER )
-            // Mininess.g:729:10: NUMBER
+            // Mininess.g:733:5: ( NUMBER )
+            // Mininess.g:733:10: NUMBER
             {
             mNUMBER(); 
 
@@ -2233,12 +2257,12 @@ public class MininessLexer extends Lexer {
         try {
             int _type = STRING_LITERAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:732:5: ( '\"' ( options {greedy=false; } : . )* '\"' )
-            // Mininess.g:732:10: '\"' ( options {greedy=false; } : . )* '\"'
+            // Mininess.g:736:5: ( '\"' ( options {greedy=false; } : . )* '\"' )
+            // Mininess.g:736:10: '\"' ( options {greedy=false; } : . )* '\"'
             {
             match('\"'); 
 
-            // Mininess.g:732:14: ( options {greedy=false; } : . )*
+            // Mininess.g:736:14: ( options {greedy=false; } : . )*
             loop2:
             do {
                 int alt2=2;
@@ -2254,7 +2278,7 @@ public class MininessLexer extends Lexer {
 
                 switch (alt2) {
             	case 1 :
-            	    // Mininess.g:732:41: .
+            	    // Mininess.g:736:41: .
             	    {
             	    matchAny(); 
 
@@ -2285,12 +2309,12 @@ public class MininessLexer extends Lexer {
         try {
             int _type = CHARACTER_LITERAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:735:5: ( '\\'' ( options {greedy=false; } : . )* '\\'' )
-            // Mininess.g:735:10: '\\'' ( options {greedy=false; } : . )* '\\''
+            // Mininess.g:739:5: ( '\\'' ( options {greedy=false; } : . )* '\\'' )
+            // Mininess.g:739:10: '\\'' ( options {greedy=false; } : . )* '\\''
             {
             match('\''); 
 
-            // Mininess.g:735:15: ( options {greedy=false; } : . )*
+            // Mininess.g:739:15: ( options {greedy=false; } : . )*
             loop3:
             do {
                 int alt3=2;
@@ -2306,7 +2330,7 @@ public class MininessLexer extends Lexer {
 
                 switch (alt3) {
             	case 1 :
-            	    // Mininess.g:735:42: .
+            	    // Mininess.g:739:42: .
             	    {
             	    matchAny(); 
 
@@ -2337,10 +2361,10 @@ public class MininessLexer extends Lexer {
         try {
             int _type = WHITESPACE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:738:5: ( ( '\\t' | ' ' | '\\r' | '\\n' | '\\f' )+ )
-            // Mininess.g:738:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\f' )+
+            // Mininess.g:742:5: ( ( '\\t' | ' ' | '\\r' | '\\n' | '\\f' )+ )
+            // Mininess.g:742:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\f' )+
             {
-            // Mininess.g:738:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\f' )+
+            // Mininess.g:742:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\f' )+
             int cnt4=0;
             loop4:
             do {
@@ -2397,14 +2421,14 @@ public class MininessLexer extends Lexer {
         try {
             int _type = COMMENT1;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:741:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
-            // Mininess.g:741:10: '/*' ( options {greedy=false; } : . )* '*/'
+            // Mininess.g:745:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
+            // Mininess.g:745:10: '/*' ( options {greedy=false; } : . )* '*/'
             {
             match("/*"); 
 
 
 
-            // Mininess.g:741:15: ( options {greedy=false; } : . )*
+            // Mininess.g:745:15: ( options {greedy=false; } : . )*
             loop5:
             do {
                 int alt5=2;
@@ -2429,7 +2453,7 @@ public class MininessLexer extends Lexer {
 
                 switch (alt5) {
             	case 1 :
-            	    // Mininess.g:741:42: .
+            	    // Mininess.g:745:42: .
             	    {
             	    matchAny(); 
 
@@ -2464,14 +2488,14 @@ public class MininessLexer extends Lexer {
         try {
             int _type = COMMENT2;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:744:5: ( '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' ) )
-            // Mininess.g:744:10: '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' )
+            // Mininess.g:748:5: ( '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' ) )
+            // Mininess.g:748:10: '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' )
             {
             match("//"); 
 
 
 
-            // Mininess.g:744:15: ( options {greedy=false; } : . )*
+            // Mininess.g:748:15: ( options {greedy=false; } : . )*
             loop6:
             do {
                 int alt6=2;
@@ -2487,7 +2511,7 @@ public class MininessLexer extends Lexer {
 
                 switch (alt6) {
             	case 1 :
-            	    // Mininess.g:744:42: .
+            	    // Mininess.g:748:42: .
             	    {
             	    matchAny(); 
 
@@ -2526,7 +2550,7 @@ public class MininessLexer extends Lexer {
     // $ANTLR start "NUMBER"
     public final void mNUMBER() throws RecognitionException {
         try {
-            // Mininess.g:755:5: ( DEC_NUMBER | HEX_NUMBER )
+            // Mininess.g:759:5: ( DEC_NUMBER | HEX_NUMBER )
             int alt7=2;
             int LA7_0 = input.LA(1);
 
@@ -2552,7 +2576,7 @@ public class MininessLexer extends Lexer {
             }
             switch (alt7) {
                 case 1 :
-                    // Mininess.g:755:10: DEC_NUMBER
+                    // Mininess.g:759:10: DEC_NUMBER
                     {
                     mDEC_NUMBER(); 
 
@@ -2560,7 +2584,7 @@ public class MininessLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // Mininess.g:756:10: HEX_NUMBER
+                    // Mininess.g:760:10: HEX_NUMBER
                     {
                     mHEX_NUMBER(); 
 
@@ -2580,10 +2604,10 @@ public class MininessLexer extends Lexer {
     // $ANTLR start "DEC_NUMBER"
     public final void mDEC_NUMBER() throws RecognitionException {
         try {
-            // Mininess.g:759:5: ( ( DIGIT )+ ( NUMBER_SUFFIX )? )
-            // Mininess.g:759:10: ( DIGIT )+ ( NUMBER_SUFFIX )?
+            // Mininess.g:763:5: ( ( DIGIT )+ ( NUMBER_SUFFIX )? )
+            // Mininess.g:763:10: ( DIGIT )+ ( NUMBER_SUFFIX )?
             {
-            // Mininess.g:759:10: ( DIGIT )+
+            // Mininess.g:763:10: ( DIGIT )+
             int cnt8=0;
             loop8:
             do {
@@ -2622,7 +2646,7 @@ public class MininessLexer extends Lexer {
             } while (true);
 
 
-            // Mininess.g:759:21: ( NUMBER_SUFFIX )?
+            // Mininess.g:763:21: ( NUMBER_SUFFIX )?
             int alt9=2;
             int LA9_0 = input.LA(1);
 
@@ -2631,7 +2655,7 @@ public class MininessLexer extends Lexer {
             }
             switch (alt9) {
                 case 1 :
-                    // Mininess.g:759:23: NUMBER_SUFFIX
+                    // Mininess.g:763:23: NUMBER_SUFFIX
                     {
                     mNUMBER_SUFFIX(); 
 
@@ -2655,13 +2679,13 @@ public class MininessLexer extends Lexer {
     // $ANTLR start "HEX_NUMBER"
     public final void mHEX_NUMBER() throws RecognitionException {
         try {
-            // Mininess.g:762:5: ( NUMBER_PREFIX ( HEX_DIGIT )+ ( NUMBER_SUFFIX )? )
-            // Mininess.g:762:10: NUMBER_PREFIX ( HEX_DIGIT )+ ( NUMBER_SUFFIX )?
+            // Mininess.g:766:5: ( NUMBER_PREFIX ( HEX_DIGIT )+ ( NUMBER_SUFFIX )? )
+            // Mininess.g:766:10: NUMBER_PREFIX ( HEX_DIGIT )+ ( NUMBER_SUFFIX )?
             {
             mNUMBER_PREFIX(); 
 
 
-            // Mininess.g:762:24: ( HEX_DIGIT )+
+            // Mininess.g:766:24: ( HEX_DIGIT )+
             int cnt10=0;
             loop10:
             do {
@@ -2700,7 +2724,7 @@ public class MininessLexer extends Lexer {
             } while (true);
 
 
-            // Mininess.g:762:39: ( NUMBER_SUFFIX )?
+            // Mininess.g:766:39: ( NUMBER_SUFFIX )?
             int alt11=2;
             int LA11_0 = input.LA(1);
 
@@ -2709,7 +2733,7 @@ public class MininessLexer extends Lexer {
             }
             switch (alt11) {
                 case 1 :
-                    // Mininess.g:762:41: NUMBER_SUFFIX
+                    // Mininess.g:766:41: NUMBER_SUFFIX
                     {
                     mNUMBER_SUFFIX(); 
 
@@ -2733,7 +2757,7 @@ public class MininessLexer extends Lexer {
     // $ANTLR start "DIGIT"
     public final void mDIGIT() throws RecognitionException {
         try {
-            // Mininess.g:765:5: ( '0' .. '9' )
+            // Mininess.g:769:5: ( '0' .. '9' )
             // Mininess.g:
             {
             if ( (input.LA(1) >= '0' && input.LA(1) <= '9') ) {
@@ -2759,7 +2783,7 @@ public class MininessLexer extends Lexer {
     // $ANTLR start "HEX_DIGIT"
     public final void mHEX_DIGIT() throws RecognitionException {
         try {
-            // Mininess.g:768:5: ( '0' .. '9' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' )
+            // Mininess.g:772:5: ( '0' .. '9' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' )
             // Mininess.g:
             {
             if ( (input.LA(1) >= '0' && input.LA(1) <= '9')||(input.LA(1) >= 'A' && input.LA(1) <= 'F')||(input.LA(1) >= 'a' && input.LA(1) <= 'f') ) {
@@ -2785,8 +2809,8 @@ public class MininessLexer extends Lexer {
     // $ANTLR start "NUMBER_PREFIX"
     public final void mNUMBER_PREFIX() throws RecognitionException {
         try {
-            // Mininess.g:771:5: ( '0x' )
-            // Mininess.g:771:10: '0x'
+            // Mininess.g:775:5: ( '0x' )
+            // Mininess.g:775:10: '0x'
             {
             match("0x"); 
 
@@ -2805,10 +2829,10 @@ public class MininessLexer extends Lexer {
     // $ANTLR start "NUMBER_SUFFIX"
     public final void mNUMBER_SUFFIX() throws RecognitionException {
         try {
-            // Mininess.g:774:5: ( ( 'l' | 'L' | 'u' | 'U' | 'lu' | 'ul' | 'LU' | 'UL' ) )
-            // Mininess.g:774:10: ( 'l' | 'L' | 'u' | 'U' | 'lu' | 'ul' | 'LU' | 'UL' )
+            // Mininess.g:778:5: ( ( 'l' | 'L' | 'u' | 'U' | 'lu' | 'ul' | 'LU' | 'UL' ) )
+            // Mininess.g:778:10: ( 'l' | 'L' | 'u' | 'U' | 'lu' | 'ul' | 'LU' | 'UL' )
             {
-            // Mininess.g:774:10: ( 'l' | 'L' | 'u' | 'U' | 'lu' | 'ul' | 'LU' | 'UL' )
+            // Mininess.g:778:10: ( 'l' | 'L' | 'u' | 'U' | 'lu' | 'ul' | 'LU' | 'UL' )
             int alt12=8;
             switch ( input.LA(1) ) {
             case 'l':
@@ -2869,35 +2893,35 @@ public class MininessLexer extends Lexer {
 
             switch (alt12) {
                 case 1 :
-                    // Mininess.g:774:11: 'l'
+                    // Mininess.g:778:11: 'l'
                     {
                     match('l'); 
 
                     }
                     break;
                 case 2 :
-                    // Mininess.g:774:17: 'L'
+                    // Mininess.g:778:17: 'L'
                     {
                     match('L'); 
 
                     }
                     break;
                 case 3 :
-                    // Mininess.g:774:23: 'u'
+                    // Mininess.g:778:23: 'u'
                     {
                     match('u'); 
 
                     }
                     break;
                 case 4 :
-                    // Mininess.g:774:29: 'U'
+                    // Mininess.g:778:29: 'U'
                     {
                     match('U'); 
 
                     }
                     break;
                 case 5 :
-                    // Mininess.g:774:35: 'lu'
+                    // Mininess.g:778:35: 'lu'
                     {
                     match("lu"); 
 
@@ -2906,7 +2930,7 @@ public class MininessLexer extends Lexer {
                     }
                     break;
                 case 6 :
-                    // Mininess.g:774:42: 'ul'
+                    // Mininess.g:778:42: 'ul'
                     {
                     match("ul"); 
 
@@ -2915,7 +2939,7 @@ public class MininessLexer extends Lexer {
                     }
                     break;
                 case 7 :
-                    // Mininess.g:774:49: 'LU'
+                    // Mininess.g:778:49: 'LU'
                     {
                     match("LU"); 
 
@@ -2924,7 +2948,7 @@ public class MininessLexer extends Lexer {
                     }
                     break;
                 case 8 :
-                    // Mininess.g:774:56: 'UL'
+                    // Mininess.g:778:56: 'UL'
                     {
                     match("UL"); 
 
@@ -2947,8 +2971,8 @@ public class MininessLexer extends Lexer {
     // $ANTLR end "NUMBER_SUFFIX"
 
     public void mTokens() throws RecognitionException {
-        // Mininess.g:1:8: ( AMP | AND | ARRAYINC | ARROW | ASSIGN | BITANDASSIGN | BITCOMPLEMENT | BITOR | BITORASSIGN | BITXOR | BITXORASSIGN | CALL | CASE | CHAR | COMMA | COMMAND | CONST | DEFAULT | DIVASSIGN | DIVIDE | DOT | ELSE | ENUM | EQUAL | EVENT | FOR | GREATER | GREATEREQUAL | HASH | IF | IMPLEMENTATION | INT | INT16_T | INT32_T | INT8_T | INTERFACE | LBRACE | LBRACKET | LESS | LESSEQUAL | LONG | LPARENS | LSHIFT | LSHIFTASSIGN | MINUS | MINUSASSIGN | MINUSMINUS | MODASSIGN | MODULE | MODULUS | MULASSIGN | NOT | NOTEQUAL | NX_STRUCT | NX_UINT16_T | NX_UINT32_T | NX_UINT8_T | OR | PLUS | PLUSASSIGN | PLUSPLUS | POST | PROVIDES | RBRACE | RBRACKET | RETURN | RPARENS | RSHIFT | RSHIFTASSIGN | SHORT | SIGNED | SIZEOF | STAR | STRUCT | SWITCH | TASK | TYPEDEF | UINT16_T | UINT32_T | UINT8_T | UNSIGNED | USES | VOID | WHILE | T__138 | T__139 | T__140 | T__141 | RAW_IDENTIFIER | CONSTANT | STRING_LITERAL | CHARACTER_LITERAL | WHITESPACE | COMMENT1 | COMMENT2 )
-        int alt13=95;
+        // Mininess.g:1:8: ( AMP | AND | ARRAYINC | ARROW | ASSIGN | BITANDASSIGN | BITCOMPLEMENT | BITOR | BITORASSIGN | BITXOR | BITXORASSIGN | CALL | CASE | CHAR | COMMA | COMMAND | CONST | DEFAULT | DIVASSIGN | DIVIDE | DOT | ELSE | ENUM | EQUAL | ERROR_T | EVENT | FOR | GREATER | GREATEREQUAL | HASH | IF | IMPLEMENTATION | INT | INT16_T | INT32_T | INT8_T | INTERFACE | LBRACE | LBRACKET | LESS | LESSEQUAL | LONG | LPARENS | LSHIFT | LSHIFTASSIGN | MINUS | MINUSASSIGN | MINUSMINUS | MODASSIGN | MODULE | MODULUS | MULASSIGN | NOT | NOTEQUAL | NX_STRUCT | NX_UINT16_T | NX_UINT32_T | NX_UINT8_T | OR | PLUS | PLUSASSIGN | PLUSPLUS | POST | PROVIDES | RBRACE | RBRACKET | RETURN | RPARENS | RSHIFT | RSHIFTASSIGN | SHORT | SIGNED | SIZEOF | STAR | STRUCT | SWITCH | TASK | TYPEDEF | UINT16_T | UINT32_T | UINT8_T | UNSIGNED | USES | VOID | WHILE | T__139 | T__140 | T__141 | T__142 | RAW_IDENTIFIER | CONSTANT | STRING_LITERAL | CHARACTER_LITERAL | WHITESPACE | COMMENT1 | COMMENT2 )
+        int alt13=96;
         alt13 = dfa13.predict(input);
         switch (alt13) {
             case 1 :
@@ -3144,495 +3168,495 @@ public class MininessLexer extends Lexer {
                 }
                 break;
             case 25 :
-                // Mininess.g:1:185: EVENT
+                // Mininess.g:1:185: ERROR_T
+                {
+                mERROR_T(); 
+
+
+                }
+                break;
+            case 26 :
+                // Mininess.g:1:193: EVENT
                 {
                 mEVENT(); 
 
 
                 }
                 break;
-            case 26 :
-                // Mininess.g:1:191: FOR
+            case 27 :
+                // Mininess.g:1:199: FOR
                 {
                 mFOR(); 
 
 
                 }
                 break;
-            case 27 :
-                // Mininess.g:1:195: GREATER
+            case 28 :
+                // Mininess.g:1:203: GREATER
                 {
                 mGREATER(); 
 
 
                 }
                 break;
-            case 28 :
-                // Mininess.g:1:203: GREATEREQUAL
+            case 29 :
+                // Mininess.g:1:211: GREATEREQUAL
                 {
                 mGREATEREQUAL(); 
 
 
                 }
                 break;
-            case 29 :
-                // Mininess.g:1:216: HASH
+            case 30 :
+                // Mininess.g:1:224: HASH
                 {
                 mHASH(); 
 
 
                 }
                 break;
-            case 30 :
-                // Mininess.g:1:221: IF
+            case 31 :
+                // Mininess.g:1:229: IF
                 {
                 mIF(); 
 
 
                 }
                 break;
-            case 31 :
-                // Mininess.g:1:224: IMPLEMENTATION
+            case 32 :
+                // Mininess.g:1:232: IMPLEMENTATION
                 {
                 mIMPLEMENTATION(); 
 
 
                 }
                 break;
-            case 32 :
-                // Mininess.g:1:239: INT
+            case 33 :
+                // Mininess.g:1:247: INT
                 {
                 mINT(); 
 
 
                 }
                 break;
-            case 33 :
-                // Mininess.g:1:243: INT16_T
+            case 34 :
+                // Mininess.g:1:251: INT16_T
                 {
                 mINT16_T(); 
 
 
                 }
                 break;
-            case 34 :
-                // Mininess.g:1:251: INT32_T
+            case 35 :
+                // Mininess.g:1:259: INT32_T
                 {
                 mINT32_T(); 
 
 
                 }
                 break;
-            case 35 :
-                // Mininess.g:1:259: INT8_T
+            case 36 :
+                // Mininess.g:1:267: INT8_T
                 {
                 mINT8_T(); 
 
 
                 }
                 break;
-            case 36 :
-                // Mininess.g:1:266: INTERFACE
+            case 37 :
+                // Mininess.g:1:274: INTERFACE
                 {
                 mINTERFACE(); 
 
 
                 }
                 break;
-            case 37 :
-                // Mininess.g:1:276: LBRACE
+            case 38 :
+                // Mininess.g:1:284: LBRACE
                 {
                 mLBRACE(); 
 
 
                 }
                 break;
-            case 38 :
-                // Mininess.g:1:283: LBRACKET
+            case 39 :
+                // Mininess.g:1:291: LBRACKET
                 {
                 mLBRACKET(); 
 
 
                 }
                 break;
-            case 39 :
-                // Mininess.g:1:292: LESS
+            case 40 :
+                // Mininess.g:1:300: LESS
                 {
                 mLESS(); 
 
 
                 }
                 break;
-            case 40 :
-                // Mininess.g:1:297: LESSEQUAL
+            case 41 :
+                // Mininess.g:1:305: LESSEQUAL
                 {
                 mLESSEQUAL(); 
 
 
                 }
                 break;
-            case 41 :
-                // Mininess.g:1:307: LONG
+            case 42 :
+                // Mininess.g:1:315: LONG
                 {
                 mLONG(); 
 
 
                 }
                 break;
-            case 42 :
-                // Mininess.g:1:312: LPARENS
+            case 43 :
+                // Mininess.g:1:320: LPARENS
                 {
                 mLPARENS(); 
 
 
                 }
                 break;
-            case 43 :
-                // Mininess.g:1:320: LSHIFT
+            case 44 :
+                // Mininess.g:1:328: LSHIFT
                 {
                 mLSHIFT(); 
 
 
                 }
                 break;
-            case 44 :
-                // Mininess.g:1:327: LSHIFTASSIGN
+            case 45 :
+                // Mininess.g:1:335: LSHIFTASSIGN
                 {
                 mLSHIFTASSIGN(); 
 
 
                 }
                 break;
-            case 45 :
-                // Mininess.g:1:340: MINUS
+            case 46 :
+                // Mininess.g:1:348: MINUS
                 {
                 mMINUS(); 
 
 
                 }
                 break;
-            case 46 :
-                // Mininess.g:1:346: MINUSASSIGN
+            case 47 :
+                // Mininess.g:1:354: MINUSASSIGN
                 {
                 mMINUSASSIGN(); 
 
 
                 }
                 break;
-            case 47 :
-                // Mininess.g:1:358: MINUSMINUS
+            case 48 :
+                // Mininess.g:1:366: MINUSMINUS
                 {
                 mMINUSMINUS(); 
 
 
                 }
                 break;
-            case 48 :
-                // Mininess.g:1:369: MODASSIGN
+            case 49 :
+                // Mininess.g:1:377: MODASSIGN
                 {
                 mMODASSIGN(); 
 
 
                 }
                 break;
-            case 49 :
-                // Mininess.g:1:379: MODULE
+            case 50 :
+                // Mininess.g:1:387: MODULE
                 {
                 mMODULE(); 
 
 
                 }
                 break;
-            case 50 :
-                // Mininess.g:1:386: MODULUS
+            case 51 :
+                // Mininess.g:1:394: MODULUS
                 {
                 mMODULUS(); 
 
 
                 }
                 break;
-            case 51 :
-                // Mininess.g:1:394: MULASSIGN
+            case 52 :
+                // Mininess.g:1:402: MULASSIGN
                 {
                 mMULASSIGN(); 
 
 
                 }
                 break;
-            case 52 :
-                // Mininess.g:1:404: NOT
+            case 53 :
+                // Mininess.g:1:412: NOT
                 {
                 mNOT(); 
 
 
                 }
                 break;
-            case 53 :
-                // Mininess.g:1:408: NOTEQUAL
+            case 54 :
+                // Mininess.g:1:416: NOTEQUAL
                 {
                 mNOTEQUAL(); 
 
 
                 }
                 break;
-            case 54 :
-                // Mininess.g:1:417: NX_STRUCT
+            case 55 :
+                // Mininess.g:1:425: NX_STRUCT
                 {
                 mNX_STRUCT(); 
 
 
                 }
                 break;
-            case 55 :
-                // Mininess.g:1:427: NX_UINT16_T
+            case 56 :
+                // Mininess.g:1:435: NX_UINT16_T
                 {
                 mNX_UINT16_T(); 
 
 
                 }
                 break;
-            case 56 :
-                // Mininess.g:1:439: NX_UINT32_T
+            case 57 :
+                // Mininess.g:1:447: NX_UINT32_T
                 {
                 mNX_UINT32_T(); 
 
 
                 }
                 break;
-            case 57 :
-                // Mininess.g:1:451: NX_UINT8_T
+            case 58 :
+                // Mininess.g:1:459: NX_UINT8_T
                 {
                 mNX_UINT8_T(); 
 
 
                 }
                 break;
-            case 58 :
-                // Mininess.g:1:462: OR
+            case 59 :
+                // Mininess.g:1:470: OR
                 {
                 mOR(); 
 
 
                 }
                 break;
-            case 59 :
-                // Mininess.g:1:465: PLUS
+            case 60 :
+                // Mininess.g:1:473: PLUS
                 {
                 mPLUS(); 
 
 
                 }
                 break;
-            case 60 :
-                // Mininess.g:1:470: PLUSASSIGN
+            case 61 :
+                // Mininess.g:1:478: PLUSASSIGN
                 {
                 mPLUSASSIGN(); 
 
 
                 }
                 break;
-            case 61 :
-                // Mininess.g:1:481: PLUSPLUS
+            case 62 :
+                // Mininess.g:1:489: PLUSPLUS
                 {
                 mPLUSPLUS(); 
 
 
                 }
                 break;
-            case 62 :
-                // Mininess.g:1:490: POST
+            case 63 :
+                // Mininess.g:1:498: POST
                 {
                 mPOST(); 
 
 
                 }
                 break;
-            case 63 :
-                // Mininess.g:1:495: PROVIDES
+            case 64 :
+                // Mininess.g:1:503: PROVIDES
                 {
                 mPROVIDES(); 
 
 
                 }
                 break;
-            case 64 :
-                // Mininess.g:1:504: RBRACE
+            case 65 :
+                // Mininess.g:1:512: RBRACE
                 {
                 mRBRACE(); 
 
 
                 }
                 break;
-            case 65 :
-                // Mininess.g:1:511: RBRACKET
+            case 66 :
+                // Mininess.g:1:519: RBRACKET
                 {
                 mRBRACKET(); 
 
 
                 }
                 break;
-            case 66 :
-                // Mininess.g:1:520: RETURN
+            case 67 :
+                // Mininess.g:1:528: RETURN
                 {
                 mRETURN(); 
 
 
                 }
                 break;
-            case 67 :
-                // Mininess.g:1:527: RPARENS
+            case 68 :
+                // Mininess.g:1:535: RPARENS
                 {
                 mRPARENS(); 
 
 
                 }
                 break;
-            case 68 :
-                // Mininess.g:1:535: RSHIFT
+            case 69 :
+                // Mininess.g:1:543: RSHIFT
                 {
                 mRSHIFT(); 
 
 
                 }
                 break;
-            case 69 :
-                // Mininess.g:1:542: RSHIFTASSIGN
+            case 70 :
+                // Mininess.g:1:550: RSHIFTASSIGN
                 {
                 mRSHIFTASSIGN(); 
 
 
                 }
                 break;
-            case 70 :
-                // Mininess.g:1:555: SHORT
+            case 71 :
+                // Mininess.g:1:563: SHORT
                 {
                 mSHORT(); 
 
 
                 }
                 break;
-            case 71 :
-                // Mininess.g:1:561: SIGNED
+            case 72 :
+                // Mininess.g:1:569: SIGNED
                 {
                 mSIGNED(); 
 
 
                 }
                 break;
-            case 72 :
-                // Mininess.g:1:568: SIZEOF
+            case 73 :
+                // Mininess.g:1:576: SIZEOF
                 {
                 mSIZEOF(); 
 
 
                 }
                 break;
-            case 73 :
-                // Mininess.g:1:575: STAR
+            case 74 :
+                // Mininess.g:1:583: STAR
                 {
                 mSTAR(); 
 
 
                 }
                 break;
-            case 74 :
-                // Mininess.g:1:580: STRUCT
+            case 75 :
+                // Mininess.g:1:588: STRUCT
                 {
                 mSTRUCT(); 
 
 
                 }
                 break;
-            case 75 :
-                // Mininess.g:1:587: SWITCH
+            case 76 :
+                // Mininess.g:1:595: SWITCH
                 {
                 mSWITCH(); 
 
 
                 }
                 break;
-            case 76 :
-                // Mininess.g:1:594: TASK
+            case 77 :
+                // Mininess.g:1:602: TASK
                 {
                 mTASK(); 
 
 
                 }
                 break;
-            case 77 :
-                // Mininess.g:1:599: TYPEDEF
+            case 78 :
+                // Mininess.g:1:607: TYPEDEF
                 {
                 mTYPEDEF(); 
 
 
                 }
                 break;
-            case 78 :
-                // Mininess.g:1:607: UINT16_T
+            case 79 :
+                // Mininess.g:1:615: UINT16_T
                 {
                 mUINT16_T(); 
 
 
                 }
                 break;
-            case 79 :
-                // Mininess.g:1:616: UINT32_T
+            case 80 :
+                // Mininess.g:1:624: UINT32_T
                 {
                 mUINT32_T(); 
 
 
                 }
                 break;
-            case 80 :
-                // Mininess.g:1:625: UINT8_T
+            case 81 :
+                // Mininess.g:1:633: UINT8_T
                 {
                 mUINT8_T(); 
 
 
                 }
                 break;
-            case 81 :
-                // Mininess.g:1:633: UNSIGNED
+            case 82 :
+                // Mininess.g:1:641: UNSIGNED
                 {
                 mUNSIGNED(); 
 
 
                 }
                 break;
-            case 82 :
-                // Mininess.g:1:642: USES
+            case 83 :
+                // Mininess.g:1:650: USES
                 {
                 mUSES(); 
 
 
                 }
                 break;
-            case 83 :
-                // Mininess.g:1:647: VOID
+            case 84 :
+                // Mininess.g:1:655: VOID
                 {
                 mVOID(); 
 
 
                 }
                 break;
-            case 84 :
-                // Mininess.g:1:652: WHILE
+            case 85 :
+                // Mininess.g:1:660: WHILE
                 {
                 mWHILE(); 
 
 
                 }
                 break;
-            case 85 :
-                // Mininess.g:1:658: T__138
-                {
-                mT__138(); 
-
-
-                }
-                break;
             case 86 :
-                // Mininess.g:1:665: T__139
+                // Mininess.g:1:666: T__139
                 {
                 mT__139(); 
 
@@ -3640,7 +3664,7 @@ public class MininessLexer extends Lexer {
                 }
                 break;
             case 87 :
-                // Mininess.g:1:672: T__140
+                // Mininess.g:1:673: T__140
                 {
                 mT__140(); 
 
@@ -3648,7 +3672,7 @@ public class MininessLexer extends Lexer {
                 }
                 break;
             case 88 :
-                // Mininess.g:1:679: T__141
+                // Mininess.g:1:680: T__141
                 {
                 mT__141(); 
 
@@ -3656,55 +3680,63 @@ public class MininessLexer extends Lexer {
                 }
                 break;
             case 89 :
-                // Mininess.g:1:686: RAW_IDENTIFIER
+                // Mininess.g:1:687: T__142
+                {
+                mT__142(); 
+
+
+                }
+                break;
+            case 90 :
+                // Mininess.g:1:694: RAW_IDENTIFIER
                 {
                 mRAW_IDENTIFIER(); 
 
 
                 }
                 break;
-            case 90 :
-                // Mininess.g:1:701: CONSTANT
+            case 91 :
+                // Mininess.g:1:709: CONSTANT
                 {
                 mCONSTANT(); 
 
 
                 }
                 break;
-            case 91 :
-                // Mininess.g:1:710: STRING_LITERAL
+            case 92 :
+                // Mininess.g:1:718: STRING_LITERAL
                 {
                 mSTRING_LITERAL(); 
 
 
                 }
                 break;
-            case 92 :
-                // Mininess.g:1:725: CHARACTER_LITERAL
+            case 93 :
+                // Mininess.g:1:733: CHARACTER_LITERAL
                 {
                 mCHARACTER_LITERAL(); 
 
 
                 }
                 break;
-            case 93 :
-                // Mininess.g:1:743: WHITESPACE
+            case 94 :
+                // Mininess.g:1:751: WHITESPACE
                 {
                 mWHITESPACE(); 
 
 
                 }
                 break;
-            case 94 :
-                // Mininess.g:1:754: COMMENT1
+            case 95 :
+                // Mininess.g:1:762: COMMENT1
                 {
                 mCOMMENT1(); 
 
 
                 }
                 break;
-            case 95 :
-                // Mininess.g:1:763: COMMENT2
+            case 96 :
+                // Mininess.g:1:771: COMMENT2
                 {
                 mCOMMENT2(); 
 
@@ -3720,87 +3752,88 @@ public class MininessLexer extends Lexer {
     protected DFA13 dfa13 = new DFA13(this);
     static final String DFA13_eotS =
         "\1\uffff\1\60\1\64\1\70\1\72\1\uffff\1\74\1\51\1\uffff\1\51\1\104"+
-        "\1\106\2\51\1\115\1\uffff\1\51\2\uffff\1\123\1\51\1\uffff\1\126"+
-        "\1\51\1\131\1\133\1\51\1\137\1\51\2\uffff\1\51\1\uffff\5\51\27\uffff"+
-        "\4\51\6\uffff\4\51\1\uffff\1\171\1\uffff\1\172\2\51\1\uffff\1\176"+
-        "\1\uffff\1\51\2\uffff\1\51\4\uffff\1\51\3\uffff\27\51\1\u009a\3"+
-        "\uffff\1\51\1\u00a0\2\uffff\22\51\1\u00b4\1\u00b5\1\u00b6\3\51\1"+
-        "\u00ba\1\u00bb\1\51\1\uffff\5\51\1\uffff\1\u00c2\3\51\1\u00c6\7"+
-        "\51\1\u00ce\3\51\1\u00d4\1\u00d5\1\51\3\uffff\1\51\1\u00d8\1\51"+
-        "\2\uffff\1\u00da\5\51\1\uffff\3\51\1\uffff\2\51\1\u00e5\4\51\1\uffff"+
-        "\5\51\2\uffff\1\u00ef\1\51\1\uffff\1\51\1\uffff\3\51\1\u00f5\1\51"+
-        "\1\u00f7\3\51\1\u00fb\1\uffff\1\u00fc\1\u00fd\1\u00fe\1\u00ff\5"+
-        "\51\1\uffff\1\u0105\1\u0106\1\51\1\u0108\1\u0109\1\uffff\1\51\1"+
-        "\uffff\3\51\5\uffff\1\u0110\2\51\1\u0113\1\51\2\uffff\1\51\2\uffff"+
-        "\5\51\1\u011b\1\uffff\1\u011c\1\u011d\1\uffff\1\u011e\1\51\1\u0120"+
-        "\1\u0121\3\51\4\uffff\1\51\2\uffff\2\51\1\u0128\1\51\1\u012a\1\u012b"+
-        "\1\uffff\1\51\2\uffff\1\51\1\u012e\1\uffff";
+        "\1\106\2\51\1\116\1\uffff\1\51\2\uffff\1\124\1\51\1\uffff\1\127"+
+        "\1\51\1\132\1\134\1\51\1\140\1\51\2\uffff\1\51\1\uffff\5\51\27\uffff"+
+        "\4\51\6\uffff\5\51\1\uffff\1\173\1\uffff\1\174\2\51\1\uffff\1\u0080"+
+        "\1\uffff\1\51\2\uffff\1\51\4\uffff\1\51\3\uffff\30\51\1\u009d\3"+
+        "\uffff\1\51\1\u00a3\2\uffff\22\51\1\u00b7\1\u00b8\1\u00b9\3\51\1"+
+        "\u00bd\1\u00be\2\51\1\uffff\5\51\1\uffff\1\u00c6\3\51\1\u00ca\7"+
+        "\51\1\u00d2\3\51\1\u00d8\1\u00d9\1\51\3\uffff\1\51\1\u00dc\1\51"+
+        "\2\uffff\1\51\1\u00df\5\51\1\uffff\3\51\1\uffff\2\51\1\u00ea\4\51"+
+        "\1\uffff\5\51\2\uffff\1\u00f4\1\51\1\uffff\2\51\1\uffff\3\51\1\u00fb"+
+        "\1\51\1\u00fd\3\51\1\u0101\1\uffff\1\u0102\1\u0103\1\u0104\1\u0105"+
+        "\5\51\1\uffff\1\u010b\1\u010c\1\u010d\1\51\1\u010f\1\u0110\1\uffff"+
+        "\1\51\1\uffff\3\51\5\uffff\1\u0117\2\51\1\u011a\1\51\3\uffff\1\51"+
+        "\2\uffff\5\51\1\u0122\1\uffff\1\u0123\1\u0124\1\uffff\1\u0125\1"+
+        "\51\1\u0127\1\u0128\3\51\4\uffff\1\51\2\uffff\2\51\1\u012f\1\51"+
+        "\1\u0131\1\u0132\1\uffff\1\51\2\uffff\1\51\1\u0135\1\uffff";
     static final String DFA13_eofS =
-        "\u012f\uffff";
+        "\u0136\uffff";
     static final String DFA13_minS =
         "\1\11\1\46\1\75\1\55\1\75\1\uffff\1\75\1\141\1\uffff\1\145\1\52"+
         "\1\56\1\154\1\157\1\75\1\uffff\1\146\2\uffff\1\74\1\157\1\uffff"+
         "\1\75\1\157\2\75\1\170\1\53\1\157\2\uffff\1\145\1\uffff\1\150\1"+
         "\141\1\151\1\157\1\150\27\uffff\1\154\1\141\1\155\1\146\6\uffff"+
-        "\1\163\1\165\1\145\1\162\1\uffff\1\75\1\uffff\1\60\1\160\1\164\1"+
-        "\uffff\1\75\1\uffff\1\156\2\uffff\1\144\4\uffff\1\137\3\uffff\1"+
-        "\163\1\157\1\164\1\157\1\147\1\162\1\151\1\163\1\160\1\156\1\163"+
-        "\1\145\2\151\1\154\1\145\1\162\1\155\1\163\1\141\1\145\1\155\1\156"+
-        "\1\60\3\uffff\1\154\1\60\2\uffff\1\147\1\165\1\163\1\164\1\166\1"+
-        "\165\1\162\1\156\1\145\1\165\1\164\1\153\1\145\1\164\1\151\1\163"+
-        "\1\144\1\154\3\60\1\141\1\164\1\165\2\60\1\164\1\uffff\1\145\1\66"+
-        "\1\62\1\137\1\162\1\uffff\1\60\1\154\1\164\1\151\1\60\1\151\1\162"+
-        "\1\164\1\145\1\157\2\143\1\60\1\144\1\61\1\147\2\60\1\145\3\uffff"+
-        "\1\156\1\60\1\154\2\uffff\1\60\1\155\2\137\1\164\1\146\1\uffff\1"+
-        "\145\1\162\1\156\1\uffff\1\144\1\156\1\60\1\144\1\146\1\164\1\150"+
-        "\1\uffff\1\145\1\66\1\62\1\137\1\156\2\uffff\1\60\1\144\1\uffff"+
-        "\1\164\1\uffff\1\145\2\164\1\60\1\141\1\60\1\165\1\164\1\145\1\60"+
-        "\1\uffff\4\60\1\146\2\137\1\164\1\145\1\uffff\2\60\1\156\2\60\1"+
-        "\uffff\1\143\1\uffff\1\143\1\61\1\163\5\uffff\1\60\2\164\1\60\1"+
-        "\144\2\uffff\1\164\2\uffff\1\145\1\164\1\66\1\62\1\137\1\60\1\uffff"+
-        "\2\60\1\uffff\1\60\1\141\2\60\2\137\1\164\4\uffff\1\164\2\uffff"+
-        "\2\164\1\60\1\151\2\60\1\uffff\1\157\2\uffff\1\156\1\60\1\uffff";
+        "\1\163\1\165\1\162\1\145\1\162\1\uffff\1\75\1\uffff\1\60\1\160\1"+
+        "\164\1\uffff\1\75\1\uffff\1\156\2\uffff\1\144\4\uffff\1\137\3\uffff"+
+        "\1\163\1\157\1\164\1\157\1\147\1\162\1\151\1\163\1\160\1\156\1\163"+
+        "\1\145\2\151\1\154\1\145\1\162\1\155\1\163\1\141\1\145\1\155\1\157"+
+        "\1\156\1\60\3\uffff\1\154\1\60\2\uffff\1\147\1\165\1\163\1\164\1"+
+        "\166\1\165\1\162\1\156\1\145\1\165\1\164\1\153\1\145\1\164\1\151"+
+        "\1\163\1\144\1\154\3\60\1\141\1\164\1\165\2\60\1\162\1\164\1\uffff"+
+        "\1\145\1\66\1\62\1\137\1\162\1\uffff\1\60\1\154\1\164\1\151\1\60"+
+        "\1\151\1\162\1\164\1\145\1\157\2\143\1\60\1\144\1\61\1\147\2\60"+
+        "\1\145\3\uffff\1\156\1\60\1\154\2\uffff\1\137\1\60\1\155\2\137\1"+
+        "\164\1\146\1\uffff\1\145\1\162\1\156\1\uffff\1\144\1\156\1\60\1"+
+        "\144\1\146\1\164\1\150\1\uffff\1\145\1\66\1\62\1\137\1\156\2\uffff"+
+        "\1\60\1\144\1\uffff\2\164\1\uffff\1\145\2\164\1\60\1\141\1\60\1"+
+        "\165\1\164\1\145\1\60\1\uffff\4\60\1\146\2\137\1\164\1\145\1\uffff"+
+        "\3\60\1\156\2\60\1\uffff\1\143\1\uffff\1\143\1\61\1\163\5\uffff"+
+        "\1\60\2\164\1\60\1\144\3\uffff\1\164\2\uffff\1\145\1\164\1\66\1"+
+        "\62\1\137\1\60\1\uffff\2\60\1\uffff\1\60\1\141\2\60\2\137\1\164"+
+        "\4\uffff\1\164\2\uffff\2\164\1\60\1\151\2\60\1\uffff\1\157\2\uffff"+
+        "\1\156\1\60\1\uffff";
     static final String DFA13_maxS =
         "\1\176\1\75\1\174\1\76\1\75\1\uffff\1\75\1\157\1\uffff\1\145\1\75"+
         "\1\56\1\166\1\157\1\76\1\uffff\1\156\2\uffff\1\75\1\157\1\uffff"+
         "\1\75\1\157\2\75\1\170\1\75\1\162\2\uffff\1\145\1\uffff\1\167\1"+
         "\171\1\163\1\157\1\150\27\uffff\1\163\1\141\1\156\1\146\6\uffff"+
-        "\1\163\1\165\1\145\1\162\1\uffff\1\75\1\uffff\1\172\1\160\1\164"+
-        "\1\uffff\1\75\1\uffff\1\156\2\uffff\1\144\4\uffff\1\137\3\uffff"+
-        "\1\163\1\157\1\164\1\157\1\172\1\162\1\151\1\163\1\160\1\156\1\163"+
-        "\1\145\2\151\1\154\1\145\1\162\1\155\1\163\1\141\1\145\1\155\1\156"+
-        "\1\172\3\uffff\1\154\1\172\2\uffff\1\147\2\165\1\164\1\166\1\165"+
-        "\1\162\1\156\1\145\1\165\1\164\1\153\1\145\1\164\1\151\1\163\1\144"+
-        "\1\154\3\172\1\141\1\164\1\165\2\172\1\164\1\uffff\1\145\1\66\1"+
-        "\62\1\137\1\162\1\uffff\1\172\1\154\1\164\1\151\1\172\1\151\1\162"+
-        "\1\164\1\145\1\157\2\143\1\172\1\144\1\70\1\147\2\172\1\145\3\uffff"+
-        "\1\156\1\172\1\154\2\uffff\1\172\1\155\2\137\1\164\1\146\1\uffff"+
-        "\1\145\1\162\1\156\1\uffff\1\144\1\156\1\172\1\144\1\146\1\164\1"+
-        "\150\1\uffff\1\145\1\66\1\62\1\137\1\156\2\uffff\1\172\1\144\1\uffff"+
-        "\1\164\1\uffff\1\145\2\164\1\172\1\141\1\172\1\165\1\164\1\145\1"+
-        "\172\1\uffff\4\172\1\146\2\137\1\164\1\145\1\uffff\2\172\1\156\2"+
-        "\172\1\uffff\1\143\1\uffff\1\143\1\70\1\163\5\uffff\1\172\2\164"+
-        "\1\172\1\144\2\uffff\1\164\2\uffff\1\145\1\164\1\66\1\62\1\137\1"+
-        "\172\1\uffff\2\172\1\uffff\1\172\1\141\2\172\2\137\1\164\4\uffff"+
-        "\1\164\2\uffff\2\164\1\172\1\151\2\172\1\uffff\1\157\2\uffff\1\156"+
-        "\1\172\1\uffff";
+        "\1\163\1\165\1\162\1\145\1\162\1\uffff\1\75\1\uffff\1\172\1\160"+
+        "\1\164\1\uffff\1\75\1\uffff\1\156\2\uffff\1\144\4\uffff\1\137\3"+
+        "\uffff\1\163\1\157\1\164\1\157\1\172\1\162\1\151\1\163\1\160\1\156"+
+        "\1\163\1\145\2\151\1\154\1\145\1\162\1\155\1\163\1\141\1\145\1\155"+
+        "\1\157\1\156\1\172\3\uffff\1\154\1\172\2\uffff\1\147\2\165\1\164"+
+        "\1\166\1\165\1\162\1\156\1\145\1\165\1\164\1\153\1\145\1\164\1\151"+
+        "\1\163\1\144\1\154\3\172\1\141\1\164\1\165\2\172\1\162\1\164\1\uffff"+
+        "\1\145\1\66\1\62\1\137\1\162\1\uffff\1\172\1\154\1\164\1\151\1\172"+
+        "\1\151\1\162\1\164\1\145\1\157\2\143\1\172\1\144\1\70\1\147\2\172"+
+        "\1\145\3\uffff\1\156\1\172\1\154\2\uffff\1\137\1\172\1\155\2\137"+
+        "\1\164\1\146\1\uffff\1\145\1\162\1\156\1\uffff\1\144\1\156\1\172"+
+        "\1\144\1\146\1\164\1\150\1\uffff\1\145\1\66\1\62\1\137\1\156\2\uffff"+
+        "\1\172\1\144\1\uffff\2\164\1\uffff\1\145\2\164\1\172\1\141\1\172"+
+        "\1\165\1\164\1\145\1\172\1\uffff\4\172\1\146\2\137\1\164\1\145\1"+
+        "\uffff\3\172\1\156\2\172\1\uffff\1\143\1\uffff\1\143\1\70\1\163"+
+        "\5\uffff\1\172\2\164\1\172\1\144\3\uffff\1\164\2\uffff\1\145\1\164"+
+        "\1\66\1\62\1\137\1\172\1\uffff\2\172\1\uffff\1\172\1\141\2\172\2"+
+        "\137\1\164\4\uffff\1\164\2\uffff\2\164\1\172\1\151\2\172\1\uffff"+
+        "\1\157\2\uffff\1\156\1\172\1\uffff";
     static final String DFA13_acceptS =
-        "\5\uffff\1\7\2\uffff\1\17\6\uffff\1\35\1\uffff\1\45\1\46\2\uffff"+
-        "\1\52\7\uffff\1\100\1\101\1\uffff\1\103\5\uffff\1\126\1\127\1\130"+
-        "\1\131\1\132\1\133\1\134\1\135\1\2\1\6\1\1\1\3\1\11\1\72\1\10\1"+
-        "\4\1\56\1\57\1\55\1\30\1\5\1\13\1\12\4\uffff\1\23\1\136\1\137\1"+
-        "\24\1\125\1\25\4\uffff\1\34\1\uffff\1\33\3\uffff\1\50\1\uffff\1"+
-        "\47\1\uffff\1\60\1\62\1\uffff\1\63\1\111\1\65\1\64\1\uffff\1\74"+
-        "\1\75\1\73\30\uffff\1\105\1\104\1\36\2\uffff\1\54\1\53\33\uffff"+
-        "\1\32\5\uffff\1\40\23\uffff\1\14\1\15\1\16\3\uffff\1\26\1\27\6\uffff"+
-        "\1\51\3\uffff\1\76\7\uffff\1\114\5\uffff\1\122\1\123\2\uffff\1\21"+
-        "\1\uffff\1\31\12\uffff\1\106\11\uffff\1\124\5\uffff\1\43\1\uffff"+
-        "\1\61\3\uffff\1\102\1\107\1\110\1\112\1\113\5\uffff\1\20\1\22\1"+
-        "\uffff\1\41\1\42\6\uffff\1\115\2\uffff\1\120\7\uffff\1\77\1\116"+
-        "\1\117\1\121\1\uffff\1\44\1\66\6\uffff\1\71\1\uffff\1\67\1\70\2"+
-        "\uffff\1\37";
+        "\5\uffff\1\7\2\uffff\1\17\6\uffff\1\36\1\uffff\1\46\1\47\2\uffff"+
+        "\1\53\7\uffff\1\101\1\102\1\uffff\1\104\5\uffff\1\127\1\130\1\131"+
+        "\1\132\1\133\1\134\1\135\1\136\1\2\1\6\1\1\1\3\1\11\1\73\1\10\1"+
+        "\4\1\57\1\60\1\56\1\30\1\5\1\13\1\12\4\uffff\1\23\1\137\1\140\1"+
+        "\24\1\126\1\25\5\uffff\1\35\1\uffff\1\34\3\uffff\1\51\1\uffff\1"+
+        "\50\1\uffff\1\61\1\63\1\uffff\1\64\1\112\1\66\1\65\1\uffff\1\75"+
+        "\1\76\1\74\31\uffff\1\106\1\105\1\37\2\uffff\1\55\1\54\34\uffff"+
+        "\1\33\5\uffff\1\41\23\uffff\1\14\1\15\1\16\3\uffff\1\26\1\27\7\uffff"+
+        "\1\52\3\uffff\1\77\7\uffff\1\115\5\uffff\1\123\1\124\2\uffff\1\21"+
+        "\2\uffff\1\32\12\uffff\1\107\11\uffff\1\125\6\uffff\1\44\1\uffff"+
+        "\1\62\3\uffff\1\103\1\110\1\111\1\113\1\114\5\uffff\1\20\1\22\1"+
+        "\31\1\uffff\1\42\1\43\6\uffff\1\116\2\uffff\1\121\7\uffff\1\100"+
+        "\1\117\1\120\1\122\1\uffff\1\45\1\67\6\uffff\1\72\1\uffff\1\70\1"+
+        "\71\2\uffff\1\40";
     static final String DFA13_specialS =
-        "\u012f\uffff}>";
+        "\u0136\uffff}>";
     static final String[] DFA13_transitionS = {
             "\2\55\1\uffff\2\55\22\uffff\1\55\1\31\1\53\1\17\1\uffff\1\26"+
             "\1\1\1\54\1\25\1\40\1\30\1\33\1\10\1\3\1\13\1\12\12\52\1\46"+
@@ -3819,32 +3852,32 @@ public class MininessLexer extends Lexer {
             "\1\100",
             "\1\102\4\uffff\1\103\15\uffff\1\101",
             "\1\105",
-            "\1\107\1\uffff\1\110\7\uffff\1\111",
-            "\1\112",
-            "\1\113\1\114",
+            "\1\107\1\uffff\1\110\3\uffff\1\111\3\uffff\1\112",
+            "\1\113",
+            "\1\114\1\115",
             "",
-            "\1\116\6\uffff\1\117\1\120",
+            "\1\117\6\uffff\1\120\1\121",
             "",
             "",
-            "\1\122\1\121",
-            "\1\124",
-            "",
+            "\1\123\1\122",
             "\1\125",
-            "\1\127",
+            "",
+            "\1\126",
             "\1\130",
-            "\1\132",
-            "\1\134",
-            "\1\136\21\uffff\1\135",
-            "\1\140\2\uffff\1\141",
+            "\1\131",
+            "\1\133",
+            "\1\135",
+            "\1\137\21\uffff\1\136",
+            "\1\141\2\uffff\1\142",
             "",
             "",
-            "\1\142",
+            "\1\143",
             "",
-            "\1\143\1\144\12\uffff\1\145\2\uffff\1\146",
-            "\1\147\27\uffff\1\150",
-            "\1\151\4\uffff\1\152\4\uffff\1\153",
-            "\1\154",
+            "\1\144\1\145\12\uffff\1\146\2\uffff\1\147",
+            "\1\150\27\uffff\1\151",
+            "\1\152\4\uffff\1\153\4\uffff\1\154",
             "\1\155",
+            "\1\156",
             "",
             "",
             "",
@@ -3868,48 +3901,47 @@ public class MininessLexer extends Lexer {
             "",
             "",
             "",
-            "\1\156\6\uffff\1\157",
-            "\1\160",
-            "\1\161\1\162",
-            "\1\163",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
+            "\1\157\6\uffff\1\160",
+            "\1\161",
+            "\1\162\1\163",
             "\1\164",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
             "\1\165",
             "\1\166",
             "\1\167",
-            "",
             "\1\170",
+            "\1\171",
+            "",
+            "\1\172",
             "",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "\1\173",
-            "\1\174",
-            "",
             "\1\175",
+            "\1\176",
             "",
             "\1\177",
-            "",
-            "",
-            "\1\u0080",
-            "",
-            "",
-            "",
             "",
             "\1\u0081",
             "",
             "",
-            "",
             "\1\u0082",
+            "",
+            "",
+            "",
+            "",
             "\1\u0083",
+            "",
+            "",
+            "",
             "\1\u0084",
             "\1\u0085",
-            "\1\u0086\22\uffff\1\u0087",
-            "\1\u0088",
-            "\1\u0089",
+            "\1\u0086",
+            "\1\u0087",
+            "\1\u0088\22\uffff\1\u0089",
             "\1\u008a",
             "\1\u008b",
             "\1\u008c",
@@ -3926,21 +3958,21 @@ public class MininessLexer extends Lexer {
             "\1\u0097",
             "\1\u0098",
             "\1\u0099",
+            "\1\u009a",
+            "\1\u009b",
+            "\1\u009c",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "",
             "",
             "",
-            "\1\u009b",
-            "\1\51\1\u009c\1\51\1\u009d\4\51\1\u009e\1\51\7\uffff\32\51"+
-            "\4\uffff\1\51\1\uffff\4\51\1\u009f\25\51",
+            "\1\u009e",
+            "\1\51\1\u009f\1\51\1\u00a0\4\51\1\u00a1\1\51\7\uffff\32\51"+
+            "\4\uffff\1\51\1\uffff\4\51\1\u00a2\25\51",
             "",
             "",
-            "\1\u00a1",
-            "\1\u00a2",
-            "\1\u00a3\1\uffff\1\u00a4",
+            "\1\u00a4",
             "\1\u00a5",
-            "\1\u00a6",
-            "\1\u00a7",
+            "\1\u00a6\1\uffff\1\u00a7",
             "\1\u00a8",
             "\1\u00a9",
             "\1\u00aa",
@@ -3953,162 +3985,170 @@ public class MininessLexer extends Lexer {
             "\1\u00b1",
             "\1\u00b2",
             "\1\u00b3",
+            "\1\u00b4",
+            "\1\u00b5",
+            "\1\u00b6",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "\1\u00b7",
-            "\1\u00b8",
-            "\1\u00b9",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\1\u00ba",
+            "\1\u00bb",
             "\1\u00bc",
-            "",
-            "\1\u00bd",
-            "\1\u00be",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "\1\u00bf",
             "\1\u00c0",
-            "\1\u00c1",
             "",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\1\u00c1",
+            "\1\u00c2",
             "\1\u00c3",
             "\1\u00c4",
             "\1\u00c5",
+            "",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "\1\u00c7",
             "\1\u00c8",
             "\1\u00c9",
-            "\1\u00ca",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "\1\u00cb",
             "\1\u00cc",
             "\1\u00cd",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\1\u00ce",
             "\1\u00cf",
-            "\1\u00d0\1\uffff\1\u00d1\4\uffff\1\u00d2",
+            "\1\u00d0",
+            "\1\u00d1",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "\1\u00d3",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "\1\u00d6",
-            "",
-            "",
-            "",
+            "\1\u00d4\1\uffff\1\u00d5\4\uffff\1\u00d6",
             "\1\u00d7",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "\1\u00d9",
-            "",
-            "",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "\1\u00db",
-            "\1\u00dc",
-            "\1\u00dd",
-            "\1\u00de",
-            "\1\u00df",
+            "\1\u00da",
             "",
+            "",
+            "",
+            "\1\u00db",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\1\u00dd",
+            "",
+            "",
+            "\1\u00de",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "\1\u00e0",
             "\1\u00e1",
             "\1\u00e2",
-            "",
             "\1\u00e3",
             "\1\u00e4",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "",
+            "\1\u00e5",
             "\1\u00e6",
             "\1\u00e7",
+            "",
             "\1\u00e8",
             "\1\u00e9",
-            "",
-            "\1\u00ea",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "\1\u00eb",
             "\1\u00ec",
             "\1\u00ed",
             "\1\u00ee",
             "",
-            "",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\1\u00ef",
             "\1\u00f0",
-            "",
             "\1\u00f1",
-            "",
             "\1\u00f2",
             "\1\u00f3",
-            "\1\u00f4",
+            "",
+            "",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\1\u00f5",
+            "",
             "\1\u00f6",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\1\u00f7",
+            "",
             "\1\u00f8",
             "\1\u00f9",
             "\1\u00fa",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "",
+            "\1\u00fc",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\1\u00fe",
+            "\1\u00ff",
             "\1\u0100",
-            "\1\u0101",
-            "\1\u0102",
-            "\1\u0103",
-            "\1\u0104",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\1\u0106",
             "\1\u0107",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "",
+            "\1\u0108",
+            "\1\u0109",
             "\1\u010a",
             "",
-            "\1\u010b",
-            "\1\u010c\1\uffff\1\u010d\4\uffff\1\u010e",
-            "\1\u010f",
-            "",
-            "",
-            "",
-            "",
-            "",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\1\u010e",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "",
             "\1\u0111",
+            "",
             "\1\u0112",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "\1\u0114",
-            "",
-            "",
-            "\1\u0115",
-            "",
-            "",
+            "\1\u0113\1\uffff\1\u0114\4\uffff\1\u0115",
             "\1\u0116",
-            "\1\u0117",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "\1\u0118",
             "\1\u0119",
-            "\1\u011a",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\1\u011b",
             "",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "",
+            "\1\u011c",
+            "",
+            "",
+            "\1\u011d",
+            "\1\u011e",
             "\1\u011f",
+            "\1\u0120",
+            "\1\u0121",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "\1\u0122",
-            "\1\u0123",
-            "\1\u0124",
             "",
-            "",
-            "",
-            "",
-            "\1\u0125",
-            "",
-            "",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "\1\u0126",
-            "\1\u0127",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             "\1\u0129",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
-            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\1\u012a",
+            "\1\u012b",
+            "",
+            "",
+            "",
             "",
             "\1\u012c",
             "",
             "",
             "\1\u012d",
+            "\1\u012e",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\1\u0130",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
+            "",
+            "\1\u0133",
+            "",
+            "",
+            "\1\u0134",
             "\12\51\7\uffff\32\51\4\uffff\1\51\1\uffff\32\51",
             ""
     };
@@ -4143,7 +4183,7 @@ public class MininessLexer extends Lexer {
             this.transition = DFA13_transition;
         }
         public String getDescription() {
-            return "1:1: Tokens : ( AMP | AND | ARRAYINC | ARROW | ASSIGN | BITANDASSIGN | BITCOMPLEMENT | BITOR | BITORASSIGN | BITXOR | BITXORASSIGN | CALL | CASE | CHAR | COMMA | COMMAND | CONST | DEFAULT | DIVASSIGN | DIVIDE | DOT | ELSE | ENUM | EQUAL | EVENT | FOR | GREATER | GREATEREQUAL | HASH | IF | IMPLEMENTATION | INT | INT16_T | INT32_T | INT8_T | INTERFACE | LBRACE | LBRACKET | LESS | LESSEQUAL | LONG | LPARENS | LSHIFT | LSHIFTASSIGN | MINUS | MINUSASSIGN | MINUSMINUS | MODASSIGN | MODULE | MODULUS | MULASSIGN | NOT | NOTEQUAL | NX_STRUCT | NX_UINT16_T | NX_UINT32_T | NX_UINT8_T | OR | PLUS | PLUSASSIGN | PLUSPLUS | POST | PROVIDES | RBRACE | RBRACKET | RETURN | RPARENS | RSHIFT | RSHIFTASSIGN | SHORT | SIGNED | SIZEOF | STAR | STRUCT | SWITCH | TASK | TYPEDEF | UINT16_T | UINT32_T | UINT8_T | UNSIGNED | USES | VOID | WHILE | T__138 | T__139 | T__140 | T__141 | RAW_IDENTIFIER | CONSTANT | STRING_LITERAL | CHARACTER_LITERAL | WHITESPACE | COMMENT1 | COMMENT2 );";
+            return "1:1: Tokens : ( AMP | AND | ARRAYINC | ARROW | ASSIGN | BITANDASSIGN | BITCOMPLEMENT | BITOR | BITORASSIGN | BITXOR | BITXORASSIGN | CALL | CASE | CHAR | COMMA | COMMAND | CONST | DEFAULT | DIVASSIGN | DIVIDE | DOT | ELSE | ENUM | EQUAL | ERROR_T | EVENT | FOR | GREATER | GREATEREQUAL | HASH | IF | IMPLEMENTATION | INT | INT16_T | INT32_T | INT8_T | INTERFACE | LBRACE | LBRACKET | LESS | LESSEQUAL | LONG | LPARENS | LSHIFT | LSHIFTASSIGN | MINUS | MINUSASSIGN | MINUSMINUS | MODASSIGN | MODULE | MODULUS | MULASSIGN | NOT | NOTEQUAL | NX_STRUCT | NX_UINT16_T | NX_UINT32_T | NX_UINT8_T | OR | PLUS | PLUSASSIGN | PLUSPLUS | POST | PROVIDES | RBRACE | RBRACKET | RETURN | RPARENS | RSHIFT | RSHIFTASSIGN | SHORT | SIGNED | SIZEOF | STAR | STRUCT | SWITCH | TASK | TYPEDEF | UINT16_T | UINT32_T | UINT8_T | UNSIGNED | USES | VOID | WHILE | T__139 | T__140 | T__141 | T__142 | RAW_IDENTIFIER | CONSTANT | STRING_LITERAL | CHARACTER_LITERAL | WHITESPACE | COMMENT1 | COMMENT2 );";
         }
     }
  

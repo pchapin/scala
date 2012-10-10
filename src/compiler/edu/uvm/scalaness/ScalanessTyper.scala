@@ -131,7 +131,8 @@ trait ScalanessTyper {
         "Int32"  -> Int32,
         "UInt8"  -> UInt8,
         "UInt16" -> UInt16,
-        "UInt32" -> UInt32)
+        "UInt32" -> UInt32,
+        "ErrorT" -> ErrorT)
 
         translation.getOrElse(baseTypeName, {
           reporter.error(null, "Liftable type " + baseTypeName + " not yet supported. Using Int32")
@@ -277,7 +278,8 @@ trait ScalanessTyper {
                     ("uint32_t" -> MininessTypes.UInt32),
                     ("int8_t"   -> MininessTypes.Int8  ),
                     ("int16_t"  -> MininessTypes.Int16 ),
-                    ("int32_t"  -> MininessTypes.Int32 )),
+                    ("int32_t"  -> MininessTypes.Int32 ),
+                    ("error_t"  -> MininessTypes.ErrorT)),
                 valueParameters)
                 )
               typeChecker.checkMininessInclusion(unwrappedAbstractSyntax)

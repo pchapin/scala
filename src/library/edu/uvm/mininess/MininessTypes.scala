@@ -26,6 +26,7 @@ object MininessTypes {
   case object Int8   extends Representation { override def toString = "int8_t"   }
   case object Int16  extends Representation { override def toString = "int16_t"  }
   case object Int32  extends Representation { override def toString = "int32_t"  }
+  case object ErrorT extends Representation { override def toString = "error_t"  }
   case object Top    extends Representation { override def toString = "TOP"      }
   
   // Type variables.

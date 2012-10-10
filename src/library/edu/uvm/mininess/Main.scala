@@ -29,7 +29,7 @@ object Main {
         // These are type names imported from the TinyOS library. When parsing just one file at a time, we need to
         // "preload" the global symbol table with this information.
         //
-        val globalTypes = Array("bool", "error_t", "message_t")
+        val globalTypes = Array("bool", "message_t")
 
         // Configure a global SymbolTableManager. This is necessary because nesC's global scope spans all files in the
         // program. That is, global entities declared in one file are visible in all other files compiled afterward.

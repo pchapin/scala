@@ -30,7 +30,7 @@ tokens {
     VOID           = 'void';
     WHILE          = 'while';
     
-    // Are these type names built into the language?
+    // These type names are treated as if built-in.
     INT8_T         = 'int8_t';
     INT16_T        = 'int16_t';
     INT32_T        = 'int32_t';
@@ -40,6 +40,7 @@ tokens {
     NX_UINT8_T     = 'nx_uint8_t';
     NX_UINT16_T    = 'nx_uint16_t';
     NX_UINT32_T    = 'nx_uint32_t';
+    ERROR_T        = 'error_t';
     
     // nesC extensions to Standard C
     CALL           = 'call';
@@ -396,7 +397,7 @@ type_specifier
     |   LONG
     |   SIGNED
     |   UNSIGNED
-    |   INT8_T            // Temporary hack?
+    |   INT8_T            // Temporary hack?  These types are currently treated as built-in.
     |   INT16_T           // Temporary hack?
     |   INT32_T           // Temporary hack?
     |   UINT8_T           // Temporary hack?
@@ -405,6 +406,7 @@ type_specifier
     |   NX_UINT8_T        // Temporary hack?
     |   NX_UINT16_T       // Temporary hack?
     |   NX_UINT32_T       // Temporary hack?
+    |   ERROR_T           // Temporary hack?
     |   struct_or_union_specifier
     |   enum_specifier
     |   typedef_name;

@@ -1910,6 +1910,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
           val ValDef(_, name, _, _) = vdef
           println(s"Parsing ModuleType annotation on val: ${name.toString}")
           val moduleTypeAST = parseScalanessAnnotation(annotation.assocs)
+          val moduleTypeASTMininess = edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST)
           // println(moduleTypeAST)
         }
       }

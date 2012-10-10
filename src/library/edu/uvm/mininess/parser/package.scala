@@ -30,7 +30,7 @@ package object parser {
     
     // Prime the global symbol table with a few "known" types.
     val globalSymbols = new ParserSymbolsManager
-    val globalTypes = Array("bool", "error_t", "message_t")
+    val globalTypes = Array("bool", "message_t")
     for (globalType <- globalTypes) {
       globalSymbols.addType(globalType)
     }
