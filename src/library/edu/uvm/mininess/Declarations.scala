@@ -164,7 +164,7 @@ object Declarations {
 
     
     // Debug flag controls printing of helpful information about nodes
-    var debugFlag = true
+    var debugFlag = false
     if (debugFlag) TreeConverter.dumpAST(declaration)
     
     // If a new structure type is being declared, it is handled here
