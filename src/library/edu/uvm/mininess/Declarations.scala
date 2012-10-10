@@ -164,11 +164,11 @@ object Declarations {
 
     
     // Debug flag controls printing of helpful information about nodes
-    var debugFlag = false
+    var debugFlag = true
     if (debugFlag) TreeConverter.dumpAST(declaration)
     
     // If a new structure type is being declared, it is handled here
-    if (declaration.children(0).tokenType == 120 &&
+    if (declaration.children(0).tokenType == MininessLexer.STRUCT &&
         declaration.children.length == 1) {
       val newStructure = declareNewStruct(declaration)
       return newStructure

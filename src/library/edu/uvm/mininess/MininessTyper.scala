@@ -513,8 +513,13 @@ class MininessTyper(
             case Some(cType) => cType
             case _ => throw new TypeException("Argument must have a type")
           }
-
-          if (!(areSubtypes(childType, parameterList(i))))
+          
+          val parameterType = parameterList(i) match {
+            case TypeVariable(t) => promote(typeVars, t)
+            case cType => cType
+          }
+           
+          if (!(areSubtypes(childType, parameterType)))
             throw new TypeException("Parameter type mismatch")
         } // Compares each argument type to the parameter being asked for by the function.
           // Argument should be subtype of parameter, is this right?
@@ -658,11 +663,15 @@ class MininessTyper(
           case Some(childType) => childType
           case _ => throw new TypeException("Cast child must have a type")
         }
-        val castType = children(1).text match {
+        var castType = children(1).text match {
           case "struct" => Symbols.lookupStructVariable(node, children(1).children(0).text)
           case _ => Symbols.lookupTypeVariable(node, children(1).text)
         }
-       
+ 
+        if (castType == Uninit) {
+          castType = promote(typeVars, children(1).text)
+        }
+
         if (isCompatible(childType,castType,typeRelation))
           Some(castType)
         else throw new TypeException("Incompatible Cast")

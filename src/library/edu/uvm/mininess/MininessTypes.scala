@@ -205,7 +205,9 @@ object MininessTypes {
   def isCompatible(
     left : Representation,
     right: Representation,
-    typeRelation: TypeCompatibilityRelation) = {
+    typeRelation: TypeCompatibilityRelation): Boolean = {
+      if (areSubtypes(left, right))
+        return true
       val leftType = left match {
         case Structure(structName, fields) => Structure(structName, List())
         case _ => left
