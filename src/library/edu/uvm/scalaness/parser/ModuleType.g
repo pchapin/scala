@@ -15,6 +15,7 @@ tokens {
     UINT8  = 'UInt8';
     UINT16 = 'UInt16';
     UINT32 = 'UInt32';
+    ERRORT = 'ErrorT';
     
     // Punctuators
     COLON   = ':';
@@ -158,7 +159,8 @@ type_name
     |    INT32
     |    UINT8
     |    UINT16
-    |    UINT32;
+    |    UINT32
+    |    ERRORT;
 
 generalized_type_name
     :    type_name | IDENTIFIER;

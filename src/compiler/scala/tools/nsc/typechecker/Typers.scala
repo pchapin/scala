@@ -1907,6 +1907,8 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       // Search for Scalaness ModuleType annotations and process them.
       for (annotation <- annots) {
         if (annotation.tpe.toString == "edu.uvm.scalaness.ModuleType") {
+          val ValDef(_, name, _, _) = vdef
+          println(s"Parsing ModuleType annotation on val: ${name.toString}")
           val moduleTypeAST = parseScalanessAnnotation(annotation.assocs)
           // println(moduleTypeAST)
         }
