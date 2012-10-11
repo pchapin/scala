@@ -36,7 +36,7 @@ object MininessTypes {
   type TypeBound = (TypeVariable, Representation)
   type TypeBinding = (String, Representation)
   case class Structure(name: String, members: List[(String, Representation)]) extends Representation
-  case class Array(elementType: Representation, size: Int) extends Representation
+  case class Array(elementType: Representation, size: String) extends Representation
   case class Pointer(targetType: Representation) extends Representation
   
   case class Function(

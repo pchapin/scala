@@ -218,6 +218,12 @@ object TreeConverter {
           case MininessTypes.Array(_, aSize) => aSize
           case _ => throw new Exception("Unable to locate array size")
         }
+        val isConstant = try {
+                           val test = arraySize.toInt
+                           true
+                         } catch { 
+                           case e: Exception => false
+                         }
         
         val arrayStatementNode = getStatementNode(root)
         val (firstHalf,secondHalf) = getTwoNumbers(arrayStatementNode)
@@ -241,8 +247,17 @@ object TreeConverter {
           val accessorNode = ASTNode(MininessLexer.CONSTANT, accessNode.text, List(), Some(newNode), symbolTable)
           newNode.children = List(accessorNode)
         }
-        val sizeNode = ASTNode(MininessLexer.CONSTANT, arraySize.toString, List(), Some(newNode2), symbolTable)
-        newNode2.children = List(sizeNode)
+        if (isConstant) {
+          val sizeNode = ASTNode(MininessLexer.CONSTANT, arraySize, List(), Some(newNode2), symbolTable)
+          newNode2.children = List(sizeNode)
+        } else {
+          val sizeType = Symbols.lookupVariable(root, arraySize)
+          if (!(MininessTypes.areSubtypes(sizeType, MininessTypes.Int32) || 
+                MininessTypes.areSubtypes(sizeType, MininessTypes.UInt32)))
+            throw new Exception("Array size must be integer type")
+          val sizeNode = ASTNode(MininessLexer.RAW_IDENTIFIER, arraySize, List(), Some(newNode2), symbolTable)
+          newNode2.children = List(sizeNode)
+        }
         val statementNode = ASTNode(MininessLexer.STATEMENT, "STATEMENT", List(), Some(ifNode), symbolTable)
         val statementPFENode = ASTNode(MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(statementNode), symbolTable)
         statementNode.children = List(statementPFENode)

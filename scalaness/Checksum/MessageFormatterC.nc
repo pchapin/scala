@@ -1,6 +1,6 @@
 
 module MessageFormatterC {
-    uses command checksumType compute_checksum(uint32_t data);
+    uses command checksumType compute_checksum(int32_t data);
 }
 implementation {
     
