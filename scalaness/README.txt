@@ -5,7 +5,10 @@ Samples README.txt
 Blink
     This folder contains a trivial staged "blink" sample.
 
-PaperSample
+Checksum
+    This folder contains a sample that specializes a module that computes checksums.
+
+Figure1
     This folder contains a live version of the sample used in Figure 1 of the nesT/Scalaness
     paper.
 
