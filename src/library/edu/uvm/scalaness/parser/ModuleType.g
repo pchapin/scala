@@ -16,18 +16,23 @@ tokens {
     UINT16 = 'UInt16';
     UINT32 = 'UInt32';
     ERRORT = 'ErrorT';
+
+    // Keywords
+    ARRAY  = 'Array';
     
     // Punctuators
-    COLON   = ':';
-    COMMA   = ',';
-    LANGLE  = '<';
-    LBRACE  = '{';
-    LPARENS = '(';
-    RANGLE  = '>';
-    RBRACE  = '}';
-    RPARENS = ')';
-    SEMI    = ';';
-    SUBTYPE = '<:';
+    COLON    = ':';
+    COMMA    = ',';
+    LANGLE   = '<';
+    LBRACE   = '{';
+    LBRACKET = '[';
+    LPARENS  = '(';
+    RANGLE   = '>';
+    RBRACE   = '}';
+    RBRACKET = ']';
+    RPARENS  = ')';
+    SEMI     = ';';
+    SUBTYPE  = '<:';
     
     // Pseudo-tokens used during AST construction.
     EXISTENTIAL_LIST;
@@ -143,7 +148,7 @@ simple_declaration_list
     :    simple_declaration (','! simple_declaration)*;
 
 simple_declaration
-    :    IDENTIFIER ':'^ generalized_type_name;
+    :    IDENTIFIER ':'^ type_specifier;
 
 function_declaration_list
     :    function_declaration (','! function_declaration)*;
@@ -151,6 +156,13 @@ function_declaration_list
 function_declaration
     :    name=IDENTIFIER '(' simple_declaration_list? ')' ':' return_type=generalized_type_name
          -> ^(FUNCTION_DECLARATION $name $return_type simple_declaration_list?);
+
+type_specifier
+    :    generalized_type_name
+    |    ARRAY '[' generalized_type_name ']' -> ^(ARRAY generalized_type_name);
+
+generalized_type_name
+    :    type_name | IDENTIFIER;
 
 type_name
     :    VOID
@@ -161,9 +173,6 @@ type_name
     |    UINT16
     |    UINT32
     |    ERRORT;
-
-generalized_type_name
-    :    type_name | IDENTIFIER;
 
 /* =========== */
 /* Lexer rules */

@@ -1,12 +1,17 @@
 
 module ChecksumC {
-    provides command checksumType compute_checksum(uint32_t data);
+    provides command checksumType compute_checksum(uint8_t data[]);
 }
 implementation {
     
-    command checksumType compute_checksum(uint32_t data)
+    command checksumType compute_checksum(uint8_t data[])
     {
-        return 0;
+        checksumType sum = 0;
+        int16_t i;
+        for( i = 0; i < (int16_t)size; ++i ) {
+            sum += data[i];
+        }
+        return sum;
     }
     
 }

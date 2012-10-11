@@ -1,4 +1,4 @@
-// $ANTLR 3.4 ModuleType.g 2012-10-09 19:20:27
+// $ANTLR 3.4 ModuleType.g 2012-10-11 18:48:19
 
     package edu.uvm.scalaness.parser;
 
@@ -16,40 +16,43 @@ import org.antlr.runtime.tree.*;
 @SuppressWarnings({"all", "warnings", "unchecked"})
 public class ModuleTypeParser extends Parser {
     public static final String[] tokenNames = new String[] {
-        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "COLON", "COMMA", "COMMENT1", "COMMENT2", "ERRORT", "EXISTENTIAL_LIST", "EXPORT_LIST", "FUNCTION_DECLARATION", "IDENTIFIER", "IMPORT_LIST", "INT16", "INT32", "INT8", "LANGLE", "LBRACE", "LPARENS", "MODULE_TYPE", "PARAMETER_LIST", "RANGLE", "RBRACE", "RPARENS", "SEMI", "SUBTYPE", "TYPE_PARAMETER_LIST", "UINT16", "UINT32", "UINT8", "VALUE_PARAMETER_LIST", "VOID", "WHITESPACE"
+        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "ARRAY", "COLON", "COMMA", "COMMENT1", "COMMENT2", "ERRORT", "EXISTENTIAL_LIST", "EXPORT_LIST", "FUNCTION_DECLARATION", "IDENTIFIER", "IMPORT_LIST", "INT16", "INT32", "INT8", "LANGLE", "LBRACE", "LBRACKET", "LPARENS", "MODULE_TYPE", "PARAMETER_LIST", "RANGLE", "RBRACE", "RBRACKET", "RPARENS", "SEMI", "SUBTYPE", "TYPE_PARAMETER_LIST", "UINT16", "UINT32", "UINT8", "VALUE_PARAMETER_LIST", "VOID", "WHITESPACE"
     };
 
     public static final int EOF=-1;
-    public static final int COLON=4;
-    public static final int COMMA=5;
-    public static final int COMMENT1=6;
-    public static final int COMMENT2=7;
-    public static final int ERRORT=8;
-    public static final int EXISTENTIAL_LIST=9;
-    public static final int EXPORT_LIST=10;
-    public static final int FUNCTION_DECLARATION=11;
-    public static final int IDENTIFIER=12;
-    public static final int IMPORT_LIST=13;
-    public static final int INT16=14;
-    public static final int INT32=15;
-    public static final int INT8=16;
-    public static final int LANGLE=17;
-    public static final int LBRACE=18;
-    public static final int LPARENS=19;
-    public static final int MODULE_TYPE=20;
-    public static final int PARAMETER_LIST=21;
-    public static final int RANGLE=22;
-    public static final int RBRACE=23;
-    public static final int RPARENS=24;
-    public static final int SEMI=25;
-    public static final int SUBTYPE=26;
-    public static final int TYPE_PARAMETER_LIST=27;
-    public static final int UINT16=28;
-    public static final int UINT32=29;
-    public static final int UINT8=30;
-    public static final int VALUE_PARAMETER_LIST=31;
-    public static final int VOID=32;
-    public static final int WHITESPACE=33;
+    public static final int ARRAY=4;
+    public static final int COLON=5;
+    public static final int COMMA=6;
+    public static final int COMMENT1=7;
+    public static final int COMMENT2=8;
+    public static final int ERRORT=9;
+    public static final int EXISTENTIAL_LIST=10;
+    public static final int EXPORT_LIST=11;
+    public static final int FUNCTION_DECLARATION=12;
+    public static final int IDENTIFIER=13;
+    public static final int IMPORT_LIST=14;
+    public static final int INT16=15;
+    public static final int INT32=16;
+    public static final int INT8=17;
+    public static final int LANGLE=18;
+    public static final int LBRACE=19;
+    public static final int LBRACKET=20;
+    public static final int LPARENS=21;
+    public static final int MODULE_TYPE=22;
+    public static final int PARAMETER_LIST=23;
+    public static final int RANGLE=24;
+    public static final int RBRACE=25;
+    public static final int RBRACKET=26;
+    public static final int RPARENS=27;
+    public static final int SEMI=28;
+    public static final int SUBTYPE=29;
+    public static final int TYPE_PARAMETER_LIST=30;
+    public static final int UINT16=31;
+    public static final int UINT32=32;
+    public static final int UINT8=33;
+    public static final int VALUE_PARAMETER_LIST=34;
+    public static final int VOID=35;
+    public static final int WHITESPACE=36;
 
     // delegates
     public Parser[] getDelegates() {
@@ -64,7 +67,7 @@ public class ModuleTypeParser extends Parser {
     }
     public ModuleTypeParser(TokenStream input, RecognizerSharedState state) {
         super(input, state);
-        this.state.ruleMemo = new HashMap[31+1];
+        this.state.ruleMemo = new HashMap[33+1];
          
 
     }
@@ -132,7 +135,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "module_type"
-    // ModuleType.g:111:1: module_type : '{' existential_list '}' '<' type_parameter_list ';' value_parameter_list '>' '{' import_list ';' export_list '}' EOF -> ^( MODULE_TYPE existential_list type_parameter_list value_parameter_list import_list export_list ) ;
+    // ModuleType.g:116:1: module_type : '{' existential_list '}' '<' type_parameter_list ';' value_parameter_list '>' '{' import_list ';' export_list '}' EOF -> ^( MODULE_TYPE existential_list type_parameter_list value_parameter_list import_list export_list ) ;
     public final ModuleTypeParser.module_type_return module_type() throws RecognitionException {
         ModuleTypeParser.module_type_return retval = new ModuleTypeParser.module_type_return();
         retval.start = input.LT(1);
@@ -184,82 +187,82 @@ public TreeAdaptor getTreeAdaptor() {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 1) ) { return retval; }
 
-            // ModuleType.g:112:5: ( '{' existential_list '}' '<' type_parameter_list ';' value_parameter_list '>' '{' import_list ';' export_list '}' EOF -> ^( MODULE_TYPE existential_list type_parameter_list value_parameter_list import_list export_list ) )
-            // ModuleType.g:112:10: '{' existential_list '}' '<' type_parameter_list ';' value_parameter_list '>' '{' import_list ';' export_list '}' EOF
+            // ModuleType.g:117:5: ( '{' existential_list '}' '<' type_parameter_list ';' value_parameter_list '>' '{' import_list ';' export_list '}' EOF -> ^( MODULE_TYPE existential_list type_parameter_list value_parameter_list import_list export_list ) )
+            // ModuleType.g:117:10: '{' existential_list '}' '<' type_parameter_list ';' value_parameter_list '>' '{' import_list ';' export_list '}' EOF
             {
-            char_literal1=(Token)match(input,LBRACE,FOLLOW_LBRACE_in_module_type411); if (state.failed) return retval; 
+            char_literal1=(Token)match(input,LBRACE,FOLLOW_LBRACE_in_module_type461); if (state.failed) return retval; 
             if ( state.backtracking==0 ) stream_LBRACE.add(char_literal1);
 
 
-            pushFollow(FOLLOW_existential_list_in_module_type413);
+            pushFollow(FOLLOW_existential_list_in_module_type463);
             existential_list2=existential_list();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) stream_existential_list.add(existential_list2.getTree());
 
-            char_literal3=(Token)match(input,RBRACE,FOLLOW_RBRACE_in_module_type415); if (state.failed) return retval; 
+            char_literal3=(Token)match(input,RBRACE,FOLLOW_RBRACE_in_module_type465); if (state.failed) return retval; 
             if ( state.backtracking==0 ) stream_RBRACE.add(char_literal3);
 
 
-            char_literal4=(Token)match(input,LANGLE,FOLLOW_LANGLE_in_module_type426); if (state.failed) return retval; 
+            char_literal4=(Token)match(input,LANGLE,FOLLOW_LANGLE_in_module_type476); if (state.failed) return retval; 
             if ( state.backtracking==0 ) stream_LANGLE.add(char_literal4);
 
 
-            pushFollow(FOLLOW_type_parameter_list_in_module_type428);
+            pushFollow(FOLLOW_type_parameter_list_in_module_type478);
             type_parameter_list5=type_parameter_list();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) stream_type_parameter_list.add(type_parameter_list5.getTree());
 
-            char_literal6=(Token)match(input,SEMI,FOLLOW_SEMI_in_module_type430); if (state.failed) return retval; 
+            char_literal6=(Token)match(input,SEMI,FOLLOW_SEMI_in_module_type480); if (state.failed) return retval; 
             if ( state.backtracking==0 ) stream_SEMI.add(char_literal6);
 
 
-            pushFollow(FOLLOW_value_parameter_list_in_module_type432);
+            pushFollow(FOLLOW_value_parameter_list_in_module_type482);
             value_parameter_list7=value_parameter_list();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) stream_value_parameter_list.add(value_parameter_list7.getTree());
 
-            char_literal8=(Token)match(input,RANGLE,FOLLOW_RANGLE_in_module_type434); if (state.failed) return retval; 
+            char_literal8=(Token)match(input,RANGLE,FOLLOW_RANGLE_in_module_type484); if (state.failed) return retval; 
             if ( state.backtracking==0 ) stream_RANGLE.add(char_literal8);
 
 
-            char_literal9=(Token)match(input,LBRACE,FOLLOW_LBRACE_in_module_type445); if (state.failed) return retval; 
+            char_literal9=(Token)match(input,LBRACE,FOLLOW_LBRACE_in_module_type495); if (state.failed) return retval; 
             if ( state.backtracking==0 ) stream_LBRACE.add(char_literal9);
 
 
-            pushFollow(FOLLOW_import_list_in_module_type447);
+            pushFollow(FOLLOW_import_list_in_module_type497);
             import_list10=import_list();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) stream_import_list.add(import_list10.getTree());
 
-            char_literal11=(Token)match(input,SEMI,FOLLOW_SEMI_in_module_type449); if (state.failed) return retval; 
+            char_literal11=(Token)match(input,SEMI,FOLLOW_SEMI_in_module_type499); if (state.failed) return retval; 
             if ( state.backtracking==0 ) stream_SEMI.add(char_literal11);
 
 
-            pushFollow(FOLLOW_export_list_in_module_type451);
+            pushFollow(FOLLOW_export_list_in_module_type501);
             export_list12=export_list();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) stream_export_list.add(export_list12.getTree());
 
-            char_literal13=(Token)match(input,RBRACE,FOLLOW_RBRACE_in_module_type453); if (state.failed) return retval; 
+            char_literal13=(Token)match(input,RBRACE,FOLLOW_RBRACE_in_module_type503); if (state.failed) return retval; 
             if ( state.backtracking==0 ) stream_RBRACE.add(char_literal13);
 
 
-            EOF14=(Token)match(input,EOF,FOLLOW_EOF_in_module_type455); if (state.failed) return retval; 
+            EOF14=(Token)match(input,EOF,FOLLOW_EOF_in_module_type505); if (state.failed) return retval; 
             if ( state.backtracking==0 ) stream_EOF.add(EOF14);
 
 
             // AST REWRITE
-            // elements: value_parameter_list, type_parameter_list, existential_list, export_list, import_list
+            // elements: export_list, type_parameter_list, import_list, value_parameter_list, existential_list
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -271,9 +274,9 @@ public TreeAdaptor getTreeAdaptor() {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 115:5: -> ^( MODULE_TYPE existential_list type_parameter_list value_parameter_list import_list export_list )
+            // 120:5: -> ^( MODULE_TYPE existential_list type_parameter_list value_parameter_list import_list export_list )
             {
-                // ModuleType.g:115:8: ^( MODULE_TYPE existential_list type_parameter_list value_parameter_list import_list export_list )
+                // ModuleType.g:120:8: ^( MODULE_TYPE existential_list type_parameter_list value_parameter_list import_list export_list )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(
@@ -334,7 +337,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "existential_list"
-    // ModuleType.g:121:1: existential_list : ( coercion_list )? -> ^( EXISTENTIAL_LIST ( coercion_list )? ) ;
+    // ModuleType.g:126:1: existential_list : ( coercion_list )? -> ^( EXISTENTIAL_LIST ( coercion_list )? ) ;
     public final ModuleTypeParser.existential_list_return existential_list() throws RecognitionException {
         ModuleTypeParser.existential_list_return retval = new ModuleTypeParser.existential_list_return();
         retval.start = input.LT(1);
@@ -350,10 +353,10 @@ public TreeAdaptor getTreeAdaptor() {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 2) ) { return retval; }
 
-            // ModuleType.g:122:5: ( ( coercion_list )? -> ^( EXISTENTIAL_LIST ( coercion_list )? ) )
-            // ModuleType.g:122:10: ( coercion_list )?
+            // ModuleType.g:127:5: ( ( coercion_list )? -> ^( EXISTENTIAL_LIST ( coercion_list )? ) )
+            // ModuleType.g:127:10: ( coercion_list )?
             {
-            // ModuleType.g:122:10: ( coercion_list )?
+            // ModuleType.g:127:10: ( coercion_list )?
             int alt1=2;
             int LA1_0 = input.LA(1);
 
@@ -362,9 +365,9 @@ public TreeAdaptor getTreeAdaptor() {
             }
             switch (alt1) {
                 case 1 :
-                    // ModuleType.g:122:10: coercion_list
+                    // ModuleType.g:127:10: coercion_list
                     {
-                    pushFollow(FOLLOW_coercion_list_in_existential_list574);
+                    pushFollow(FOLLOW_coercion_list_in_existential_list624);
                     coercion_list15=coercion_list();
 
                     state._fsp--;
@@ -390,16 +393,16 @@ public TreeAdaptor getTreeAdaptor() {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 122:25: -> ^( EXISTENTIAL_LIST ( coercion_list )? )
+            // 127:25: -> ^( EXISTENTIAL_LIST ( coercion_list )? )
             {
-                // ModuleType.g:122:28: ^( EXISTENTIAL_LIST ( coercion_list )? )
+                // ModuleType.g:127:28: ^( EXISTENTIAL_LIST ( coercion_list )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(
                 (Object)adaptor.create(EXISTENTIAL_LIST, "EXISTENTIAL_LIST")
                 , root_1);
 
-                // ModuleType.g:122:47: ( coercion_list )?
+                // ModuleType.g:127:47: ( coercion_list )?
                 if ( stream_coercion_list.hasNext() ) {
                     adaptor.addChild(root_1, stream_coercion_list.nextTree());
 
@@ -450,7 +453,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "type_parameter_list"
-    // ModuleType.g:124:1: type_parameter_list : ( coercion_list )? -> ^( TYPE_PARAMETER_LIST ( coercion_list )? ) ;
+    // ModuleType.g:129:1: type_parameter_list : ( coercion_list )? -> ^( TYPE_PARAMETER_LIST ( coercion_list )? ) ;
     public final ModuleTypeParser.type_parameter_list_return type_parameter_list() throws RecognitionException {
         ModuleTypeParser.type_parameter_list_return retval = new ModuleTypeParser.type_parameter_list_return();
         retval.start = input.LT(1);
@@ -466,10 +469,10 @@ public TreeAdaptor getTreeAdaptor() {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 3) ) { return retval; }
 
-            // ModuleType.g:125:5: ( ( coercion_list )? -> ^( TYPE_PARAMETER_LIST ( coercion_list )? ) )
-            // ModuleType.g:125:10: ( coercion_list )?
+            // ModuleType.g:130:5: ( ( coercion_list )? -> ^( TYPE_PARAMETER_LIST ( coercion_list )? ) )
+            // ModuleType.g:130:10: ( coercion_list )?
             {
-            // ModuleType.g:125:10: ( coercion_list )?
+            // ModuleType.g:130:10: ( coercion_list )?
             int alt2=2;
             int LA2_0 = input.LA(1);
 
@@ -478,9 +481,9 @@ public TreeAdaptor getTreeAdaptor() {
             }
             switch (alt2) {
                 case 1 :
-                    // ModuleType.g:125:10: coercion_list
+                    // ModuleType.g:130:10: coercion_list
                     {
-                    pushFollow(FOLLOW_coercion_list_in_type_parameter_list599);
+                    pushFollow(FOLLOW_coercion_list_in_type_parameter_list649);
                     coercion_list16=coercion_list();
 
                     state._fsp--;
@@ -506,16 +509,16 @@ public TreeAdaptor getTreeAdaptor() {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 125:25: -> ^( TYPE_PARAMETER_LIST ( coercion_list )? )
+            // 130:25: -> ^( TYPE_PARAMETER_LIST ( coercion_list )? )
             {
-                // ModuleType.g:125:28: ^( TYPE_PARAMETER_LIST ( coercion_list )? )
+                // ModuleType.g:130:28: ^( TYPE_PARAMETER_LIST ( coercion_list )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(
                 (Object)adaptor.create(TYPE_PARAMETER_LIST, "TYPE_PARAMETER_LIST")
                 , root_1);
 
-                // ModuleType.g:125:50: ( coercion_list )?
+                // ModuleType.g:130:50: ( coercion_list )?
                 if ( stream_coercion_list.hasNext() ) {
                     adaptor.addChild(root_1, stream_coercion_list.nextTree());
 
@@ -566,7 +569,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "value_parameter_list"
-    // ModuleType.g:127:1: value_parameter_list : ( simple_declaration_list )? -> ^( VALUE_PARAMETER_LIST ( simple_declaration_list )? ) ;
+    // ModuleType.g:132:1: value_parameter_list : ( simple_declaration_list )? -> ^( VALUE_PARAMETER_LIST ( simple_declaration_list )? ) ;
     public final ModuleTypeParser.value_parameter_list_return value_parameter_list() throws RecognitionException {
         ModuleTypeParser.value_parameter_list_return retval = new ModuleTypeParser.value_parameter_list_return();
         retval.start = input.LT(1);
@@ -582,10 +585,10 @@ public TreeAdaptor getTreeAdaptor() {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 4) ) { return retval; }
 
-            // ModuleType.g:128:5: ( ( simple_declaration_list )? -> ^( VALUE_PARAMETER_LIST ( simple_declaration_list )? ) )
-            // ModuleType.g:128:10: ( simple_declaration_list )?
+            // ModuleType.g:133:5: ( ( simple_declaration_list )? -> ^( VALUE_PARAMETER_LIST ( simple_declaration_list )? ) )
+            // ModuleType.g:133:10: ( simple_declaration_list )?
             {
-            // ModuleType.g:128:10: ( simple_declaration_list )?
+            // ModuleType.g:133:10: ( simple_declaration_list )?
             int alt3=2;
             int LA3_0 = input.LA(1);
 
@@ -594,9 +597,9 @@ public TreeAdaptor getTreeAdaptor() {
             }
             switch (alt3) {
                 case 1 :
-                    // ModuleType.g:128:10: simple_declaration_list
+                    // ModuleType.g:133:10: simple_declaration_list
                     {
-                    pushFollow(FOLLOW_simple_declaration_list_in_value_parameter_list624);
+                    pushFollow(FOLLOW_simple_declaration_list_in_value_parameter_list674);
                     simple_declaration_list17=simple_declaration_list();
 
                     state._fsp--;
@@ -622,16 +625,16 @@ public TreeAdaptor getTreeAdaptor() {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 128:35: -> ^( VALUE_PARAMETER_LIST ( simple_declaration_list )? )
+            // 133:35: -> ^( VALUE_PARAMETER_LIST ( simple_declaration_list )? )
             {
-                // ModuleType.g:128:38: ^( VALUE_PARAMETER_LIST ( simple_declaration_list )? )
+                // ModuleType.g:133:38: ^( VALUE_PARAMETER_LIST ( simple_declaration_list )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(
                 (Object)adaptor.create(VALUE_PARAMETER_LIST, "VALUE_PARAMETER_LIST")
                 , root_1);
 
-                // ModuleType.g:128:61: ( simple_declaration_list )?
+                // ModuleType.g:133:61: ( simple_declaration_list )?
                 if ( stream_simple_declaration_list.hasNext() ) {
                     adaptor.addChild(root_1, stream_simple_declaration_list.nextTree());
 
@@ -682,7 +685,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "import_list"
-    // ModuleType.g:130:1: import_list : ( function_declaration_list )? -> ^( IMPORT_LIST ( function_declaration_list )? ) ;
+    // ModuleType.g:135:1: import_list : ( function_declaration_list )? -> ^( IMPORT_LIST ( function_declaration_list )? ) ;
     public final ModuleTypeParser.import_list_return import_list() throws RecognitionException {
         ModuleTypeParser.import_list_return retval = new ModuleTypeParser.import_list_return();
         retval.start = input.LT(1);
@@ -698,10 +701,10 @@ public TreeAdaptor getTreeAdaptor() {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 5) ) { return retval; }
 
-            // ModuleType.g:131:5: ( ( function_declaration_list )? -> ^( IMPORT_LIST ( function_declaration_list )? ) )
-            // ModuleType.g:131:10: ( function_declaration_list )?
+            // ModuleType.g:136:5: ( ( function_declaration_list )? -> ^( IMPORT_LIST ( function_declaration_list )? ) )
+            // ModuleType.g:136:10: ( function_declaration_list )?
             {
-            // ModuleType.g:131:10: ( function_declaration_list )?
+            // ModuleType.g:136:10: ( function_declaration_list )?
             int alt4=2;
             int LA4_0 = input.LA(1);
 
@@ -710,9 +713,9 @@ public TreeAdaptor getTreeAdaptor() {
             }
             switch (alt4) {
                 case 1 :
-                    // ModuleType.g:131:10: function_declaration_list
+                    // ModuleType.g:136:10: function_declaration_list
                     {
-                    pushFollow(FOLLOW_function_declaration_list_in_import_list649);
+                    pushFollow(FOLLOW_function_declaration_list_in_import_list699);
                     function_declaration_list18=function_declaration_list();
 
                     state._fsp--;
@@ -738,16 +741,16 @@ public TreeAdaptor getTreeAdaptor() {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 131:37: -> ^( IMPORT_LIST ( function_declaration_list )? )
+            // 136:37: -> ^( IMPORT_LIST ( function_declaration_list )? )
             {
-                // ModuleType.g:131:40: ^( IMPORT_LIST ( function_declaration_list )? )
+                // ModuleType.g:136:40: ^( IMPORT_LIST ( function_declaration_list )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(
                 (Object)adaptor.create(IMPORT_LIST, "IMPORT_LIST")
                 , root_1);
 
-                // ModuleType.g:131:54: ( function_declaration_list )?
+                // ModuleType.g:136:54: ( function_declaration_list )?
                 if ( stream_function_declaration_list.hasNext() ) {
                     adaptor.addChild(root_1, stream_function_declaration_list.nextTree());
 
@@ -798,7 +801,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "export_list"
-    // ModuleType.g:133:1: export_list : ( function_declaration_list )? -> ^( EXPORT_LIST ( function_declaration_list )? ) ;
+    // ModuleType.g:138:1: export_list : ( function_declaration_list )? -> ^( EXPORT_LIST ( function_declaration_list )? ) ;
     public final ModuleTypeParser.export_list_return export_list() throws RecognitionException {
         ModuleTypeParser.export_list_return retval = new ModuleTypeParser.export_list_return();
         retval.start = input.LT(1);
@@ -814,10 +817,10 @@ public TreeAdaptor getTreeAdaptor() {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 6) ) { return retval; }
 
-            // ModuleType.g:134:5: ( ( function_declaration_list )? -> ^( EXPORT_LIST ( function_declaration_list )? ) )
-            // ModuleType.g:134:10: ( function_declaration_list )?
+            // ModuleType.g:139:5: ( ( function_declaration_list )? -> ^( EXPORT_LIST ( function_declaration_list )? ) )
+            // ModuleType.g:139:10: ( function_declaration_list )?
             {
-            // ModuleType.g:134:10: ( function_declaration_list )?
+            // ModuleType.g:139:10: ( function_declaration_list )?
             int alt5=2;
             int LA5_0 = input.LA(1);
 
@@ -826,9 +829,9 @@ public TreeAdaptor getTreeAdaptor() {
             }
             switch (alt5) {
                 case 1 :
-                    // ModuleType.g:134:10: function_declaration_list
+                    // ModuleType.g:139:10: function_declaration_list
                     {
-                    pushFollow(FOLLOW_function_declaration_list_in_export_list674);
+                    pushFollow(FOLLOW_function_declaration_list_in_export_list724);
                     function_declaration_list19=function_declaration_list();
 
                     state._fsp--;
@@ -854,16 +857,16 @@ public TreeAdaptor getTreeAdaptor() {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 134:37: -> ^( EXPORT_LIST ( function_declaration_list )? )
+            // 139:37: -> ^( EXPORT_LIST ( function_declaration_list )? )
             {
-                // ModuleType.g:134:40: ^( EXPORT_LIST ( function_declaration_list )? )
+                // ModuleType.g:139:40: ^( EXPORT_LIST ( function_declaration_list )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(
                 (Object)adaptor.create(EXPORT_LIST, "EXPORT_LIST")
                 , root_1);
 
-                // ModuleType.g:134:54: ( function_declaration_list )?
+                // ModuleType.g:139:54: ( function_declaration_list )?
                 if ( stream_function_declaration_list.hasNext() ) {
                     adaptor.addChild(root_1, stream_function_declaration_list.nextTree());
 
@@ -914,7 +917,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "coercion_list"
-    // ModuleType.g:136:1: coercion_list : coercion ( ',' ! coercion )* ;
+    // ModuleType.g:141:1: coercion_list : coercion ( ',' ! coercion )* ;
     public final ModuleTypeParser.coercion_list_return coercion_list() throws RecognitionException {
         ModuleTypeParser.coercion_list_return retval = new ModuleTypeParser.coercion_list_return();
         retval.start = input.LT(1);
@@ -934,20 +937,20 @@ public TreeAdaptor getTreeAdaptor() {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 7) ) { return retval; }
 
-            // ModuleType.g:137:5: ( coercion ( ',' ! coercion )* )
-            // ModuleType.g:137:9: coercion ( ',' ! coercion )*
+            // ModuleType.g:142:5: ( coercion ( ',' ! coercion )* )
+            // ModuleType.g:142:9: coercion ( ',' ! coercion )*
             {
             root_0 = (Object)adaptor.nil();
 
 
-            pushFollow(FOLLOW_coercion_in_coercion_list698);
+            pushFollow(FOLLOW_coercion_in_coercion_list748);
             coercion20=coercion();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) adaptor.addChild(root_0, coercion20.getTree());
 
-            // ModuleType.g:137:18: ( ',' ! coercion )*
+            // ModuleType.g:142:18: ( ',' ! coercion )*
             loop6:
             do {
                 int alt6=2;
@@ -960,11 +963,11 @@ public TreeAdaptor getTreeAdaptor() {
 
                 switch (alt6) {
             	case 1 :
-            	    // ModuleType.g:137:19: ',' ! coercion
+            	    // ModuleType.g:142:19: ',' ! coercion
             	    {
-            	    char_literal21=(Token)match(input,COMMA,FOLLOW_COMMA_in_coercion_list701); if (state.failed) return retval;
+            	    char_literal21=(Token)match(input,COMMA,FOLLOW_COMMA_in_coercion_list751); if (state.failed) return retval;
 
-            	    pushFollow(FOLLOW_coercion_in_coercion_list704);
+            	    pushFollow(FOLLOW_coercion_in_coercion_list754);
             	    coercion22=coercion();
 
             	    state._fsp--;
@@ -1015,7 +1018,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "coercion"
-    // ModuleType.g:139:1: coercion : IDENTIFIER '<:' ^ type_name ;
+    // ModuleType.g:144:1: coercion : IDENTIFIER '<:' ^ type_name ;
     public final ModuleTypeParser.coercion_return coercion() throws RecognitionException {
         ModuleTypeParser.coercion_return retval = new ModuleTypeParser.coercion_return();
         retval.start = input.LT(1);
@@ -1035,13 +1038,13 @@ public TreeAdaptor getTreeAdaptor() {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 8) ) { return retval; }
 
-            // ModuleType.g:140:5: ( IDENTIFIER '<:' ^ type_name )
-            // ModuleType.g:140:9: IDENTIFIER '<:' ^ type_name
+            // ModuleType.g:145:5: ( IDENTIFIER '<:' ^ type_name )
+            // ModuleType.g:145:9: IDENTIFIER '<:' ^ type_name
             {
             root_0 = (Object)adaptor.nil();
 
 
-            IDENTIFIER23=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_coercion720); if (state.failed) return retval;
+            IDENTIFIER23=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_coercion770); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             IDENTIFIER23_tree = 
             (Object)adaptor.create(IDENTIFIER23)
@@ -1049,7 +1052,7 @@ public TreeAdaptor getTreeAdaptor() {
             adaptor.addChild(root_0, IDENTIFIER23_tree);
             }
 
-            string_literal24=(Token)match(input,SUBTYPE,FOLLOW_SUBTYPE_in_coercion722); if (state.failed) return retval;
+            string_literal24=(Token)match(input,SUBTYPE,FOLLOW_SUBTYPE_in_coercion772); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             string_literal24_tree = 
             (Object)adaptor.create(string_literal24)
@@ -1057,7 +1060,7 @@ public TreeAdaptor getTreeAdaptor() {
             root_0 = (Object)adaptor.becomeRoot(string_literal24_tree, root_0);
             }
 
-            pushFollow(FOLLOW_type_name_in_coercion725);
+            pushFollow(FOLLOW_type_name_in_coercion775);
             type_name25=type_name();
 
             state._fsp--;
@@ -1099,7 +1102,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "simple_declaration_list"
-    // ModuleType.g:142:1: simple_declaration_list : simple_declaration ( ',' ! simple_declaration )* ;
+    // ModuleType.g:147:1: simple_declaration_list : simple_declaration ( ',' ! simple_declaration )* ;
     public final ModuleTypeParser.simple_declaration_list_return simple_declaration_list() throws RecognitionException {
         ModuleTypeParser.simple_declaration_list_return retval = new ModuleTypeParser.simple_declaration_list_return();
         retval.start = input.LT(1);
@@ -1119,20 +1122,20 @@ public TreeAdaptor getTreeAdaptor() {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 9) ) { return retval; }
 
-            // ModuleType.g:143:5: ( simple_declaration ( ',' ! simple_declaration )* )
-            // ModuleType.g:143:10: simple_declaration ( ',' ! simple_declaration )*
+            // ModuleType.g:148:5: ( simple_declaration ( ',' ! simple_declaration )* )
+            // ModuleType.g:148:10: simple_declaration ( ',' ! simple_declaration )*
             {
             root_0 = (Object)adaptor.nil();
 
 
-            pushFollow(FOLLOW_simple_declaration_in_simple_declaration_list740);
+            pushFollow(FOLLOW_simple_declaration_in_simple_declaration_list790);
             simple_declaration26=simple_declaration();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) adaptor.addChild(root_0, simple_declaration26.getTree());
 
-            // ModuleType.g:143:29: ( ',' ! simple_declaration )*
+            // ModuleType.g:148:29: ( ',' ! simple_declaration )*
             loop7:
             do {
                 int alt7=2;
@@ -1145,11 +1148,11 @@ public TreeAdaptor getTreeAdaptor() {
 
                 switch (alt7) {
             	case 1 :
-            	    // ModuleType.g:143:30: ',' ! simple_declaration
+            	    // ModuleType.g:148:30: ',' ! simple_declaration
             	    {
-            	    char_literal27=(Token)match(input,COMMA,FOLLOW_COMMA_in_simple_declaration_list743); if (state.failed) return retval;
+            	    char_literal27=(Token)match(input,COMMA,FOLLOW_COMMA_in_simple_declaration_list793); if (state.failed) return retval;
 
-            	    pushFollow(FOLLOW_simple_declaration_in_simple_declaration_list746);
+            	    pushFollow(FOLLOW_simple_declaration_in_simple_declaration_list796);
             	    simple_declaration28=simple_declaration();
 
             	    state._fsp--;
@@ -1200,7 +1203,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "simple_declaration"
-    // ModuleType.g:145:1: simple_declaration : IDENTIFIER ':' ^ generalized_type_name ;
+    // ModuleType.g:150:1: simple_declaration : IDENTIFIER ':' ^ type_specifier ;
     public final ModuleTypeParser.simple_declaration_return simple_declaration() throws RecognitionException {
         ModuleTypeParser.simple_declaration_return retval = new ModuleTypeParser.simple_declaration_return();
         retval.start = input.LT(1);
@@ -1211,7 +1214,7 @@ public TreeAdaptor getTreeAdaptor() {
 
         Token IDENTIFIER29=null;
         Token char_literal30=null;
-        ModuleTypeParser.generalized_type_name_return generalized_type_name31 =null;
+        ModuleTypeParser.type_specifier_return type_specifier31 =null;
 
 
         Object IDENTIFIER29_tree=null;
@@ -1220,13 +1223,13 @@ public TreeAdaptor getTreeAdaptor() {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 10) ) { return retval; }
 
-            // ModuleType.g:146:5: ( IDENTIFIER ':' ^ generalized_type_name )
-            // ModuleType.g:146:10: IDENTIFIER ':' ^ generalized_type_name
+            // ModuleType.g:151:5: ( IDENTIFIER ':' ^ type_specifier )
+            // ModuleType.g:151:10: IDENTIFIER ':' ^ type_specifier
             {
             root_0 = (Object)adaptor.nil();
 
 
-            IDENTIFIER29=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_simple_declaration763); if (state.failed) return retval;
+            IDENTIFIER29=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_simple_declaration813); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             IDENTIFIER29_tree = 
             (Object)adaptor.create(IDENTIFIER29)
@@ -1234,7 +1237,7 @@ public TreeAdaptor getTreeAdaptor() {
             adaptor.addChild(root_0, IDENTIFIER29_tree);
             }
 
-            char_literal30=(Token)match(input,COLON,FOLLOW_COLON_in_simple_declaration765); if (state.failed) return retval;
+            char_literal30=(Token)match(input,COLON,FOLLOW_COLON_in_simple_declaration815); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             char_literal30_tree = 
             (Object)adaptor.create(char_literal30)
@@ -1242,12 +1245,12 @@ public TreeAdaptor getTreeAdaptor() {
             root_0 = (Object)adaptor.becomeRoot(char_literal30_tree, root_0);
             }
 
-            pushFollow(FOLLOW_generalized_type_name_in_simple_declaration768);
-            generalized_type_name31=generalized_type_name();
+            pushFollow(FOLLOW_type_specifier_in_simple_declaration818);
+            type_specifier31=type_specifier();
 
             state._fsp--;
             if (state.failed) return retval;
-            if ( state.backtracking==0 ) adaptor.addChild(root_0, generalized_type_name31.getTree());
+            if ( state.backtracking==0 ) adaptor.addChild(root_0, type_specifier31.getTree());
 
             }
 
@@ -1284,7 +1287,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "function_declaration_list"
-    // ModuleType.g:148:1: function_declaration_list : function_declaration ( ',' ! function_declaration )* ;
+    // ModuleType.g:153:1: function_declaration_list : function_declaration ( ',' ! function_declaration )* ;
     public final ModuleTypeParser.function_declaration_list_return function_declaration_list() throws RecognitionException {
         ModuleTypeParser.function_declaration_list_return retval = new ModuleTypeParser.function_declaration_list_return();
         retval.start = input.LT(1);
@@ -1304,20 +1307,20 @@ public TreeAdaptor getTreeAdaptor() {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 11) ) { return retval; }
 
-            // ModuleType.g:149:5: ( function_declaration ( ',' ! function_declaration )* )
-            // ModuleType.g:149:10: function_declaration ( ',' ! function_declaration )*
+            // ModuleType.g:154:5: ( function_declaration ( ',' ! function_declaration )* )
+            // ModuleType.g:154:10: function_declaration ( ',' ! function_declaration )*
             {
             root_0 = (Object)adaptor.nil();
 
 
-            pushFollow(FOLLOW_function_declaration_in_function_declaration_list783);
+            pushFollow(FOLLOW_function_declaration_in_function_declaration_list833);
             function_declaration32=function_declaration();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) adaptor.addChild(root_0, function_declaration32.getTree());
 
-            // ModuleType.g:149:31: ( ',' ! function_declaration )*
+            // ModuleType.g:154:31: ( ',' ! function_declaration )*
             loop8:
             do {
                 int alt8=2;
@@ -1330,11 +1333,11 @@ public TreeAdaptor getTreeAdaptor() {
 
                 switch (alt8) {
             	case 1 :
-            	    // ModuleType.g:149:32: ',' ! function_declaration
+            	    // ModuleType.g:154:32: ',' ! function_declaration
             	    {
-            	    char_literal33=(Token)match(input,COMMA,FOLLOW_COMMA_in_function_declaration_list786); if (state.failed) return retval;
+            	    char_literal33=(Token)match(input,COMMA,FOLLOW_COMMA_in_function_declaration_list836); if (state.failed) return retval;
 
-            	    pushFollow(FOLLOW_function_declaration_in_function_declaration_list789);
+            	    pushFollow(FOLLOW_function_declaration_in_function_declaration_list839);
             	    function_declaration34=function_declaration();
 
             	    state._fsp--;
@@ -1385,7 +1388,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "function_declaration"
-    // ModuleType.g:151:1: function_declaration : name= IDENTIFIER '(' ( simple_declaration_list )? ')' ':' return_type= generalized_type_name -> ^( FUNCTION_DECLARATION $name $return_type ( simple_declaration_list )? ) ;
+    // ModuleType.g:156:1: function_declaration : name= IDENTIFIER '(' ( simple_declaration_list )? ')' ':' return_type= generalized_type_name -> ^( FUNCTION_DECLARATION $name $return_type ( simple_declaration_list )? ) ;
     public final ModuleTypeParser.function_declaration_return function_declaration() throws RecognitionException {
         ModuleTypeParser.function_declaration_return retval = new ModuleTypeParser.function_declaration_return();
         retval.start = input.LT(1);
@@ -1416,18 +1419,18 @@ public TreeAdaptor getTreeAdaptor() {
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 12) ) { return retval; }
 
-            // ModuleType.g:152:5: (name= IDENTIFIER '(' ( simple_declaration_list )? ')' ':' return_type= generalized_type_name -> ^( FUNCTION_DECLARATION $name $return_type ( simple_declaration_list )? ) )
-            // ModuleType.g:152:10: name= IDENTIFIER '(' ( simple_declaration_list )? ')' ':' return_type= generalized_type_name
+            // ModuleType.g:157:5: (name= IDENTIFIER '(' ( simple_declaration_list )? ')' ':' return_type= generalized_type_name -> ^( FUNCTION_DECLARATION $name $return_type ( simple_declaration_list )? ) )
+            // ModuleType.g:157:10: name= IDENTIFIER '(' ( simple_declaration_list )? ')' ':' return_type= generalized_type_name
             {
-            name=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_function_declaration808); if (state.failed) return retval; 
+            name=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_function_declaration858); if (state.failed) return retval; 
             if ( state.backtracking==0 ) stream_IDENTIFIER.add(name);
 
 
-            char_literal35=(Token)match(input,LPARENS,FOLLOW_LPARENS_in_function_declaration810); if (state.failed) return retval; 
+            char_literal35=(Token)match(input,LPARENS,FOLLOW_LPARENS_in_function_declaration860); if (state.failed) return retval; 
             if ( state.backtracking==0 ) stream_LPARENS.add(char_literal35);
 
 
-            // ModuleType.g:152:30: ( simple_declaration_list )?
+            // ModuleType.g:157:30: ( simple_declaration_list )?
             int alt9=2;
             int LA9_0 = input.LA(1);
 
@@ -1436,9 +1439,9 @@ public TreeAdaptor getTreeAdaptor() {
             }
             switch (alt9) {
                 case 1 :
-                    // ModuleType.g:152:30: simple_declaration_list
+                    // ModuleType.g:157:30: simple_declaration_list
                     {
-                    pushFollow(FOLLOW_simple_declaration_list_in_function_declaration812);
+                    pushFollow(FOLLOW_simple_declaration_list_in_function_declaration862);
                     simple_declaration_list36=simple_declaration_list();
 
                     state._fsp--;
@@ -1451,15 +1454,15 @@ public TreeAdaptor getTreeAdaptor() {
             }
 
 
-            char_literal37=(Token)match(input,RPARENS,FOLLOW_RPARENS_in_function_declaration815); if (state.failed) return retval; 
+            char_literal37=(Token)match(input,RPARENS,FOLLOW_RPARENS_in_function_declaration865); if (state.failed) return retval; 
             if ( state.backtracking==0 ) stream_RPARENS.add(char_literal37);
 
 
-            char_literal38=(Token)match(input,COLON,FOLLOW_COLON_in_function_declaration817); if (state.failed) return retval; 
+            char_literal38=(Token)match(input,COLON,FOLLOW_COLON_in_function_declaration867); if (state.failed) return retval; 
             if ( state.backtracking==0 ) stream_COLON.add(char_literal38);
 
 
-            pushFollow(FOLLOW_generalized_type_name_in_function_declaration821);
+            pushFollow(FOLLOW_generalized_type_name_in_function_declaration871);
             return_type=generalized_type_name();
 
             state._fsp--;
@@ -1481,9 +1484,9 @@ public TreeAdaptor getTreeAdaptor() {
             RewriteRuleSubtreeStream stream_return_type=new RewriteRuleSubtreeStream(adaptor,"rule return_type",return_type!=null?return_type.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 153:10: -> ^( FUNCTION_DECLARATION $name $return_type ( simple_declaration_list )? )
+            // 158:10: -> ^( FUNCTION_DECLARATION $name $return_type ( simple_declaration_list )? )
             {
-                // ModuleType.g:153:13: ^( FUNCTION_DECLARATION $name $return_type ( simple_declaration_list )? )
+                // ModuleType.g:158:13: ^( FUNCTION_DECLARATION $name $return_type ( simple_declaration_list )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(
@@ -1494,7 +1497,7 @@ public TreeAdaptor getTreeAdaptor() {
 
                 adaptor.addChild(root_1, stream_return_type.nextTree());
 
-                // ModuleType.g:153:55: ( simple_declaration_list )?
+                // ModuleType.g:158:55: ( simple_declaration_list )?
                 if ( stream_simple_declaration_list.hasNext() ) {
                     adaptor.addChild(root_1, stream_simple_declaration_list.nextTree());
 
@@ -1538,54 +1541,133 @@ public TreeAdaptor getTreeAdaptor() {
     // $ANTLR end "function_declaration"
 
 
-    public static class type_name_return extends ParserRuleReturnScope {
+    public static class type_specifier_return extends ParserRuleReturnScope {
         Object tree;
         public Object getTree() { return tree; }
     };
 
 
-    // $ANTLR start "type_name"
-    // ModuleType.g:155:1: type_name : ( VOID | INT8 | INT16 | INT32 | UINT8 | UINT16 | UINT32 | ERRORT );
-    public final ModuleTypeParser.type_name_return type_name() throws RecognitionException {
-        ModuleTypeParser.type_name_return retval = new ModuleTypeParser.type_name_return();
+    // $ANTLR start "type_specifier"
+    // ModuleType.g:160:1: type_specifier : ( generalized_type_name | ARRAY '[' generalized_type_name ']' -> ^( ARRAY generalized_type_name ) );
+    public final ModuleTypeParser.type_specifier_return type_specifier() throws RecognitionException {
+        ModuleTypeParser.type_specifier_return retval = new ModuleTypeParser.type_specifier_return();
         retval.start = input.LT(1);
 
-        int type_name_StartIndex = input.index();
+        int type_specifier_StartIndex = input.index();
 
         Object root_0 = null;
 
-        Token set39=null;
+        Token ARRAY40=null;
+        Token char_literal41=null;
+        Token char_literal43=null;
+        ModuleTypeParser.generalized_type_name_return generalized_type_name39 =null;
 
-        Object set39_tree=null;
+        ModuleTypeParser.generalized_type_name_return generalized_type_name42 =null;
 
+
+        Object ARRAY40_tree=null;
+        Object char_literal41_tree=null;
+        Object char_literal43_tree=null;
+        RewriteRuleTokenStream stream_LBRACKET=new RewriteRuleTokenStream(adaptor,"token LBRACKET");
+        RewriteRuleTokenStream stream_RBRACKET=new RewriteRuleTokenStream(adaptor,"token RBRACKET");
+        RewriteRuleTokenStream stream_ARRAY=new RewriteRuleTokenStream(adaptor,"token ARRAY");
+        RewriteRuleSubtreeStream stream_generalized_type_name=new RewriteRuleSubtreeStream(adaptor,"rule generalized_type_name");
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 13) ) { return retval; }
 
-            // ModuleType.g:156:5: ( VOID | INT8 | INT16 | INT32 | UINT8 | UINT16 | UINT32 | ERRORT )
-            // ModuleType.g:
-            {
-            root_0 = (Object)adaptor.nil();
+            // ModuleType.g:161:5: ( generalized_type_name | ARRAY '[' generalized_type_name ']' -> ^( ARRAY generalized_type_name ) )
+            int alt10=2;
+            int LA10_0 = input.LA(1);
 
-
-            set39=(Token)input.LT(1);
-
-            if ( input.LA(1)==ERRORT||(input.LA(1) >= INT16 && input.LA(1) <= INT8)||(input.LA(1) >= UINT16 && input.LA(1) <= UINT8)||input.LA(1)==VOID ) {
-                input.consume();
-                if ( state.backtracking==0 ) adaptor.addChild(root_0, 
-                (Object)adaptor.create(set39)
-                );
-                state.errorRecovery=false;
-                state.failed=false;
+            if ( (LA10_0==ERRORT||LA10_0==IDENTIFIER||(LA10_0 >= INT16 && LA10_0 <= INT8)||(LA10_0 >= UINT16 && LA10_0 <= UINT8)||LA10_0==VOID) ) {
+                alt10=1;
+            }
+            else if ( (LA10_0==ARRAY) ) {
+                alt10=2;
             }
             else {
                 if (state.backtracking>0) {state.failed=true; return retval;}
-                MismatchedSetException mse = new MismatchedSetException(null,input);
-                throw mse;
+                NoViableAltException nvae =
+                    new NoViableAltException("", 10, 0, input);
+
+                throw nvae;
+
             }
+            switch (alt10) {
+                case 1 :
+                    // ModuleType.g:161:10: generalized_type_name
+                    {
+                    root_0 = (Object)adaptor.nil();
 
+
+                    pushFollow(FOLLOW_generalized_type_name_in_type_specifier910);
+                    generalized_type_name39=generalized_type_name();
+
+                    state._fsp--;
+                    if (state.failed) return retval;
+                    if ( state.backtracking==0 ) adaptor.addChild(root_0, generalized_type_name39.getTree());
+
+                    }
+                    break;
+                case 2 :
+                    // ModuleType.g:162:10: ARRAY '[' generalized_type_name ']'
+                    {
+                    ARRAY40=(Token)match(input,ARRAY,FOLLOW_ARRAY_in_type_specifier921); if (state.failed) return retval; 
+                    if ( state.backtracking==0 ) stream_ARRAY.add(ARRAY40);
+
+
+                    char_literal41=(Token)match(input,LBRACKET,FOLLOW_LBRACKET_in_type_specifier923); if (state.failed) return retval; 
+                    if ( state.backtracking==0 ) stream_LBRACKET.add(char_literal41);
+
+
+                    pushFollow(FOLLOW_generalized_type_name_in_type_specifier925);
+                    generalized_type_name42=generalized_type_name();
+
+                    state._fsp--;
+                    if (state.failed) return retval;
+                    if ( state.backtracking==0 ) stream_generalized_type_name.add(generalized_type_name42.getTree());
+
+                    char_literal43=(Token)match(input,RBRACKET,FOLLOW_RBRACKET_in_type_specifier927); if (state.failed) return retval; 
+                    if ( state.backtracking==0 ) stream_RBRACKET.add(char_literal43);
+
+
+                    // AST REWRITE
+                    // elements: generalized_type_name, ARRAY
+                    // token labels: 
+                    // rule labels: retval
+                    // token list labels: 
+                    // rule list labels: 
+                    // wildcard labels: 
+                    if ( state.backtracking==0 ) {
+
+                    retval.tree = root_0;
+                    RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
+
+                    root_0 = (Object)adaptor.nil();
+                    // 162:46: -> ^( ARRAY generalized_type_name )
+                    {
+                        // ModuleType.g:162:49: ^( ARRAY generalized_type_name )
+                        {
+                        Object root_1 = (Object)adaptor.nil();
+                        root_1 = (Object)adaptor.becomeRoot(
+                        stream_ARRAY.nextNode()
+                        , root_1);
+
+                        adaptor.addChild(root_1, stream_generalized_type_name.nextTree());
+
+                        adaptor.addChild(root_0, root_1);
+                        }
+
+                    }
+
+
+                    retval.tree = root_0;
+                    }
+
+                    }
+                    break;
 
             }
-
             retval.stop = input.LT(-1);
 
 
@@ -1604,12 +1686,12 @@ public TreeAdaptor getTreeAdaptor() {
 
         finally {
         	// do for sure before leaving
-            if ( state.backtracking>0 ) { memoize(input, 13, type_name_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 13, type_specifier_StartIndex); }
 
         }
         return retval;
     }
-    // $ANTLR end "type_name"
+    // $ANTLR end "type_specifier"
 
 
     public static class generalized_type_name_return extends ParserRuleReturnScope {
@@ -1619,7 +1701,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "generalized_type_name"
-    // ModuleType.g:165:1: generalized_type_name : ( type_name | IDENTIFIER );
+    // ModuleType.g:164:1: generalized_type_name : ( type_name | IDENTIFIER );
     public final ModuleTypeParser.generalized_type_name_return generalized_type_name() throws RecognitionException {
         ModuleTypeParser.generalized_type_name_return retval = new ModuleTypeParser.generalized_type_name_return();
         retval.start = input.LT(1);
@@ -1628,61 +1710,61 @@ public TreeAdaptor getTreeAdaptor() {
 
         Object root_0 = null;
 
-        Token IDENTIFIER41=null;
-        ModuleTypeParser.type_name_return type_name40 =null;
+        Token IDENTIFIER45=null;
+        ModuleTypeParser.type_name_return type_name44 =null;
 
 
-        Object IDENTIFIER41_tree=null;
+        Object IDENTIFIER45_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 14) ) { return retval; }
 
-            // ModuleType.g:166:5: ( type_name | IDENTIFIER )
-            int alt10=2;
-            int LA10_0 = input.LA(1);
+            // ModuleType.g:165:5: ( type_name | IDENTIFIER )
+            int alt11=2;
+            int LA11_0 = input.LA(1);
 
-            if ( (LA10_0==ERRORT||(LA10_0 >= INT16 && LA10_0 <= INT8)||(LA10_0 >= UINT16 && LA10_0 <= UINT8)||LA10_0==VOID) ) {
-                alt10=1;
+            if ( (LA11_0==ERRORT||(LA11_0 >= INT16 && LA11_0 <= INT8)||(LA11_0 >= UINT16 && LA11_0 <= UINT8)||LA11_0==VOID) ) {
+                alt11=1;
             }
-            else if ( (LA10_0==IDENTIFIER) ) {
-                alt10=2;
+            else if ( (LA11_0==IDENTIFIER) ) {
+                alt11=2;
             }
             else {
                 if (state.backtracking>0) {state.failed=true; return retval;}
                 NoViableAltException nvae =
-                    new NoViableAltException("", 10, 0, input);
+                    new NoViableAltException("", 11, 0, input);
 
                 throw nvae;
 
             }
-            switch (alt10) {
+            switch (alt11) {
                 case 1 :
-                    // ModuleType.g:166:10: type_name
+                    // ModuleType.g:165:10: type_name
                     {
                     root_0 = (Object)adaptor.nil();
 
 
-                    pushFollow(FOLLOW_type_name_in_generalized_type_name952);
-                    type_name40=type_name();
+                    pushFollow(FOLLOW_type_name_in_generalized_type_name950);
+                    type_name44=type_name();
 
                     state._fsp--;
                     if (state.failed) return retval;
-                    if ( state.backtracking==0 ) adaptor.addChild(root_0, type_name40.getTree());
+                    if ( state.backtracking==0 ) adaptor.addChild(root_0, type_name44.getTree());
 
                     }
                     break;
                 case 2 :
-                    // ModuleType.g:166:22: IDENTIFIER
+                    // ModuleType.g:165:22: IDENTIFIER
                     {
                     root_0 = (Object)adaptor.nil();
 
 
-                    IDENTIFIER41=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_generalized_type_name956); if (state.failed) return retval;
+                    IDENTIFIER45=(Token)match(input,IDENTIFIER,FOLLOW_IDENTIFIER_in_generalized_type_name954); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    IDENTIFIER41_tree = 
-                    (Object)adaptor.create(IDENTIFIER41)
+                    IDENTIFIER45_tree = 
+                    (Object)adaptor.create(IDENTIFIER45)
                     ;
-                    adaptor.addChild(root_0, IDENTIFIER41_tree);
+                    adaptor.addChild(root_0, IDENTIFIER45_tree);
                     }
 
                     }
@@ -1714,52 +1796,131 @@ public TreeAdaptor getTreeAdaptor() {
     }
     // $ANTLR end "generalized_type_name"
 
+
+    public static class type_name_return extends ParserRuleReturnScope {
+        Object tree;
+        public Object getTree() { return tree; }
+    };
+
+
+    // $ANTLR start "type_name"
+    // ModuleType.g:167:1: type_name : ( VOID | INT8 | INT16 | INT32 | UINT8 | UINT16 | UINT32 | ERRORT );
+    public final ModuleTypeParser.type_name_return type_name() throws RecognitionException {
+        ModuleTypeParser.type_name_return retval = new ModuleTypeParser.type_name_return();
+        retval.start = input.LT(1);
+
+        int type_name_StartIndex = input.index();
+
+        Object root_0 = null;
+
+        Token set46=null;
+
+        Object set46_tree=null;
+
+        try {
+            if ( state.backtracking>0 && alreadyParsedRule(input, 15) ) { return retval; }
+
+            // ModuleType.g:168:5: ( VOID | INT8 | INT16 | INT32 | UINT8 | UINT16 | UINT32 | ERRORT )
+            // ModuleType.g:
+            {
+            root_0 = (Object)adaptor.nil();
+
+
+            set46=(Token)input.LT(1);
+
+            if ( input.LA(1)==ERRORT||(input.LA(1) >= INT16 && input.LA(1) <= INT8)||(input.LA(1) >= UINT16 && input.LA(1) <= UINT8)||input.LA(1)==VOID ) {
+                input.consume();
+                if ( state.backtracking==0 ) adaptor.addChild(root_0, 
+                (Object)adaptor.create(set46)
+                );
+                state.errorRecovery=false;
+                state.failed=false;
+            }
+            else {
+                if (state.backtracking>0) {state.failed=true; return retval;}
+                MismatchedSetException mse = new MismatchedSetException(null,input);
+                throw mse;
+            }
+
+
+            }
+
+            retval.stop = input.LT(-1);
+
+
+            if ( state.backtracking==0 ) {
+
+            retval.tree = (Object)adaptor.rulePostProcessing(root_0);
+            adaptor.setTokenBoundaries(retval.tree, retval.start, retval.stop);
+            }
+        }
+        catch (RecognitionException re) {
+            reportError(re);
+            recover(input,re);
+    	retval.tree = (Object)adaptor.errorNode(input, retval.start, input.LT(-1), re);
+
+        }
+
+        finally {
+        	// do for sure before leaving
+            if ( state.backtracking>0 ) { memoize(input, 15, type_name_StartIndex); }
+
+        }
+        return retval;
+    }
+    // $ANTLR end "type_name"
+
     // Delegated rules
 
 
  
 
-    public static final BitSet FOLLOW_LBRACE_in_module_type411 = new BitSet(new long[]{0x0000000000801000L});
-    public static final BitSet FOLLOW_existential_list_in_module_type413 = new BitSet(new long[]{0x0000000000800000L});
-    public static final BitSet FOLLOW_RBRACE_in_module_type415 = new BitSet(new long[]{0x0000000000020000L});
-    public static final BitSet FOLLOW_LANGLE_in_module_type426 = new BitSet(new long[]{0x0000000002001000L});
-    public static final BitSet FOLLOW_type_parameter_list_in_module_type428 = new BitSet(new long[]{0x0000000002000000L});
-    public static final BitSet FOLLOW_SEMI_in_module_type430 = new BitSet(new long[]{0x0000000000401000L});
-    public static final BitSet FOLLOW_value_parameter_list_in_module_type432 = new BitSet(new long[]{0x0000000000400000L});
-    public static final BitSet FOLLOW_RANGLE_in_module_type434 = new BitSet(new long[]{0x0000000000040000L});
-    public static final BitSet FOLLOW_LBRACE_in_module_type445 = new BitSet(new long[]{0x0000000002001000L});
-    public static final BitSet FOLLOW_import_list_in_module_type447 = new BitSet(new long[]{0x0000000002000000L});
-    public static final BitSet FOLLOW_SEMI_in_module_type449 = new BitSet(new long[]{0x0000000000801000L});
-    public static final BitSet FOLLOW_export_list_in_module_type451 = new BitSet(new long[]{0x0000000000800000L});
-    public static final BitSet FOLLOW_RBRACE_in_module_type453 = new BitSet(new long[]{0x0000000000000000L});
-    public static final BitSet FOLLOW_EOF_in_module_type455 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_coercion_list_in_existential_list574 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_coercion_list_in_type_parameter_list599 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_simple_declaration_list_in_value_parameter_list624 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_function_declaration_list_in_import_list649 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_function_declaration_list_in_export_list674 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_coercion_in_coercion_list698 = new BitSet(new long[]{0x0000000000000022L});
-    public static final BitSet FOLLOW_COMMA_in_coercion_list701 = new BitSet(new long[]{0x0000000000001000L});
-    public static final BitSet FOLLOW_coercion_in_coercion_list704 = new BitSet(new long[]{0x0000000000000022L});
-    public static final BitSet FOLLOW_IDENTIFIER_in_coercion720 = new BitSet(new long[]{0x0000000004000000L});
-    public static final BitSet FOLLOW_SUBTYPE_in_coercion722 = new BitSet(new long[]{0x000000017001C100L});
-    public static final BitSet FOLLOW_type_name_in_coercion725 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_simple_declaration_in_simple_declaration_list740 = new BitSet(new long[]{0x0000000000000022L});
-    public static final BitSet FOLLOW_COMMA_in_simple_declaration_list743 = new BitSet(new long[]{0x0000000000001000L});
-    public static final BitSet FOLLOW_simple_declaration_in_simple_declaration_list746 = new BitSet(new long[]{0x0000000000000022L});
-    public static final BitSet FOLLOW_IDENTIFIER_in_simple_declaration763 = new BitSet(new long[]{0x0000000000000010L});
-    public static final BitSet FOLLOW_COLON_in_simple_declaration765 = new BitSet(new long[]{0x000000017001D100L});
-    public static final BitSet FOLLOW_generalized_type_name_in_simple_declaration768 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_function_declaration_in_function_declaration_list783 = new BitSet(new long[]{0x0000000000000022L});
-    public static final BitSet FOLLOW_COMMA_in_function_declaration_list786 = new BitSet(new long[]{0x0000000000001000L});
-    public static final BitSet FOLLOW_function_declaration_in_function_declaration_list789 = new BitSet(new long[]{0x0000000000000022L});
-    public static final BitSet FOLLOW_IDENTIFIER_in_function_declaration808 = new BitSet(new long[]{0x0000000000080000L});
-    public static final BitSet FOLLOW_LPARENS_in_function_declaration810 = new BitSet(new long[]{0x0000000001001000L});
-    public static final BitSet FOLLOW_simple_declaration_list_in_function_declaration812 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_RPARENS_in_function_declaration815 = new BitSet(new long[]{0x0000000000000010L});
-    public static final BitSet FOLLOW_COLON_in_function_declaration817 = new BitSet(new long[]{0x000000017001D100L});
-    public static final BitSet FOLLOW_generalized_type_name_in_function_declaration821 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_type_name_in_generalized_type_name952 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_IDENTIFIER_in_generalized_type_name956 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LBRACE_in_module_type461 = new BitSet(new long[]{0x0000000002002000L});
+    public static final BitSet FOLLOW_existential_list_in_module_type463 = new BitSet(new long[]{0x0000000002000000L});
+    public static final BitSet FOLLOW_RBRACE_in_module_type465 = new BitSet(new long[]{0x0000000000040000L});
+    public static final BitSet FOLLOW_LANGLE_in_module_type476 = new BitSet(new long[]{0x0000000010002000L});
+    public static final BitSet FOLLOW_type_parameter_list_in_module_type478 = new BitSet(new long[]{0x0000000010000000L});
+    public static final BitSet FOLLOW_SEMI_in_module_type480 = new BitSet(new long[]{0x0000000001002000L});
+    public static final BitSet FOLLOW_value_parameter_list_in_module_type482 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_RANGLE_in_module_type484 = new BitSet(new long[]{0x0000000000080000L});
+    public static final BitSet FOLLOW_LBRACE_in_module_type495 = new BitSet(new long[]{0x0000000010002000L});
+    public static final BitSet FOLLOW_import_list_in_module_type497 = new BitSet(new long[]{0x0000000010000000L});
+    public static final BitSet FOLLOW_SEMI_in_module_type499 = new BitSet(new long[]{0x0000000002002000L});
+    public static final BitSet FOLLOW_export_list_in_module_type501 = new BitSet(new long[]{0x0000000002000000L});
+    public static final BitSet FOLLOW_RBRACE_in_module_type503 = new BitSet(new long[]{0x0000000000000000L});
+    public static final BitSet FOLLOW_EOF_in_module_type505 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_coercion_list_in_existential_list624 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_coercion_list_in_type_parameter_list649 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_simple_declaration_list_in_value_parameter_list674 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_function_declaration_list_in_import_list699 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_function_declaration_list_in_export_list724 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_coercion_in_coercion_list748 = new BitSet(new long[]{0x0000000000000042L});
+    public static final BitSet FOLLOW_COMMA_in_coercion_list751 = new BitSet(new long[]{0x0000000000002000L});
+    public static final BitSet FOLLOW_coercion_in_coercion_list754 = new BitSet(new long[]{0x0000000000000042L});
+    public static final BitSet FOLLOW_IDENTIFIER_in_coercion770 = new BitSet(new long[]{0x0000000020000000L});
+    public static final BitSet FOLLOW_SUBTYPE_in_coercion772 = new BitSet(new long[]{0x0000000B80038200L});
+    public static final BitSet FOLLOW_type_name_in_coercion775 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_simple_declaration_in_simple_declaration_list790 = new BitSet(new long[]{0x0000000000000042L});
+    public static final BitSet FOLLOW_COMMA_in_simple_declaration_list793 = new BitSet(new long[]{0x0000000000002000L});
+    public static final BitSet FOLLOW_simple_declaration_in_simple_declaration_list796 = new BitSet(new long[]{0x0000000000000042L});
+    public static final BitSet FOLLOW_IDENTIFIER_in_simple_declaration813 = new BitSet(new long[]{0x0000000000000020L});
+    public static final BitSet FOLLOW_COLON_in_simple_declaration815 = new BitSet(new long[]{0x0000000B8003A210L});
+    public static final BitSet FOLLOW_type_specifier_in_simple_declaration818 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_function_declaration_in_function_declaration_list833 = new BitSet(new long[]{0x0000000000000042L});
+    public static final BitSet FOLLOW_COMMA_in_function_declaration_list836 = new BitSet(new long[]{0x0000000000002000L});
+    public static final BitSet FOLLOW_function_declaration_in_function_declaration_list839 = new BitSet(new long[]{0x0000000000000042L});
+    public static final BitSet FOLLOW_IDENTIFIER_in_function_declaration858 = new BitSet(new long[]{0x0000000000200000L});
+    public static final BitSet FOLLOW_LPARENS_in_function_declaration860 = new BitSet(new long[]{0x0000000008002000L});
+    public static final BitSet FOLLOW_simple_declaration_list_in_function_declaration862 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_RPARENS_in_function_declaration865 = new BitSet(new long[]{0x0000000000000020L});
+    public static final BitSet FOLLOW_COLON_in_function_declaration867 = new BitSet(new long[]{0x0000000B8003A200L});
+    public static final BitSet FOLLOW_generalized_type_name_in_function_declaration871 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_generalized_type_name_in_type_specifier910 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ARRAY_in_type_specifier921 = new BitSet(new long[]{0x0000000000100000L});
+    public static final BitSet FOLLOW_LBRACKET_in_type_specifier923 = new BitSet(new long[]{0x0000000B8003A200L});
+    public static final BitSet FOLLOW_generalized_type_name_in_type_specifier925 = new BitSet(new long[]{0x0000000004000000L});
+    public static final BitSet FOLLOW_RBRACKET_in_type_specifier927 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_type_name_in_generalized_type_name950 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_IDENTIFIER_in_generalized_type_name954 = new BitSet(new long[]{0x0000000000000002L});
 
 }

@@ -92,7 +92,7 @@ object Main {
 
   @ModuleType("""{checksumType <: UInt32}
                  <;>
-                 { ; compute_checksum(data: UInt32): checksumType}""")
+                 { ; compute_checksum(data: Array[UInt8]): checksumType}""")
   def getChecksummer(size: UInt16, checksumType: MetaType[UInt32]) = {
     // Create and instantiate an appropriate nesT checksumming module.
     (new ChecksumC).instantiate(size, checksumType)
@@ -122,7 +122,7 @@ object Main {
 
     @ModuleType("""{ }
                    <;>
-                   { compute_checksum(data: UInt32): checksumType; }""")
+                   { compute_checksum(data: Array[UInt8]): checksumType; }""")
     val formattingModule = (new MessageFormatterC).instantiate(size, desiredChecksumType)
 
     @ModuleType("""{checksumType <: UInt32}

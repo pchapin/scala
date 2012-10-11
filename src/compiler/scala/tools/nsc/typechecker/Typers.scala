@@ -2154,6 +2154,17 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       // complete lazy annotations
       val annots = meth.annotations
 
+      // Search for Scalaness ModuleType annotations and process them.
+      for (annotation <- annots) {
+        if (annotation.tpe.toString == "edu.uvm.scalaness.ModuleType") {
+          val DefDef(_, name, _, _, _, _) = ddef
+          println(s"Parsing ModuleType annotation on def: ${name.toString}")
+          val moduleTypeAST = parseScalanessAnnotation(annotation.assocs)
+          val moduleTypeASTMininess = edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST)
+          // println(moduleTypeAST)
+        }
+      }
+
       for (vparams1 <- vparamss1; vparam1 <- vparams1 dropRight 1)
         if (isRepeatedParamType(vparam1.symbol.tpe))
           StarParamNotLastError(vparam1)

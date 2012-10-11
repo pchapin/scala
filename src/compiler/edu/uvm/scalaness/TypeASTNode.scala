@@ -50,7 +50,12 @@ object TypeASTNode {
   private def processSimpleDeclarationList(nodes: List[TypeASTNode]): List[(String, Representation)] = {
     for (node <- nodes) yield {
       val TypeASTNode(ModuleTypeLexer.COLON, _, children) = node
-      (children(0).text, getGeneralizedTypeName(children(1)))
+      val declaredType =
+        if (children(1).tokenType == ModuleTypeLexer.ARRAY)
+          Array(getGeneralizedTypeName(children(1).children(0)), "")
+        else
+          getGeneralizedTypeName(children(1))
+      (children(0).text, declaredType)
     }
   }
   
