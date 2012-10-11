@@ -16,3 +16,7 @@
 
 # bak files produced by ./cleanup-commit
 *.bak
+
+# Artifacts of building the Scalaness sample programs.
+scalaness/*/*.class
+scalaness/*/generated
