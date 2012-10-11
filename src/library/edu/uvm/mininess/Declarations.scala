@@ -246,7 +246,10 @@ object Declarations {
         // If there is an array modifier, return an array type
         else if (existsChild(declarationChild, MininessLexer.DECLARATOR_ARRAY_MODIFIER)) {
           val arrayModifier = findChild(declarationChild, MininessLexer.DECLARATOR_ARRAY_MODIFIER)
-          val arraySize = arrayModifier.children(0).children(0).text
+          val arraySize = if (arrayModifier.children.length > 0)
+                            arrayModifier.children(0).children(0).text
+                          else 
+                            ""
          (identifier -> Array(finalType, arraySize))
         }
         

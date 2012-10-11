@@ -152,6 +152,11 @@ object MininessTypes {
           case _ => false
         }
         
+        case Array(aType, aSize) => right match {
+          case Array(aType, "") => true
+          case _ => false
+        }
+        
         case Structure(_, leftMemberList) => right match {
           case Structure(_, rightMemberList) => {
             var passedTest = true
