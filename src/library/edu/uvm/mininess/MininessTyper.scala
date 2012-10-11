@@ -135,6 +135,12 @@ class MininessTyper(
         Some(Okay)
       } // If children type check, then OKAY
 
+      case ASTNode(MininessLexer.ERROR_T, _, children, _, _) => {
+        for (child <- children)
+          checkMininessInclusion(child, depth + 1)
+        Some(Okay)
+      } // If children type check, then OKAY
+      
       case ASTNode(MininessLexer.EVENT, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)

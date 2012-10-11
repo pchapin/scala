@@ -192,6 +192,7 @@ object Declarations {
       case MininessLexer.INT8_T   => Int8
       case MininessLexer.INT16_T  => Int16
       case MininessLexer.INT32_T  => Int32
+      case MininessLexer.ERROR_T  => ErrorT
       case MininessLexer.STRUCT   => Symbols.lookupStructVariable(declarationNode, declarationType.children(0).text)
       case MininessLexer.RAW_IDENTIFIER => TypeVariable(declarationType.text)
       case _                     => Uninit

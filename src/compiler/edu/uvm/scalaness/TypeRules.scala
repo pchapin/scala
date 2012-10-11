@@ -82,12 +82,11 @@ object TypeRules {
       }
     }
     val impOneRemoved = removeDomain(impOne, expTwo)
-    val expTwoKept    = keepDomain(expTwo, impOne)
     val typeMap       = nonExclusiveTypeMapMerge(typeMapOne.toList, typeMapTwo.toList)
     val typeVars      = nonExclusiveTypeMapMerge(typeOne, typeTwo)
     val valVars       = nonExclusiveMapMerge(valOne, valTwo)
     val imports       = impOneRemoved:::impTwo
-    val exports       = expTwoKept:::expOne
+    val exports       = expOne
     
     (typeMap.toMap, Module(typeVars,valVars,imports,exports))
   }
@@ -212,21 +211,7 @@ object TypeRules {
         returnList ::= first(i)
     }
     returnList
-  }
-  
-  
-  // LINE | operation in NesT paper - first undefined on elements not in second
-  def keepDomain(first: List[(String, Representation)], second: List[(String, Representation)]):List[(String, Representation)] = {
-    val firstKeys  = getListKeys(first)
-    val secondKeys = getListKeys(second)
-    var returnList = List[(String, Representation)]()    
-    for (i <- 0 until first.length) {
-      if (secondKeys.contains(firstKeys(i)))
-        returnList ::= first(i)
-    }
-    returnList
-  }
-  
+  }  
   
   def getListKeys(myList: List[(String, Representation)]):List[String] = {
     val myKeys = for (i <- 0 until myList.length) yield {
