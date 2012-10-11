@@ -326,6 +326,16 @@ trait Types extends api.Types { self: SymbolTable =>
 
   /** The base class for all types */
   abstract class Type extends TypeApiImpl with Annotatable[Type] {
+    
+    /**
+     * Because nesT module types are added in addition to the regular Scala types, they are
+     * recorded as an optional field here rather than as a separate subclass. Thus the Scala
+     * type checker knows nothing about the nesT type information and (hopefully) just passes
+     * it around transparently.
+     */
+    var nesTModuleType: Option[(Map[String, edu.uvm.mininess.MininessTypes.Representation],
+                                edu.uvm.mininess.MininessTypes.Module)] = None
+    
     /** Types for which asSeenFrom always is the identity, no matter what
      *  prefix or owner.
      */
