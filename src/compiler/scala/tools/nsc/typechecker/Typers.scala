@@ -1741,7 +1741,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
             m.moduleClass.addAnnotation(AnnotationInfo(ann.atp, ann.args, List()))
         }
       }
-      scalanessCheck(ClassDef(typedMods, cdef.name, tparams1, impl2))
+      val miniModType = scalanessCheck(ClassDef(typedMods, cdef.name, tparams1, impl2))
       treeCopy.ClassDef(cdef, typedMods, cdef.name, tparams1, impl2)
         .setType(NoType)
     }
@@ -1778,8 +1778,8 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
         })
       }
       val impl2  = finishMethodSynthesis(impl1, clazz, context)
-
-      scalanessCheck(ModuleDef(typedMods, mdef.name, impl2))
+      
+      val miniModType = scalanessCheck(ModuleDef(typedMods, mdef.name, impl2))
       treeCopy.ModuleDef(mdef, typedMods, mdef.name, impl2) setType NoType
     }
     /** In order to override this in the TreeCheckers Typer so synthetics aren't re-added
@@ -1911,7 +1911,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
           println(s"Parsing ModuleType annotation on val: ${name.toString}")
           val moduleTypeAST = parseScalanessAnnotation(annotation.assocs)
           val moduleTypeASTMininess = edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST)
-          // println(moduleTypeAST)
+          // println(moduleTypeASTMininess)
         }
       }
 

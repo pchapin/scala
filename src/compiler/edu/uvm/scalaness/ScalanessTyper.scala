@@ -221,7 +221,7 @@ trait ScalanessTyper {
    * @param tparams The type parameters of the enclosing class (an empty list for a module).
    * @param impl The AST of the body of the class or module.
    */
-  private def processClassOrModuleDef(tparams: List[TypeDef], impl: Template) {
+  private def processClassOrModuleDef(tparams: List[TypeDef], impl: Template): Any = {
     val Template(_, _, body) = impl
 
     // Make sure this class has a non-empty body.
@@ -282,7 +282,11 @@ trait ScalanessTyper {
                     ("error_t"  -> MininessTypes.ErrorT)),
                 valueParameters)
                 )
-              typeChecker.checkMininessInclusion(unwrappedAbstractSyntax)
+              val mininessInclusionType = typeChecker.checkMininessInclusion(unwrappedAbstractSyntax) match {
+                case Some(miniType) => miniType
+                case _ => throw new Exception("Unable to properly type Mininess Inclusion")
+              }
+              return mininessInclusionType
               println()
             }
             catch {
@@ -319,23 +323,32 @@ trait ScalanessTyper {
    * Perform a check on the give AST node. Only class and module definitions are checked for
    * Mininess inclusions.
    */
-  def scalanessCheck(tree: Tree) {
+  def scalanessCheck(tree: Tree): Option[MininessTypes.Representation] = {
 
-    tree match {
+    val moduleResult = tree match {
 
       // For class definitions, see if they provide a nesC inclusion.
       case ClassDef(mods, name, tparams, impl) =>
-        processClassOrModuleDef(tparams, impl)
+        processClassOrModuleDef(tparams, impl) match {
+          case MininessTypes.Module(t,v,i,e) => Some(MininessTypes.Module(t,v,i,e))
+          case _ => None
+        }
 
       case ModuleDef(mods, name, impl) =>
-        processClassOrModuleDef(List(), impl)
+        processClassOrModuleDef(List(), impl) match {
+          case MininessTypes.Module(t,v,i,e) => Some(MininessTypes.Module(t,v,i,e))
+          case _ => None
+        }
       
       // Find all module instantiations. They will all involve operator new.
-      case New(tpt) =>
+      case New(tpt) => None
         // println("New expression found! tpt = " + tpt)
 
       // Ignore all other constructs.
-      case _ => ()
+      case _ => None
     }
+    
+    moduleResult
+    
   }
 }
