@@ -29,9 +29,10 @@ object Main {
     private var sclnsBlinkCount    : Int32 = null
 
     def instantiate(flashCountType: MetaType[Int32], blinkCount: Int32) = {
-      sclnsFlashCountType = flashCountType
-      sclnsBlinkCount     = blinkCount
-      this
+      val result = new InitialConstantsC
+      result.sclnsFlashCountType = flashCountType
+      result.sclnsBlinkCount     = blinkCount
+      result
     }
 
     private val abstractSyntax = Parser.reparse("InitialConstantsC.nc", List("flashCountType"))
@@ -80,10 +81,11 @@ object Main {
       periodType    : MetaType[Int16],
       period        : Int16) = {
 
-      sclnsFlashCountType = flashCountType
-      sclnsPeriodType     = periodType
-      sclnsPeriod         = period
-      this
+      val result = new BlinkC
+      result.sclnsFlashCountType = flashCountType
+      result.sclnsPeriodType     = periodType
+      result.sclnsPeriod         = period
+      result
     }
 
     private val abstractSyntax  =
