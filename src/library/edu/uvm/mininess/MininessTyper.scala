@@ -148,9 +148,18 @@ class MininessTyper(
       } // If children type check, then OKAY
 
       case ASTNode(MininessLexer.FILE, _, children, _, _) => {
-        for (child <- children)
-          checkMininessInclusion(child, depth + 1)
-        Some(Okay)
+        var moduleChild = -1
+        for (i <- 0 until children.length) {
+          if (children(i).tokenType == MininessLexer.MODULE)
+            moduleChild = i
+          else
+            checkMininessInclusion(children(i), depth + 1)
+        }
+        val returnType = if (moduleChild >= 0)
+                           checkMininessInclusion(children(moduleChild), depth + 1)
+                         else
+                           Some(Okay)
+        returnType
       } // If children type check, then OKAY
 
       case ASTNode(MininessLexer.FOR, _, children, _, _) => {
