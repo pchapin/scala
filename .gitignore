@@ -21,3 +21,5 @@
 scalaness/*/*.class
 scalaness/*/generated
 scalaness/SpartanRPC/.idea/workspace.xml
+scalaness/SpartanRPC/.idea/dictionaries
+scalaness/SpartanRPC/build
