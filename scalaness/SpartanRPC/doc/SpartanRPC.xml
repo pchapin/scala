@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.docbook.org/xml/4.5/docbookx.dtd" [
+
+<!ELEMENT xi:include (xi:fallback?) >
+<!ATTLIST xi:include
+    xmlns:xi   CDATA      #FIXED     "http://www.w3.org/2001/XInclude"
+    href       CDATA      #REQUIRED
+    parse      (xml|text) "xml"
+    encoding   CDATA      #IMPLIED >
+<!ELEMENT xi:fallback ANY>
+<!ATTLIST xi:fallback
+    xmlsn:xi   CDATA      #FIXED     "http://www.w3.org/2001/XInclude" >
+<!ENTITY % local.chapter.class "| xi:include">
+<!ENTITY % local.section.class "| xi:include">
+]>
+
+<!-- FILE        : SpartanRPC.xml
+     SUBJECT     : Master document for the SpartanRPC documentation set.
+     AUTHOR      : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+
+This is the documentation for the SpartanRPC demonstration program.. -->
+
+<book status="draft">
+  <bookinfo>
+    <title>SpartanRPC</title>
+    <author>
+      <firstname>Peter</firstname>
+      <surname>Chapin</surname>
+      <othername role="mi">C.</othername>
+      <affiliation>
+        <orgname>University of Vermont</orgname>
+        <orgdiv>Computer Science</orgdiv>
+      </affiliation>
+    </author>
+    <authorinitials>pcc</authorinitials>
+    <copyright>
+      <year>2012</year>
+      <holder>Peter C. Chapin</holder>
+    </copyright>
+    <legalnotice>
+      <para> Permission is granted to copy, distribute and/or modify this document under the
+        terms of the GNU Free Documentation License, Version 1.1 or any later version published
+        by the Free Software Foundation; with the Invariant Sections being LIST THEIR TITLES,
+        with the Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST. A copy
+        of the license is included in the section entitled "GNU Free Documentation License".
+      </para>
+    </legalnotice>
+    <!-- Do we really want to include this revision history now? -->
+    <revhistory>
+      <revision>
+        <revnumber>1.0</revnumber>
+        <date>2012-09-01</date>
+        <authorinitials>pcc</authorinitials>
+        <revremark>This is a work in progress. Release 1.0 is scheduled for September
+          2012.</revremark>
+      </revision>
+    </revhistory>
+  </bookinfo>
+  <preface id="Introduction">
+    <title>Introduction</title>
+
+    <!-- Include disclaimer. -->
+
+    <para>The purpose of the SpartanRPC library and associated demonstration program is to
+      illustrate the utility of Scalaness in a semi-realistic setting. This library is,
+      essentially, a re-implementation of the Sprocket system using Scalaness. However, unlike
+      Sprocket, this library does most of the complicated security computations in the first
+      stage of execution and not on the sensor nodes themselves.</para>
+
+    <para>The SpartanRPC library contains Mininess stub and skeleton components that can be
+      specialized by Scalaness to serve as proxies for components on remote nodes. The stub and
+      skeletons here (unlike the ones in the Sprocket runtime system) only compute and verify
+      message authentication codes based on previously computed session keys. The executing
+      Mininess code does not do any public key operations.</para>
+
+    <para>The SpartanRPC library tracks the policy associated with each remotely accessible
+      service. A <classname>ServiceAuthorizer</classname> class listens to the Internet for
+      authorization requests from other security domains. When a request is received, the
+        <classname>ServiceAuthorizer</classname> verifies access and then negotiates a session
+      key with the remote domain. The resulting key is stored for use during program
+      generation.</para>
+
+    <para>The SpartanRPC demonstration program provided here is a simple remote blink
+      application generator. It is intended to run indefinitely, accepting authorization
+      requests from other domains and periodically regenerating the Mininess code with updated
+      session key information.</para>
+
+  </preface>
+
+  <xi:include href="Design.xml"/>
+
+  <!-- <bibliography> ... </bibliography> -->
+
+</book>
