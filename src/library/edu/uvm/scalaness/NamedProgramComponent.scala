@@ -56,6 +56,11 @@ class NamedProgramComponent(
       }
     }
     
+    // Objects with null abstract syntax trees are not specialized. Such objects represent
+    // hand coded shims. Shim objects can't be processed by Scalaness because they may contain
+    // arbitrary nesC code.
+    if (abstractSyntax == null) return ()
+    
     val outputFile = new PrintStream(new File(outputFolder, name + ".nc"))
     try {
       val valueList = enclosingObject.getValueMap.toList

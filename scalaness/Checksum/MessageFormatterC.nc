@@ -1,8 +1,14 @@
 
 module MessageFormatterC {
-    uses command checksumType compute_checksum(uint8_t data[]);
+    uses command checksumType compute_checksum( uint8_t data[] );
+    provides command void booted( );
 }
 implementation {
+    
+    command void booted( )
+    {
+        f( );
+    }
     
     void f()
     {

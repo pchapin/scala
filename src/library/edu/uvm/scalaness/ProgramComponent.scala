@@ -135,7 +135,7 @@ class ProgramComponent(
    * @return A new ProgramComponent that wraps a configuration consisting of the two input
    * components joined together.
    */
-  def +(other: ProgramComponent) = {
+  def +>(other: ProgramComponent) = {
     val newTypeParameters  = mergeTypeParameters(other.typeParameters)
     val newValueParameters = mergeValueParameters(other.valueParameters)
     val newExports         = mergeExports(other.exports)
@@ -191,11 +191,11 @@ class ProgramComponent(
 
 
   /**
-   * Validates the configuration. At compile time, special type checking is done. At run time
+   * Images the configuration. At compile time, special type checking is done. At run time
    * the generated program is written to disk. Note that the location of the top level
    * configuration is fixed here.
    */
-  def validate() {
+  def image() {
     val outputFolder = new File(targetFolder)
 
     // Copy the Makefile.

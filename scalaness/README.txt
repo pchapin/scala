@@ -16,3 +16,5 @@ SendReceive
     This folder contains sample that uses the Active Message radio stack. Scalaness programs
     need to be able to interact with the radio before anyone can take them system seriously.
 
+SpartanRPC
+    This folder contains a re-implementation of SpartanRPC (Sprocket) usign Scalaness.

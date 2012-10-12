@@ -209,7 +209,7 @@ object TreeConverter {
         val arrayPFENode = root.children(0)
         val accessNode = arrayPFENode.children(0)
         val isIdentifier = accessNode.tokenType match {
-          case 104 => true
+          case MininessLexer.RAW_IDENTIFIER => true
           case _ => false
         }
         val arrayName = arrayNode.text
