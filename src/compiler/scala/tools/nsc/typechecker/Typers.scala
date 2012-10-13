@@ -1741,8 +1741,24 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
             m.moduleClass.addAnnotation(AnnotationInfo(ann.atp, ann.args, List()))
         }
       }
+      
+      // Search for Scalaness ModuleType annotations and process them.
+      val moduleTypeAnnotations = clazz.annotations filter { _.tpe.toString == "edu.uvm.scalaness.ModuleType" }
+      val annotatedNesTModuleType =
+        if (moduleTypeAnnotations.length == 0)
+          None
+        else {
+          val moduleTypeAST = parseScalanessAnnotation(moduleTypeAnnotations(0).assocs)
+          Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST))
+        }
+
       val mininessModuleType = scalanessCheck(ClassDef(typedMods, cdef.name, tparams1, impl2))
       val nesTModuleType = mininessModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
+      if (annotatedNesTModuleType != nesTModuleType) {
+        reporter.error(cdef.pos, s"""nesT module type mismatch
+                                    |\tAnnotated type = ${annotatedNesTModuleType.toString}
+                                    |\tBody type = ${nesTModuleType.toString}""".stripMargin)
+      } 
       clazz.tpe.nesTModuleType = nesTModuleType
       treeCopy.ClassDef(cdef, typedMods, cdef.name, tparams1, impl2)
         .setType(NoType)
@@ -1781,8 +1797,23 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       }
       val impl2  = finishMethodSynthesis(impl1, clazz, context)
       
+      // Search for Scalaness ModuleType annotations and process them.
+      val moduleTypeAnnotations = clazz.annotations filter { _.tpe.toString == "edu.uvm.scalaness.ModuleType" }
+      val annotatedNesTModuleType =
+        if (moduleTypeAnnotations.length == 0)
+          None
+        else {
+          val moduleTypeAST = parseScalanessAnnotation(moduleTypeAnnotations(0).assocs)
+          Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST))
+        }
+
       val mininessModuleType = scalanessCheck(ModuleDef(typedMods, mdef.name, impl2))
       val nesTModuleType = mininessModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
+      if (annotatedNesTModuleType != nesTModuleType) {
+        reporter.error(mdef.pos, s"""nesT module type mismatch
+                                    |\tAnnotated type = ${annotatedNesTModuleType.toString}
+                                    |\tBody type = ${nesTModuleType.toString}""".stripMargin)
+      } 
       clazz.tpe.nesTModuleType = nesTModuleType
       treeCopy.ModuleDef(mdef, typedMods, mdef.name, impl2) setType NoType
     }
@@ -1910,7 +1941,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       
       // Search for Scalaness ModuleType annotations and process them.
       val moduleTypeAnnotations = annots filter { _.tpe.toString == "edu.uvm.scalaness.ModuleType" }
-      val nesTModuleType =
+      val annotatedNesTModuleType =
         if (moduleTypeAnnotations.length == 0)
           None
         else {
@@ -1925,7 +1956,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
         if (vdef.rhs.isEmpty) {
           if (sym.isVariable && sym.owner.isTerm && !isPastTyper)
             LocalVarUninitializedError(vdef)
-          sym.tpe.nesTModuleType = nesTModuleType
+          sym.tpe.nesTModuleType = annotatedNesTModuleType
           vdef.rhs
         } else {
           val tpt2 = if (sym.hasDefault) {
@@ -1947,11 +1978,11 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
           newTyper(typer1.context.make(vdef, sym)).transformedOrTyped(vdef.rhs, EXPRmode | BYVALmode, tpt2)
         }
       
-      val rhsNesTModuleType = rhs1.tpe.nesTModuleType
-      if (nesTModuleType != rhsNesTModuleType) {
+      val nesTModuleType = rhs1.tpe.nesTModuleType
+      if (annotatedNesTModuleType != nesTModuleType) {
         reporter.error(vdef.pos, s"""nesT module type mismatch
-                                    |\tAnnotated type = ${nesTModuleType.toString}
-                                    |\tInitializer type = ${rhsNesTModuleType.toString}""".stripMargin)
+                                    |\tAnnotated type = ${annotatedNesTModuleType.toString}
+                                    |\tInitializer type = ${nesTModuleType.toString}""".stripMargin)
       }
       treeCopy.ValDef(vdef, typedMods, vdef.name, tpt1, checkDead(rhs1)) setType NoType
     }

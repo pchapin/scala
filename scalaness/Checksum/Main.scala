@@ -41,6 +41,9 @@ object Main {
   }
 
   // A component for computing checksums.
+  @ModuleType("""{}
+                 < checksumType <: UInt32; size: UInt16 >
+                 { ; compute_checksum(data: Array[UInt8]): checksumType }""")
   class ChecksumC extends MininessComponent {
 
     /////////
@@ -79,6 +82,12 @@ object Main {
  
 
   // A component for creating messages.
+  @ModuleType("""{}
+                 < checksumType <: UInt32; size: UInt16 >
+                 { startPeriodic(period: UInt32): Void,
+                   compute_checksum(data: Array[UInt8]): checksumType;
+                   fired(): Void,
+                   booted(): Void }""")
   class MessageFormatterC extends MininessComponent {
 
     /////////
