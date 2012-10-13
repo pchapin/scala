@@ -135,19 +135,42 @@ class InterfaceUnwrapper(private val interfaceFolders: List[String]) {
         if (existsChild(node, MininessLexer.DOT)) {
           val dotNode = findChild(node, MininessLexer.DOT)
           for (i <- 0 until interfaceNames.length) {
-            if (interfaceNames(i).equals(children(1).text))
+            if (interfaceNames(i).equals(children(1).text)) {
               node.children = List(children(0),dotNode.children(0),children(3))
+            }
           }
         }
         node
       }
-       
-      // Remove instance of interface names from declarations within the body       
-      case ASTNode(MininessLexer.IDENTIFIER_PATH, text, children, parent, symbolTable) => {
-        if (children.length > 1) {
+      
+      // Finds any instances of an interface functon within the implementation and eliminates the interface name
+      // Additionally, if the command is an event, it is switched to a command to coincide with the unwrapping
+      case ASTNode(MininessLexer.FUNCTION_DEFINITION, text, children, parent, symbolTable) => {
+        var interfaceRemoved = false
+        val declaratorNode = findChild(node, MininessLexer.DECLARATOR)
+        val idPathNode = findChild(declaratorNode, MininessLexer.IDENTIFIER_PATH)
+        if (idPathNode.children.length > 1) {
           for (i <- 0 until interfaceNames.length) {
-            if (interfaceNames(i).equals(children(0).text))
-              node.children = List(children(1))
+            if (interfaceNames(i).equals(idPathNode.children(0).text)) {
+              interfaceRemoved = true
+              idPathNode.children = List(idPathNode.children(1))
+            }
+          }
+        }
+        if (interfaceRemoved) {
+          var eventID = -1
+          for (i <- 0 until children.length) {
+            if (children(i).tokenType == MininessLexer.EVENT)
+              eventID = i
+          }
+          if (eventID >= 0) {
+            val newChildren = for (i <-0 until children.length) yield {
+              if (i == eventID)
+                ASTNode(MininessLexer.COMMAND, "command", List(), Some(node), symbolTable)
+              else
+                children(i)
+            }
+            node.children = newChildren.toList
           }
         }
         node
