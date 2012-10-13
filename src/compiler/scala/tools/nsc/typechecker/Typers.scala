@@ -1743,6 +1743,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       }
       val mininessModuleType = scalanessCheck(ClassDef(typedMods, cdef.name, tparams1, impl2))
       val nesTModuleType = mininessModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
+      clazz.tpe.nesTModuleType = nesTModuleType
       treeCopy.ClassDef(cdef, typedMods, cdef.name, tparams1, impl2)
         .setType(NoType)
     }
@@ -1782,6 +1783,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       
       val mininessModuleType = scalanessCheck(ModuleDef(typedMods, mdef.name, impl2))
       val nesTModuleType = mininessModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
+      clazz.tpe.nesTModuleType = nesTModuleType
       treeCopy.ModuleDef(mdef, typedMods, mdef.name, impl2) setType NoType
     }
     /** In order to override this in the TreeCheckers Typer so synthetics aren't re-added
@@ -4302,8 +4304,10 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
                   || phase.erasedTypes
                   )) {
           DoesNotConformToSelfTypeError(tree, sym, tp.typeOfThis)
-        } else
+        } else {
+          tp.nesTModuleType = sym.tpe.nesTModuleType 
           treeCopy.New(tree, tpt1).setType(tp)
+        }
       }
 
       def typedEta(expr1: Tree): Tree = expr1.tpe match {

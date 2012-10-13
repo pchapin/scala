@@ -168,7 +168,7 @@ object Main {
       val desiredChecksumType = getChecksumType(args)
       val desiredSize = getSize(args)
 
-      @ModuleType("""{ }
+      @ModuleType("""{ checksumType <: UInt32 }
                      <;>
                      { compute_checksum(data: Array[UInt8]): checksumType,
                        startPeriodic(period: UInt32): Void;
@@ -177,7 +177,7 @@ object Main {
       val formattingModule =
         (new MessageFormatterC).instantiate(desiredSize, desiredChecksumType)
 
-      @ModuleType("""{checksumType <: UInt32}
+      @ModuleType("""{ checksumType <: UInt32 }
                      <;>
                      { ; }""")
       val resultModule =
