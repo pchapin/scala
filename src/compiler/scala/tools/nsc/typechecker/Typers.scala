@@ -1741,7 +1741,8 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
             m.moduleClass.addAnnotation(AnnotationInfo(ann.atp, ann.args, List()))
         }
       }
-      val miniModType = scalanessCheck(ClassDef(typedMods, cdef.name, tparams1, impl2))
+      val mininessModuleType = scalanessCheck(ClassDef(typedMods, cdef.name, tparams1, impl2))
+      val nesTModuleType = mininessModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
       treeCopy.ClassDef(cdef, typedMods, cdef.name, tparams1, impl2)
         .setType(NoType)
     }
@@ -1779,7 +1780,8 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       }
       val impl2  = finishMethodSynthesis(impl1, clazz, context)
       
-      val miniModType = scalanessCheck(ModuleDef(typedMods, mdef.name, impl2))
+      val mininessModuleType = scalanessCheck(ModuleDef(typedMods, mdef.name, impl2))
+      val nesTModuleType = mininessModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
       treeCopy.ModuleDef(mdef, typedMods, mdef.name, impl2) setType NoType
     }
     /** In order to override this in the TreeCheckers Typer so synthetics aren't re-added
@@ -1905,13 +1907,14 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       checkNonCyclic(vdef, tpt1)
       
       // Search for Scalaness ModuleType annotations and process them.
-      for (annotation <- annots) {
-        if (annotation.tpe.toString == "edu.uvm.scalaness.ModuleType") {
-          val moduleTypeAST = parseScalanessAnnotation(annotation.assocs)
-          val moduleTypeASTMininess = edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST)
-          // println(moduleTypeASTMininess)
+      val moduleTypeAnnotations = annots filter { _.tpe.toString == "edu.uvm.scalaness.ModuleType" }
+      val nesTModuleType =
+        if (moduleTypeAnnotations.length == 0)
+          None
+        else {
+          val moduleTypeAST = parseScalanessAnnotation(moduleTypeAnnotations(0).assocs)
+          Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST))
         }
-      }
 
       if (sym.hasAnnotation(definitions.VolatileAttr) && !sym.isMutable)
           VolatileValueError(vdef)
@@ -1920,6 +1923,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
         if (vdef.rhs.isEmpty) {
           if (sym.isVariable && sym.owner.isTerm && !isPastTyper)
             LocalVarUninitializedError(vdef)
+          sym.tpe.nesTModuleType = nesTModuleType
           vdef.rhs
         } else {
           val tpt2 = if (sym.hasDefault) {
@@ -1940,6 +1944,13 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
           } else tpt1.tpe
           newTyper(typer1.context.make(vdef, sym)).transformedOrTyped(vdef.rhs, EXPRmode | BYVALmode, tpt2)
         }
+      
+      val rhsNesTModuleType = rhs1.tpe.nesTModuleType
+      if (nesTModuleType != rhsNesTModuleType) {
+        reporter.error(vdef.pos, s"""nesT module type mismatch
+                                    |\tAnnotated type = ${nesTModuleType.toString}
+                                    |\tInitializer type = ${rhsNesTModuleType.toString}""".stripMargin)
+      }
       treeCopy.ValDef(vdef, typedMods, vdef.name, tpt1, checkDead(rhs1)) setType NoType
     }
 

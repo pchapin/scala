@@ -30,37 +30,30 @@ object TypeRules {
              List(),
              List(("get_initial_count",Function(TypeVariable("flashCountType"),List()))))
                               
-    println("First Test:  ModuleT")
-    val adultBlinkModule = practiceModuleT(testBlinkModule)
-    val adultCompoModule = practiceModuleT(testCompoModule)
+    println("First Test:  toModuleType")
+    val adultBlinkModule = toModuleType(testBlinkModule)
+    val adultCompoModule = toModuleType(testCompoModule)
   
-    println("Second Test: Wire")
-    val composedMod = practiceWire(adultBlinkModule, adultCompoModule)
+    println("Second Test: typeWire")
+    val composedMod = typeWire(adultBlinkModule, adultCompoModule)
   
-    println("Third Test: Instantiate")
-    val instMod = practiceInstantiate(adultBlinkModule, List(Int32, Int16), List(Int16))
+    println("Third Test: typeInstantiate")
+    val instMod = typeInstantiate(adultBlinkModule, List(Int32, Int16), List(Int16))
   
-    println("Fourth Test: Validate")
-    practiceValidate(instMod)
+    println("Fourth Test: typeImage")
+    typeImage(instMod)
   }
   
   
-  // If its a nesT module, return it in the Scalaness form, it has a type judgement in front of
-  // it.
-  def practiceModuleT(mod: Module): (Map[TypeVariable, Representation], Module) = {
-    mod match {
-      case Module(typePars, valPars, imports, exports) => {
-        (Map[TypeVariable, Representation](), mod)
-      }
-      case _ => {
-        throw new Exception("Expected module type")
-      }
-    }
+  // If its a nesT module, return it in the Scalaness form, it has a type judgement in front
+  // of it.
+  def toModuleType(mod: Module): (Map[TypeVariable, Representation], Module) = {
+    (Map[TypeVariable, Representation](), mod)
   }
   
 
   // Wire two modules together, follow the proposed type rules.
-  def practiceWire(
+  def typeWire(
       modOne: (Map[TypeVariable,Representation], Module), 
       modTwo: (Map[TypeVariable,Representation], Module)): (Map[TypeVariable, Representation], Module) = {
 
@@ -92,7 +85,7 @@ object TypeRules {
   }
   
   
-  def practiceInstantiate(
+  def typeInstantiate(
       mod: (Map[TypeVariable, Representation], Module), 
       listT1: List[Representation], listT2: List[Representation]): (Map[TypeVariable, Representation],Module) = {
   
@@ -141,7 +134,7 @@ object TypeRules {
   }
  
   
-  def practiceValidate(mod: (Map[TypeVariable, Representation], Module)): (Map[TypeVariable, Representation], Module) = {
+  def typeImage(mod: (Map[TypeVariable, Representation], Module)): (Map[TypeVariable, Representation], Module) = {
     mod match {
       case (typeMap, Module(List(), List(), imports, exports)) => {
         (typeMap, Module(List(), List(), imports, exports))

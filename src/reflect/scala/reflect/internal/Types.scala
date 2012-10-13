@@ -333,7 +333,7 @@ trait Types extends api.Types { self: SymbolTable =>
      * type checker knows nothing about the nesT type information and (hopefully) just passes
      * it around transparently.
      */
-    var nesTModuleType: Option[(Map[String, edu.uvm.mininess.MininessTypes.Representation],
+    var nesTModuleType: Option[(Map[edu.uvm.mininess.MininessTypes.TypeVariable, edu.uvm.mininess.MininessTypes.Representation],
                                 edu.uvm.mininess.MininessTypes.Module)] = None
     
     /** Types for which asSeenFrom always is the identity, no matter what

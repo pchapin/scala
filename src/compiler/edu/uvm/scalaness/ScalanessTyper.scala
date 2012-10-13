@@ -323,7 +323,7 @@ trait ScalanessTyper {
    * Perform a check on the give AST node. Only class and module definitions are checked for
    * Mininess inclusions.
    */
-  def scalanessCheck(tree: Tree): Option[MininessTypes.Representation] = {
+  def scalanessCheck(tree: Tree): Option[MininessTypes.Module] = {
 
     val moduleResult = tree match {
 

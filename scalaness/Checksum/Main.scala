@@ -181,7 +181,10 @@ object Main {
                      <;>
                      { ; }""")
       val resultModule =
-        LibraryC +> formattingModule +> getChecksummer(desiredSize, desiredChecksumType)
+        LibraryC +>
+          formattingModule +>
+            getChecksummer(desiredSize, desiredChecksumType) +>
+              LibraryC
 
       resultModule.image()
     }
