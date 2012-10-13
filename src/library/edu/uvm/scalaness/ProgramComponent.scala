@@ -83,9 +83,10 @@ class ProgramComponent(
 
   // Map merge.
   private def mergeImports(otherImports  : ImportsType,
-                           overallExports: ExportsType) = {  
+                           otherExports  : ExportsType) = {  
     // TODO: Check to be sure types are identical for common domain elements.
     
+    /*
     def rawMerge(otherImports: ImportsType) = {
       var combinedImports = imports
       for ((otherKey, otherComponentList) <- otherImports) {
@@ -98,8 +99,10 @@ class ProgramComponent(
       }
       combinedImports
     }
+    */
 
-    rawMerge(otherImports) -- overallExports.keySet
+    val refinedImports = imports -- otherExports.keySet
+    refinedImports ++ otherImports
   }
 
 
@@ -138,8 +141,8 @@ class ProgramComponent(
   def +>(other: ProgramComponent) = {
     val newTypeParameters  = mergeTypeParameters(other.typeParameters)
     val newValueParameters = mergeValueParameters(other.valueParameters)
-    val newExports         = mergeExports(other.exports)
-    val newImports         = mergeImports(other.imports, newExports)
+    val newExports         = exports
+    val newImports         = mergeImports(other.imports, other.exports)
     val newConfiguration   =
       configuration.merge(other.configuration, imports, other.imports, newExports)
     val newTargetFolder    = mergeTargetFolders(other.targetFolder)
