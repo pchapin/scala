@@ -62,7 +62,7 @@ object TypeRules {
         (typeMap, typePars, valPars, imports, exports)
       }
       case _ => {
-        throw new Exception("We require a module type during wiring")
+        throw new Exception("require a module type during wiring")
       }
     }
 
@@ -71,7 +71,7 @@ object TypeRules {
         (typeMap, typePars, valPars, imports, exports)
       }
       case _ => {
-        throw new Exception("We require a module type during wiring")
+        throw new Exception("require a module type during wiring")
       }
     }
     val impOneRemoved = removeDomain(impOne, expTwo)
@@ -93,16 +93,16 @@ object TypeRules {
       case (typeMap, Module(typePars, valPars, imports, exports)) => {
         if (typeMap.size == 0)
           (typePars, valPars, imports, exports)
-        else throw new Exception("Bare Module Type Required")
+        else throw new Exception("bare module type required")
       }
-      case _ => throw new Exception("Bare Module Type Required")
+      case _ => throw new Exception("bare module type required")
     }
     
     // Upper bounds on what is asked for in module declaration
     val tList = for (i <- 0 until typeParList.length) yield {
       val currT = typeParList(i) match {
         case (TypeVariable(x), someType) => TypeVariable(x)
-        case _ => throw new Exception("Expected type variables")
+        case _ => throw new Exception("expected type variables")
       } 
       currT
     }
@@ -111,7 +111,7 @@ object TypeRules {
     val tau1List = for (i <- 0 until typeParList.length) yield {
       val currTau = typeParList(i) match {
         case (TypeVariable(x), someType) => someType
-        case _ => throw new Exception("Expected type variables")
+        case _ => throw new Exception("expected type variables")
       } 
       currTau
     }
@@ -120,13 +120,13 @@ object TypeRules {
     val tau2List = for (i <- 0 until valParList.length) yield {
       val currTau = valParList(i) match {
         case (someString, someType) => someType
-        case _ => throw new Exception("Expected some value")
+        case _ => throw new Exception("expected some value")
       }
       currTau
     }
    
     if (!(seriesSubType(listT1,tau1List.toList) && seriesSubType(listT2, tau2List.toList)))
-      throw new Exception("Type and value parameters require subtype relation")
+      throw new Exception("type and value parameters require subtype relation")
     
     val typeVarMap = newTypeMap(tList.toList, listT1)
     
@@ -139,13 +139,16 @@ object TypeRules {
       case (typeMap, Module(List(), List(), imports, exports)) => {
         (typeMap, Module(List(), List(), imports, exports))
       }
-      case _ => throw new Exception("Validate expects runnable Module type")
+      case _ => throw new Exception("image expects runnable module type")
     }
   }
   
   
   // Double arrows pointing down operation in nesT paper
-  def nonExclusiveMapMerge(first: List[(String,  Representation)], second: List[(String, Representation)]): List[(String, Representation)] = {
+  private def nonExclusiveMapMerge(
+      first : List[(String,  Representation)],
+      second: List[(String, Representation)]): List[(String, Representation)] = {
+    
     val firstMap   = first.toMap
     val secondMap  = second.toMap
     val firstKeys  = getListKeys(first)
@@ -156,7 +159,7 @@ object TypeRules {
         if (firstMap.get(firstKeys(i)) == secondMap.get(firstKeys(i))) {
           doubles ::= firstKeys(i)
         }
-        else throw new Exception("Same domain must have same type")
+        else throw new Exception("same domain must have same type")
       }
     }
     var returnList = List[(String,Representation)]()
@@ -169,8 +172,10 @@ object TypeRules {
   }
   
   
-  def nonExclusiveTypeMapMerge(first : List[(TypeVariable, Representation)], 
-                               second: List[(TypeVariable, Representation)]): List[(TypeVariable, Representation)] = {
+  private def nonExclusiveTypeMapMerge(
+      first : List[(TypeVariable, Representation)], 
+      second: List[(TypeVariable, Representation)]): List[(TypeVariable, Representation)] = {
+    
     val firstMap   = first.toMap
     val secondMap  = second.toMap
     val firstKeys  = getListTypeKeys(first)
@@ -181,7 +186,7 @@ object TypeRules {
         if (firstMap.get(firstKeys(i)) == secondMap.get(firstKeys(i))) {
           doubles ::= firstKeys(i)
         }
-        else throw new Exception("Same domain must have same type")
+        else throw new Exception("same domain must have same type")
       }
     }
     var returnList = List[(TypeVariable,Representation)]()
@@ -195,7 +200,10 @@ object TypeRules {
   
   
   // SLASH operation in NesT paper
-  def removeDomain(first: List[(String, Representation)], second: List[(String, Representation)]):List[(String, Representation)] = {
+  private def removeDomain(
+      first : List[(String, Representation)],
+      second: List[(String, Representation)]):List[(String, Representation)] = {
+    
     val firstKeys  = getListKeys(first)
     val secondKeys = getListKeys(second)
     var returnList = List[(String, Representation)]()
@@ -206,7 +214,7 @@ object TypeRules {
     returnList
   }  
   
-  def getListKeys(myList: List[(String, Representation)]):List[String] = {
+  private def getListKeys(myList: List[(String, Representation)]):List[String] = {
     val myKeys = for (i <- 0 until myList.length) yield {
                    val (key, _) = myList(i)
                    key
@@ -215,7 +223,9 @@ object TypeRules {
   }
   
   
-  def getListTypeKeys(myList: List[(TypeVariable, Representation)]):List[TypeVariable] = {
+  private def getListTypeKeys(
+      myList: List[(TypeVariable, Representation)]): List[TypeVariable] = {
+    
     val myKeys = for (i <- 0 until myList.length) yield {
                    val (key, _) = myList(i)
                    key
@@ -224,7 +234,10 @@ object TypeRules {
   }
   
   
-  def seriesSubType(listOne: List[Representation], listTwo: List[Representation]): Boolean = {
+  private def seriesSubType(
+      listOne: List[Representation],
+      listTwo: List[Representation]): Boolean = {
+    
     var returnBool = true
     if (listOne.length == listTwo.length) {
       for (i <- 0 until listOne.length) {
@@ -233,14 +246,16 @@ object TypeRules {
       }
     }
     else 
-      throw new Exception("Parameter lists must be of equal length")
+      throw new Exception("parameter lists must be of equal length")
       
     returnBool
   }
   
   
   // Take a set of type values and add a new upper bound
-  def newTypeMap(listOne: List[TypeVariable], listTwo: List[Representation]): Map[TypeVariable, Representation] = {
+  private def newTypeMap(
+      listOne: List[TypeVariable],
+      listTwo: List[Representation]): Map[TypeVariable, Representation] = {
     
     val returnList = for (i <- 0 until listOne.length) yield {
       (listOne(i), listTwo(i))

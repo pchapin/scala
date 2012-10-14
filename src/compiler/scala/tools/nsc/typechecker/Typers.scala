@@ -1756,10 +1756,10 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       val nesTModuleType = mininessModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
       if (annotatedNesTModuleType != nesTModuleType) {
         reporter.error(cdef.pos, s"""nesT module type mismatch
-                                    |\tAnnotated type = ${annotatedNesTModuleType.toString}
-                                    |\tBody type = ${nesTModuleType.toString}""".stripMargin)
+                                    |\tAnnotated = ${annotatedNesTModuleType.toString}
+                                    |\tBody = ${nesTModuleType.toString}""".stripMargin)
       } 
-      clazz.tpe.nesTModuleType = nesTModuleType
+      clazz.tpe.nesTModuleType = annotatedNesTModuleType
       treeCopy.ClassDef(cdef, typedMods, cdef.name, tparams1, impl2)
         .setType(NoType)
     }
@@ -1809,12 +1809,15 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
 
       val mininessModuleType = scalanessCheck(ModuleDef(typedMods, mdef.name, impl2))
       val nesTModuleType = mininessModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
-      if (annotatedNesTModuleType != nesTModuleType) {
-        reporter.error(mdef.pos, s"""nesT module type mismatch
-                                    |\tAnnotated type = ${annotatedNesTModuleType.toString}
-                                    |\tBody type = ${nesTModuleType.toString}""".stripMargin)
-      } 
-      clazz.tpe.nesTModuleType = nesTModuleType
+      // Objects that wrap external libraries don't have Mininess module types but are annotated.
+      // TODO: suppress the check below only for objects wrapping externa libraries!
+      //
+      // if (annotatedNesTModuleType != nesTModuleType) {
+      //   reporter.error(mdef.pos, s"""nesT module type mismatch
+      //                               |\tAnnotated = ${annotatedNesTModuleType.toString}
+      //                               |\tBody = ${nesTModuleType.toString}""".stripMargin)
+      // } 
+      clazz.tpe.nesTModuleType = annotatedNesTModuleType
       treeCopy.ModuleDef(mdef, typedMods, mdef.name, impl2) setType NoType
     }
     /** In order to override this in the TreeCheckers Typer so synthetics aren't re-added
@@ -1981,9 +1984,10 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       val nesTModuleType = rhs1.tpe.nesTModuleType
       if (annotatedNesTModuleType != nesTModuleType) {
         reporter.error(vdef.pos, s"""nesT module type mismatch
-                                    |\tAnnotated type = ${annotatedNesTModuleType.toString}
-                                    |\tInitializer type = ${nesTModuleType.toString}""".stripMargin)
+                                    |\tAnnotated = ${annotatedNesTModuleType.toString}
+                                    |\tInitializer = ${nesTModuleType.toString}""".stripMargin)
       }
+      rhs1.tpe.nesTModuleType = annotatedNesTModuleType
       treeCopy.ValDef(vdef, typedMods, vdef.name, tpt1, checkDead(rhs1)) setType NoType
     }
 
@@ -3085,6 +3089,31 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
           // repeat vararg as often as needed, remove by-name
           val argslen = args.length
           val formals = formalTypes(paramTypes, argslen)
+          
+          // Application of Scalaness type rules.
+          val newNesTModuleType = try {
+            fun match {
+              case Select(qual, name) =>
+                val (resultType, methodName) = name.toString match {
+                  case "$plus$greater" => (None, "+>")
+                  case "instantiate" => (None, "instantiate")
+                  case "image" =>
+                    (qual.tpe.nesTModuleType map { edu.uvm.scalaness.TypeRules.typeImage(_) },
+                    "image")
+                  case _ => (None, "*")
+                }
+                if (methodName != "*")
+                  println(s"$methodName, qual.tpe=${qual.tpe.toString}, nesT=${qual.tpe.nesTModuleType}, argument-types=${formals.toString}")
+                resultType
+              case _ =>
+                None
+            }
+          }
+          catch {
+            case e: Exception =>
+              reporter.error(fun.pos, e.getMessage)
+              None
+          }
 
           /** Try packing all arguments into a Tuple and apply `fun`
            *  to that. This is the last thing which is tried (after
@@ -3222,6 +3251,8 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
                 // val foo = "foo"; def precise(x: String)(y: x.type): x.type = {...}; val bar : foo.type = precise(foo)(foo)
                 // precise(foo) : foo.type => foo.type
                 val restpe = mt.resultType(args1 map (arg => gen.stableTypeFor(arg) getOrElse arg.tpe))
+                if (newNesTModuleType != None)
+                  restpe.nesTModuleType = newNesTModuleType
                 def ifPatternSkipFormals(tp: Type) = tp match {
                   case MethodType(_, rtp) if (inPatternMode(mode)) => rtp
                   case _ => tp
