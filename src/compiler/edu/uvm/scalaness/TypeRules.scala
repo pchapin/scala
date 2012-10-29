@@ -264,4 +264,20 @@ object TypeRules {
     returnList.toMap
   }
   
+  // Lift a Scalaness level type into a Mininess level type
+  def liftTypeString(
+    typeString: String): Representation = {
+      val returnType = typeString match {
+        case "LiftableTypes.UInt8"  => UInt8
+        case "LiftableTypes.UInt16" => UInt16
+        case "LiftableTypes.UInt32" => UInt32
+        case "LiftableTypes.Int8"   => Int8
+        case "LiftableTypes.Int16"  => Int16
+        case "LiftableTypes.Int32"  => Int32
+        case _ => throw new Exception("Not a liftable type")
+      }
+      
+      returnType
+    }
+  
 }

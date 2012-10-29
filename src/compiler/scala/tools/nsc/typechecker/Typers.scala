@@ -3102,8 +3102,36 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
                     "image")
                   case _ => (None, "*")
                 }
-                if (methodName != "*")
-                  println(s"$methodName, qual.tpe=${qual.tpe.toString}, nesT=${qual.tpe.nesTModuleType}, argument-types=${formals.toString}")
+                if (methodName != "*") {
+                  if (methodName == "instantiate") {
+                    // A function can do this, strip off the unimportant information and leave us these types
+                    var liftedTypes = List[edu.uvm.mininess.MininessTypes.Representation]()
+                    var metaTypeUBs = List[edu.uvm.mininess.MininessTypes.Representation]()
+                    for (i <- 0 until formals.length) {
+                      val myNewType = formals(i).toString
+                      val fullLiftType = myNewType.drop(18)
+                      if (fullLiftType.charAt(0) == 'L') {
+                        val liftedType = edu.uvm.scalaness.TypeRules.liftTypeString(fullLiftType)
+                        liftedTypes ::= liftedType
+                      }
+                     else if (fullLiftType.charAt(0) == 'M' && fullLiftType.charAt(1) == 'e') {
+                        var fullMetaType = fullLiftType.drop(27)
+                        fullMetaType = fullMetaType.dropRight(1) 
+                        val myMetaType = edu.uvm.scalaness.TypeRules.liftTypeString(fullMetaType)
+                        metaTypeUBs ::= myMetaType
+                      }
+                    }
+                    println("LTs: " + liftedTypes)
+                    println("MTs: " + metaTypeUBs)
+                    val modType = qual.tpe.nesTModuleType match {
+                      case Some(mType) => mType
+                      case _ => throw new Exception("Module Type Required for Instantiate")
+                    }
+                    val instType = edu.uvm.scalaness.TypeRules.typeInstantiate(modType, metaTypeUBs, liftedTypes)
+                    println("IT : " + instType)
+                  }
+                  println(s"$methodName, qual.tpe=${qual.tpe.toString}, nesT=${qual.tpe.nesTModuleType}, argument-types=${formals.toString}"+"\n\n")
+                }
                 resultType
               case _ =>
                 None
