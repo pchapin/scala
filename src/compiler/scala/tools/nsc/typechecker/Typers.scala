@@ -3112,7 +3112,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
               case Select(qual, name) =>
                 val (resultType, methodName) = name.toString match {
                   case "$plus$greater" => (None, "+>")
-                  case "instantiate" => (None, "instantiate")
+                  case "instantiateX" => (None, "instantiate")
                   case "image" =>
                     (qual.tpe.nesTModuleType map { edu.uvm.scalaness.TypeRules.typeImage(_) },
                     "image")
