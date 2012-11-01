@@ -1414,9 +1414,11 @@ trait Types extends api.Types { self: SymbolTable =>
   final class UniqueThisType(sym: Symbol) extends ThisType(sym) { }
 
   object ThisType extends ThisTypeExtractor {
-    def apply(sym: Symbol): Type =
-      if (phase.erasedTypes) sym.tpe_*
-      else unique(new UniqueThisType(sym))
+    def apply(sym: Symbol): Type = (
+      if (!phase.erasedTypes) unique(new UniqueThisType(sym))
+      else if (sym.isImplClass) sym.typeOfThis
+      else sym.tpe_*
+    )
   }
 
   /** A class for singleton types of the form `<prefix>.<sym.name>.type`.
@@ -1738,7 +1740,7 @@ trait Types extends api.Types { self: SymbolTable =>
 
   protected def defineBaseClassesOfCompoundType(tpe: CompoundType) {
     def define = defineBaseClassesOfCompoundType(tpe, force = false)
-    if (isPastTyper || !breakCycles) define
+    if (!breakCycles || isPastTyper) define
     else tpe match {
       // non-empty parents helpfully excludes all package classes
       case tpe @ ClassInfoType(_ :: _, _, clazz) if !clazz.isAnonOrRefinementClass =>
