@@ -11,8 +11,11 @@
 
 # eclipse stuff
 /src/eclipse/fjbg/.cache
+/src/eclipse/partest/.cache
 /src/eclipse/reflect/.cache
+/src/eclipse/scala-compiler/.cache
 /src/eclipse/scala-library/.cache
+/src/eclipse/scalap/.cache
 
 # bak files produced by ./cleanup-commit
 *.bak
