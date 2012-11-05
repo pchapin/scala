@@ -279,5 +279,90 @@ object TypeRules {
       
       returnType
     }
+    
+    // Get important information from type strings
+    def stripStrings(
+      formals: List[String]): (List[Representation],List[Representation]) = {
+        var liftedTypes = List[Representation]()
+        var metaTypeUBs = List[Representation]()
+        for (i <- 0 until formals.length) {
+          val myNewType = formals(i).toString
+          val fullLiftType = myNewType.drop(18)
+          if (fullLiftType.charAt(0) == 'L') {
+            val liftedType = edu.uvm.scalaness.TypeRules.liftTypeString(fullLiftType)
+            liftedTypes ::= liftedType
+          }
+          else if (fullLiftType.charAt(0) == 'M' && fullLiftType.charAt(1) == 'e') {
+            var fullMetaType = fullLiftType.drop(27)
+            fullMetaType = fullMetaType.dropRight(1) 
+            val myMetaType = edu.uvm.scalaness.TypeRules.liftTypeString(fullMetaType)
+            metaTypeUBs ::= myMetaType
+          }
+        }
+        return (metaTypeUBs, liftedTypes)
+      
+    }
+    
+    def moduleEqual(
+      modOne: Option[(Map[TypeVariable, Representation], Module)], modTwo: Option[(Map[TypeVariable, Representation], Module)]): Boolean = {
+      
+        if (modOne == None || modTwo == None)
+          return false
+          
+        val (typeMapOne, typeOne, valOne, impOne, expOne) = modOne match {
+          case Some((typeMap, Module(typePars, valPars, imports, exports))) => {
+            (typeMap, typePars, valPars, imports, exports)
+          }
+          case _ => {
+          throw new Exception("require a module type during wiring")
+          }
+        }
+
+        val (typeMapTwo, typeTwo, valTwo, impTwo, expTwo) = modTwo match {
+          case Some((typeMap, Module(typePars, valPars, imports, exports))) => {
+            (typeMap, typePars, valPars, imports, exports)
+          }
+          case _ => {
+            throw new Exception("require a module type during wiring")
+          }
+        }
+        if (typeMapOne != typeMapTwo)
+          return false
+        if (!(listEqual(typeOne, typeTwo)))
+          return false
+        if (!(listEqual(valOne, valTwo)))
+          return false
+        if (!(listEqual(impOne, impTwo)))
+          return false
+        if (!(listEqual(expOne, expTwo)))
+          return false
+          
+        return true
+      
+    }
+    
+    def listEqual(
+      listOne: List[Any], listTwo: List[Any]): Boolean = {
+      
+      if (listOne.length != listTwo.length)
+        return false
+        
+      var areEqual = true
+      
+      for (i <-0 until listOne.length) {
+        var hasMatch = false
+        for (j <- 0 until listTwo.length) {
+          if (listOne(i) == listTwo(j))
+            hasMatch = true
+        }
+        if (hasMatch != true)
+          areEqual = false
+      }
+      
+      return areEqual
+      
+    }
+      
+      
   
 }
