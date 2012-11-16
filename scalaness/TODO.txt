@@ -1,0 +1,14 @@
+
+TODO.txt
+========
+
++ Adjust the way wiring is done at runtime so that it follows the current (uni-directional)
+  rules. Look at src/compiler/edu/vtc/uvm/ProgramComponent.scala.
+
++ Adjust the way the "magic" methods are identified so they are only processed when they are
+  used on a suitably typed object. We want to ignore methods with the same name defined in other
+  classes. This is necessary before one can do a full build cleanly.
+
++ Finish implementing the type rules.
+
++ Finish the SpartanRPC example.
