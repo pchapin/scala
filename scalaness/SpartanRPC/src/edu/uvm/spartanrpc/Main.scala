@@ -33,8 +33,8 @@ object Main {
         Thread.sleep(10000)
         MessageServer ! "Generating Blink..."
         // Generate blink application using current information.
-        BlinkClient.validate()
-        BlinkServer.validate()
+        BlinkClient.image()
+        BlinkServer.image()
       }
     }
   }
