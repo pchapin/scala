@@ -5,6 +5,7 @@
       <configuration>
         <option name="compilerLibraryLevel" value="Global" />
         <option name="compilerLibraryName" value="scalaness-compiler" />
+        <option name="compilerOptions" value="-scalanessconfig /home/peter/Projects/Scala/scalaness/SpartanRPC/Scalaness.cfg" />
         <option name="warnings" value="false" />
       </configuration>
     </facet>

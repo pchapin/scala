@@ -22,5 +22,5 @@ TODO.txt
 * Finish SpartanRPC Sample
 **************************
 
-  + Give the compiler a way to locate the Scalaness configuration file via a command line
-    option.
+  + Relative paths in the Scalaness configuration file should be taken as relative to the file's
+    location and not relative to the compiler's working directory.

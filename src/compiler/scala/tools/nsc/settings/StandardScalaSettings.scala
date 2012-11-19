@@ -25,6 +25,10 @@ trait StandardScalaSettings {
   val javabootclasspath = PathSetting ("-javabootclasspath", "Override java boot classpath.", Defaults.javaBootClassPath)
   val javaextdirs =       PathSetting ("-javaextdirs", "Override java extdirs classpath.", Defaults.javaExtDirs)
   val sourcepath =        PathSetting ("-sourcepath", "Specify location(s) of source files.", "") // Defaults.scalaSourcePath
+  
+  /** Scalaness settings.
+   */
+  val scalanessconfig =   PathSetting ("-scalanessconfig", "Specify location of Scalaness configuration file.", "")
 
   /** Other settings.
    */

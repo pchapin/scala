@@ -48,5 +48,6 @@ using the technique described above.
 IntelliJ checks to be sure the library and compiler version are consistent. If you rebuild one
 and not the other it will complain. You should do 'ant quick.clean; ant' to rebuild both
 versions of the 'quick' compiler to match. It appears that these version numbers are good for a
-certain amount of time (one day?). For example rebuilding the library immediately (after making
-a trivial change) does *not* cause any problems.
+certain amount of time (One day? One invocation of IntelliJ?). For example rebuilding the
+library immediately after making a trivial change (and while IntelliJ is running) does *not*
+cause any problems.
