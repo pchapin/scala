@@ -154,7 +154,7 @@ object Main {
       args(0).toInt match {
         case  8 => 
           println("Selecting 8 bit checksums")   
-          new MetaType[UInt32](MininessTypes.UInt8)
+          new MetaType[UInt8](MininessTypes.UInt8)
         
         case 16 =>
           println("Selecting 16 bit checksums") 
@@ -176,7 +176,25 @@ object Main {
     else {
       val desiredChecksumType = getChecksumType(args)
       val desiredSize = getSize(args)
+      
+      @ModuleType("""{}
+                 < checksumType <: UInt32; size: UInt16 >
+                 { startPeriodic(period: UInt32): Void,
+                   compute_checksum(data: Array[UInt8]): checksumType;
+                   fired(): Void,
+                   booted(): Void }""")
+      val MessageFormatter = new MessageFormatterC
+      
+      
+      @ModuleType("""{ checksumType <: UInt32 }
+                     <;>
+                     { compute_checksum(data: Array[UInt8]): checksumType,
+                       startPeriodic(period: UInt32): Void;
+                       booted(): Void,
+                       fired(): Void }""")
+      val formattingModule = MessageFormatter.instantiate(desiredSize, desiredChecksumType)
 
+      /*
       @ModuleType("""{ checksumType <: UInt32 }
                      <;>
                      { compute_checksum(data: Array[UInt8]): checksumType,
@@ -193,9 +211,10 @@ object Main {
         LibraryC +>
           formattingModule +>
             getChecksummer(desiredSize, desiredChecksumType) +>
-              LibraryC
+              LibraryC 
 
       resultModule.image()
+      */
     }
   }
     

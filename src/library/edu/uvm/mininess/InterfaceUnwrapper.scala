@@ -173,7 +173,14 @@ class InterfaceUnwrapper(private val interfaceFolders: List[String]) {
             node.children = newChildren.toList
           }
         }
-        node
+        val newestChildren = node.children map unwrapInterface
+        val newNode = ASTNode(MininessLexer.FUNCTION_DEFINITION, text, newestChildren, parent, symbolTable)
+        for (child <- newestChildren) {
+          child.parent = Some(newNode)
+        }
+        newNode.line = node.line
+        newNode.positionInLine = node.positionInLine
+        newNode
       }
       
       // All other cases, return the result of unwrapping the child nodes. Be careful with vars.

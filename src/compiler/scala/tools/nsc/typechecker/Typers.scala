@@ -1828,6 +1828,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       //                               |\tAnnotated = ${annotatedNesTModuleType.toString}
       //                               |\tBody = ${nesTModuleType.toString}""".stripMargin)
       // } 
+
       clazz.tpe.nesTModuleType = annotatedNesTModuleType
       treeCopy.ModuleDef(mdef, typedMods, mdef.name, impl2) setType NoType
     }
@@ -2001,7 +2002,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
                                       |\tInitializer = ${nesTModuleType.toString}""".stripMargin)
         }
       }
-      rhs1.tpe.nesTModuleType = annotatedNesTModuleType
+      // rhs1.tpe.nesTModuleType = annotatedNesTModuleType
       treeCopy.ValDef(vdef, typedMods, vdef.name, tpt1, checkDead(rhs1)) setType NoType
     }
 
@@ -3122,7 +3123,9 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
                   case _ => (None, "*")
                 }
                 if (methodName != "*") {
+                  
                   if (methodName == "instantiate") {
+                    /*
                     val formalString = for (i <- 0 until formals.length) yield { formals(i).toString }
                     val (metaTypeUBs, liftedTypes) = edu.uvm.scalaness.TypeRules.stripStrings(formalString.toList)
                     val modType = qual.tpe.nesTModuleType match {
@@ -3130,7 +3133,28 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
                       case _ => throw new Exception("Module Type Required for Instantiate")
                     }
                     val instType = edu.uvm.scalaness.TypeRules.typeInstantiate(modType, metaTypeUBs, liftedTypes)
-                    resultType = Some(instType)
+                    // resultType = Some(instType)
+                    */
+                  }
+                  else if (methodName == "+>") {
+                    /* println("Super type")
+                    println(qual.tpe)
+                    val sstype = qual.tpe.typeOfThis
+                    println(sstype)
+                    println(sstype.nesTModuleType)*/
+                  }
+                  else if (methodName == "image") {
+                    /* println("sstype")
+                    val sstype = qual.tpe.typeOfThis
+                    val imageModuleType = sstype.nesTModuleType match {
+                      case Some(mType) => mType
+                      case _ => throw new Exception("Module Type Required for Image")
+                    }
+                    println(sstype)
+                    println(imageModuleType) 
+                    val imageReturn = edu.uvm.scalaness.TypeRules.typeImage(imageModuleType)
+                    println(imageReturn) */
+                    // resultType = Some(imageReturn)
                   }
                   println(s"$methodName, qual.tpe=${qual.tpe.toString}, nesT=${qual.tpe.nesTModuleType}, argument-types=${formals.toString}"+"\n\n")
                 }
@@ -3144,8 +3168,10 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
               reporter.error(fun.pos, e.getMessage)
               None
           }
+        
+           
           
-          if (newNesTModuleType != None) println(newNesTModuleType)
+          // if (newNesTModuleType != None) println(newNesTModuleType)
 
           /** Try packing all arguments into a Tuple and apply `fun`
            *  to that. This is the last thing which is tried (after
