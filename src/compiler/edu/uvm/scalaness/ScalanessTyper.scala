@@ -36,7 +36,10 @@ trait ScalanessTyper {
         "debug"         -> "FALSE",
         "inclusionPath" -> ".",
         "interfacePath" -> "."))
-  scalanessSettings.readConfigurationFile(currentSettings.scalanessconfig.value)
+  private val configName =
+    if (currentSettings.scalanessconfig.value == "") "Scalaness.cfg"
+      else currentSettings.scalanessconfig.value
+  scalanessSettings.readConfigurationFile(configName)
   // TODO: It would be better if these settings were handled the way other compiler settings are.
 
   /*
