@@ -133,6 +133,8 @@ object Main {
    * @param size The size of the data block the component will process.
    * @checksumType The type used for the final checksum.
    */
+   
+/* ********************************
   @ModuleType("""{ checksumType <: UInt32 }
                  <;>
                  { ; compute_checksum(data: Array[UInt8]): checksumType }""")
@@ -140,7 +142,7 @@ object Main {
     // Arbitrary computation...
     (new ChecksumC).instantiate(size, checksumType)
   }
-
+*********************************** */
     
   /**
    * The main method obtains configuration information from the command line and composes the
@@ -184,8 +186,13 @@ object Main {
                    fired(): Void,
                    booted(): Void }""")
       val MessageFormatter = new MessageFormatterC
-      
-      
+
+
+      @ModuleType("""{}
+                 < checksumType <: UInt32; size: UInt16 >
+                 { ; compute_checksum(data: Array[UInt8]): checksumType }""")
+      val CheckSummer = new ChecksumC
+
       @ModuleType("""{ checksumType <: UInt32 }
                      <;>
                      { compute_checksum(data: Array[UInt8]): checksumType,
@@ -193,6 +200,17 @@ object Main {
                        booted(): Void,
                        fired(): Void }""")
       val formattingModule = MessageFormatter.instantiate(desiredSize, desiredChecksumType)
+      
+      @ModuleType("""{ checksumType <: UInt32 }
+                 <;>
+                 { ; compute_checksum(data: Array[UInt8]): checksumType }""")
+      val checkingModule = CheckSummer.instantiate(desiredSize, desiredChecksumType)
+      
+      formattingModule.image()
+      checkingModule.image()
+      
+      // Needs Type Annotation
+      val wiredModule = formattingModule +> checkingModule
 
       /*
       @ModuleType("""{ checksumType <: UInt32 }
