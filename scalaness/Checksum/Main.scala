@@ -186,13 +186,25 @@ object Main {
                    fired(): Void,
                    booted(): Void }""")
       val MessageFormatter = new MessageFormatterC
-
+      
+      @ModuleType("""{}
+                 < checksumType <: UInt32; size: UInt16 >
+                 { startPeriodic(period: UInt32): Void,
+                   compute_checksum(data: Array[UInt8]): checksumType;
+                   fired(): Void,
+                   booted(): Void }""")
+      val MessageFormatter2: MessageFormatter.type = MessageFormatter
 
       @ModuleType("""{}
                  < checksumType <: UInt32; size: UInt16 >
                  { ; compute_checksum(data: Array[UInt8]): checksumType }""")
       val CheckSummer = new ChecksumC
 
+      @ModuleType("""{}
+                 < checksumType <: UInt32; size: UInt16 >
+                 { ; compute_checksum(data: Array[UInt8]): checksumType }""")
+      val CheckSummer2: CheckSummer.type = CheckSummer
+     
       @ModuleType("""{ checksumType <: UInt32 }
                      <;>
                      { compute_checksum(data: Array[UInt8]): checksumType,
@@ -200,18 +212,37 @@ object Main {
                        booted(): Void,
                        fired(): Void }""")
       val formattingModule = MessageFormatter.instantiate(desiredSize, desiredChecksumType)
+
+      @ModuleType("""{ checksumType <: UInt32 }
+                     <;>
+                     { compute_checksum(data: Array[UInt8]): checksumType,
+                       startPeriodic(period: UInt32): Void;
+                       booted(): Void,
+                       fired(): Void }""")
+      val formattingModule2: formattingModule.type = formattingModule
       
       @ModuleType("""{ checksumType <: UInt32 }
                  <;>
                  { ; compute_checksum(data: Array[UInt8]): checksumType }""")
       val checkingModule = CheckSummer.instantiate(desiredSize, desiredChecksumType)
       
+      @ModuleType("""{ checksumType <: UInt32 }
+                 <;>
+                 { ; compute_checksum(data: Array[UInt8]): checksumType }""")
+      val checkingModule2: checkingModule.type = checkingModule
+      
       formattingModule.image()
       checkingModule.image()
       
-      // Needs Type Annotation
-      val wiredModule = formattingModule +> checkingModule
-
+      @ModuleType("""{ checksumType <: UInt32 }
+                     <;>
+                     { startPeriodic(period: UInt32): Void;
+                       booted(): Void,
+                       fired(): Void }""")
+      val wiredModule = formattingModule +> checkingModule2
+      
+      
+      
       /*
       @ModuleType("""{ checksumType <: UInt32 }
                      <;>

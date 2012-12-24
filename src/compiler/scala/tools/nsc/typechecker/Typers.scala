@@ -1993,9 +1993,12 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
           newTyper(typer1.context.make(vdef, sym)).transformedOrTyped(vdef.rhs, EXPRmode | BYVALmode, tpt2)
         }
       
-      val nesTModuleType = rhs1.tpe.nesTModuleType
+      var nesTModuleType = rhs1.tpe.nesTModuleType
       
       if (!(annotatedNesTModuleType == None && nesTModuleType == None)) {
+        // Test case, get the papa case into the .type case
+        if (nesTModuleType == None)
+          nesTModuleType = rhs1.tpe.typeOfThis.nesTModuleType
         if (!(edu.uvm.scalaness.TypeRules.moduleEqual(annotatedNesTModuleType,nesTModuleType))) {
           reporter.error(vdef.pos, s"""nesT module type mismatch
                                       |\tAnnotated = ${annotatedNesTModuleType.toString}
@@ -3128,26 +3131,24 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
                     
                     val formalString = for (i <- 0 until formals.length) yield { formals(i).toString }
                     val (metaTypeUBs, liftedTypes) = edu.uvm.scalaness.TypeRules.stripStrings(formalString.toList)
-                    val classType = qual.tpe.typeOfThis
-                    val modType = classType.nesTModuleType match {
+                    val modType = qual.tpe.nesTModuleType match {
                       case Some(mType) => mType
                       case _ => throw new Exception("Module Type Required for Instantiate")
                     }
                     val instType = edu.uvm.scalaness.TypeRules.typeInstantiate(modType, metaTypeUBs, liftedTypes)
-                    println(instType)
                     resultType = Some(instType)
                     
                   }
                   else if (methodName == "+>") {
-                  
+                
                     // Right now this is the incorrectly stored class type, should be fixed when we figure out how to properly save types
-                    val leftType = qual.tpe.typeOfThis.nesTModuleType match {
+                    val leftType = qual.tpe.nesTModuleType match {
                       case Some(mType) => mType
-                      case _ => throw new Exception("Module Type Required for Image")
+                      case _ => throw new Exception("Module Type Required for Wire")
                     }
-                    val rightType = args(0).tpe.typeOfThis.nesTModuleType match {
+                    val rightType = args(0).tpe.nesTModuleType match {
                       case Some(mType) => mType
-                      case _ => throw new Exception("Module Type Required for Image")
+                      case _ => throw new Exception("Module Type Required for Wire")
                     }
                     val wireReturn = edu.uvm.scalaness.TypeRules.typeWire(leftType,rightType)
                     println(wireReturn)
@@ -3156,7 +3157,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
                   }
                   else if (methodName == "image") {
                    // Right now this is the incorrectly stored class type, should be fixed when we figure out how to properly save types
-                    val imageModuleType = qual.tpe.typeOfThis.nesTModuleType match {
+                    val imageModuleType = qual.tpe.nesTModuleType match {
                       case Some(mType) => mType
                       case _ => throw new Exception("Module Type Required for Image")
                     }
