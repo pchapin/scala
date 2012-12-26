@@ -41,8 +41,15 @@ trait ScalanessTyper {
       else currentSettings.scalanessconfig.value
   scalanessSettings.readConfigurationFile(configName)
   // TODO: It would be better if these settings were handled the way other compiler settings are.
+  
+  /**
+   * Return true if the given Type is a subtype of MininessComponent; false otherwise.
+   */
+  def isMininessComponent(tpe: Type) = {
+    tpe.baseClasses exists { _.toString == "trait MininessComponent" }
+  }
 
-  /*
+  /**
    * Check to see if last item in the class definition is a string literal.
    * 
    * @param lastItem The AST of the last item in a class definition.
