@@ -308,7 +308,7 @@ trait ScalanessTyper {
               case ex: MininessTyper.PositionalMininessTypeException =>
                 if (ex.line >= 0 && ex.column >= 0)
                   reporter.error(
-                    mininessSource.position(line = ex.line, column = ex.column),
+                    mininessSource.position(mininessSource.lineToOffset(ex.line) + ex.column),
                     ex.getMessage + ": " + ex.getClass.getName)
                 else
                   reporter.error(null, ex.getMessage + ": " + ex.getClass.getName)

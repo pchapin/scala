@@ -1,5 +1,5 @@
 /* NSC -- new Scala compiler
- * Copyright 2005-2012 LAMP/EPFL
+ * Copyright 2005-2013 LAMP/EPFL
  * @author  Martin Odersky
  */
 
@@ -168,7 +168,7 @@ trait Printers extends api.Printers { self: SymbolTable =>
     )
 
     def printFlags(flags: Long, privateWithin: String) {
-      var mask: Long = if (settings.debug.value) -1L else PrintableFlags
+      val mask: Long = if (settings.debug.value) -1L else PrintableFlags
       val s = flagsToString(flags & mask, privateWithin)
       if (s != "") print(s + " ")
     }
@@ -435,7 +435,7 @@ trait Printers extends api.Printers { self: SymbolTable =>
         case tree =>
           xprintTree(this, tree)
       }
-      if (printTypes && tree.isTerm && !tree.isEmpty) {
+      if (printTypes && tree.isTerm && tree.canHaveAttrs) {
         print("{", if (tree.tpe eq null) "<null>" else tree.tpe.toString, "}")
       }
     }
@@ -475,8 +475,6 @@ trait Printers extends api.Printers { self: SymbolTable =>
   }
 
   def newRawTreePrinter(writer: PrintWriter): RawTreePrinter = new RawTreePrinter(writer)
-  def newRawTreePrinter(stream: OutputStream): RawTreePrinter = newRawTreePrinter(new PrintWriter(stream))
-  def newRawTreePrinter(): RawTreePrinter = newRawTreePrinter(new PrintWriter(ConsoleWriter))
 
   // provides footnotes for types and mirrors
   import scala.collection.mutable.{Map, WeakHashMap, SortedSet}
@@ -525,7 +523,7 @@ trait Printers extends api.Printers { self: SymbolTable =>
     private var depth = 0
     private var printTypesInFootnotes = true
     private var printingFootnotes = false
-    private var footnotes = footnoteIndex.mkFootnotes()
+    private val footnotes = footnoteIndex.mkFootnotes()
 
     def print(args: Any*): Unit = {
       // don't print type footnotes if the argument is a mere type
@@ -542,8 +540,10 @@ trait Printers extends api.Printers { self: SymbolTable =>
           print(")")
         case EmptyTree =>
           print("EmptyTree")
-        case emptyValDef: AnyRef if emptyValDef eq self.emptyValDef =>
+        case self.emptyValDef =>
           print("emptyValDef")
+        case self.pendingSuperCall =>
+          print("pendingSuperCall")
         case tree: Tree =>
           val hasSymbolField = tree.hasSymbolField && tree.symbol != NoSymbol
           val isError = hasSymbolField && tree.symbol.name.toString == nme.ERROR.toString
@@ -561,8 +561,11 @@ trait Printers extends api.Printers { self: SymbolTable =>
                   if (isError) print(": error>")
                 } else if (hasSymbolField) {
                   tree match {
-                    case _: Ident | _: Select | _: SelectFromTypeTree => print(tree.symbol)
-                    case _ => print(tree.symbol.name)
+                    case refTree: RefTree =>
+                      if (tree.symbol.name != refTree.name) print("[", tree.symbol, " aka ", refTree.name, "]")
+                      else print(tree.symbol)
+                    case _ =>
+                      print(tree.symbol.name)
                   }
                 } else {
                   print(name)

@@ -1,6 +1,6 @@
 /*                     __                                               *\
 **     ________ ___   / /  ___     Scala API                            **
-**    / __/ __// _ | / /  / _ |    (c) 2003-2011, LAMP/EPFL             **
+**    / __/ __// _ | / /  / _ |    (c) 2003-2013, LAMP/EPFL             **
 **  __\ \/ /__/ __ |/ /__/ __ |    http://scala-lang.org/               **
 ** /____/\___/_/ |_/____/_/ | |                                         **
 **                          |/                                          **
@@ -379,12 +379,6 @@ final case class ::[B](private var hd: B, private[scala] var tl: List[B]) extend
         current = list
     }
   }
-
-  private def oldWriteObject(out: ObjectOutputStream) {
-    var xs: List[B] = this
-    while (!xs.isEmpty) { out.writeObject(xs.head); xs = xs.tail }
-    out.writeObject(ListSerializeEnd)
-  }
 }
 
 /** $factoryInfo
@@ -392,9 +386,6 @@ final case class ::[B](private var hd: B, private[scala] var tl: List[B]) extend
  *  @define Coll `List`
  */
 object List extends SeqFactory[List] {
-
-  import scala.collection.{Iterable, Seq, IndexedSeq}
-
   /** $genericCanBuildFromInfo */
   implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, List[A]] =
     ReusableCBF.asInstanceOf[GenericCanBuildFrom[A]]

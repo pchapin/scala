@@ -1,5 +1,5 @@
 /* NSC -- new Scala compiler
- * Copyright 2005-2012 LAMP/EPFL
+ * Copyright 2005-2013 LAMP/EPFL
  * @author  Martin Odersky
  */
 package scala.reflect
@@ -60,7 +60,7 @@ trait BaseTypeSeqs {
         elems(i) match {
           case rtp @ RefinedType(variants, decls) =>
             // can't assert decls.isEmpty; see t0764
-            //if (!decls.isEmpty) assert(false, "computing closure of "+this+":"+this.isInstanceOf[RefinedType]+"/"+closureCache(j))
+            //if (!decls.isEmpty) abort("computing closure of "+this+":"+this.isInstanceOf[RefinedType]+"/"+closureCache(j))
             //Console.println("compute closure of "+this+" => glb("+variants+")")
             pending += i
             try {
@@ -115,7 +115,7 @@ trait BaseTypeSeqs {
     def map(f: Type => Type): BaseTypeSeq = {
 	  // inlined `elems map f` for performance
       val len = length
-      var arr = new Array[Type](len)
+      val arr = new Array[Type](len)
       var i = 0
       while (i < len) {
         arr(i) = f(elems(i))

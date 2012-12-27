@@ -1,17 +1,13 @@
 /* NSC -- new Scala compiler
- * Copyright 2005-2012 LAMP/EPFL
+ * Copyright 2005-2013 LAMP/EPFL
  * @author  Paul Phillips
  */
 
 package scala.tools.nsc
 package typechecker
 
-import scala.collection.{ mutable, immutable }
-import scala.collection.mutable.ListBuffer
-import scala.util.control.ControlThrowable
-import symtab.Flags._
-import scala.annotation.tailrec
 import Checkability._
+import scala.language.postfixOps
 
 /** On pattern matcher checkability:
  *
@@ -134,7 +130,7 @@ trait Checkable {
       else if (P3) RuntimeCheckable
       else if (uncheckableType == NoType) {
         // Avoid warning (except ourselves) if we can't pinpoint the uncheckable type
-        debugwarn("Checkability checker says 'Uncheckable', but uncheckable type cannot be found:\n" + summaryString)
+        debuglog("Checkability checker says 'Uncheckable', but uncheckable type cannot be found:\n" + summaryString)
         CheckabilityError
       }
       else Uncheckable

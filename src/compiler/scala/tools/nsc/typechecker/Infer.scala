@@ -1,16 +1,15 @@
 /* NSC -- new Scala compiler
- * Copyright 2005-2012 LAMP/EPFL
+ * Copyright 2005-2013 LAMP/EPFL
  * @author  Martin Odersky
  */
 
 package scala.tools.nsc
 package typechecker
 
-import scala.collection.{ mutable, immutable }
+import scala.collection.immutable
 import scala.collection.mutable.ListBuffer
 import scala.util.control.ControlThrowable
 import symtab.Flags._
-import scala.annotation.tailrec
 
 /** This trait ...
  *
@@ -131,9 +130,6 @@ trait Infer extends Checkable {
   }
 
   /** A fresh type variable with given type parameter as origin.
-   *
-   *  @param tparam ...
-   *  @return       ...
    */
   def freshVar(tparam: Symbol): TypeVar = TypeVar(tparam)
 
@@ -170,9 +166,6 @@ trait Infer extends Checkable {
   }
 
   /** Is type fully defined, i.e. no embedded anytypes or wildcards in it?
-   *
-   *  @param tp ...
-   *  @return   ...
    */
   private[typechecker] def isFullyDefined(tp: Type): Boolean = tp match {
     case WildcardType | BoundedWildcardType(_) | NoType =>
@@ -227,7 +220,7 @@ trait Infer extends Checkable {
         // such as T <: T gets completed. See #360
         tvar.constr.inst = ErrorType
       else
-        assert(false, tvar.origin+" at "+tvar.origin.typeSymbol.owner)
+        abort(tvar.origin+" at "+tvar.origin.typeSymbol.owner)
     }
     tvars map instantiate
   }
@@ -312,7 +305,6 @@ trait Infer extends Checkable {
       if (sym.isError) {
         tree setSymbol sym setType ErrorType
       } else {
-        val topClass = context.owner.enclosingTopLevelClass
         if (context.unit.exists)
           context.unit.depends += sym.enclosingTopLevelClass
 
@@ -459,11 +451,6 @@ trait Infer extends Checkable {
      *  its type parameters and result type and a prototype `pt`.
      *  If no minimal type variables exist that make the
      *  instantiated type a subtype of `pt`, return null.
-     *
-     *  @param tparams ...
-     *  @param restpe  ...
-     *  @param pt      ...
-     *  @return        ...
      */
     private def exprTypeArgs(tparams: List[Symbol], restpe: Type, pt: Type, useWeaklyCompatible: Boolean = false): (List[Type], List[TypeVar]) = {
       val tvars = tparams map freshVar
@@ -496,12 +483,6 @@ trait Infer extends Checkable {
     *  in the value parameter list.
     *  If instantiation of a type parameter fails,
     *  take WildcardType for the proto-type argument.
-    *
-    *  @param tparams ...
-    *  @param formals ...
-    *  @param restype ...
-    *  @param pt      ...
-    *  @return        ...
     */
     def protoTypeArgs(tparams: List[Symbol], formals: List[Type], restpe: Type,
                       pt: Type): List[Type] = {
@@ -594,14 +575,13 @@ trait Infer extends Checkable {
           && (restpe.isWildcard || (varianceInType(restpe)(tparam) & COVARIANT) == 0) // don't retract covariant occurrences
         )
 
-        // checks !settings.XoldPatmat.value directly so one need not run under -Xexperimental to use virtpatmat
         buf += ((tparam,
           if (retract) None
           else Some(
             if (targ.typeSymbol == RepeatedParamClass)     targ.baseType(SeqClass)
             else if (targ.typeSymbol == JavaRepeatedParamClass) targ.baseType(ArrayClass)
             // this infers Foo.type instead of "object Foo" (see also widenIfNecessary)
-            else if (targ.typeSymbol.isModuleClass || ((settings.Xexperimental.value || !settings.XoldPatmat.value) && tvar.constr.avoidWiden)) targ
+            else if (targ.typeSymbol.isModuleClass || tvar.constr.avoidWiden) targ
             else targ.widen
           )
         ))
@@ -929,10 +909,6 @@ trait Infer extends Checkable {
     /** Is type `ftpe1` strictly more specific than type `ftpe2`
      *  when both are alternatives in an overloaded function?
      *  @see SLS (sec:overloading-resolution)
-     *
-     *  @param ftpe1 ...
-     *  @param ftpe2 ...
-     *  @return      ...
      */
     def isAsSpecific(ftpe1: Type, ftpe2: Type): Boolean = ftpe1 match {
       case OverloadedType(pre, alts) =>
@@ -1089,22 +1065,22 @@ trait Infer extends Checkable {
 */
     /** error if arguments not within bounds. */
     def checkBounds(tree: Tree, pre: Type, owner: Symbol,
-                    tparams: List[Symbol], targs: List[Type], prefix: String): Boolean = {
-      //@M validate variances & bounds of targs wrt variances & bounds of tparams
-      //@M TODO: better place to check this?
-      //@M TODO: errors for getters & setters are reported separately
-      val kindErrors = checkKindBounds(tparams, targs, pre, owner)
-
-      if(!kindErrors.isEmpty) {
-        if (targs contains WildcardType) true
-        else { KindBoundErrors(tree, prefix, targs, tparams, kindErrors); false }
-      } else if (!isWithinBounds(pre, owner, tparams, targs)) {
-        if (!(targs exists (_.isErroneous)) && !(tparams exists (_.isErroneous))) {
-          NotWithinBounds(tree, prefix, targs, tparams, kindErrors)
-          false
-        } else true
-      } else true
-    }
+                    tparams: List[Symbol], targs: List[Type], prefix: String): Boolean =
+      if ((targs exists (_.isErroneous)) || (tparams exists (_.isErroneous))) true
+      else {
+        //@M validate variances & bounds of targs wrt variances & bounds of tparams
+        //@M TODO: better place to check this?
+        //@M TODO: errors for getters & setters are reported separately
+        val kindErrors = checkKindBounds(tparams, targs, pre, owner)
+        kindErrors match {
+          case Nil =>
+            def notWithinBounds() = NotWithinBounds(tree, prefix, targs, tparams, Nil)
+            isWithinBounds(pre, owner, tparams, targs) || {notWithinBounds(); false}
+          case errors =>
+            def kindBoundErrors() = KindBoundErrors(tree, prefix, targs, tparams, errors)
+            (targs contains WildcardType) || {kindBoundErrors(); false}
+        }
+      }
 
     def checkKindBounds(tparams: List[Symbol], targs: List[Type], pre: Type, owner: Symbol): List[String] = {
       checkKindBounds0(tparams, targs, pre, owner, true) map {
@@ -1175,11 +1151,6 @@ trait Infer extends Checkable {
 
     /** Substitute free type variables `undetparams` of polymorphic argument
      *  expression `tree` to `targs`, Error if `targs` is null.
-     *
-     *  @param tree ...
-     *  @param undetparams ...
-     *  @param targs ...
-     *  @param pt ...
      */
     private def substExpr(tree: Tree, undetparams: List[Symbol], targs: List[Type], pt: Type) {
       if (targs eq null) {
@@ -1321,7 +1292,8 @@ trait Infer extends Checkable {
           new TreeTypeSubstituter(undetparams, targs).traverse(tree)
           notifyUndetparamsInferred(undetparams, targs)
         case _ =>
-          debugwarn("failed inferConstructorInstance for "+ tree  +" : "+ tree.tpe +" under "+ undetparams +" pt = "+ pt +(if(isFullyDefined(pt)) " (fully defined)" else " (not fully defined)"))
+          def full = if (isFullyDefined(pt)) "(fully defined)" else "(not fully defined)"
+          devWarning(s"failed inferConstructorInstance for $tree: ${tree.tpe} undet=$undetparams, pt=$pt $full")
           // if (settings.explaintypes.value) explainTypes(resTp.instantiateTypeParams(undetparams, tvars), pt)
           ConstrInstantiationError(tree, resTp, pt)
       }
@@ -1642,8 +1614,6 @@ trait Infer extends Checkable {
 
     /** Try inference twice, once without views and once with views,
      *  unless views are already disabled.
-     *
-     *  @param infer ...
      */
     def tryTwice(infer: Boolean => Unit): Unit = {
       if (context.implicitsEnabled) {
@@ -1681,9 +1651,6 @@ trait Infer extends Checkable {
     /** Assign `tree` the type of all polymorphic alternatives
      *  with `nparams` as the number of type parameters, if it exists.
      *  If no such polymorphic alternative exist, error.
-     *
-     *  @param tree ...
-     *  @param nparams ...
      */
     def inferPolyAlternatives(tree: Tree, argtypes: List[Type]): Unit = {
       val OverloadedType(pre, alts) = tree.tpe

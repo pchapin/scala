@@ -1,14 +1,16 @@
 package scala.reflect
 package macros
 
-/** A helper available in [[scala.reflect.macros.Universe]] that defines shorthands for the
+/**
+ * <span class="badge badge-red" style="float: right;">EXPERIMENTAL</span>
+ *
+ *  A helper available in [[scala.reflect.macros.Universe]] that defines shorthands for the
  *  most common tree-creating functions.
  */
 abstract class TreeBuilder {
   val global: Universe
 
   import global._
-  import definitions._
 
   /** Builds a reference to value whose type is given stable prefix.
    *  The type must be suitable for this.  For example, it
@@ -50,25 +52,18 @@ abstract class TreeBuilder {
    */
   def mkMethodCall(receiver: Symbol, methodName: Name, targs: List[Type], args: List[Tree]): Tree
 
-  /** TODO how to refer to the main `mkMethodCall`? */
   def mkMethodCall(method: Symbol, targs: List[Type], args: List[Tree]): Tree
 
-  /** TODO how to refer to the main `mkMethodCall`? */
   def mkMethodCall(method: Symbol, args: List[Tree]): Tree
 
-  /** TODO how to refer to the main `mkMethodCall`? */
   def mkMethodCall(target: Tree, args: List[Tree]): Tree
 
-  /** TODO how to refer to the main `mkMethodCall`? */
   def mkMethodCall(receiver: Symbol, methodName: Name, args: List[Tree]): Tree
 
-  /** TODO how to refer to the main `mkMethodCall`? */
   def mkMethodCall(receiver: Tree, method: Symbol, targs: List[Type], args: List[Tree]): Tree
 
-  /** TODO how to refer to the main `mkMethodCall`? */
   def mkMethodCall(target: Tree, targs: List[Type], args: List[Tree]): Tree
 
-  /** TODO how to refer to the main `mkMethodCall`? */
   def mkNullaryCall(method: Symbol, targs: List[Type]): Tree
 
   /** A tree that refers to the runtime reflexive universe, ``scala.reflect.runtime.universe''. */

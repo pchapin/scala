@@ -11,10 +11,7 @@ abstract class TreeGen extends macros.TreeBuilder {
   def rootScalaDot(name: Name)       = Select(rootId(nme.scala_) setSymbol ScalaPackage, name)
   def scalaDot(name: Name)           = Select(Ident(nme.scala_) setSymbol ScalaPackage, name)
   def scalaAnnotationDot(name: Name) = Select(scalaDot(nme.annotation), name)
-  def scalaAnyRefConstr              = scalaDot(tpnme.AnyRef) setSymbol AnyRefClass
-  def scalaUnitConstr                = scalaDot(tpnme.Unit) setSymbol UnitClass
-  def productConstr                  = scalaDot(tpnme.Product) setSymbol ProductRootClass
-  def serializableConstr             = scalaDot(tpnme.Serializable) setSymbol SerializableClass
+  def scalaAnyRefConstr              = scalaDot(tpnme.AnyRef) setSymbol AnyRefClass // used in ide
 
   def scalaFunctionConstr(argtpes: List[Tree], restpe: Tree, abstractFun: Boolean = false): Tree = {
     val cls = if (abstractFun)
@@ -130,15 +127,10 @@ abstract class TreeGen extends macros.TreeBuilder {
     if (sym.owner.isClass) mkAttributedRef(sym.owner.thisType, sym)
     else mkAttributedIdent(sym)
 
-  /** Builds an untyped reference to given symbol. */
-  def mkUnattributedRef(sym: Symbol): Tree =
-    if (sym.owner.isClass) Select(This(sym.owner), sym)
-    else Ident(sym)
-
   /** Replaces tree type with a stable type if possible */
-  def stabilize(tree: Tree): Tree = {
-    for(tp <- stableTypeFor(tree)) tree.tpe = tp
-    tree
+  def stabilize(tree: Tree): Tree = stableTypeFor(tree) match {
+    case Some(tp) => tree setType tp
+    case _        => tree
   }
 
   /** Computes stable type for a tree if possible */
@@ -246,10 +238,6 @@ abstract class TreeGen extends macros.TreeBuilder {
    */
   def mkClassOf(tp: Type): Tree =
     Literal(Constant(tp)) setType ConstantType(Constant(tp))
-
-  /** Builds a list with given head and tail. */
-  def mkNewCons(head: Tree, tail: Tree): Tree =
-    New(Apply(mkAttributedRef(ConsClass), List(head, tail)))
 
   /** Builds a list with given head and tail. */
   def mkNil: Tree = mkAttributedRef(NilModule)
