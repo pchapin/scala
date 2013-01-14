@@ -1854,7 +1854,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       //                               |\tBody = ${nesTModuleType.toString}""".stripMargin)
       // } 
 
-      clazz.tpe.nesTModuleType = annotatedNesTModuleType
+      clazz.tpe.typeOfThis.nesTModuleType = annotatedNesTModuleType
       treeCopy.ModuleDef(mdef, typedMods, mdef.name, impl2) setType NoType
     }
     /** In order to override this in the TreeCheckers Typer so synthetics aren't re-added
@@ -2024,16 +2024,17 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       var nesTModuleType = rhs1.tpe.nesTModuleType
       
       if (!(annotatedNesTModuleType == None && nesTModuleType == None)) {
-        // Test case, get the papa case into the .type case
-        if (nesTModuleType == None)
-          nesTModuleType = rhs1.tpe.typeOfThis.nesTModuleType
         if (!(edu.uvm.scalaness.TypeRules.moduleEqual(annotatedNesTModuleType,nesTModuleType))) {
           reporter.error(vdef.pos, s"""nesT module type mismatch
                                       |\tAnnotated = ${annotatedNesTModuleType.toString}
                                       |\tInitializer = ${nesTModuleType.toString}""".stripMargin)
         }
       }
-      sym.tpe.nesTModuleType = annotatedNesTModuleType
+      
+      // Stores the nesT information in a singleton type associated with the symbol
+      val singletonType = singleType(NoPrefix,sym)
+      singletonType.nesTModuleType = rhs1.tpe.nesTModuleType
+      
       treeCopy.ValDef(vdef, typedMods, vdef.name, tpt1, checkDead(rhs1)) setType NoType
     }
 
@@ -3120,12 +3121,13 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
                         case Some(mType) => mType
                         case _ => throw new Exception("Module Type Required for Wire")
                       }
-                      val rightType = args(0).tpe.nesTModuleType match {
+                      val rightSymbol = args(0).symbol
+                      val rightSymbolType = singleType(NoPrefix,rightSymbol)
+                      val rightType = rightSymbolType.nesTModuleType match {
                         case Some(mType) => mType
                         case _ => throw new Exception("Module Type Required for Wire")
                       }
                       val wireReturn = edu.uvm.scalaness.TypeRules.typeWire(leftType,rightType)
-                      println(wireReturn)
                       Some(wireReturn)
                     }
 

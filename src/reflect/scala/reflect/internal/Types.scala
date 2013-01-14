@@ -3463,7 +3463,7 @@ trait Types extends api.Types { self: SymbolTable =>
       SingleType(pre1, sym1)
     }
   }
-
+  
   /** the canonical creator for a refined type with a given scope */
   def refinedType(parents: List[Type], owner: Symbol, decls: Scope, pos: Position): Type = {
     if (phase.erasedTypes)
