@@ -573,6 +573,26 @@ trait Types extends api.Types { self: SymbolTable =>
     /** Expands type aliases. */
     def dealias = this
 
+    /** Repeatedly apply widen and dealias until they have no effect.
+     *  This compensates for the fact that type aliases can hide beneath
+     *  singleton types and singleton types can hide inside type aliases.
+     */
+    def dealiasWiden: Type = (
+      if (this ne widen) widen.dealiasWiden
+      else if (this ne dealias) dealias.dealiasWiden
+      else this
+    )
+
+    /** All the types encountered in the course of dealiasing/widening,
+     *  including each intermediate beta reduction step (whereas calling
+     *  dealias applies as many as possible.)
+     */
+    def dealiasWidenChain: List[Type] = this :: (
+      if (this ne widen) widen.dealiasWidenChain
+      else if (this ne betaReduce) betaReduce.dealiasWidenChain
+      else Nil
+    )
+
     def etaExpand: Type = this
 
     /** Performs a single step of beta-reduction on types.
@@ -3134,23 +3154,20 @@ trait Types extends api.Types { self: SymbolTable =>
        *  Checks subtyping of higher-order type vars, and uses variances as defined in the
        *  type parameter we're trying to infer (the result will be sanity-checked later).
        */
-      def unifyFull(tpe: Type) = {
-        // The alias/widen variations are often no-ops.
-        val tpes = (
-          if (isLowerBound) List(tpe, tpe.widen, tpe.dealias, tpe.widen.dealias).distinct
-          else List(tpe)
-        )
-        tpes exists { tp =>
-          val lhs = if (isLowerBound) tp.typeArgs else typeArgs
-          val rhs = if (isLowerBound) typeArgs else tp.typeArgs
-
-          sameLength(lhs, rhs) && {
+      def unifyFull(tpe: Type): Boolean = {
+        def unifySpecific(tp: Type) = {
+          sameLength(typeArgs, tp.typeArgs) && {
+            val lhs = if (isLowerBound) tp.typeArgs else typeArgs
+            val rhs = if (isLowerBound) typeArgs else tp.typeArgs
             // this is a higher-kinded type var with same arity as tp.
             // side effect: adds the type constructor itself as a bound
             addBound(tp.typeConstructor)
             isSubArgs(lhs, rhs, params, AnyDepth)
           }
         }
+        // The type with which we can successfully unify can be hidden
+        // behind singleton types and type aliases.
+        tpe.dealiasWidenChain exists unifySpecific
       }
 
       // There's a <: test taking place right now, where tp is a concrete type and this is a typevar
@@ -3246,7 +3263,7 @@ trait Types extends api.Types { self: SymbolTable =>
       if (constr.instValid) constr.inst
       // get here when checking higher-order subtyping of the typevar by itself
       // TODO: check whether this ever happens?
-      else if (isHigherKinded) typeFun(params, applyArgs(params map (_.typeConstructor)))
+      else if (isHigherKinded) logResult("Normalizing HK $this")(typeFun(params, applyArgs(params map (_.typeConstructor))))
       else super.normalize
     )
     override def typeSymbol = origin.typeSymbol
@@ -3673,7 +3690,7 @@ trait Types extends api.Types { self: SymbolTable =>
   def existentialAbstraction(tparams: List[Symbol], tpe0: Type): Type =
     if (tparams.isEmpty) tpe0
     else {
-      val tpe      = deAlias(tpe0)
+      val tpe      = normalizeAliases(tpe0)
       val tpe1     = new ExistentialExtrapolation(tparams) extrapolate tpe
       var tparams0 = tparams
       var tparams1 = tparams0 filter tpe1.contains
@@ -3687,13 +3704,16 @@ trait Types extends api.Types { self: SymbolTable =>
       newExistentialType(tparams1, tpe1)
     }
 
-  /** Remove any occurrences of type aliases from this type */
-  object deAlias extends TypeMap {
-    def apply(tp: Type): Type = mapOver {
-      tp match {
-        case TypeRef(pre, sym, args) if sym.isAliasType => tp.normalize
-        case _ => tp
-      }
+  /** Normalize any type aliases within this type (@see Type#normalize).
+   *  Note that this depends very much on the call to "normalize", not "dealias",
+   *  so it is no longer carries the too-stealthy name "deAlias".
+   */
+  object normalizeAliases extends TypeMap {
+    def apply(tp: Type): Type = tp match {
+      case TypeRef(_, sym, _) if sym.isAliasType =>
+        def msg = if (tp.isHigherKinded) s"Normalizing type alias function $tp" else s"Dealiasing type alias $tp"
+        mapOver(logResult(msg)(tp.normalize))
+      case _                                     => mapOver(tp)
     }
   }
 
@@ -4092,8 +4112,13 @@ trait Types extends api.Types { self: SymbolTable =>
     /** Called by mapOver to determine whether the original symbols can
      *  be returned, or whether they must be cloned.  Overridden in VariantTypeMap.
      */
-    protected def noChangeToSymbols(origSyms: List[Symbol]) =
-      origSyms forall (sym => sym.info eq this(sym.info))
+    protected def noChangeToSymbols(origSyms: List[Symbol]): Boolean = {
+      @tailrec def loop(syms: List[Symbol]): Boolean = syms match {
+        case Nil     => true
+        case x :: xs => (x.info eq this(x.info)) && loop(xs)
+      }
+      loop(origSyms)
+    }
 
     /** Map this function over given scope */
     def mapOver(scope: Scope): Scope = {
@@ -5028,41 +5053,9 @@ trait Types extends api.Types { self: SymbolTable =>
     else if (bd <= 7) td max (bd - 2)
     else (td - 1) max (bd - 3)
 
-  /** The maximum depth of type `tp` */
-  def typeDepth(tp: Type): Int = tp match {
-    case TypeRef(pre, sym, args) =>
-      typeDepth(pre) max typeDepth(args) + 1
-    case RefinedType(parents, decls) =>
-      typeDepth(parents) max typeDepth(decls.toList.map(_.info)) + 1
-    case TypeBounds(lo, hi) =>
-      typeDepth(lo) max typeDepth(hi)
-    case MethodType(paramtypes, result) =>
-      typeDepth(result)
-    case NullaryMethodType(result) =>
-      typeDepth(result)
-    case PolyType(tparams, result) =>
-      typeDepth(result) max typeDepth(tparams map (_.info)) + 1
-    case ExistentialType(tparams, result) =>
-      typeDepth(result) max typeDepth(tparams map (_.info)) + 1
-    case _ =>
-      1
-  }
-
-  private def maxDepth(tps: List[Type], by: Type => Int): Int = {
-    //OPT replaced with tailrecursive function to save on #closures
-    // was:
-    //    var d = 0
-    //    for (tp <- tps) d = d max by(tp) //!!!OPT!!!
-    //    d
-    def loop(tps: List[Type], acc: Int): Int = tps match {
-      case tp :: rest => loop(rest, acc max by(tp))
-      case _ => acc
-    }
-    loop(tps, 0)
-  }
-
-  private def typeDepth(tps: List[Type]): Int = maxDepth(tps, typeDepth)
-  private def baseTypeSeqDepth(tps: List[Type]): Int = maxDepth(tps, _.baseTypeSeqDepth)
+  private def symTypeDepth(syms: List[Symbol]): Int  = typeDepth(syms map (_.info))
+  private def typeDepth(tps: List[Type]): Int        = maxDepth(tps)
+  private def baseTypeSeqDepth(tps: List[Type]): Int = maxBaseTypeSeqDepth(tps)
 
   /** Is intersection of given types populated? That is,
    *  for all types tp1, tp2 in intersection
@@ -7009,6 +7002,45 @@ trait Types extends api.Types { self: SymbolTable =>
   private[scala] val typeIsNothing = (tp: Type) => tp.typeSymbolDirect eq NothingClass
   private[scala] val typeIsAny = (tp: Type) => tp.typeSymbolDirect eq AnyClass
   private[scala] val typeIsHigherKinded = (tp: Type) => tp.isHigherKinded
+
+  /** The maximum depth of type `tp` */
+  def typeDepth(tp: Type): Int = tp match {
+    case TypeRef(pre, sym, args) =>
+      math.max(typeDepth(pre), typeDepth(args) + 1)
+    case RefinedType(parents, decls) =>
+      math.max(typeDepth(parents), symTypeDepth(decls.toList) + 1)
+    case TypeBounds(lo, hi) =>
+      math.max(typeDepth(lo), typeDepth(hi))
+    case MethodType(paramtypes, result) =>
+      typeDepth(result)
+    case NullaryMethodType(result) =>
+      typeDepth(result)
+    case PolyType(tparams, result) =>
+      math.max(typeDepth(result), symTypeDepth(tparams) + 1)
+    case ExistentialType(tparams, result) =>
+      math.max(typeDepth(result), symTypeDepth(tparams) + 1)
+    case _ =>
+      1
+  }
+  //OPT replaced with tailrecursive function to save on #closures
+  // was:
+  //    var d = 0
+  //    for (tp <- tps) d = d max by(tp) //!!!OPT!!!
+  //    d
+  private[scala] def maxDepth(tps: List[Type]): Int = {
+    @tailrec def loop(tps: List[Type], acc: Int): Int = tps match {
+      case tp :: rest => loop(rest, math.max(acc, typeDepth(tp)))
+      case _          => acc
+    }
+    loop(tps, 0)
+  }
+  private[scala] def maxBaseTypeSeqDepth(tps: List[Type]): Int = {
+    @tailrec def loop(tps: List[Type], acc: Int): Int = tps match {
+      case tp :: rest => loop(rest, math.max(acc, tp.baseTypeSeqDepth))
+      case _          => acc
+    }
+    loop(tps, 0)
+  }
 
   @tailrec private def typesContain(tps: List[Type], sym: Symbol): Boolean = tps match {
     case tp :: rest => (tp contains sym) || typesContain(rest, sym)

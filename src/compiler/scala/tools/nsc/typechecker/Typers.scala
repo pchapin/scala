@@ -13,7 +13,7 @@ package scala.tools.nsc
 package typechecker
 
 import scala.collection.mutable
-import scala.reflect.internal.util.{ BatchSourceFile, Statistics }
+import scala.reflect.internal.util.{ BatchSourceFile, Statistics, shortClassOfInstance }
 import mutable.ListBuffer
 import symtab.Flags._
 
@@ -227,7 +227,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       case ExistentialType(tparams, tpe) =>
         new SubstWildcardMap(tparams).apply(tp)
       case TypeRef(_, sym, _) if sym.isAliasType =>
-        val tp0 = tp.normalize
+        val tp0 = tp.dealias
         val tp1 = dropExistential(tp0)
         if (tp1 eq tp0) tp else tp1
       case _ => tp
@@ -413,7 +413,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
               if (!hiddenSymbols.isEmpty && hiddenSymbols.head == sym &&
                   sym.isAliasType && sameLength(sym.typeParams, args)) {
                 hiddenSymbols = hiddenSymbols.tail
-                t.normalize
+                t.dealias
               } else t
             case SingleType(_, sym) =>
               checkNoEscape(sym)
@@ -1033,9 +1033,9 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
           adapt(tree setType restpe, mode, pt, original)
         case TypeRef(_, ByNameParamClass, List(arg)) if ((mode & EXPRmode) != 0) => // (2)
           adapt(tree setType arg, mode, pt, original)
-        case tr @ TypeRef(_, sym, _) if sym.isAliasType && tr.normalize.isInstanceOf[ExistentialType] &&
+        case tr @ TypeRef(_, sym, _) if sym.isAliasType && tr.dealias.isInstanceOf[ExistentialType] &&
           ((mode & (EXPRmode | LHSmode)) == EXPRmode) =>
-          adapt(tree setType tr.normalize.skolemizeExistential(context.owner, tree), mode, pt, original)
+          adapt(tree setType tr.dealias.skolemizeExistential(context.owner, tree), mode, pt, original)
         case et @ ExistentialType(_, _) if ((mode & (EXPRmode | LHSmode)) == EXPRmode) =>
           adapt(tree setType et.skolemizeExistential(context.owner, tree), mode, pt, original)
         case PolyType(tparams, restpe) if inNoModes(mode, TAPPmode | PATTERNmode | HKmode) => // (3)
@@ -1105,7 +1105,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
               if (tree1.tpe <:< pt) adapt(tree1, mode, pt, original)
               else {
                 if (inExprModeButNot(mode, FUNmode)) {
-                  pt.normalize match {
+                  pt.dealias match {
                     case TypeRef(_, sym, _) =>
                       // note: was if (pt.typeSymbol == UnitClass) but this leads to a potentially
                       // infinite expansion if pt is constant type ()
@@ -1251,7 +1251,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
 
     def adaptToMember(qual: Tree, searchTemplate: Type, reportAmbiguous: Boolean = true, saveErrors: Boolean = true): Tree = {
       if (isAdaptableWithView(qual)) {
-        qual.tpe.widen.normalize match {
+        qual.tpe.dealiasWiden match {
           case et: ExistentialType =>
             qual setType et.skolemizeExistential(context.owner, qual) // open the existential
           case _ =>
@@ -1766,7 +1766,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
         _.typedTemplate(cdef.impl, parentTypes(cdef.impl))
       }
       val impl2 = finishMethodSynthesis(impl1, clazz, context)
-      if (clazz.isTrait && clazz.info.parents.nonEmpty && clazz.info.firstParent.normalize.typeSymbol == AnyClass)
+      if (clazz.isTrait && clazz.info.parents.nonEmpty && clazz.info.firstParent.typeSymbol == AnyClass)
         checkEphemeral(clazz, impl2.body)
       if ((clazz != ClassfileAnnotationClass) &&
           (clazz isNonBottomSubClass ClassfileAnnotationClass))
@@ -3511,14 +3511,13 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
      * @param annClass the expected annotation class
      */
     def typedAnnotation(ann: Tree, mode: Int = EXPRmode, selfsym: Symbol = NoSymbol, annClass: Symbol = AnnotationClass, requireJava: Boolean = false): AnnotationInfo = {
-      lazy val annotationError = AnnotationInfo(ErrorType, Nil, Nil)
       var hasError: Boolean = false
       val pending = ListBuffer[AbsTypeError]()
 
       def reportAnnotationError(err: AbsTypeError) = {
         pending += err
         hasError = true
-        annotationError
+        ErroneousAnnotation
       }
 
       /** Calling constfold right here is necessary because some trees (negated
@@ -3598,12 +3597,12 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
         extract(ann, List())
       }
 
-      val res = if (fun.isErroneous) annotationError
+      val res = if (fun.isErroneous) ErroneousAnnotation
       else {
         val typedFun @ Select(New(tpt), _) = typed(fun, forFunMode(mode), WildcardType)
         val annType = tpt.tpe
 
-        if (typedFun.isErroneous) annotationError
+        if (typedFun.isErroneous) ErroneousAnnotation
         else if (annType.typeSymbol isNonBottomSubClass ClassfileAnnotationClass) {
           // annotation to be saved as java classfile annotation
           val isJava = typedFun.symbol.owner.isJavaDefined
@@ -3648,7 +3647,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
                 reportAnnotationError(AnnotationMissingArgError(ann, annType, sym))
             }
 
-            if (hasError) annotationError
+            if (hasError) ErroneousAnnotation
             else AnnotationInfo(annType, List(), nvPairs map {p => (p._1, p._2.get)}).setOriginal(Apply(typedFun, args).setPos(ann.pos))
           }
         } else if (requireJava) {
@@ -3700,14 +3699,14 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
           if (annType.typeSymbol == DeprecatedAttr && argss.flatten.size < 2)
             unit.deprecationWarning(ann.pos, "@deprecated now takes two arguments; see the scaladoc.")
 
-          if ((typedAnn.tpe == null) || typedAnn.tpe.isErroneous) annotationError
+          if ((typedAnn.tpe == null) || typedAnn.tpe.isErroneous) ErroneousAnnotation
           else annInfo(typedAnn)
         }
       }
 
       if (hasError) {
         pending.foreach(ErrorUtils.issueTypeError)
-        annotationError
+        ErroneousAnnotation
       } else res
     }
 
@@ -3831,7 +3830,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       val normalizeLocals = new TypeMap {
         def apply(tp: Type): Type = tp match {
           case TypeRef(pre, sym, args) =>
-            if (sym.isAliasType && containsLocal(tp)) apply(tp.normalize)
+            if (sym.isAliasType && containsLocal(tp)) apply(tp.dealias)
             else {
               if (pre.isVolatile)
                 InferTypeWithVolatileTypeSelectionError(tree, pre)
@@ -4364,7 +4363,13 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
       def typedNew(tree: New) = {
         val tpt = tree.tpt
         val tpt1 = {
-          val tpt0 = typedTypeConstructor(tpt)
+          // This way typedNew always returns a dealiased type. This used to happen by accident
+          // for instantiations without type arguments due to ad hoc code in typedTypeConstructor,
+          // and annotations depended on it (to the extent that they worked, which they did
+          // not when given a parameterized type alias which dealiased to an annotation.)
+          // typedTypeConstructor dealiases nothing now, but it makes sense for a "new" to always be
+          // given a dealiased type.
+          val tpt0 = typedTypeConstructor(tpt) modifyType (_.dealias)
           if (checkStablePrefixClassType(tpt0))
             if (tpt0.hasSymbolField && !tpt0.symbol.typeParams.isEmpty) {
               context.undetparams = cloneSymbols(tpt0.symbol.typeParams)
@@ -4906,7 +4911,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
               case sym      => typed1(tree setSymbol sym, mode, pt)
             }
           case LookupSucceeded(qual, sym)   =>
-            // this -> Foo.this
+            (// this -> Foo.this
             if (sym.isThisSym)
               typed1(This(sym.owner) setPos tree.pos, mode, pt)
             // Inferring classOf type parameter from expected type.  Otherwise an
@@ -4915,12 +4920,12 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
               typedClassOf(tree, TypeTree(pt.typeArgs.head))
             else {
               val pre1  = if (sym.owner.isPackageClass) sym.owner.thisType else if (qual == EmptyTree) NoPrefix else qual.tpe
-              val tree1 = if (qual == EmptyTree) tree else atPos(tree.pos)(Select(atPos(tree.pos.focusStart)(qual), name) setAttachments tree.attachments)
+              val tree1 = if (qual == EmptyTree) tree else atPos(tree.pos)(Select(atPos(tree.pos.focusStart)(qual), name))
               val (tree2, pre2) = makeAccessible(tree1, sym, pre1, qual)
               // SI-5967 Important to replace param type A* with Seq[A] when seen from from a reference, to avoid
               //         inference errors in pattern matching.
               stabilize(tree2, pre2, mode, pt) modifyType dropIllegalStarTypes
-            }
+            }) setAttachments tree.attachments
         }
       }
 
@@ -5465,29 +5470,18 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
     def typedTypeConstructor(tree: Tree, mode: Int): Tree = {
       val result = typed(tree, forTypeMode(mode) | FUNmode, WildcardType)
 
-      val restpe = result.tpe.normalize // normalize to get rid of type aliases for the following check (#1241)
-      if (!phase.erasedTypes && restpe.isInstanceOf[TypeRef] && !restpe.prefix.isStable && !context.unit.isJava) {
-        // The isJava exception if OK only because the only type constructors scalac gets
-        // to see are those in the signatures. These do not need a unique object as a prefix.
-        // The situation is different for new's and super's, but scalac does not look deep
-        // enough to see those. See #3938
-        ConstructorPrefixError(tree, restpe)
-      } else {
-        //@M fix for #2208
-        // if there are no type arguments, normalization does not bypass any checks, so perform it to get rid of AnyRef
-        if (result.tpe.typeArgs.isEmpty) {
-          // minimal check: if(result.tpe.typeSymbolDirect eq AnyRefClass) {
-          // must expand the fake AnyRef type alias, because bootstrapping (init in Definitions) is not
-          // designed to deal with the cycles in the scala package (ScalaObject extends
-          // AnyRef, but the AnyRef type alias is entered after the scala package is
-          // loaded and completed, so that ScalaObject is unpickled while AnyRef is not
-          // yet defined )
-          // !!! TODO - revisit now that ScalaObject is gone.
-          result setType(restpe)
-        } else { // must not normalize: type application must be (bounds-)checked (during RefChecks), see #2208
+      // get rid of type aliases for the following check (#1241)
+      result.tpe.dealias match {
+        case restpe @ TypeRef(pre, _, _) if !phase.erasedTypes && !pre.isStable && !context.unit.isJava =>
+          // The isJava exception if OK only because the only type constructors scalac gets
+          // to see are those in the signatures. These do not need a unique object as a prefix.
+          // The situation is different for new's and super's, but scalac does not look deep
+          // enough to see those. See #3938
+          ConstructorPrefixError(tree, restpe)
+        case _ =>
+          // must not normalize: type application must be (bounds-)checked (during RefChecks), see #2208
           // during uncurry (after refchecks), all types are normalized
           result
-        }
       }
     }
 
