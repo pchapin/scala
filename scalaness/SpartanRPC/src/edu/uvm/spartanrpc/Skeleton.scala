@@ -7,9 +7,11 @@
 package edu.uvm.spartanrpc
 
 import edu.uvm.mininess.Declarations
-import edu.uvm.scalaness.{ProgramComponentWrapper, NamedProgramComponent, MininessComponent, Parser}
+import edu.uvm.scalaness.{ProgramComponentWrapper, NamedProgramComponent, MininessComponent, ModuleType, Parser}
 import java.io.File
 
+@ModuleType("""{}
+               <;>{ }""")
 class Skeleton extends MininessComponent {
   
   /////////
