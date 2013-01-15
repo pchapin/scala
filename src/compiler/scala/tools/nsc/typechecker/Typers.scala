@@ -1799,6 +1799,10 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
                                     |\tAnnotated = ${annotatedNesTModuleType.toString}
                                     |\tBody = ${nesTModuleType.toString}""".stripMargin)
       } 
+      println("HERE")
+      println(clazz)
+      val clazzSingle = SingleType(NoPrefix,clazz)
+      println(clazzSingle)
       clazz.tpe.nesTModuleType = annotatedNesTModuleType
       treeCopy.ClassDef(cdef, typedMods, cdef.name, tparams1, impl2)
         .setType(NoType)
@@ -3142,8 +3146,14 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
                           edu.uvm.scalaness.TypeRules.stripStrings(formalString.toList)
                       if (qual.tpe.nesTModuleType == None)
                         throw new Exception("Module type required for instantiate");
-                      qual.tpe.nesTModuleType map
-                        { edu.uvm.scalaness.TypeRules.typeInstantiate(_, metaTypeUBs, liftedTypes) }
+                        
+                        
+                      val findType = qual.tpe.nesTModuleType match {
+                        case Some(mType) => mType
+                        case _ => throw new Exception("Module Type Required for Wire")
+                      }
+                      val instantiateReturn = edu.uvm.scalaness.TypeRules.typeInstantiate(findType, metaTypeUBs, liftedTypes)
+                      Some(instantiateReturn)
                     }
                       
                   case "image" =>
@@ -3310,7 +3320,7 @@ trait Typers extends Modes with Adaptations with Tags with edu.uvm.scalaness.Sca
                 // val foo = "foo"; def precise(x: String)(y: x.type): x.type = {...}; val bar : foo.type = precise(foo)(foo)
                 // precise(foo) : foo.type => foo.type
                 val restpe = mt.resultType(args1 map (arg => gen.stableTypeFor(arg) getOrElse arg.tpe))
-                if (newNesTModuleType != None)
+                if (newNesTModuleType != None) 
                   restpe.nesTModuleType = newNesTModuleType
                 def ifPatternSkipFormals(tp: Type) = tp match {
                   case MethodType(_, rtp) if (inPatternMode(mode)) => rtp

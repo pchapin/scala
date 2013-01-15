@@ -143,6 +143,27 @@ object Main {
     (new ChecksumC).instantiate(size, checksumType)
   }
 *********************************** */
+
+
+  /* @ModuleType("""{ checksumType <: UInt32 }
+                 <;>
+                 { ; compute_checksum(data: Array[UInt8]): checksumType }""") */
+                 
+  def getChecksummer(size: UInt16, checksumType: MetaType[UInt32]) = {
+    @ModuleType("""{}
+                 < checksumType <: UInt32; size: UInt16 >
+                 { ; compute_checksum(data: Array[UInt8]): checksumType }""")
+    val CheckSumModule = new ChecksumC
+    
+    @ModuleType("""{ checksumType <: UInt32 }
+                 <;>
+                 { ; compute_checksum(data: Array[UInt8]): checksumType }""")
+    val ModuleInst = CheckSumModule.instantiate(size, checksumType)
+    
+    
+    //(new ChecksumC).instantiate(size, checksumType)
+  }
+
     
   /**
    * The main method obtains configuration information from the command line and composes the
