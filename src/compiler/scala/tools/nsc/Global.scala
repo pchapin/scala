@@ -1517,6 +1517,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
         val startTime = currentTime
         phase = globalPhase
         globalPhase.run
+        // println("Completed phase: " + globalPhase)
 
         // progress update
         informTime(globalPhase.description, startTime)
