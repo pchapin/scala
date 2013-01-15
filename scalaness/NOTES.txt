@@ -1,0 +1,7 @@
+
+NOTES.txt
+=========
+
++ In scala/tools/nsc/Global.scala, in the method compileUnitsInternal (around line 1506). Here
+  the compiler appears to execute the phases in order. I think you can execute code between the
+  phases by putting it right after the invocation of globalPhase.run.

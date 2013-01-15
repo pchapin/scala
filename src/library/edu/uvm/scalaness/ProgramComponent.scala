@@ -129,7 +129,9 @@ class ProgramComponent(
 
 
   /**
-   * Composes two ProgramComponents.
+   * Composes two ProgramComponents. The library can't use +> directly because otherwise
+   * the Scalaness compiler complains about missing nesT module types. Thus internally
+   * this method is used instead.
    * 
    * @param other The ProgramComponent to blend into this component.
    * @return A new ProgramComponent that wraps a configuration consisting of the two input
@@ -151,6 +153,10 @@ class ProgramComponent(
                          newConfiguration,
                          newTargetFolder)
   }
+  
+  // These are the methods that would actually be called by the Scalaness programmer.
+  def +>(other: ProgramComponent) = this wireTo other
+  def +>(other: MininessComponent) = this wireTo other.configuration
 
 
   /**
@@ -193,7 +199,9 @@ class ProgramComponent(
   /**
    * Images the configuration. At compile time, special type checking is done. At run time
    * the generated program is written to disk. Note that the location of the top level
-   * configuration is fixed here.
+   * configuration is fixed here. The library can't use image() directly because otherwise
+   * the Scalaness compiler complains about missing nesT module types. Thus internally
+   * this method is used instead.
    */
   def makeImage() {
     val outputFolder = new File(targetFolder)
@@ -218,5 +226,8 @@ class ProgramComponent(
       component.display(outputFolder)
     }
   }
+  
+  // This is the method that would actually be called by the Scalaness programmer.
+  def image() = makeImage()
 
 }
