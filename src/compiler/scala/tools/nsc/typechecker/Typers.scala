@@ -1787,28 +1787,30 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
         }
       }
       
-      // Search for Scalaness ModuleType annotations and process them.
-      val moduleTypeAnnotations = clazz.annotations filter { _.tpe.toString == "edu.uvm.scalaness.ModuleType" }
-      val annotatedNesTModuleType =
-        if (moduleTypeAnnotations.length == 0)
-          None
-        else {
-          val moduleTypeAST = parseScalanessAnnotation(moduleTypeAnnotations(0).assocs)
-          Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST))
-        }
+      if (doNesTTypeCheck) {
+        // Search for Scalaness ModuleType annotations and process them.
+        val moduleTypeAnnotations = clazz.annotations filter { _.tpe.toString == "edu.uvm.scalaness.ModuleType" }
+        val annotatedNesTModuleType =
+          if (moduleTypeAnnotations.length == 0)
+            None
+          else {
+            val moduleTypeAST = parseScalanessAnnotation(moduleTypeAnnotations(0).assocs)
+            Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST))
+          }
 
-      val mininessModuleType = scalanessCheck(ClassDef(typedMods, cdef.name, tparams1, impl2))
-      val nesTModuleType = mininessModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
-      if (annotatedNesTModuleType != nesTModuleType) {
-        reporter.error(cdef.pos, s"""nesT module type mismatch
-                                    |\tAnnotated = ${annotatedNesTModuleType.toString}
-                                    |\tBody = ${nesTModuleType.toString}""".stripMargin)
-      } 
-      println("HERE")
-      println(clazz)
-      val clazzSingle = SingleType(NoPrefix,clazz)
-      println(clazzSingle)
-      clazz.tpe.nesTModuleType = annotatedNesTModuleType
+        val mininessModuleType = scalanessCheck(ClassDef(typedMods, cdef.name, tparams1, impl2))
+        val nesTModuleType = mininessModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
+        if (annotatedNesTModuleType != nesTModuleType) {
+          reporter.error(cdef.pos, s"""nesT module type mismatch
+                                      |\tAnnotated = ${annotatedNesTModuleType.toString}
+                                      |\tBody = ${nesTModuleType.toString}""".stripMargin)
+        } 
+
+        val clazzSingle = SingleType(NoPrefix,clazz)
+        clazzSingle.nesTModuleType = annotatedNesTModuleType
+        clazz.tpe.nesTModuleType = annotatedNesTModuleType
+      }
+      
       treeCopy.ClassDef(cdef, typedMods, cdef.name, tparams1, impl2)
         .setType(NoType)
     }
@@ -1842,28 +1844,31 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
       }
       val impl2  = finishMethodSynthesis(impl1, clazz, context)
       
-      // Search for Scalaness ModuleType annotations and process them.
-      val moduleTypeAnnotations = clazz.annotations filter { _.tpe.toString == "edu.uvm.scalaness.ModuleType" }
-      val annotatedNesTModuleType =
-        if (moduleTypeAnnotations.length == 0)
-          None
-        else {
-          val moduleTypeAST = parseScalanessAnnotation(moduleTypeAnnotations(0).assocs)
-          Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST))
-        }
+      if (doNesTTypeCheck) {
+        // Search for Scalaness ModuleType annotations and process them.
+        val moduleTypeAnnotations = clazz.annotations filter { _.tpe.toString == "edu.uvm.scalaness.ModuleType" }
+        val annotatedNesTModuleType =
+          if (moduleTypeAnnotations.length == 0)
+            None
+          else {
+            val moduleTypeAST = parseScalanessAnnotation(moduleTypeAnnotations(0).assocs)
+            Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST))
+          }
 
-      val mininessModuleType = scalanessCheck(ModuleDef(typedMods, mdef.name, impl2))
-      val nesTModuleType = mininessModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
-      // Objects that wrap external libraries don't have Mininess module types but are annotated.
-      // TODO: suppress the check below only for objects wrapping externa libraries!
-      //
-      // if (annotatedNesTModuleType != nesTModuleType) {
-      //   reporter.error(mdef.pos, s"""nesT module type mismatch
-      //                               |\tAnnotated = ${annotatedNesTModuleType.toString}
-      //                               |\tBody = ${nesTModuleType.toString}""".stripMargin)
-      // } 
+        val mininessModuleType = scalanessCheck(ModuleDef(typedMods, mdef.name, impl2))
+        val nesTModuleType = mininessModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
+        // Objects that wrap external libraries don't have Mininess module types but are annotated.
+        // TODO: suppress the check below only for objects wrapping externa libraries!
+        //
+        // if (annotatedNesTModuleType != nesTModuleType) {
+        //   reporter.error(mdef.pos, s"""nesT module type mismatch
+        //                               |\tAnnotated = ${annotatedNesTModuleType.toString}
+        //                               |\tBody = ${nesTModuleType.toString}""".stripMargin)
+        // } 
 
-      clazz.tpe.typeOfThis.nesTModuleType = annotatedNesTModuleType
+        clazz.tpe.typeOfThis.nesTModuleType = annotatedNesTModuleType
+      } 
+      
       treeCopy.ModuleDef(mdef, typedMods, mdef.name, impl2) setType NoType
     }
     /** In order to override this in the TreeCheckers Typer so synthetics aren't re-added
@@ -2030,20 +2035,27 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
           newTyper(typer1.context.make(vdef, sym)).transformedOrTyped(vdef.rhs, EXPRmode | BYVALmode, tpt2)
         }
       
-      var nesTModuleType = rhs1.tpe.nesTModuleType
-      
-      if (!(annotatedNesTModuleType == None && nesTModuleType == None)) {
-        if (!(edu.uvm.scalaness.TypeRules.moduleEqual(annotatedNesTModuleType,nesTModuleType))) {
-          reporter.error(vdef.pos, s"""nesT module type mismatch
-                                      |\tAnnotated = ${annotatedNesTModuleType.toString}
-                                      |\tInitializer = ${nesTModuleType.toString}""".stripMargin)
+      if (doNesTTypeCheck) {
+        var nesTModuleType = rhs1.tpe.nesTModuleType
+          
+        if (!(annotatedNesTModuleType == None && nesTModuleType == None)) {
+            
+          if (rhs1.symbol.isConstructor) {
+            val classSingleton = SingleType(NoPrefix,rhs1.symbol.skipConstructor)
+            nesTModuleType = classSingleton.nesTModuleType
+          }
+            
+           if (!(edu.uvm.scalaness.TypeRules.moduleEqual(annotatedNesTModuleType,nesTModuleType))) {
+            reporter.error(vdef.pos, s"""nesT module type mismatch
+                                        |\tAnnotated = ${annotatedNesTModuleType.toString}
+                                        |\tInitializer = ${nesTModuleType.toString}""".stripMargin)
+          }
         }
+          
+        // Stores the nesT information in a singleton type associated with the symbol
+        val singletonType = singleType(NoPrefix,sym)
+        singletonType.nesTModuleType = nesTModuleType
       }
-      
-      // Stores the nesT information in a singleton type associated with the symbol
-      val singletonType = singleType(NoPrefix,sym)
-      singletonType.nesTModuleType = rhs1.tpe.nesTModuleType
-      
       treeCopy.ValDef(vdef, typedMods, vdef.name, tpt1, checkDead(rhs1)) setType NoType
     }
 
@@ -3130,83 +3142,93 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
           val argslen = args.length
           val formals = formalTypes(paramTypes, argslen)
 
-          // Application of Scalaness type rules.
-          val newNesTModuleType = try {
-            fun match {
-              case Select(qual, name) =>
-                def debugMessage(methodName: String) =
-                  println(s"$methodName, qual.tpe=${qual.tpe.toString}, nesT=${qual.tpe.nesTModuleType}, argument-types=${formals.toString}\n")
           
-                name.toString match {
-                  case "$plus$greater" =>
-                    if (!isMininessComponent(qual.tpe))
-                      None
-                    else {
-                      debugMessage("+>")
-                      // Right now this is the incorrectly stored class type, should be fixed
-                      // when we figure out how to properly save types
-                      //
-                      val leftType = qual.tpe.nesTModuleType match {
-                        case Some(mType) => mType
-                        case _ => throw new Exception("Module Type Required for Wire")
-                      }
-                      val rightSymbol = args(0).symbol
-                      val rightSymbolType = singleType(NoPrefix,rightSymbol)
-                      val rightType = rightSymbolType.nesTModuleType match {
-                        case Some(mType) => mType
-                        case _ => throw new Exception("Module Type Required for Wire")
-                      }
-                      val wireReturn = edu.uvm.scalaness.TypeRules.typeWire(leftType,rightType)
-                      Some(wireReturn)
-                    }
+          var newNesTModuleType: Option[(Map[edu.uvm.mininess.MininessTypes.TypeVariable,edu.uvm.mininess.MininessTypes.Representation], 
+                                             edu.uvm.mininess.MininessTypes.Module)] = None
+          if (doNesTTypeCheck) {
+          
+            // Application of Scalaness type rules.
+              newNesTModuleType = try {
+                fun match {
+                  case Select(qual, name) =>
+                    def debugMessage(methodName: String) =
+                      println(s"$methodName, qual.tpe=${qual.tpe.toString}, nesT=${qual.tpe.nesTModuleType}, argument-types=${formals.toString}\n")
+              
+                    name.toString match {
+                      case "$plus$greater" =>
+                        if (!isMininessComponent(qual.tpe))
+                          None
+                        else {
+                          // debugMessage("+>")
+                          
+                          val leftType = qual.tpe.nesTModuleType match {
+                            case Some(mType) => mType
+                            case _ => throw new Exception("Module Type Required for Wire")
+                          }
+                          val rightSymbol = args(0).symbol
+                          val rightSymMethod = args(0).symbol.isMethod
+                          val rightSymModule = args(0).symbol.isModule
+                          val rightSymbolType = singleType(NoPrefix,rightSymbol)
+                          val rightFullType = if (rightSymMethod || rightSymModule) {
+                                                args(0).tpe.nesTModuleType
+                                              } else {
+                                                rightSymbolType.nesTModuleType
+                                              }
+                          
+                          val rightType = rightFullType match {
+                            case Some(mType) => mType
+                            case _ => throw new Exception("Module Type Required for Wire")
+                          }
+                          val wireReturn = edu.uvm.scalaness.TypeRules.typeWire(leftType,rightType)
+                          Some(wireReturn)
+                        }
 
-                  case "instantiate" =>
-                    if (!isMininessComponent(qual.tpe))
-                      None
-                    else {
-                      debugMessage("instantiate")
-                      val formalString =
-                        for (i <- 0 until formals.length) yield { formals(i).toString }
-                      val (metaTypeUBs, liftedTypes) =
-                          edu.uvm.scalaness.TypeRules.stripStrings(formalString.toList)
-                      if (qual.tpe.nesTModuleType == None)
-                        throw new Exception("Module type required for instantiate");
-                        
-                        
-                      val findType = qual.tpe.nesTModuleType match {
-                        case Some(mType) => mType
-                        case _ => throw new Exception("Module Type Required for Wire")
-                      }
-                      val instantiateReturn = edu.uvm.scalaness.TypeRules.typeInstantiate(findType, metaTypeUBs, liftedTypes)
-                      Some(instantiateReturn)
-                    }
-                      
-                  case "image" =>
-                    if (!isMininessComponent(qual.tpe))
-                      None
-                    else {
-                      // Right now this is the incorrectly stored class type, should be fixed
-                      // when we figure out how to properly save types
-                      //
-                      debugMessage("image")
-                      if (qual.tpe.nesTModuleType == None)
-                        throw new Exception("Module type required for image")
-                      qual.tpe.nesTModuleType map
-                        { edu.uvm.scalaness.TypeRules.typeImage(_) }
+                      case "instantiate" =>
+                        if (!isMininessComponent(qual.tpe))
+                          None
+                        else {
+                          // debugMessage("instantiate")
+                          val formalString =
+                            for (i <- 0 until formals.length) yield { formals(i).toString }
+                          val (metaTypeUBs, liftedTypes) =
+                              edu.uvm.scalaness.TypeRules.stripStrings(formalString.toList)
+                          if (qual.tpe.nesTModuleType == None)
+                            throw new Exception("Module type required for instantiate");
+                            
+                            
+                          val findType = qual.tpe.nesTModuleType match {
+                            case Some(mType) => mType
+                            case _ => throw new Exception("Module Type Required for Wire")
+                          }
+                          val instantiateReturn = edu.uvm.scalaness.TypeRules.typeInstantiate(findType, metaTypeUBs, liftedTypes)
+                          Some(instantiateReturn)
+                        }
+                          
+                      case "image" =>
+                        if (!isMininessComponent(qual.tpe))
+                          None
+                        else {
+                          // debugMessage("image")
+                          if (qual.tpe.nesTModuleType == None)
+                            throw new Exception("Module type required for image")
+                          qual.tpe.nesTModuleType map
+                            { edu.uvm.scalaness.TypeRules.typeImage(_) }
+                        }
+
+                      case _ =>
+                        None
                     }
 
                   case _ =>
                     None
                 }
-
-              case _ =>
-                None
-            }
-          }
-          catch {
-            case e: Exception =>
-              reporter.error(fun.pos, e.getMessage)
-              None
+              }
+              catch {
+                case e: Exception =>
+                  reporter.error(fun.pos, e.getMessage)
+                  None
+              }
+          
           }
            
           
