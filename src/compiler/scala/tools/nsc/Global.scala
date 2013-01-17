@@ -1134,6 +1134,9 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
   def newCompilationUnit(code: String) = new CompilationUnit(newSourceFile(code))
   def newSourceFile(code: String)      = new BatchSourceFile("<console>", code)
 
+  // Is this the right place for this? Perhaps it should be a member of Run?
+  var doNesTTypeCheck: Boolean = false
+  
   /** A Run is a single execution of the compiler on a sets of units
    */
   class Run extends RunContextApi {
@@ -1516,8 +1519,10 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
      while (globalPhase.hasNext && !reporter.hasErrors) {
         val startTime = currentTime
         phase = globalPhase
+        if (globalPhase.toString() == "typer") doNesTTypeCheck = true
         globalPhase.run
         // println("Completed phase: " + globalPhase)
+        if (globalPhase.toString() == "typer") doNesTTypeCheck = false;
 
         // progress update
         informTime(globalPhase.description, startTime)
