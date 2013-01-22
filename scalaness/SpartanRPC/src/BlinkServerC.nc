@@ -3,28 +3,25 @@
 //
 
 module BlinkServerC {
-    provides interface Leds;
-    // What I'm trying to do here is reasonable. How should it be handled? Possibilities:
-    //   1. Support 'as' in Mininess.
-    //   2. Use only bare commands and let the interfacing to external libraries deal with it.
-    //
-    // uses interface Leds as LocalLeds;
+    provides command void setLeds( uint8_t value );
+    uses interface Leds;
 }
 implementation {
 
-    command void Leds.led0Toggle( )
-    {
-      // call LocalLeds.led0Toggle( );
-    }
+    command void setLeds( uint8_t value ) {
 
-    command void Leds.led1Toggle( )
-    {
-      // call LocalLeds.led1Toggle( );
+        if( value & 0x01 )
+            call Leds.led0On( );
+        else 
+            call Leds.led0Off( );
+        if( value & 0x02 )
+            call Leds.led1On( );
+        else
+            call Leds.led1Off( );
+        if( value & 0x04 )
+            call Leds.led2On( );
+        else
+            call Leds.led2Off( );
     }
-
-    command void Leds.led2Toggle( )
-    {
-      // call LocalLeds.led2Toggle( );
-    }
-
+  
 }
