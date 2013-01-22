@@ -47,7 +47,12 @@ using the technique described above.
 
 IntelliJ checks to be sure the library and compiler version are consistent. If you rebuild one
 and not the other it will complain. You should do 'ant quick.clean; ant' to rebuild both
-versions of the 'quick' compiler to match. It appears that these version numbers are good for a
-certain amount of time (One day? One invocation of IntelliJ?). For example rebuilding the
-library immediately after making a trivial change (and while IntelliJ is running) does *not*
-cause any problems.
+versions of the 'pack' compiler to match. Note that Eclipse does not (by default) rebuild pack.
+Thus building with Eclipse does not change or disrupt the compiler created by ant nor does it
+change what happens in IntelliJ (since IntelliJ is using the pack compiler). This can be good
+and bad, but it is important to at least understand it.
+
+The jar artifact created by IntelliJ does not include the bouncycastle jar. That jar has a
+signed manifest and the signature breaks when the jar is expanded for inclusion in the single
+jar artifact. Right now it is necessary to include a class path to bouncycastle when running
+SpartanRPC.jar.

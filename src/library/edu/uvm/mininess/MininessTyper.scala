@@ -499,10 +499,14 @@ class MininessTyper(
           throw new TypeException("Address Of must be performed on L-value")
       }
 
+      // TODO: The type returned by bitwise AND isn't always Int16 (UInt16).
       case ASTNode(MininessLexer.AMP, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
           Some(Int16)
+        }
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+          Some(UInt16)
         }
         else throw new TypeException("Operands of '&' must be integers")
       }
@@ -622,22 +626,30 @@ class MininessTyper(
         else throw new TypeException("Left operand must have numeric type")
       } // Right side must be a subtype of left side, so var type of left side doesn't change?
 
+      // TODO: The type returned by bitwise complement isn't always Int16 (or UInt16).
       case ASTNode(MininessLexer.BITCOMPLEMENT, _, children, _, _) => {
        val childType = checkMininessExpression(children(0), depth + 1) match {
           case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
           case _ => throw new TypeException("Operand of '~' must have a type")
         }
-       if (areSubtypes(childType, Int32)){
+       if (areSubtypes(childType, Int32)) {
          Some(Int16)
+       }
+       else if (areSubtypes(childType, UInt32)) {
+         Some(UInt16)
        }
        else throw new TypeException("Operand of '~' must have integer type")
       }
 
+      // TODO: The type returned by bitwise OR isn't always Int16 (UInt16).
       case ASTNode(MininessLexer.BITOR, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
           Some(Int16)
+        }
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+          Some(UInt16)
         }
         else throw new TypeException("Operands of '|' must have integer type")
       }
@@ -653,10 +665,14 @@ class MininessTyper(
         else throw new TypeException("Left operand of '|=' must have numeric type")
       } // Right side must be a subtype of left side, so var type of left side doesn't change?
 
+      // TODO: The type returned by bitwise XOR isn't always Int16 (UInt16).
       case ASTNode(MininessLexer.BITXOR, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
           Some(Int16)
+        }
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+          Some(UInt16)
         }
         else throw new TypeException("Operands of '^' must have integer type")
       }

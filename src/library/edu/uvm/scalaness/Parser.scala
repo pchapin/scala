@@ -18,14 +18,26 @@ object Parser {
    * only has access (currently) to the original source code and thus it needs to be parsed
    * again.
    * 
-   * @param resource The path to source file to parse. This path is relative to the program's
-   * working directory.
+   * @param mininessFileName The path to source file to parse. This path is relative to the
+   * program's working directory or  (after deleting any leading dot) absolute inside the
+   * program's jar file.
    * @param typeVars A list of type parameter names. This is needed because in C-like languages
    * it is necessary to distinguish type names from non-type names during parsing.
    */
   def reparse(mininessFileName: String, typeVars: List[String]) = {
-    val MininessReader =
+    
+    val MininessReader = try {
+      // Try getting the file out of the file system.
       new BufferedReader(new InputStreamReader(new FileInputStream(mininessFileName)))
+    }
+    catch {
+      case ex: java.io.FileNotFoundException =>
+        // If that didn't work, try getting it out of the jar file.
+        val adjustedName =
+          if (mininessFileName.charAt(0) == '.') mininessFileName.substring(1) else mininessFileName
+        new BufferedReader(new InputStreamReader(getClass.getResourceAsStream(adjustedName)))
+    }
+    
     // TODO: Use two different parsing methods in the compiler and in the runtime system.
     val abstractSyntax = try {
       mininess.parser.parseMininessInclusion(MininessReader, typeVars)
