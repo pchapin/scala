@@ -17,8 +17,9 @@ object Declarations {
   private def extractImportsExports(abstractSyntax: ASTNode, marker: Int): Set[String] = {
 
     /**
-     * Walks the abstract syntax tree of a nesC declaration (normally a command declaration but this method is intended
-     * to be general) and returns a set of the declared names. For example in a declaration such as
+     * Walks the abstract syntax tree of a Mininess declaration (normally a command declaration
+     * but this method is intended to be general) and returns a set of the declared names. For
+     * example in a declaration such as
      *     command int com1(int x), com2(int x, int y);
      * the result should be Set("com1", "com2")
      * 
@@ -68,7 +69,6 @@ object Declarations {
    * Walks the abstract syntax tree of a nesC template and returns all imported commands.
    * 
    * @param abstractSyntax The ASTNode where the walk will begin in the template.
-   * 
    * @return A set of all imports (by name) in the given nesC template.
    */
   def extractImports(abstractSyntax: ASTNode): Set[String] = {
@@ -80,7 +80,6 @@ object Declarations {
    * Walks the abstract syntax tree of a nesC template and returns all exported commands.
    * 
    * @param abstractSyntax The ASTNode where the walk will begin in the template.
-   * 
    * @return A set of all imports (by name) in the given nesC template.
    */
   def extractExports(abstractSyntax: ASTNode): Set[String] = {

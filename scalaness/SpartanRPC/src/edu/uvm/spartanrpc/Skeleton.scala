@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // FILE    : Stub.scala
-// SUBJECT : Class that represents a SprocketRT stub.
-// AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+// SUBJECT : Class that represents a SprocketRT skeleton.
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
 package edu.uvm.spartanrpc
