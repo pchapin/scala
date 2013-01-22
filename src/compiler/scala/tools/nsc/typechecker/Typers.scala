@@ -3158,9 +3158,9 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
               
                     name.toString match {
                       case "$plus$greater" =>
-                        //if (!isMininessComponent(qual.tpe))
-                        //  None
-                        // else {
+                        if (!isNesTComponent(qual.tpe))
+                          None
+                         else {
                           // debugMessage("+>")
           
                           val leftType = qual.tpe.nesTModuleType match {
@@ -3183,10 +3183,10 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
                           }
                           val wireReturn = edu.uvm.scalaness.TypeRules.typeWire(leftType,rightType)
                           Some(wireReturn)
-                        //}
+                        }
 
                       case "instantiate" =>
-                        if (!isMininessComponent(qual.tpe))
+                        if (!isNesTComponent(qual.tpe))
                           None
                         else {
                           // debugMessage("instantiate")
@@ -3207,7 +3207,7 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
                         }
                           
                       case "image" =>
-                        if (!isMininessComponent(qual.tpe))
+                        if (!isNesTComponent(qual.tpe))
                           None
                         else {
                           // debugMessage("image")

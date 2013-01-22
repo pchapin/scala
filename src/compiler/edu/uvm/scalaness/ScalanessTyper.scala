@@ -43,10 +43,10 @@ trait ScalanessTyper {
   // TODO: It would be better if these settings were handled the way other compiler settings are.
   
   /**
-   * Return true if the given Type is a subtype of MininessComponent; false otherwise.
+   * Return true if the given Type is a subtype of MininessComponent or ProgramComponent; false otherwise.
    */
-  def isMininessComponent(tpe: Type) = {
-    tpe.baseClasses exists { _.toString == "trait MininessComponent" }
+  def isNesTComponent(tpe: Type) = {
+    (tpe.baseClasses exists { _.toString == "trait MininessComponent" }) || (tpe.baseClasses exists { _.toString == "class ProgramComponent" })
   }
 
   /**

@@ -215,7 +215,11 @@ object Main {
                        booted(): Void,
                        fired(): Void }""")
       val wiredModule = formattingModule +> checkingModule
-    
+      
+      val wired2 = LibraryC +> formattingModule +> checkingModule +> LibraryC
+      
+      wiredModule.image()
+     
       /*
       @ModuleType("""{ checksumType <: UInt32 }
                      <;>
