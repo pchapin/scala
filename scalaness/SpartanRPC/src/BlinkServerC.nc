@@ -10,18 +10,18 @@ implementation {
 
     command void setLeds( uint8_t value ) {
 
-        if( value & 0x01 )
+        /* if( value & 0x01U )
             call Leds.led0On( );
         else 
             call Leds.led0Off( );
-        if( value & 0x02 )
+        if( value & 0x02U )
             call Leds.led1On( );
         else
             call Leds.led1Off( );
-        if( value & 0x04 )
+        if( value & 0x04U )
             call Leds.led2On( );
         else
-            call Leds.led2Off( );
+            call Leds.led2Off( ); */
     }
   
 }
