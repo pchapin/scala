@@ -215,8 +215,6 @@ object Main {
                        booted(): Void,
                        fired(): Void }""")
       val wiredModule = formattingModule +> checkingModule
-     
-      // val wiredModule2 = formattingModule +> checkingModule
     
       /*
       @ModuleType("""{ checksumType <: UInt32 }

@@ -3060,7 +3060,8 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
       // TODO_NMT: check the assumption that args nonEmpty
       def duplErrTree = setError(treeCopy.Apply(tree, fun0, args))
       def duplErrorTree(err: AbsTypeError) = { issue(err); duplErrTree }
-
+      
+     
       def preSelectOverloaded(fun: Tree): Tree = {
         if (fun.hasSymbolField && fun.symbol.isOverloaded) {
           // remove alternatives with wrong number of parameters without looking at types.
@@ -3151,16 +3152,17 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
               newNesTModuleType = try {
                 fun match {
                   case Select(qual, name) =>
+                    
                     def debugMessage(methodName: String) =
                       println(s"$methodName, qual.tpe=${qual.tpe.toString}, nesT=${qual.tpe.nesTModuleType}, argument-types=${formals.toString}\n")
               
                     name.toString match {
                       case "$plus$greater" =>
-                        if (!isMininessComponent(qual.tpe))
-                          None
-                        else {
+                        //if (!isMininessComponent(qual.tpe))
+                        //  None
+                        // else {
                           // debugMessage("+>")
-                          
+          
                           val leftType = qual.tpe.nesTModuleType match {
                             case Some(mType) => mType
                             case _ => throw new Exception("Module Type Required for Wire")
@@ -3181,7 +3183,7 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
                           }
                           val wireReturn = edu.uvm.scalaness.TypeRules.typeWire(leftType,rightType)
                           Some(wireReturn)
-                        }
+                        //}
 
                       case "instantiate" =>
                         if (!isMininessComponent(qual.tpe))
