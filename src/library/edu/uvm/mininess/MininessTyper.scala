@@ -715,17 +715,26 @@ class MininessTyper(
 
       case ASTNode(MininessLexer.CONSTANT, ident, _, _, _) => {
         val constantValue = convertInteger(ident)
-        if (debugFlag) println(ident)
+        val (hasU, hasL) = (hasUSuffix(ident), hasLSuffix(ident))
+        if (debugFlag) println(s"$ident, hasU = $hasU, hasL = $hasL")
+        
         if (constantValue < 256)
-          Some(Int8)
-        else {
-          if (constantValue < 65536)
-            Some(Int16)
-          else {
-            Some(Int32)
+          (hasU, hasL) match {
+            case (false, false) => Some(Int8)
+            case (false, true ) => Some(Int32)
+            case (true,  false) => Some(UInt8)
+            case (true,  true ) => Some(UInt32)
           }
-        }
-      } // Returns correct subtype depending on size of constant.
+        else if (constantValue < 65536)
+          (hasU, hasL) match {
+            case (false, false) => Some(Int16)
+            case (false, true ) => Some(Int32)
+            case (true,  false) => Some(UInt16)
+            case (true,  true ) => Some(UInt32)
+          }
+        else
+          if (hasU) Some(UInt32) else Some(Int32)
+      } // Returns correct subtype depending on size of constant. Handles suffixes semi-ok.
 
       case ASTNode(MininessLexer.DEREFERENCE, _, children, _, _ ) => {
         val childType = checkMininessExpression(children(0), depth + 1)
@@ -1073,22 +1082,67 @@ class MininessTyper(
   } // Needs to be tested with DOT, ARRAY, and DEREFERENCE cases, possible adjustments if the case can not be reached.
 
 
-
   /**
-   * Converts a string representation of an integer into an actual integer value. This method knows how to handle
-   * leading "0x" prefixes for hex numbers and leading "0" prefixes for octal numbers.
+   * Removes the suffixes, if any, of a given integer literal. Returns the modified string.
+   * 
+   * @param ident The string representation of an integer literal.
+   * @return The same string with any suffixes removed.
+   */
+  private def stripSuffixes(ident: String): String = {
+    // TODO: Only LU characters at the end of the string should be removed.
+    // Note that the lexer should only allow integer literals that are "reasonably" formatted.
+    val builder = new StringBuilder
+    for (ch <- ident) {
+      if (ch != 'l' && ch != 'L' && ch != 'u' && ch != 'U') builder += ch
+    }
+    builder.toString
+  }
+  
+  
+  /**
+   * Check to see if the given integer literal has an unsigned suffix.
+   * 
+   * @param ident the string representation of an integer literal.
+   * @return true if the literal has a suffix indicated unsigned. 
+   */
+  private def hasUSuffix(ident: String): Boolean = {
+    // TODO: Only U characters at the end of the string should be detected.
+    // Note that the lexer should only allow integer literals that are "reasonably" formatted.
+    ident.exists(ch => ch == 'u' || ch == 'U')
+  }
+  
+  
+  /**
+   * Check to see if the given integer literal has a long suffix.
+   * 
+   * @param ident the string representation of an integer literal.
+   * @return true if the literal has a suffix indicated long. 
+   */
+  private def hasLSuffix(ident: String): Boolean = {
+    // TODO: Only L characters at the end of the string should be detected.
+    // Note that the lexer should only allow integer literals that are "reasonably" formatted.
+    ident.exists(ch => ch == 'l' || ch == 'L')
+  }
+
+  
+  /**
+   * Converts a string representation of an integer into an actual integer value. This method
+   * knows how to handle leading "0x" prefixes for hex numbers and leading "0" prefixes for
+   * octal numbers.
    *
-   * @param ident The string representation of the integer to convert.
+   * @param ident The string representation of an integer literal to convert.
    * @return The converted value.
    */
   private def convertInteger(ident: String): Int = {
-    if ( ident.length > 2 &&
-        (ident.charAt(0) == '0' && !(ident.charAt(1) == 'x' || ident.charAt(1) == 'X')))
-      Integer.parseInt(ident.substring(1), 8)
-    else if (ident.length > 2 && (ident.substring(0, 2) == "0x" || ident.substring(0,2) == "0X"))
-      Integer.parseInt(ident.substring(2), 16)
+    // TODO: This method doesn't handle long (64 bit) values properly.
+    val id = stripSuffixes(ident)
+    if (id.length > 1 &&
+        (id.charAt(0) == '0' && !(id.charAt(1) == 'x' || id.charAt(1) == 'X')))
+      Integer.parseInt(id.substring(1), 8)
+    else if (id.length > 2 && (id.substring(0, 2) == "0x" || id.substring(0, 2) == "0X"))
+      Integer.parseInt(id.substring(2), 16)
     else
-      ident.toInt
+      id.toInt
   }
 
   private def buildIEList(nameList: Set[String], node: ASTNode): List[(String, Representation)] = {
