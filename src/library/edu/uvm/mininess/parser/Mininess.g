@@ -201,11 +201,11 @@ tokens {
     }
 }
 
-// @parser::rulecatch {
-//     catch (RecognitionException e) {
-//         throw e;
-//     }
-// }
+@parser::rulecatch {
+    catch (RecognitionException e) {
+        throw e;
+    }
+}
 
 @lexer::members {
     // This is mostly just a placeholder.
