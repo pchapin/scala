@@ -34,7 +34,7 @@ IntelliJ's bin folder (where IntelliJ is installed):
 It should be added immediately above the <root> element (toward the bottom of the file).
 
 Next, restart IntelliJ. This causes the Scala compiler output parser to log all sorts of
-debugging information into IntelliJ's log file (located in ~/.IdeaIC11/system/log/idea.log). The
+debugging information into IntelliJ's log file (located in ~/.IdeaIC12/system/log/idea.log). The
 output is rather verbose so you'll probably want to search it for strings of interest. Note that
 IntelliJ rotates log files when the active log reaches about 1 MiB in size and that doesn't take
 long with this debugging feature turned on. Be sure to comment out the lines in log.xml when you

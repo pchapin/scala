@@ -4,7 +4,7 @@
 // AUTHOR  : (C) Copyright 2011 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
-package edu.uvm.sprocket
+package edu.uvm.spartanrpc
 
 import org.junit._
 import Assert._

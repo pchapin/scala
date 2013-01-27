@@ -1,0 +1,165 @@
+<project name="SpartanRPC" default="distribution" basedir=".">
+    <description>Ant build control file for SpartanRPC</description>
+
+  <!-- Set global properties for all builds. -->
+  <property environment="env"/>
+  <!-- <property name="scala.home"  location="${env.SCALA_HOME}"/> -->
+  <property name="scala.home"  location="/home/peter/Projects/Scala/build/pack"/>
+  <property name="library.dir" location="lib"/>
+
+  <!-- Set properties for the build. -->
+  <property name="main.sources.dir" location="src"/>
+  <property name="test.sources.dir" location="test"/>
+  <property name="configuration"    location="Scalaness.cfg"/>
+  <property name="classes.dir"      location="classes"/>
+  <property name="main.classes.dir" location="${classes.dir}/main"/>
+  <property name="test.classes.dir" location="${classes.dir}/test"/>
+  <property name="distribution.dir" location="bin"/>
+  <property name="scaladoc.dir"     location="doc/scaladoc"/>
+
+  <target name="init">
+    <!-- Get the Scala related tasks. -->
+    <property name="scala-library.jar" location="${scala.home}/lib/scala-library.jar"/>
+    <property name="scala-compiler.jar" location="${scala.home}/lib/scala-compiler.jar"/>
+    <property name="scala-reflect.jar" location="${scala.home}/lib/scala-reflect.jar"/>
+    <property name="scala-actors.jar" location="${scala.home}/lib/scala-actors.jar"/>
+    <taskdef resource="scala/tools/ant/antlib.xml">
+      <classpath>
+        <pathelement location="${scala-compiler.jar}"/>
+        <pathelement location="${scala-reflect.jar}"/>
+        <pathelement location="${scala-library.jar}"/>
+      </classpath>
+    </taskdef>
+
+    <!-- Classpath used during compilation. -->
+    <path id="build.classpath">
+      <pathelement location="${scala-compiler.jar}"/>
+      <pathelement location="${scala-reflect.jar}"/>
+      <pathelement location="${scala-library.jar}"/>
+      <pathelement location="${scala-actors.jar}"/>
+      <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
+      <pathelement location="${main.classes.dir}"/>
+    </path>
+
+    <!-- Classpath used during tests compilation. -->
+    <!-- Is there is a nice way to get this to refer to the compilation classpath above? -->
+    <path id="build.test.classpath">
+      <pathelement location="${scala-compiler.jar}"/>
+      <pathelement location="${scala-reflect.jar}"/>
+      <pathelement location="${scala-library.jar}"/>
+      <pathelement location="${scala-actors.jar}"/>
+      <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
+      <pathelement location="${main.classes.dir}"/>
+
+      <pathelement location="${library.dir}/junit-4.8.2.jar"/>
+      <pathelement location="${library.dir}/scalatest-2.0.jar"/>
+      <pathelement location="${test.classes.dir}"/>
+    </path>
+
+    <!-- Classpath used during scaladoc build. -->
+    <path id="scaladoc.classpath">
+      <pathelement location="${scala-compiler.jar}"/>
+      <pathelement location="${scala-reflect.jar}"/>
+      <pathelement location="${scala-library.jar}"/>
+      <pathelement location="${scala-actors.jar}"/>
+      <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
+      <pathelement location="${main.classes.dir}"/>
+    </path>
+
+    <!-- Classpath used during execution. -->
+    <path id="run.classpath">
+      <pathelement location="${scala-reflect.jar}"/>
+      <pathelement location="${scala-library.jar}"/>
+      <pathelement location="${scala-actors.jar}"/>
+      <pathelement location="${library.dir}/antlr-3.4.jar"/>
+      <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
+      <pathelement location="${main.classes.dir}"/>
+    </path>
+
+    <!-- Create the time stamp -->
+    <tstamp/>
+  </target>
+
+
+  <!-- ========== -->
+  <!-- SPARTANRPC -->
+  <!-- ========== -->
+
+  <target name="compile" depends="init" description="Compile the SpartanRPC sample" >
+    <mkdir dir="${main.classes.dir}"/>
+
+    <!-- Compile the Scala code from ${main.sources.dir} into ${main.classes.dir} -->
+    <scalac deprecation="on"
+            addparams="-feature -g:vars -cp ${library.dir}/antlr-3.4.jar"
+            srcdir="${main.sources.dir}"
+            destdir="${main.classes.dir}"
+            classpathref="build.classpath">
+      <include name="**/*.scala"/>
+    </scalac>
+
+    <!-- Don't forget to copy the other supporting files needed by the plugin. -->
+    <copy file="${main.sources.dir}/Makefile"
+          tofile="${main.classes.dir}/Makefile"/>
+  </target>
+
+
+  <target name="test.compile" depends="compile" description="Compile the test program" >
+    <mkdir dir="${test.classes.dir}"/>
+
+    <!-- Compile the Scala code from ${test.sources.dir} into ${test.classes.dir} -->
+    <scalac deprecation="on"
+            addparams="-feature -g:vars -cp ${library.dir}/antlr-3.4.jar"
+            srcdir="${test.sources.dir}"
+            destdir="${test.classes.dir}"
+            classpathref="build.test.classpath">
+      <include name="**/*.scala"/>
+    </scalac>
+  </target>
+
+
+  <!-- There is a JUnit task. Should I be using it? This seems to do the job. -->
+  <target name="test" depends="test.compile" description="SpartanRPC Unit Tests">
+    <java classname="org.junit.runner.JUnitCore" fork="true">
+      <arg value="edu.uvm.spartanrpc.MainTest"/>
+      <classpath refid="build.test.classpath"/>
+    </java>
+  </target>
+
+
+  <target name="distribution" depends="compile" description="Generate the distribution" >
+    <mkdir dir="${distribution.dir}"/>
+    <jar jarfile="${distribution.dir}/SpartanRPC.jar"
+         basedir="${main.classes.dir}"/>
+  </target>
+
+
+  <!-- I don't want to try extracting documentation from invalid Scala files. -->
+  <target name="scaladoc" depends="compile" description="Generate the Scaladoc" >
+    <mkdir dir="${scaladoc.dir}"/>
+    <scaladoc addparams="-feature -cp ${library.dir}/antlr-3.4.jar"
+              srcdir="${main.sources.dir}"
+              destdir="${scaladoc.dir}"
+              deprecation="yes"
+              unchecked="yes"
+              doctitle="SpartanRPC Internal Documentation"
+              classpathref="scaladoc.classpath">
+      <include name="**/*.scala"/>
+    </scaladoc>
+  </target>
+
+  <!-- ======== -->
+  <!-- CLEAN UP -->
+  <!-- ======== -->
+
+  <target name="clean" description="Clean up">
+    <delete dir="${classes.dir}"/>
+    <delete dir="${scaladoc.dir}"/>
+    <delete dir="${distribution.dir}"/>
+  </target>
+
+  <!-- Add things to this if more components are added above. -->
+  <target name="all.clean"
+          depends="clean"
+          description="Clean up all project components"/>
+
+</project>

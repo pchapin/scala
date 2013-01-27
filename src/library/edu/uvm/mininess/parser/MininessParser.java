@@ -1,4 +1,4 @@
-// $ANTLR 3.4 Mininess.g 2012-10-10 18:56:43
+// $ANTLR 3.4 Mininess.g 2013-01-27 14:53:56
 
     package edu.uvm.mininess.parser;
     import java.util.LinkedList;
@@ -203,44 +203,44 @@ public TreeAdaptor getTreeAdaptor() {
         }
 
         // Provide more detailed error messages for debugging. This is from Definitive ANTLR. This
-        // is useful for grammer debugging but should be changed for "production" use.
+        // is useful for grammar debugging but should be changed for "production" use.
         //
-        public String getErrorMessage(RecognitionException e, String[] tokenNames)
-        {
-            List stack = getRuleInvocationStack(e, this.getClass().getName());
-            String msg = null;
-            if ( e instanceof NoViableAltException ) {
-                NoViableAltException nvae = (NoViableAltException)e;
-                msg = " no viable alt; token=" + e.token +
-                      " (decision=" + nvae.decisionNumber +
-                      " state " + nvae.stateNumber + ")" +
-                      " decision=<<" + nvae.grammarDecisionDescription + ">>";
-            }
-            else {
-                msg = super.getErrorMessage(e, tokenNames);
-            }
-            return stack + " " + msg;
-        }
+        // public String getErrorMessage(RecognitionException e, String[] tokenNames)
+        // {
+        //     List stack = getRuleInvocationStack(e, this.getClass().getName());
+        //     String msg = null;
+        //     if ( e instanceof NoViableAltException ) {
+        //         NoViableAltException nvae = (NoViableAltException)e;
+        //         msg = " no viable alt; token=" + e.token +
+        //               " (decision=" + nvae.decisionNumber +
+        //               " state " + nvae.stateNumber + ")" +
+        //               " decision=<<" + nvae.grammarDecisionDescription + ">>";
+        //     }
+        //     else {
+        //         msg = super.getErrorMessage(e, tokenNames);
+        //     }
+        //     return stack + " " + msg;
+        // }
+        //
+        // public String getTokenErrorDisplay(Token t)
+        // {
+        //     return t.toString();
+        // }
 
-        public String getTokenErrorDisplay(Token t)
+        // The following two magic methods, together with the @rulecatch section below cause the
+        // parser to exit immediately with an exception when an error is encountered.
+        //
+        protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow)
+            throws RecognitionException
         {
-            return t.toString();
+            throw new MismatchedTokenException(ttype, input);
         }
-
-    //     // The following two magic methods, together with the @rulecatch section below cause the
-    //     // parser to exit immediately with an exception when an error is encountered.
-    //     //
-    //     protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow)
-    //         throws RecognitionException
-    //     {
-    //         throw new MismatchedTokenException(ttype, input);
-    //     }
-    //    
-    //     public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow)
-    //         throws RecognitionException
-    //     {
-    //         throw e;
-    //     }
+       
+        public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow)
+            throws RecognitionException
+        {
+            throw e;
+        }
 
 
     public static class primary_expression_return extends ParserRuleReturnScope {
@@ -547,7 +547,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
             // AST REWRITE
-            // elements: primary_expression, postfix_expression_modifier, call_kind
+            // elements: primary_expression, call_kind, postfix_expression_modifier
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -4981,7 +4981,7 @@ public TreeAdaptor getTreeAdaptor() {
                                  }
 
                     // AST REWRITE
-                    // elements: init_declarator_list, declaration_specifiers
+                    // elements: declaration_specifiers, init_declarator_list
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -5118,7 +5118,7 @@ public TreeAdaptor getTreeAdaptor() {
                                  }
 
                     // AST REWRITE
-                    // elements: TYPEDEF, declaration_specifiers, init_declarator_list
+                    // elements: declaration_specifiers, TYPEDEF, init_declarator_list
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -5582,7 +5582,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
             // AST REWRITE
-            // elements: declarator, initializer
+            // elements: initializer, declarator
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -6718,7 +6718,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
             // AST REWRITE
-            // elements: struct_declarator_list, specifier_qualifier_list
+            // elements: specifier_qualifier_list, struct_declarator_list
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -7419,7 +7419,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
                     // AST REWRITE
-                    // elements: identifier, enumerator_list, ENUM
+                    // elements: enumerator_list, ENUM, identifier
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -7511,7 +7511,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
                     // AST REWRITE
-                    // elements: enumerator_list, identifier, ENUM
+                    // elements: identifier, enumerator_list, ENUM
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -7562,7 +7562,7 @@ public TreeAdaptor getTreeAdaptor() {
                     if ( state.backtracking==0 ) stream_identifier.add(identifier191.getTree());
 
                     // AST REWRITE
-                    // elements: ENUM, identifier
+                    // elements: identifier, ENUM
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -7799,7 +7799,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
             // AST REWRITE
-            // elements: constant_expression, identifier
+            // elements: identifier, constant_expression
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -9846,7 +9846,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
                     // AST REWRITE
-                    // elements: abstract_declarator, declaration_specifiers
+                    // elements: declaration_specifiers, abstract_declarator
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -11211,7 +11211,7 @@ public TreeAdaptor getTreeAdaptor() {
                     if ( state.backtracking==0 ) stream_statement.add(statement269.getTree());
 
                     // AST REWRITE
-                    // elements: statement, CASE, constant_expression
+                    // elements: constant_expression, CASE, statement
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -11266,7 +11266,7 @@ public TreeAdaptor getTreeAdaptor() {
                     if ( state.backtracking==0 ) stream_statement.add(statement272.getTree());
 
                     // AST REWRITE
-                    // elements: statement, DEFAULT
+                    // elements: DEFAULT, statement
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -11917,7 +11917,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
                     // AST REWRITE
-                    // elements: IF, expression, statement, statement
+                    // elements: statement, statement, expression, IF
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -11990,7 +11990,7 @@ public TreeAdaptor getTreeAdaptor() {
                     if ( state.backtracking==0 ) stream_statement.add(statement291.getTree());
 
                     // AST REWRITE
-                    // elements: expression, SWITCH, statement
+                    // elements: expression, statement, SWITCH
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -12158,7 +12158,7 @@ public TreeAdaptor getTreeAdaptor() {
                     if ( state.backtracking==0 ) stream_statement.add(statement296.getTree());
 
                     // AST REWRITE
-                    // elements: expression, statement, WHILE
+                    // elements: statement, WHILE, expression
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -12297,7 +12297,7 @@ public TreeAdaptor getTreeAdaptor() {
                     if ( state.backtracking==0 ) stream_statement.add(statement302.getTree());
 
                     // AST REWRITE
-                    // elements: iter, init, statement, cond, FOR
+                    // elements: iter, FOR, statement, cond, init
                     // token labels: 
                     // rule labels: retval, init, iter, cond
                     // token list labels: 
@@ -12907,7 +12907,7 @@ public TreeAdaptor getTreeAdaptor() {
             if ( state.backtracking==0 ) stream_compound_statement.add(compound_statement315.getTree());
 
             // AST REWRITE
-            // elements: declaration_specifiers, declarator, compound_statement
+            // elements: declarator, declaration_specifiers, compound_statement
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -13553,7 +13553,7 @@ public TreeAdaptor getTreeAdaptor() {
                     if ( state.backtracking==0 ) stream_interface_definition.add(interface_definition317.getTree());
 
                     // AST REWRITE
-                    // elements: interface_definition, translation_unit
+                    // elements: translation_unit, interface_definition
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -13629,7 +13629,7 @@ public TreeAdaptor getTreeAdaptor() {
                     if ( state.backtracking==0 ) stream_component.add(component319.getTree());
 
                     // AST REWRITE
-                    // elements: component, translation_unit
+                    // elements: translation_unit, component
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -13809,7 +13809,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
             // AST REWRITE
-            // elements: identifier, INTERFACE, declaration
+            // elements: declaration, INTERFACE, identifier
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -13937,7 +13937,7 @@ public TreeAdaptor getTreeAdaptor() {
             if ( state.backtracking==0 ) stream_implementation.add(implementation329.getTree());
 
             // AST REWRITE
-            // elements: identifier, MODULE, implementation, component_specification
+            // elements: implementation, MODULE, identifier, component_specification
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -14124,7 +14124,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
             // AST REWRITE
-            // elements: translation_unit, IMPLEMENTATION
+            // elements: IMPLEMENTATION, translation_unit
             // token labels: 
             // rule labels: retval
             // token list labels: 
