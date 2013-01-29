@@ -6,7 +6,8 @@
 //-----------------------------------------------------------------------
 package edu.uvm.scalaness
 
-import java.io.{BufferedReader, File, FileReader};
+import java.io.{BufferedReader, File, FileReader}
+import java.util.ArrayList
 import scala.tools.nsc._
 import scala.tools.nsc.typechecker.Analyzer
 import io.VirtualFile
@@ -222,6 +223,61 @@ trait ScalanessTyper {
     }
     (typeParameterDeclarations, valueParameterDeclarations)
   }
+  
+  
+  /**
+   * Preprocess the indicated file to the indicated result.
+   * 
+   * @param fullName The full name (possibly with path) of the file to preprocess.
+   * @param preprocessedFullName The full name (possibly with path) of the result of preprocessing.
+   */
+  def runPreprocessor(fullName: String, preprocessedFullName: String) = {
+    // TODO: Various aspects of preprocessing should be configurable.
+    
+    // These are hard coded macros that are only interesting to TinyECC.
+    // Clearly these need to come from a configuration file to make the compiler more general.
+    val predefinedMacros = List(
+        "PLATFORM_TELOSB",
+        "SECP160K1"
+        // "BARRETT_REDUCTION",  // Barrett reduction.
+        // "HYBRID_MULT",        // Hybrid multiplication.
+        // "HYBRID_SQR",         // Hybrid square.
+        // "CURVE_OPT",          // Optimization for secg curve.
+        // "PROJECTIVE",         // Projective coordinates.
+        // "SLIDING_WIN",        // Sliding window method.
+        // "SHAMIR_TRICK"        // Shamir trick.
+        )
+    
+    // Prepare the preprocessor command line.
+    val commandLine = new ArrayList[String]()
+    val preprocessorName = "cpp"
+    commandLine.add(preprocessorName)
+    
+    // TODO: Eventually the include paths should be configurable and might need this processing.
+    // settings("IncludePaths") match {
+    //   case Some(includePathsString) =>
+    //     val includePaths = includePathsString.split(":")
+    //     for (path <- includePaths) {
+    //       commandLine.add("-I" + path)
+    //     }
+    //   case None =>  // Do nothing.
+    // }
+    commandLine.add("-I/opt/tinyos-2.1.2/apps/TinyECC-2.0")
+    for (predefinedMacro <- predefinedMacros) {
+      commandLine.add("-D" + predefinedMacro)
+    }
+    commandLine.add(fullName)
+    commandLine.add(preprocessedFullName)
+    val cppCommand = new ProcessBuilder(commandLine)
+
+    // Run the preprocessor and display its standard error to the console.
+    val cpp = cppCommand.start()
+    val errorStream = cpp.getErrorStream
+    var rawByte = 0
+    while ({ rawByte = errorStream.read(); rawByte != -1}) System.out.print(rawByte.toChar)
+    val exitStatus = cpp.waitFor()
+    if (exitStatus != 0) throw new Exception(s"Preprocessing $fullName failed")
+  }
 
   
   /**
@@ -247,10 +303,16 @@ trait ScalanessTyper {
             val (typeParameters, valueParameters) = extractTypeAndValueParameters(body)
 
             try {
-              // TODO: Store the abstract syntax of Mininess inclusions in some suitable place.
               println("")
-              println("**** Parsing Mininess inclusion: " + fullName)
-              val abstractSyntax = parseMininessInclusion(fullName, typeParameters.keys)
+              println("**** Preprocessing Mininess inclusion: " + fullName)
+              // TODO: Handle the (error) case where the full name does not contain any dots.
+              val dotPosition = fullName.lastIndexOf('.')
+              val preprocessedFullName = fullName.substring(0, dotPosition) + ".i"
+              runPreprocessor(fullName, preprocessedFullName)
+             
+              // TODO: Store the abstract syntax of Mininess inclusions in some suitable place.
+              println("**** Parsing Mininess inclusion: " + preprocessedFullName)
+              val abstractSyntax = parseMininessInclusion(preprocessedFullName, typeParameters.keys)
 
               // Output the Mininess abstract syntax tree for debugging purposes.
               val Some(astOutputSetting) = scalanessSettings("ASTOutput")
@@ -260,6 +322,7 @@ trait ScalanessTyper {
               }
 
               // Unwrap full interface definitions.
+              // TODO: The interface files should be preprocessed as well.
               println("**** Interface Unwrapping")
               val Some(interfaceFolder) = scalanessSettings("interfacePath")
               val interfaceWorker = new edu.uvm.mininess.InterfaceUnwrapper(List(interfaceFolder))
@@ -294,7 +357,7 @@ trait ScalanessTyper {
                 )
               val mininessInclusionType = typeChecker.checkMininessInclusion(unwrappedAbstractSyntax) match {
                 case Some(miniType) => miniType
-                case _ => throw new Exception("Unable to properly type Mininess Inclusion")
+                case _ => throw new Exception("Unable to properly type Mininess inclusion")
               }
               return mininessInclusionType
               println()
