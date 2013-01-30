@@ -185,6 +185,8 @@ object Main {
       val desiredChecksumType = getChecksumType(args)
       val desiredSize = getSize(args)
       
+      val jeffery = LibraryC
+      
       @ModuleType("""{}
                  < checksumType <: UInt32; size: UInt16 >
                  { startPeriodic(period: UInt32): Void,
@@ -206,41 +208,15 @@ object Main {
                  { ; compute_checksum(data: Array[UInt8]): checksumType }""")
       val checkingModule = getChecksummer(desiredSize, desiredChecksumType)
       
-      formattingModule.image()
-      checkingModule.image()
-      
       @ModuleType("""{ checksumType <: UInt32 }
                      <;>
-                     { startPeriodic(period: UInt32): Void;
-                       booted(): Void,
-                       fired(): Void }""")
-      val wiredModule = formattingModule +> checkingModule
+                     { booted(): Void,
+                       fired(): Void;
+                       startPeriodic(period: UInt32): Void }""")
+      val resultModule = LibraryC +> formattingModule +> checkingModule +> LibraryC
       
-      val wired2 = LibraryC +> formattingModule +> checkingModule +> LibraryC
-      
-      wiredModule.image()
-     
-      /*
-      @ModuleType("""{ checksumType <: UInt32 }
-                     <;>
-                     { compute_checksum(data: Array[UInt8]): checksumType,
-                       startPeriodic(period: UInt32): Void;
-                       booted(): Void,
-                       fired(): Void }""")
-      val formattingModule =
-        (new MessageFormatterC).instantiate(desiredSize, desiredChecksumType)
+      // resultModule.image()
 
-      @ModuleType("""{ checksumType <: UInt32 }
-                     <;>
-                     { ; }""")
-      val resultModule =
-        LibraryC +>
-          formattingModule +>
-            getChecksummer(desiredSize, desiredChecksumType) +>
-              LibraryC 
-
-      resultModule.image()
-      */
     }
   }
     

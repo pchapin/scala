@@ -136,8 +136,8 @@ object TypeRules {
   
   def typeImage(mod: (Map[TypeVariable, Representation], Module)): (Map[TypeVariable, Representation], Module) = {
     mod match {
-      case (typeMap, Module(List(), List(), imports, exports)) => {
-        (typeMap, Module(List(), List(), imports, exports))
+      case (typeMap, Module(List(), List(), List(), exports)) => {
+        (typeMap, Module(List(), List(), List(), exports))
       }
       case _ => throw new Exception("image expects runnable module type")
     }

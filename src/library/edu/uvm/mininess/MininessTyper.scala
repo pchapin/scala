@@ -261,6 +261,12 @@ class MininessTyper(
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
       } // If children type check, then OKAY
+      
+      case ASTNode(MininessLexer.LINE_DIRECTIVE, _, children, _, _) => {
+        for (child <- children)
+          checkMininessInclusion(child, depth + 1)
+        Some(Okay)
+      } // If children type check, then OKAY
 
       case ASTNode(MininessLexer.MODULE, _, children, _, symList) => {
 
@@ -341,6 +347,12 @@ class MininessTyper(
           checkMininessExpression(child, depth + 1)
         Some(Okay)
       } // If children type check, then OKAY
+      
+      case ASTNode(MininessLexer.STRING_LITERAL, _, children, _, _) => {
+        for (child <- children)
+          checkMininessInclusion(child, depth + 1)
+        Some(Okay)
+      } // If children type check, then OKAY
 
       case ASTNode(MininessLexer.STRUCT, _, children, _, _) => {
         for (child <- children)
@@ -418,6 +430,7 @@ class MininessTyper(
 
       case _ => {
         println("UNMATCHED Statement/Declaration AST node: " + node.tokenType)
+        println(node.text)
         for (child <- node.children)
           checkMininessInclusion(child, depth + 1)
         None
