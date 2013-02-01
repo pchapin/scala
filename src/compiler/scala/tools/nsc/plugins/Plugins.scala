@@ -112,8 +112,13 @@ trait Plugins {
    * Extract all phases supplied by plugins and add them to the phasesSet.
    * @see phasesSet
    */
-  protected def computePluginPhases(): Unit =
+  protected def computePluginPhases(): Unit = {
     for (p <- plugins; c <- p.components) addToPhasesSet(c, c.description)
+    
+    // This is terribly hacked. I'm basically hard coding a plugin component.
+    // val postParser = new edu.uvm.scalaness.ScalanessPostParser(this)
+    // addToPhasesSet(postParser, postParser.description)
+  }
 
   /** Summary of the options for all loaded plugins */
   def pluginOptionsHelp: String =
