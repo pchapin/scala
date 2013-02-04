@@ -59,7 +59,9 @@ class ProgramComponent(
     // would require passing type parameter bound information to the run time system which
     // currently isn't done.
     //
+    
     typeParameters ++ otherTypeParameters
+
   }
 
 
@@ -77,13 +79,15 @@ class ProgramComponent(
     // nice to verify them anyway as a kind of sanity check. On the other hand that would
     // require passing type information to the run time system which currently isn't done.
     //
+    
     valueParameters ++ otherValueParameters
+    
   }
 
 
   // Map merge.
   private def mergeImports(otherImports  : ImportsType,
-                           overallExports: ExportsType) = {  
+                           otherExports  : ExportsType) = {  
     // TODO: Check to be sure types are identical for common domain elements.
     
     def rawMerge(otherImports: ImportsType) = {
@@ -99,7 +103,8 @@ class ProgramComponent(
       combinedImports
     }
 
-    rawMerge(otherImports) -- overallExports.keySet
+    rawMerge(otherImports) -- otherExports.keySet
+    
   }
 
 
@@ -140,8 +145,8 @@ class ProgramComponent(
   def wireTo(other: ProgramComponent) = {
     val newTypeParameters  = mergeTypeParameters(other.typeParameters)
     val newValueParameters = mergeValueParameters(other.valueParameters)
-    val newExports         = mergeExports(other.exports)
-    val newImports         = mergeImports(other.imports, newExports)
+    val newExports         = exports
+    val newImports         = mergeImports(other.imports, other.exports)
     val newConfiguration   =
       configuration.merge(other.configuration, imports, other.imports, newExports)
     val newTargetFolder    = mergeTargetFolders(other.targetFolder)
@@ -194,7 +199,6 @@ class ProgramComponent(
       outputFile.close()
     }
   }
-
 
   /**
    * Images the configuration. At compile time, special type checking is done. At run time

@@ -185,7 +185,7 @@ object Main {
       val desiredChecksumType = getChecksumType(args)
       val desiredSize = getSize(args)
       
-      val jeffery = LibraryC
+      // val test = LibraryC
       
       @ModuleType("""{}
                  < checksumType <: UInt32; size: UInt16 >
@@ -209,12 +209,21 @@ object Main {
       val checkingModule = getChecksummer(desiredSize, desiredChecksumType)
       
       @ModuleType("""{ checksumType <: UInt32 }
+                 <;>
+                 { startPeriodic(period: UInt32): Void; 
+                   booted(): Void,
+                   fired(): Void  }""")
+      val wireModule = formattingModule +> checkingModule
+      
+      
+      /*
+      @ModuleType("""{ checksumType <: UInt32 }
                      <;>
                      { booted(): Void,
                        fired(): Void;
                        startPeriodic(period: UInt32): Void }""")
       val resultModule = LibraryC +> formattingModule +> checkingModule +> LibraryC
-      
+      */
       // resultModule.image()
 
     }
