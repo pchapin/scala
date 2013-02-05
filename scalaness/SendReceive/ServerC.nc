@@ -1,29 +1,8 @@
-# 1 "ServerC.nc"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "ServerC.nc"
+// FILE   : ServerC.nc
+// SUMMARY: Server component.
+//
 
-
-
-
-# 1 "SendReceive.h" 1
-
-
-
-
-
-
-
-enum {
-  AM_CHANNEL = 6,
-  TIMER_PERIOD_MILLI = 1000
-};
-
-typedef nx_struct BenchmarkMsg {
-  nx_uint16_t nodeid;
-  nx_uint16_t counter;
-} BenchmarkMsg;
-# 6 "ServerC.nc" 2
+#include "SendReceive.h"
 
 module ServerC {
     uses interface Leds;
@@ -35,7 +14,7 @@ implementation {
     {
         if( val & 0x01 )
             call Leds.led0On( );
-        else
+        else 
             call Leds.led0Off( );
         if( val & 0x02 )
             call Leds.led1On( );
@@ -58,3 +37,4 @@ implementation {
     }
 
 }
+

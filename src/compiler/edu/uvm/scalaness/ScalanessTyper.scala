@@ -297,19 +297,19 @@ trait ScalanessTyper {
         case None => ()
         case Some( (shortName, fullName) ) => {
           try {
-            val virtualFile = new VirtualFile(shortName, fullName)
-            val fileText = readMininessInclusion(fullName)   // Might throw java.io.IOException
+            println("")
+            println("**** Preprocessing Mininess inclusion: " + fullName)
+            // TODO: Handle the (error) case where the full name does not contain any dots.
+            val dotPosition = fullName.lastIndexOf('.')
+            val preprocessedFullName = fullName.substring(0, dotPosition) + ".i"
+            runPreprocessor(fullName, preprocessedFullName)
+             
+            val virtualFile = new VirtualFile(shortName, preprocessedFullName)
+            val fileText = readMininessInclusion(preprocessedFullName)   // Might throw java.io.IOException
             val mininessSource = new BatchSourceFile(virtualFile, fileText)
             val (typeParameters, valueParameters) = extractTypeAndValueParameters(body)
 
             try {
-              println("")
-              println("**** Preprocessing Mininess inclusion: " + fullName)
-              // TODO: Handle the (error) case where the full name does not contain any dots.
-              val dotPosition = fullName.lastIndexOf('.')
-              val preprocessedFullName = fullName.substring(0, dotPosition) + ".i"
-              runPreprocessor(fullName, preprocessedFullName)
-             
               // TODO: Store the abstract syntax of Mininess inclusions in some suitable place.
               println("**** Parsing Mininess inclusion: " + preprocessedFullName)
               val abstractSyntax = parseMininessInclusion(preprocessedFullName, typeParameters.keys)
@@ -365,7 +365,13 @@ trait ScalanessTyper {
             catch {
               // Problems parsing the Mininess inclusion.
               case ex: org.antlr.runtime.RecognitionException =>
-                reporter.error(null, ex.getMessage + ": " + ex.getClass.getName)
+
+                // The Scala compiler's source positioning is zero based. ANTLR uses one based
+                // positions for line numbers and zero based positions for column numbers.
+                // 
+                reporter.error(
+                    mininessSource.position(mininessSource.lineToOffset(ex.line - 1) + ex.charPositionInLine),
+                    ex.getMessage + ": " + ex.getClass.getName)
                 
               // Problems type checking the Mininess inclusion.
               case ex: MininessTyper.PositionalMininessTypeException =>

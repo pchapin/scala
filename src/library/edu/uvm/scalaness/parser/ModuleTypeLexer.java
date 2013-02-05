@@ -1,4 +1,4 @@
-// $ANTLR 3.4 ModuleType.g 2012-10-11 18:48:19
+// $ANTLR 3.4 ModuleType.g 2013-02-05 11:32:23
 
     package edu.uvm.scalaness.parser;
 

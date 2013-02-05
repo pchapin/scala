@@ -60,49 +60,49 @@ tokens {
     // Provide more detailed error messages for debugging. This is from Definitive ANTLR. This
     // is useful for grammer debugging but should be changed for "production" use.
     //
-    public String getErrorMessage(RecognitionException e, String[] tokenNames)
-    {
-        List stack = getRuleInvocationStack(e, this.getClass().getName());
-        String msg = null;
-        if ( e instanceof NoViableAltException ) {
-            NoViableAltException nvae = (NoViableAltException)e;
-            msg = " no viable alt; token=" + e.token +
-                  " (decision=" + nvae.decisionNumber +
-                  " state " + nvae.stateNumber + ")" +
-                  " decision=<<" + nvae.grammarDecisionDescription + ">>";
-        }
-        else {
-            msg = super.getErrorMessage(e, tokenNames);
-        }
-        return stack + " " + msg;
-    }
+    // public String getErrorMessage(RecognitionException e, String[] tokenNames)
+    // {
+    //     List stack = getRuleInvocationStack(e, this.getClass().getName());
+    //     String msg = null;
+    //     if ( e instanceof NoViableAltException ) {
+    //         NoViableAltException nvae = (NoViableAltException)e;
+    //         msg = " no viable alt; token=" + e.token +
+    //               " (decision=" + nvae.decisionNumber +
+    //               " state " + nvae.stateNumber + ")" +
+    //               " decision=<<" + nvae.grammarDecisionDescription + ">>";
+    //     }
+    //     else {
+    //         msg = super.getErrorMessage(e, tokenNames);
+    //     }
+    //     return stack + " " + msg;
+    // }
+    // 
+    // public String getTokenErrorDisplay(Token t)
+    // {
+    //     return t.toString();
+    // }
 
-    public String getTokenErrorDisplay(Token t)
+    // The following two magic methods, together with the @rulecatch section below cause the
+    // parser to exit immediately with an exception when an error is encountered.
+    //
+    protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow)
+        throws RecognitionException
     {
-        return t.toString();
+        throw new MismatchedTokenException(ttype, input);
     }
-
-//     // The following two magic methods, together with the @rulecatch section below cause the
-//     // parser to exit immediately with an exception when an error is encountered.
-//     //
-//     protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow)
-//         throws RecognitionException
-//     {
-//         throw new MismatchedTokenException(ttype, input);
-//     }
-//    
-//     public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow)
-//         throws RecognitionException
-//     {
-//         throw e;
-//     }
+   
+    public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow)
+        throws RecognitionException
+    {
+        throw e;
+    }
 }
 
-// @parser::rulecatch {
-//     catch (RecognitionException e) {
-//         throw e;
-//     }
-// }
+@parser::rulecatch {
+    catch (RecognitionException e) {
+        throw e;
+    }
+}
 
 @lexer::members {
     // This is mostly just a placeholder.

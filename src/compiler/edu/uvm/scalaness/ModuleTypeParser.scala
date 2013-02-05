@@ -1,31 +1,47 @@
 //-----------------------------------------------------------------------
 // FILE    : ModuleTypeParser.scala
 // SUBJECT : Parsing and processing nesT module types in Scalaness code.
-// AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
 package edu.uvm.scalaness
 
 import org.antlr.runtime._
 import org.antlr.runtime.tree.{Tree, CommonTree}
-import scala.reflect.internal.SymbolTable
+import scala.tools.nsc.typechecker.Analyzer
 import edu.uvm.scalaness.parser._
 
 trait ModuleTypeParser {
-  self: SymbolTable =>
+  self: Analyzer =>
+  import global._
   import ModuleTypeParser._
   
   def parseScalanessAnnotation(associations: List[(Name, ClassfileAnnotArg)]) = {
-    // TODO: Deal with parse errors!
     // TODO: Check that we only process the "value" association. Deal with other associations.
     val parsedTypes = for ((name, value) <- associations) yield {
-      val lexer  = new ModuleTypeLexer(new ANTLRStringStream(value.toString))
-      val tokens = new CommonTokenStream(lexer)
-      val parser = new edu.uvm.scalaness.parser.ModuleTypeParser(tokens)
+      try {
+        val lexer  = new ModuleTypeLexer(new ANTLRStringStream(value.toString))
+        val tokens = new CommonTokenStream(lexer)
+        val parser = new edu.uvm.scalaness.parser.ModuleTypeParser(tokens)
 
-      // Annotate the ugly result type for future reference (for now).
-      val result: edu.uvm.scalaness.parser.ModuleTypeParser.module_type_return = parser.module_type()
-      ANTLRToScala(t = result.getTree.asInstanceOf[CommonTree])
+        // Annotate the ugly result type for future reference (for now).
+        val result: edu.uvm.scalaness.parser.ModuleTypeParser.module_type_return = parser.module_type()
+        ANTLRToScala(t = result.getTree.asInstanceOf[CommonTree])
+      }
+      catch {
+        case ex: org.antlr.runtime.RecognitionException =>
+          reporter.error(null, "parse error in ModuleType annotation: " + ex.getClass.getName)
+
+          // If there's a ModuleType annotation parse error, hand back an empty module type.
+          TypeASTNode(
+            ModuleTypeLexer.MODULE_TYPE,
+            "",
+            List(TypeASTNode(ModuleTypeLexer.EXISTENTIAL_LIST, "", List()),
+                 TypeASTNode(ModuleTypeLexer.TYPE_PARAMETER_LIST, "", List()),
+                 TypeASTNode(ModuleTypeLexer.VALUE_PARAMETER_LIST, "", List()),
+                 TypeASTNode(ModuleTypeLexer.IMPORT_LIST, "", List()),
+                 TypeASTNode(ModuleTypeLexer.EXPORT_LIST, "", List())));
+      }
     }
     // TODO: We currently only handle one type (and we assume it is there).
     parsedTypes(0)

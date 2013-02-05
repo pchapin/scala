@@ -15,6 +15,11 @@ object Main {
   /**
    * This Mininess module provides the basic blink service that is accessed via the radio.
    */
+  @ModuleType("""{}
+                 < ; >
+                 { led0On : Void, led1On : Void, led2On : Void,
+                   led0Off: Void, led1Off: Void, led2Off: Void;
+                   receive(Message_T, Void, UInt8): Message_T }""")
   class ServerC extends MininessComponent {
 
     /////////
@@ -48,7 +53,7 @@ object Main {
    */ 
   def main(args: Array[String]) {
     val serverModule = new ServerC
-    serverModule.validate()
+    serverModule.image()
   }
     
 }       
