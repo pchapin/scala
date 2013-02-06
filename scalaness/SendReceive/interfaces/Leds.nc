@@ -46,58 +46,58 @@
  * @author Philip Levis
  */
 
-#include "Leds.h"
+// #include "Leds.h"
 
 interface Leds {
 
   /**
    * Turn on LED 0. The color of this LED depends on the platform.
    */
-  async command void led0On();
+  /* async */ command void led0On();
 
   /**
    * Turn off LED 0. The color of this LED depends on the platform.
    */
-  async command void led0Off();
+  /* async */ command void led0Off();
 
   /**
    * Toggle LED 0; if it was off, turn it on, if was on, turn it off.
    * The color of this LED depends on the platform.
    */
-  async command void led0Toggle();
+  /* async */ command void led0Toggle();
 
   /**
    * Turn on LED 1. The color of this LED depends on the platform.
    */
-  async command void led1On();
+  /* async */ command void led1On();
 
   /**
    * Turn off LED 1. The color of this LED depends on the platform.
    */
-  async command void led1Off();
+  /* async */ command void led1Off();
 
    /**
    * Toggle LED 1; if it was off, turn it on, if was on, turn it off.
    * The color of this LED depends on the platform.
    */
-  async command void led1Toggle();
+  /* async */ command void led1Toggle();
 
  
   /**
    * Turn on LED 2. The color of this LED depends on the platform.
    */
-  async command void led2On();
+  /* async */ command void led2On();
 
   /**
    * Turn off LED 2. The color of this LED depends on the platform.
    */
-  async command void led2Off();
+  /* async */ command void led2Off();
 
    /**
    * Toggle LED 2; if it was off, turn it on, if was on, turn it off.
    * The color of this LED depends on the platform.
    */
-  async command void led2Toggle();
+  /* async */ command void led2Toggle();
 
 
   /**
@@ -114,7 +114,7 @@ interface Leds {
    *
    * @return a bitmask describing which LEDs are on and which are off
    */ 
-  async command uint8_t get();
+  /* async */ command uint8_t get();
 
   
   /**
@@ -131,6 +131,6 @@ interface Leds {
    *
    * @param  val   a bitmask describing the on/off settings of the LEDs
    */
-   async command void set(uint8_t val);
+   /* async */ command void set(uint8_t val);
   
 }

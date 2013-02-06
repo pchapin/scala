@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // FILE    : Main.scala
 // SUBJECT : The main object for the Scalaness SendReceive sample.
-// AUTHOR  : (C) Copyright 2012 by Peter Chapin <PChapin@vtc.vsc.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
 
@@ -16,10 +16,10 @@ object Main {
    * This Mininess module provides the basic blink service that is accessed via the radio.
    */
   @ModuleType("""{}
-                 < ; >
-                 { led0On : Void, led1On : Void, led2On : Void,
-                   led0Off: Void, led1Off: Void, led2Off: Void;
-                   receive(Message_T, Void, UInt8): Message_T }""")
+                 <;>
+                 { led0On() : Void, led1On() : Void, led2On() : Void,
+                   led0Off(): Void, led1Off(): Void, led2Off(): Void;
+                   receive(msg: MessageT, payload: Void, len: UInt8): MessageT }""")
   class ServerC extends MininessComponent {
 
     /////////
