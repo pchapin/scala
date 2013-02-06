@@ -36,6 +36,8 @@ class NamedProgramComponent(
   // class parameters from one type to the other can't be done in the 'extends' clause of the
   // NamedProgramComponent class definition.
 
+  override def toString = name
+
   /**
    * Outputs the NamedProgramComponent to a file. This method serializes the AST of the
    * component back to ordinary nesC source code.

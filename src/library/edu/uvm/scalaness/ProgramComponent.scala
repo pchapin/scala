@@ -145,7 +145,7 @@ class ProgramComponent(
   def wireTo(other: ProgramComponent) = {
     val newTypeParameters  = mergeTypeParameters(other.typeParameters)
     val newValueParameters = mergeValueParameters(other.valueParameters)
-    val newExports         = exports
+    val newExports         = mergeExports(other.exports)
     val newImports         = mergeImports(other.imports, other.exports)
     val newConfiguration   =
       configuration.merge(other.configuration, imports, other.imports, newExports)

@@ -28,6 +28,10 @@ class ProgramConfiguration(
     def getComponentList(imports: ImportsType, commandName: String) =
       if (imports.contains(commandName)) imports(commandName) else List()
 
+    // println( "\nInside ProgramConfiguration.merge...")
+    // println(s"\timports1 = $imports1, imports2 = $imports2, exports = $exports")
+    // println(s"\twireList = $wireList")
+
     var newWires: List[WireType] = List()
     val satisfied = (imports1.keySet ++ imports2.keySet) intersect exports.keySet
     for (commandName <- satisfied) {
@@ -37,6 +41,8 @@ class ProgramConfiguration(
       val additionalWires = usingComponents map { (commandName, _, providingComponent) }
       newWires = newWires ++ additionalWires
     }
+
+    // println(s"\tFINAL wireList = ${wireList ++ other.wireList ++ newWires}")
 
     new ProgramConfiguration(
       componentSet ++ other.componentSet, wireList ++ other.wireList ++ newWires)
