@@ -1,4 +1,4 @@
-// $ANTLR 3.4 ModuleType.g 2013-02-05 11:32:23
+// $ANTLR 3.4 ModuleType.g 2013-02-06 06:52:21
 
     package edu.uvm.scalaness.parser;
 
@@ -31,19 +31,20 @@ public class ModuleTypeLexer extends Lexer {
     public static final int LPARENS=21;
     public static final int MODULE_TYPE=22;
     public static final int PARAMETER_LIST=23;
-    public static final int RANGLE=24;
-    public static final int RBRACE=25;
-    public static final int RBRACKET=26;
-    public static final int RPARENS=27;
-    public static final int SEMI=28;
-    public static final int SUBTYPE=29;
-    public static final int TYPE_PARAMETER_LIST=30;
-    public static final int UINT16=31;
-    public static final int UINT32=32;
-    public static final int UINT8=33;
-    public static final int VALUE_PARAMETER_LIST=34;
-    public static final int VOID=35;
-    public static final int WHITESPACE=36;
+    public static final int POINTER_TO=24;
+    public static final int RANGLE=25;
+    public static final int RBRACE=26;
+    public static final int RBRACKET=27;
+    public static final int RPARENS=28;
+    public static final int SEMI=29;
+    public static final int SUBTYPE=30;
+    public static final int TYPE_PARAMETER_LIST=31;
+    public static final int UINT16=32;
+    public static final int UINT32=33;
+    public static final int UINT8=34;
+    public static final int VALUE_PARAMETER_LIST=35;
+    public static final int VOID=36;
+    public static final int WHITESPACE=37;
 
         // This is mostly just a placeholder.
         private final int VERSION = 1;
@@ -305,13 +306,36 @@ public class ModuleTypeLexer extends Lexer {
     }
     // $ANTLR end "LPARENS"
 
+    // $ANTLR start "POINTER_TO"
+    public final void mPOINTER_TO() throws RecognitionException {
+        try {
+            int _type = POINTER_TO;
+            int _channel = DEFAULT_TOKEN_CHANNEL;
+            // ModuleType.g:21:12: ( 'PointerTo' )
+            // ModuleType.g:21:14: 'PointerTo'
+            {
+            match("PointerTo"); 
+
+
+
+            }
+
+            state.type = _type;
+            state.channel = _channel;
+        }
+        finally {
+        	// do for sure before leaving
+        }
+    }
+    // $ANTLR end "POINTER_TO"
+
     // $ANTLR start "RANGLE"
     public final void mRANGLE() throws RecognitionException {
         try {
             int _type = RANGLE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:21:8: ( '>' )
-            // ModuleType.g:21:10: '>'
+            // ModuleType.g:22:8: ( '>' )
+            // ModuleType.g:22:10: '>'
             {
             match('>'); 
 
@@ -331,8 +355,8 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = RBRACE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:22:8: ( '}' )
-            // ModuleType.g:22:10: '}'
+            // ModuleType.g:23:8: ( '}' )
+            // ModuleType.g:23:10: '}'
             {
             match('}'); 
 
@@ -352,8 +376,8 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = RBRACKET;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:23:10: ( ']' )
-            // ModuleType.g:23:12: ']'
+            // ModuleType.g:24:10: ( ']' )
+            // ModuleType.g:24:12: ']'
             {
             match(']'); 
 
@@ -373,8 +397,8 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = RPARENS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:24:9: ( ')' )
-            // ModuleType.g:24:11: ')'
+            // ModuleType.g:25:9: ( ')' )
+            // ModuleType.g:25:11: ')'
             {
             match(')'); 
 
@@ -394,8 +418,8 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = SEMI;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:25:6: ( ';' )
-            // ModuleType.g:25:8: ';'
+            // ModuleType.g:26:6: ( ';' )
+            // ModuleType.g:26:8: ';'
             {
             match(';'); 
 
@@ -415,8 +439,8 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = SUBTYPE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:26:9: ( '<:' )
-            // ModuleType.g:26:11: '<:'
+            // ModuleType.g:27:9: ( '<:' )
+            // ModuleType.g:27:11: '<:'
             {
             match("<:"); 
 
@@ -438,8 +462,8 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = UINT16;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:27:8: ( 'UInt16' )
-            // ModuleType.g:27:10: 'UInt16'
+            // ModuleType.g:28:8: ( 'UInt16' )
+            // ModuleType.g:28:10: 'UInt16'
             {
             match("UInt16"); 
 
@@ -461,8 +485,8 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = UINT32;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:28:8: ( 'UInt32' )
-            // ModuleType.g:28:10: 'UInt32'
+            // ModuleType.g:29:8: ( 'UInt32' )
+            // ModuleType.g:29:10: 'UInt32'
             {
             match("UInt32"); 
 
@@ -484,8 +508,8 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = UINT8;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:29:7: ( 'UInt8' )
-            // ModuleType.g:29:9: 'UInt8'
+            // ModuleType.g:30:7: ( 'UInt8' )
+            // ModuleType.g:30:9: 'UInt8'
             {
             match("UInt8"); 
 
@@ -507,8 +531,8 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = VOID;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:30:6: ( 'Void' )
-            // ModuleType.g:30:8: 'Void'
+            // ModuleType.g:31:6: ( 'Void' )
+            // ModuleType.g:31:8: 'Void'
             {
             match("Void"); 
 
@@ -530,8 +554,8 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = IDENTIFIER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:182:5: ( ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )* )
-            // ModuleType.g:182:10: ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
+            // ModuleType.g:184:5: ( ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )* )
+            // ModuleType.g:184:10: ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
             {
             if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
                 input.consume();
@@ -543,7 +567,7 @@ public class ModuleTypeLexer extends Lexer {
             }
 
 
-            // ModuleType.g:182:42: ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
+            // ModuleType.g:184:42: ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
             loop1:
             do {
                 int alt1=2;
@@ -593,10 +617,10 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = WHITESPACE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:185:5: ( ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+ )
-            // ModuleType.g:185:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
+            // ModuleType.g:187:5: ( ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+ )
+            // ModuleType.g:187:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
             {
-            // ModuleType.g:185:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
+            // ModuleType.g:187:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
             int cnt2=0;
             loop2:
             do {
@@ -642,35 +666,35 @@ public class ModuleTypeLexer extends Lexer {
 
                 switch (alt2) {
             	case 1 :
-            	    // ModuleType.g:185:12: '\\t'
+            	    // ModuleType.g:187:12: '\\t'
             	    {
             	    match('\t'); 
 
             	    }
             	    break;
             	case 2 :
-            	    // ModuleType.g:185:19: ' '
+            	    // ModuleType.g:187:19: ' '
             	    {
             	    match(' '); 
 
             	    }
             	    break;
             	case 3 :
-            	    // ModuleType.g:185:25: '\\r'
+            	    // ModuleType.g:187:25: '\\r'
             	    {
             	    match('\r'); 
 
             	    }
             	    break;
             	case 4 :
-            	    // ModuleType.g:185:32: '\\n'
+            	    // ModuleType.g:187:32: '\\n'
             	    {
             	    match('\n'); 
 
             	    }
             	    break;
             	case 5 :
-            	    // ModuleType.g:185:39: '\\\\n'
+            	    // ModuleType.g:187:39: '\\\\n'
             	    {
             	    match("\\n"); 
 
@@ -679,14 +703,14 @@ public class ModuleTypeLexer extends Lexer {
             	    }
             	    break;
             	case 6 :
-            	    // ModuleType.g:185:47: '\\f'
+            	    // ModuleType.g:187:47: '\\f'
             	    {
             	    match('\f'); 
 
             	    }
             	    break;
             	case 7 :
-            	    // ModuleType.g:185:54: '\"'
+            	    // ModuleType.g:187:54: '\"'
             	    {
             	    match('\"'); 
 
@@ -721,14 +745,14 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = COMMENT1;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:188:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
-            // ModuleType.g:188:10: '/*' ( options {greedy=false; } : . )* '*/'
+            // ModuleType.g:190:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
+            // ModuleType.g:190:10: '/*' ( options {greedy=false; } : . )* '*/'
             {
             match("/*"); 
 
 
 
-            // ModuleType.g:188:15: ( options {greedy=false; } : . )*
+            // ModuleType.g:190:15: ( options {greedy=false; } : . )*
             loop3:
             do {
                 int alt3=2;
@@ -753,7 +777,7 @@ public class ModuleTypeLexer extends Lexer {
 
                 switch (alt3) {
             	case 1 :
-            	    // ModuleType.g:188:42: .
+            	    // ModuleType.g:190:42: .
             	    {
             	    matchAny(); 
 
@@ -788,14 +812,14 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = COMMENT2;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:191:5: ( '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' ) )
-            // ModuleType.g:191:10: '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' )
+            // ModuleType.g:193:5: ( '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' ) )
+            // ModuleType.g:193:10: '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' )
             {
             match("//"); 
 
 
 
-            // ModuleType.g:191:15: ( options {greedy=false; } : . )*
+            // ModuleType.g:193:15: ( options {greedy=false; } : . )*
             loop4:
             do {
                 int alt4=2;
@@ -811,7 +835,7 @@ public class ModuleTypeLexer extends Lexer {
 
                 switch (alt4) {
             	case 1 :
-            	    // ModuleType.g:191:42: .
+            	    // ModuleType.g:193:42: .
             	    {
             	    matchAny(); 
 
@@ -848,8 +872,8 @@ public class ModuleTypeLexer extends Lexer {
     // $ANTLR end "COMMENT2"
 
     public void mTokens() throws RecognitionException {
-        // ModuleType.g:1:8: ( ARRAY | COLON | COMMA | ERRORT | INT16 | INT32 | INT8 | LANGLE | LBRACE | LBRACKET | LPARENS | RANGLE | RBRACE | RBRACKET | RPARENS | SEMI | SUBTYPE | UINT16 | UINT32 | UINT8 | VOID | IDENTIFIER | WHITESPACE | COMMENT1 | COMMENT2 )
-        int alt5=25;
+        // ModuleType.g:1:8: ( ARRAY | COLON | COMMA | ERRORT | INT16 | INT32 | INT8 | LANGLE | LBRACE | LBRACKET | LPARENS | POINTER_TO | RANGLE | RBRACE | RBRACKET | RPARENS | SEMI | SUBTYPE | UINT16 | UINT32 | UINT8 | VOID | IDENTIFIER | WHITESPACE | COMMENT1 | COMMENT2 )
+        int alt5=26;
         alt5 = dfa5.predict(input);
         switch (alt5) {
             case 1 :
@@ -941,111 +965,119 @@ public class ModuleTypeLexer extends Lexer {
                 }
                 break;
             case 12 :
-                // ModuleType.g:1:83: RANGLE
+                // ModuleType.g:1:83: POINTER_TO
+                {
+                mPOINTER_TO(); 
+
+
+                }
+                break;
+            case 13 :
+                // ModuleType.g:1:94: RANGLE
                 {
                 mRANGLE(); 
 
 
                 }
                 break;
-            case 13 :
-                // ModuleType.g:1:90: RBRACE
+            case 14 :
+                // ModuleType.g:1:101: RBRACE
                 {
                 mRBRACE(); 
 
 
                 }
                 break;
-            case 14 :
-                // ModuleType.g:1:97: RBRACKET
+            case 15 :
+                // ModuleType.g:1:108: RBRACKET
                 {
                 mRBRACKET(); 
 
 
                 }
                 break;
-            case 15 :
-                // ModuleType.g:1:106: RPARENS
+            case 16 :
+                // ModuleType.g:1:117: RPARENS
                 {
                 mRPARENS(); 
 
 
                 }
                 break;
-            case 16 :
-                // ModuleType.g:1:114: SEMI
+            case 17 :
+                // ModuleType.g:1:125: SEMI
                 {
                 mSEMI(); 
 
 
                 }
                 break;
-            case 17 :
-                // ModuleType.g:1:119: SUBTYPE
+            case 18 :
+                // ModuleType.g:1:130: SUBTYPE
                 {
                 mSUBTYPE(); 
 
 
                 }
                 break;
-            case 18 :
-                // ModuleType.g:1:127: UINT16
+            case 19 :
+                // ModuleType.g:1:138: UINT16
                 {
                 mUINT16(); 
 
 
                 }
                 break;
-            case 19 :
-                // ModuleType.g:1:134: UINT32
+            case 20 :
+                // ModuleType.g:1:145: UINT32
                 {
                 mUINT32(); 
 
 
                 }
                 break;
-            case 20 :
-                // ModuleType.g:1:141: UINT8
+            case 21 :
+                // ModuleType.g:1:152: UINT8
                 {
                 mUINT8(); 
 
 
                 }
                 break;
-            case 21 :
-                // ModuleType.g:1:147: VOID
+            case 22 :
+                // ModuleType.g:1:158: VOID
                 {
                 mVOID(); 
 
 
                 }
                 break;
-            case 22 :
-                // ModuleType.g:1:152: IDENTIFIER
+            case 23 :
+                // ModuleType.g:1:163: IDENTIFIER
                 {
                 mIDENTIFIER(); 
 
 
                 }
                 break;
-            case 23 :
-                // ModuleType.g:1:163: WHITESPACE
+            case 24 :
+                // ModuleType.g:1:174: WHITESPACE
                 {
                 mWHITESPACE(); 
 
 
                 }
                 break;
-            case 24 :
-                // ModuleType.g:1:174: COMMENT1
+            case 25 :
+                // ModuleType.g:1:185: COMMENT1
                 {
                 mCOMMENT1(); 
 
 
                 }
                 break;
-            case 25 :
-                // ModuleType.g:1:183: COMMENT2
+            case 26 :
+                // ModuleType.g:1:194: COMMENT2
                 {
                 mCOMMENT2(); 
 
@@ -1060,90 +1092,105 @@ public class ModuleTypeLexer extends Lexer {
 
     protected DFA5 dfa5 = new DFA5(this);
     static final String DFA5_eotS =
-        "\1\uffff\1\21\2\uffff\2\21\1\30\10\uffff\2\21\3\uffff\3\21\2\uffff"+
-        "\2\21\2\uffff\11\21\1\55\1\21\1\61\1\62\1\21\1\64\1\65\1\uffff\2"+
-        "\21\1\70\2\uffff\1\71\2\uffff\1\72\1\73\4\uffff";
+        "\1\uffff\1\22\2\uffff\2\22\1\31\3\uffff\1\22\5\uffff\2\22\3\uffff"+
+        "\3\22\2\uffff\3\22\2\uffff\12\22\1\61\2\22\1\66\1\67\1\22\1\71\1"+
+        "\72\1\uffff\3\22\1\76\2\uffff\1\77\2\uffff\1\22\1\101\1\102\2\uffff"+
+        "\1\22\2\uffff\1\22\1\105\1\uffff";
     static final String DFA5_eofS =
-        "\74\uffff";
+        "\106\uffff";
     static final String DFA5_minS =
-        "\1\11\1\162\2\uffff\1\162\1\156\1\72\10\uffff\1\111\1\157\2\uffff"+
-        "\1\52\2\162\1\164\2\uffff\1\156\1\151\2\uffff\1\141\1\157\1\61\1"+
-        "\164\1\144\1\171\1\162\1\66\1\62\1\60\1\61\2\60\1\124\2\60\1\uffff"+
-        "\1\66\1\62\1\60\2\uffff\1\60\2\uffff\2\60\4\uffff";
+        "\1\11\1\162\2\uffff\1\162\1\156\1\72\3\uffff\1\157\5\uffff\1\111"+
+        "\1\157\2\uffff\1\52\2\162\1\164\2\uffff\1\151\1\156\1\151\2\uffff"+
+        "\1\141\1\157\1\61\1\156\1\164\1\144\1\171\1\162\1\66\1\62\1\60\1"+
+        "\164\1\61\2\60\1\124\2\60\1\uffff\1\145\1\66\1\62\1\60\2\uffff\1"+
+        "\60\2\uffff\1\162\2\60\2\uffff\1\124\2\uffff\1\157\1\60\1\uffff";
     static final String DFA5_maxS =
-        "\1\175\1\162\2\uffff\1\162\1\156\1\72\10\uffff\1\111\1\157\2\uffff"+
-        "\1\57\2\162\1\164\2\uffff\1\156\1\151\2\uffff\1\141\1\157\1\70\1"+
-        "\164\1\144\1\171\1\162\1\66\1\62\1\172\1\70\2\172\1\124\2\172\1"+
-        "\uffff\1\66\1\62\1\172\2\uffff\1\172\2\uffff\2\172\4\uffff";
+        "\1\175\1\162\2\uffff\1\162\1\156\1\72\3\uffff\1\157\5\uffff\1\111"+
+        "\1\157\2\uffff\1\57\2\162\1\164\2\uffff\1\151\1\156\1\151\2\uffff"+
+        "\1\141\1\157\1\70\1\156\1\164\1\144\1\171\1\162\1\66\1\62\1\172"+
+        "\1\164\1\70\2\172\1\124\2\172\1\uffff\1\145\1\66\1\62\1\172\2\uffff"+
+        "\1\172\2\uffff\1\162\2\172\2\uffff\1\124\2\uffff\1\157\1\172\1\uffff";
     static final String DFA5_acceptS =
-        "\2\uffff\1\2\1\3\3\uffff\1\11\1\12\1\13\1\14\1\15\1\16\1\17\1\20"+
-        "\2\uffff\1\26\1\27\4\uffff\1\21\1\10\2\uffff\1\30\1\31\20\uffff"+
-        "\1\7\3\uffff\1\25\1\1\1\uffff\1\5\1\6\2\uffff\1\24\1\4\1\22\1\23";
+        "\2\uffff\1\2\1\3\3\uffff\1\11\1\12\1\13\1\uffff\1\15\1\16\1\17\1"+
+        "\20\1\21\2\uffff\1\27\1\30\4\uffff\1\22\1\10\3\uffff\1\31\1\32\22"+
+        "\uffff\1\7\4\uffff\1\26\1\1\1\uffff\1\5\1\6\3\uffff\1\25\1\4\1\uffff"+
+        "\1\23\1\24\2\uffff\1\14";
     static final String DFA5_specialS =
-        "\74\uffff}>";
+        "\106\uffff}>";
     static final String[] DFA5_transitionS = {
-            "\2\22\1\uffff\2\22\22\uffff\1\22\1\uffff\1\22\5\uffff\1\11\1"+
-            "\15\2\uffff\1\3\2\uffff\1\23\12\uffff\1\2\1\16\1\6\1\uffff\1"+
-            "\12\2\uffff\1\1\3\21\1\4\3\21\1\5\13\21\1\17\1\20\4\21\1\10"+
-            "\1\22\1\14\1\uffff\1\21\1\uffff\32\21\1\7\1\uffff\1\13",
-            "\1\24",
-            "",
-            "",
+            "\2\23\1\uffff\2\23\22\uffff\1\23\1\uffff\1\23\5\uffff\1\11\1"+
+            "\16\2\uffff\1\3\2\uffff\1\24\12\uffff\1\2\1\17\1\6\1\uffff\1"+
+            "\13\2\uffff\1\1\3\22\1\4\3\22\1\5\6\22\1\12\4\22\1\20\1\21\4"+
+            "\22\1\10\1\23\1\15\1\uffff\1\22\1\uffff\32\22\1\7\1\uffff\1"+
+            "\14",
             "\1\25",
+            "",
+            "",
             "\1\26",
             "\1\27",
+            "\1\30",
             "",
             "",
             "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "\1\31",
             "\1\32",
             "",
             "",
-            "\1\33\4\uffff\1\34",
-            "\1\35",
-            "\1\36",
+            "",
+            "",
+            "",
+            "\1\33",
+            "\1\34",
+            "",
+            "",
+            "\1\35\4\uffff\1\36",
             "\1\37",
-            "",
-            "",
             "\1\40",
             "\1\41",
             "",
             "",
             "\1\42",
             "\1\43",
-            "\1\44\1\uffff\1\45\4\uffff\1\46",
-            "\1\47",
-            "\1\50",
-            "\1\51",
+            "\1\44",
+            "",
+            "",
+            "\1\45",
+            "\1\46",
+            "\1\47\1\uffff\1\50\4\uffff\1\51",
             "\1\52",
             "\1\53",
             "\1\54",
-            "\12\21\7\uffff\32\21\4\uffff\1\21\1\uffff\32\21",
-            "\1\56\1\uffff\1\57\4\uffff\1\60",
-            "\12\21\7\uffff\32\21\4\uffff\1\21\1\uffff\32\21",
-            "\12\21\7\uffff\32\21\4\uffff\1\21\1\uffff\32\21",
-            "\1\63",
-            "\12\21\7\uffff\32\21\4\uffff\1\21\1\uffff\32\21",
-            "\12\21\7\uffff\32\21\4\uffff\1\21\1\uffff\32\21",
+            "\1\55",
+            "\1\56",
+            "\1\57",
+            "\1\60",
+            "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
+            "\1\62",
+            "\1\63\1\uffff\1\64\4\uffff\1\65",
+            "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
+            "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
+            "\1\70",
+            "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
+            "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
             "",
-            "\1\66",
-            "\1\67",
-            "\12\21\7\uffff\32\21\4\uffff\1\21\1\uffff\32\21",
-            "",
-            "",
-            "\12\21\7\uffff\32\21\4\uffff\1\21\1\uffff\32\21",
-            "",
-            "",
-            "\12\21\7\uffff\32\21\4\uffff\1\21\1\uffff\32\21",
-            "\12\21\7\uffff\32\21\4\uffff\1\21\1\uffff\32\21",
-            "",
+            "\1\73",
+            "\1\74",
+            "\1\75",
+            "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
             "",
             "",
+            "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
+            "",
+            "",
+            "\1\100",
+            "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
+            "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
+            "",
+            "",
+            "\1\103",
+            "",
+            "",
+            "\1\104",
+            "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
             ""
     };
 
@@ -1177,7 +1224,7 @@ public class ModuleTypeLexer extends Lexer {
             this.transition = DFA5_transition;
         }
         public String getDescription() {
-            return "1:1: Tokens : ( ARRAY | COLON | COMMA | ERRORT | INT16 | INT32 | INT8 | LANGLE | LBRACE | LBRACKET | LPARENS | RANGLE | RBRACE | RBRACKET | RPARENS | SEMI | SUBTYPE | UINT16 | UINT32 | UINT8 | VOID | IDENTIFIER | WHITESPACE | COMMENT1 | COMMENT2 );";
+            return "1:1: Tokens : ( ARRAY | COLON | COMMA | ERRORT | INT16 | INT32 | INT8 | LANGLE | LBRACE | LBRACKET | LPARENS | POINTER_TO | RANGLE | RBRACE | RBRACKET | RPARENS | SEMI | SUBTYPE | UINT16 | UINT32 | UINT8 | VOID | IDENTIFIER | WHITESPACE | COMMENT1 | COMMENT2 );";
         }
     }
  

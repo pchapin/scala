@@ -1,38 +1,39 @@
 grammar ModuleType;
 
 options {
-    backtrack = true;
-    memoize   = true;
-    output    = AST;
+    // backtrack  = true;
+    // memoize    = true;
+    output     = AST;
 }
 
 tokens {
     // Types
-    VOID   = 'Void';
-    INT8   = 'Int8';
-    INT16  = 'Int16';
-    INT32  = 'Int32';
-    UINT8  = 'UInt8';
-    UINT16 = 'UInt16';
-    UINT32 = 'UInt32';
-    ERRORT = 'ErrorT';
+    VOID       = 'Void';
+    INT8       = 'Int8';
+    INT16      = 'Int16';
+    INT32      = 'Int32';
+    UINT8      = 'UInt8';
+    UINT16     = 'UInt16';
+    UINT32     = 'UInt32';
+    ERRORT     = 'ErrorT';
 
     // Keywords
-    ARRAY  = 'Array';
+    ARRAY      = 'Array';
+    POINTER_TO = 'PointerTo';
     
     // Punctuators
-    COLON    = ':';
-    COMMA    = ',';
-    LANGLE   = '<';
-    LBRACE   = '{';
-    LBRACKET = '[';
-    LPARENS  = '(';
-    RANGLE   = '>';
-    RBRACE   = '}';
-    RBRACKET = ']';
-    RPARENS  = ')';
-    SEMI     = ';';
-    SUBTYPE  = '<:';
+    COLON      = ':';
+    COMMA      = ',';
+    LANGLE     = '<';
+    LBRACE     = '{';
+    LBRACKET   = '[';
+    LPARENS    = '(';
+    RANGLE     = '>';
+    RBRACE     = '}';
+    RBRACKET   = ']';
+    RPARENS    = ')';
+    SEMI       = ';';
+    SUBTYPE    = '<:';
     
     // Pseudo-tokens used during AST construction.
     EXISTENTIAL_LIST;
@@ -159,7 +160,8 @@ function_declaration
 
 type_specifier
     :    generalized_type_name
-    |    ARRAY '[' generalized_type_name ']' -> ^(ARRAY generalized_type_name);
+    |    ARRAY '[' generalized_type_name ']' -> ^(ARRAY generalized_type_name)
+    |    POINTER_TO '[' generalized_type_name ']' -> ^(POINTER_TO generalized_type_name);
 
 generalized_type_name
     :    type_name | IDENTIFIER;

@@ -19,7 +19,7 @@ object Main {
                  <;>
                  { led0On() : Void, led1On() : Void, led2On() : Void,
                    led0Off(): Void, led1Off(): Void, led2Off(): Void;
-                   receive(msg: MessageT, payload: Void, len: UInt8): MessageT }""")
+                   receive(msg: PointerTo[MessageT], payload: PointerTo[Void], len: UInt8): PointerTo[MessageT] }""")
   class ServerC extends MininessComponent {
 
     /////////
