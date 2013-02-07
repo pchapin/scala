@@ -1,0 +1,363 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FILE    : Proposal.tex
+% AUTHOR  : (C) Copyright 2011 by Peter C. Chapin
+% SUBJECT : Dissertation proposal
+%
+% Send comments or bug reports to:
+%
+%    Peter C. Chapin <pchapin@cems.uvm.edu>
+%    Department of Computer Science
+%    University of Vermont
+%    Burlington, VT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%+++++++++++++++++++++++++++++++++
+% Preamble and global declarations
+%+++++++++++++++++++++++++++++++++
+\documentclass{article}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{hyperref}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1.75ex plus0.5ex minus0.5ex}
+
+\input{macros}
+
+%++++++++++++++++++++
+% The document itself
+%++++++++++++++++++++
+\begin{document}
+
+\input{languages}
+
+%-----------------------
+% Title page information
+%-----------------------
+\title{Implementation of Type Safe Staged Programming for Embedded Systems}
+\subtitle{Dissertation Proposal}
+\author{Peter C. Chapin\thanks{pchapin@cs.uvm.edu}}
+\date{March 30, 2011}
+\maketitle
+
+\begin{abstract}
+  Building programs for constrained embedded devices is challenging due to their severe
+  limitations on processing speed, memory, and network bandwidth. Staged programming can help
+  bridge the abstraction gap between high level algorithms and device level programs by allowing
+  a first stage program to specialize device level code. This proposed work entails implementing
+  a two stage programming system for wireless sensor network nodes where type errors in all
+  possible second stage programs are detected during the compilation of the first stage program.
+  The implementation is intended to be both practical and grounded in a solid theoretical
+  foundation. The system will then be used to implement a non-trivial access control application
+  for sensor networks. The performance of the generated application will be compared to that of
+  a non-staged solution.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:introduction}
+% Describe in high level terms what I want to do and provide motivation.
+
+A wireless sensor network node is an example of a small scale, resource constrained embedded
+system. In such systems efficiency is of the utmost concern. Processing power, memory space,
+electrical energy, and network bandwidth are all very limited and must be carefully conserved.
+Yet the applications envisioned for these systems are becoming increasingly complex. For
+example, as wireless sensor networks are deployed in progressively more sensitive environments
+they must provide support for elaborate security services so that their sensitive data and
+control functions can be protected.
+
+Previous work done by me, and described in more detail below, shows that doing complex security
+computations on sensor nodes is only barely feasible. An alternative strategy for implementing
+such systems is to use a staged programming approach. The idea is to execute a program on a
+resource endowed system that performs as much computation as possible ``off line'' and then
+generates an appropriately specialized second stage program that actually executes on the
+resource constrained nodes.
+
+In this environment the first stage programming language should be different than the second
+stage programming language. As an example nesC \cite{Gay-nesC-2003} is an excellent embedded
+systems language. However the first stage program is not executing on an embedded system.
+Accordingly it will want to take advantage of the resources normally accessible to ordinary
+desktop software. For example, in a security application the first stage program may need to
+communicate over the Internet with other security domains to access certificates. There is no
+need to restrict the first stage program to the much more limited resources that have been
+developed for the highly constrained environments targeted by embedded systems languages.
+
+Staged programming by itself is not new. It has been used for years by parser generators, macro
+preprocessors, and other similar systems. What is new is the application of staging to embedded
+systems development. Flask \cite{Mainland-Flask-2008} is an existing staged programming language
+for sensor networks. It uses Haskell as the first stage language and is capable of generating
+nesC programs. However, in Flask the type consistency of the generated programs is checked
+during the \emph{execution} of the first stage. I believe this is too late. In the scenarios I
+envision, the first stage program will be executed in the field, for example on a sensor network
+base station. Failures to generate a valid second stage program can not be easily fixed at that
+time. In addition, Flask does not allow the first stage program to dynamically compute second
+stage types. Yet specializing types based on inputs obtained in the field is an essential
+optimization point.
+
+The work I propose here will extend the state of the art by providing assurance during the
+\emph{compilation} of the first stage that all possible second stage programs will be type
+correct. In addition, the work I propose here will allow specialization of second stage types.
+Finally, I propose to build a system that is both theoretically well founded and useful for the
+practical construction of real systems.
+
+\section{Previous Work}
+\label{sec:PreviousWork}
+% Describe what I have done.
+
+In previous work I implemented SpartanRPC, a remote procedure call system for nesC that provides
+a form of role based access control for wireless sensor networks
+\cite{chapin-skalka-SpartanRPC}. SpartanRPC hides the details of the radio communications and
+the details of the security computations from the programmer. My implementation of the system,
+called Sprocket, demonstrates the feasibility and usefulness of SpartanRPC.
+
+The simple role based access control model used by Sprocket might be sufficient for certain
+applications. However, in large multi-domain sensor networks\footnote{A multi-domain sensor
+  network is a network consisting of several overlapping subnetworks managed by different
+  security domains.} a more flexible form of distributed access control is needed. Building on
+my previous work with trust management systems \cite{skalka-wang-chapin-jcs06,
+  chapin-skalka-wang-acmcs08}, I have been exploring the feasibility of using such a system in
+wireless sensor networks. Specifically, I have been developing an enhanced version of Sprocket,
+called Sprocket$_{RT}$, that uses the $RT_0$ trust management system \cite{Li:DRBTMF, Li:DCDTM,
+  Li:RRBTMF} for authorization.
+
+The implementation of Sprocket$_{RT}$ is underway but it is well enough along to see that it
+will work and, under some circumstances, could be feasible. However, the necessary computations
+include public key signature verification to validate the certificates, and the evaluation of a
+logic program to do the authorization. In Sprocket$_{RT}$ the sensor nodes do all of these
+computations. This puts a large burden on the sensor nodes. My preliminary results with
+Sprocket$_{RT}$ show that the security computations consume a significant fraction of the node's
+resources. More detailed analysis of Sprocket$_{RT}$'s performance is pending and is a part of
+this proposal.
+
+Previous work by Liu, Skalka, and Smith describe a foundational framework for staged computation
+in wireless sensor networks where the first and second stage programs execute in separate
+process spaces \cite{FramedML}. They extended this work by defining a first stage programming
+language called nesT that allows composition of components written in a simplified dialect of
+nesC I call \textit{minimal nesC}, along with a type safety result guaranteeing that well typed
+nesT programs will never generate a minimal nesC program that goes wrong \cite{nesT}. One
+important feature of nesT is that it allows minimal nesC types to be treated as first class
+values in the first stage program. This distinguishes nesT from many other staged programming
+systems and has significant impact on the implementation.
+
+\section{Proposed Work}
+\label{sec:ProposedWork}
+% Describe what I want to do specifically and how it builds on what I have done.
+
+The central work that I propose is the implementation of a nesT-like language as an extension to
+the Scala programming language \cite{PiS2}. To distinguish my work from nesT, which has
+nesC-like syntax and semantics, I am calling the first stage language proposed here
+\textit{Scalaness}. My proposed work will extend the previous work in three ways.
+
+\begin{enumerate}
+\item It will provide a practical implementation of a staged programming language for embedded
+  systems that can detect second stage type errors during first stage compilation. To my
+  knowledge no such system currently exists.
+
+\item Since the first stage language will be a dialect of Scala, a very different language than
+  nesC, various cross stage compatibility issues will need to be addressed. For example data
+  types known to Scalaness need to be mapped into corresponding data types known to minimal
+  nesC. Also the typing rules in \cite{nesT} may need to be adapted for a Scalaness context.
+
+\item The previous work on nesT treats the second stage language abstractly. For example,
+  minimal nesC modules are composed directly. In contrast actual nesC programs use
+  configurations to describe the way in which components are connected. The minimal nesC
+  constructs need to be translated into equivalent constructs provided by full nesC so that the
+  generated programs are acceptable to the standard nesC compiler.
+\end{enumerate}
+
+In addition I also propose to use Scalaness to develop a library that allows the sensor network
+developer to create SpartanRPC programs. In effect this library would be a re-implementation of
+Sprocket$_{RT}$ in Scalaness. The goal would be to have the Scalaness program do the public key
+and authorization computations so that the specialized minimal nesC output would contain
+preconfigured session keys.
+
+Once the demonstration Scalaness program is complete, I then plan to measure the performance of
+the Scalaness-generated SpartanRPC programs and compare them against those generated by
+Sprocket$_{RT}$ where all computations are done directly on the sensor nodes. This would
+illustrate the effectiveness of staged computation in a sensor network context but it is
+important to realize that Scalaness will be general and could be used for many other
+applications.
+
+\subsection{Scalaness Sample}
+
+In this section I will show some hypothetical Scalaness code to illustrate a few of its novel
+features. The syntax shown here is experimental and subject to change.
+
+In Scalaness minimal nesC modules are first class values with module types as described in
+\cite{nesT}. Modules are parameterized by both (bounded) types and (typed) terms.
+Figure~\ref{fig:module-definition} shows an example message sending module template named sendM.
+Minimal nesC code can only exist in a Scalaness program inside a module definition. However
+certain Scalaness types, such as UInt in Figure~\ref{fig:module-definition} can exist in both
+the pure Scala and the minimal nesC portions of a program. These types are marked in a special
+way so the Scalaness compiler can serialize them properly across the two sublanguages.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{bigbox}
+    \begin{lstlisting}
+      @nesc
+      class sendM
+        [Adt      <: UInt,
+         MessageT <: AbstractMessage[Adt]](self: Adt) {
+
+        import error_t radio(MessageT);
+        export error_t send(Adt addr, UInt8 data[]) {
+          ...
+        }
+      }
+    \end{lstlisting}
+  \end{bigbox}
+  \caption{Sample module definition in Scalaness}
+  \label{fig:module-definition}
+\end{figure}
+
+Scalaness modules can be instantiated using natural Scala syntax with the result bound to a name
+in the usual way. For example
+\begin{lstlisting}
+val senderModule = new sendM[UInt8, Message[UInt8]](1)
+\end{lstlisting}
+
+This creates a specific module where the address type has been specialized to UInt8. The term
+parameter self, representing the node address of the sender, is specialized to $1$ in this
+example. Modules can be composed using $+$ as follows
+\begin{lstlisting}
+val result = moteModule + senderModule
+\end{lstlisting}
+
+These compositions are type checked to ensure the consistency of imports and exports. The type
+of \texttt{result} is inferred to have an appropriate module type. When the overall module is
+\textit{validated} \cite{nesT} an \textit{implied configuration} is created that defines the
+nesC wiring between modules. The Scalaness run time system generates this configuration when the
+second stage program is output. The additional type rules in Scalaness ensure that if the
+validation operation type checks, no type errors can arise in any generated program.
+
+In addition, Scalaness programs can manipulate minimal nesC types as values. These manipulations
+can be roughly encoded in conventional Scala as shown in Figure~\ref{fig:type-computation}.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{bigbox}
+    \begin{lstlisting}
+      class Typedef
+        [+T <: NesCBase](t: CovariantClass[T])
+         extends NesCBase
+
+      val addrt = new Typedef[UInt](
+        if (topo.length <= 256)
+          classOf[UInt8] else classOf[UInt16] )
+    \end{lstlisting}
+  \end{bigbox}
+  \caption{Type computation in Scalaness}
+  \label{fig:type-computation}
+\end{figure}
+
+In this case the dynamically computed type can be used to instantiate the minimal nesC module in
+a natural way.
+\begin{lstlisting}
+val senderModule = new sendM[addrt, Message[addrt]](1)
+\end{lstlisting}
+
+The ability to use a computed type to instantiate a module is another of Scalaness's novel
+features.
+
+Scala was chosen as a basis for the first stage language for reasons that are largely pragmatic.
+As a Java-like language I anticipate that it will be relatively easy for sensor application
+developers to learn and use. Yet as a functional language Scala provides the usual collection of
+features that facilitate functional analysis. I speculate that this will make it easier to add
+the new type rules required for this proposed work. Also Since Scala targets the Java virtual
+machine, Scala programs have direct access to the extensive collection of Java libraries that
+are available. These features should make it an excellent vehicle for the creation of complex,
+yet practical first stage programs.
+
+\section{Expected Results}
+\label{sec:expected-results}
+% Describe expected results.
+
+The following items represent the intended artifacts of this work.
+
+\begin{enumerate}
+\item A complete version of Sprocket$_{RT}$ along with a performance assessment of the programs
+  it generates to use as a baseline.
+\item An implementation of the Scalaness language. This implementation will do type checking as
+  discussed in \cite{nesT}, modified to account for the different first and second stage
+  languages.
+\item A re-implementation of Sprocket$_{RT}$ (or is semantic equivalent) as a Scalaness library.
+  This library will allow the programmer to generate SpartanRPC-like programs using the $RT_0$
+  trust management system where the authorization computations are done in the Scalaness library
+  rather than on the sensor nodes.
+\item A sample Scalaness program demonstrating the library above, along with a performance
+  assessment of the programs it generates to compare with the Sprocket$_{RT}$ baseline obtained
+  previously.
+\end{enumerate}
+
+Performance assessment of the node programs will borrow techniques outlined in
+\cite{Malan:2008:IPI:1387663.1387668}.
+
+In addition I anticipate that this work will lead to the publication of \cite{nesT} and/or a
+paper focusing on Scalaness specifically.
+
+\section{Related Work}
+\label{sec:RelatedWork}
+% Describe related work to show that I've done a reasonable literature search.
+
+% * MetaML
+% * MetaOCaml
+
+There is a large body of literature related to staged programming. One of the seminal works on
+the subject is MetaML \cite{Taha-MetaML}. A practical implementation of MetaML concepts can be
+found in MetaOCaml \cite{Calcagno-MetaOCaml}. These systems support a general ability, called
+\emph{cross stage persistence}, for a later stage of computation to use values created in
+earlier stages. The nesT system on which my work is based, uses a restricted notion of cross
+stage persistence that is more appropriate for sensor network applications. Also MetaML does not
+address the issue of dynamic type construction. Finally MetaML and MetaOCaml, like many other
+staged programming systems, requires that the same language be used in all stages. That is not a
+feasible requirement in my case.
+
+% * Flask
+% * Template Haskell
+
+As discussed previous, the most closely related work to this proposal is Flask
+\cite{Mainland-Flask-2008}, a domain specific language embedded in Haskell that allows the
+generation of second stage programs that run on sensor nodes. Like my proposed work Flask allows
+the second stage program to be in nesC. It uses a quasiquoting scheme similar to Template
+Haskell \cite{Sheard-TemplateHaskell} but extended to allow for non-Haskell second stage
+languages \cite{Mainland-2007}.
+
+% * Extending Scala with Database Query Capability
+
+A Scala compiler plugin that processes a database query language embedded in Scala is described
+in \cite{Garcia-Scala-Query}. Embedded queries can make use of data objects defined in the
+enclosing Scala program and can bind query results to names accessible by the enclosing program.
+Thus, as with my proposed work, issues of mapping types and values from one language to another
+arise. In addition, similar to my proposed work, the embedded query processor statically ensures
+that the queries are well typed and guaranteed to evaluate without run time error.
+
+In order to implement support for embedded queries as a compiler plugin, it was necessary to
+require the programmer to express queries as string literals or, alternatively, in a subset of
+plain Scala. The query processor plugin converts the query language into Scala abstract syntax
+trees so that it can be manipulated by later compiler phases. This technique is also similar to
+my anticipated implementation strategy. However, there are some important differences. My
+proposed work requires that certain types be treated as values, along with associated changes in
+type checking. In addition my proposed work must support parametric polymorphism in the style of
+System F$_\le$, a feature not explored in \cite{Garcia-Scala-Query}.
+
+% * Lightweight Modular Staging
+
+Scala has also been used to implement a staged programming system, called Lightweight Modular
+Staging, entirely as a library \cite{Rompf-LMS}. In this system the representation of code is
+hidden inside a type constructor that is parameterized by the result type of the code it
+represents. In this respect the system is similar to, for example, MetaML. However, in
+\cite{Rompf-LMS} the representation of code is under the control of the programmer, and
+operations on code fragments can be optimized (for example to reduce code duplication). Also the
+second stage language can be, but does not need to be, the same as the first stage language.
+
+Some of the techniques described in \cite{Rompf-LMS} will be useful in my proposed work.
+However, Lightweight Modular Staging by itself does not allow types to be manipulated as values.
+Also it provides fine grained staged operations and would require a sensor network programmer to
+write node level code in Scala syntax. My proposed work would allow the sensor network
+programmer to write the bulk of the node level code in nesC and use Scala strictly for higher
+level processing.
+
+\bibliographystyle{plain}
+\bibliography{../../references-Meta,../../references-WSN,../../references-AccessControl,../../references-Scala}
+
+\end{document}

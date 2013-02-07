@@ -1,0 +1,10 @@
+*.aux
+main.bbl
+main.blg
+main.dvi
+main.lof
+main.log
+main.lot
+main.pdf
+main.ps
+main.toc

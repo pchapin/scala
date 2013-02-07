@@ -1,0 +1,44 @@
+
+% The following list of packages used by my dissertation.
+
+\usepackage[dvipdfm]{graphicx}
+\usepackage{amsbsy}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amstext}
+\usepackage{boxedminipage}
+\usepackage[dvipdfm]{color}
+\usepackage{fancyvrb}
+\usepackage[english]{fp-autoref}
+\usepackage{fp-frame}
+\usepackage{ifthen}
+\usepackage{listings}
+\usepackage{mathpartir}
+\usepackage{times}
+\usepackage{url}
+
+% =====================
+% Package configuration
+% =====================
+
+% Define Scalaness language support.
+\lstdefinelanguage{scalaness}{keywords=
+  {class, object, trait, module, extends, with, new, if, while, for, def, val, var, this,
+    import, export},
+  otherkeywords={->, =>},
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/}
+  morestring=[b]"}
+
+% Define nesC language support.
+% TODO!
+
+% Default settings for code listings.
+\lstset{language=scalaness,
+  basicstyle={\small},  % If you turn off \ttfamily you get bold keywords.
+  stringstyle=\ttfamily,
+  commentstyle=\ttfamily,
+  xleftmargin=0.25in,
+  showstringspaces=false}

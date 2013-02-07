@@ -1,0 +1,68 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FILE    : macros.tex
+% AUTHOR  : (C) Copyright 2011 by Peter C. Chapin
+% SUBJECT : Various macro definitions that can be used in many documents.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% I want to typeset newly introduced terms in a special way.
+\newcommand{\newterm}[1]{\emph{#1}}
+
+% Used for bits of code in-line.
+\newcommand{\code}[1]{\texttt{#1}}
+
+\newcommand{\filename}[1]{\texttt{#1}}
+
+% The \note macro is useful for creating easy to see notes.
+\long\def\note#1{\marginpar{NT}{\small \ \ $\langle\langle\langle$\
+{#1}\
+    $\rangle\rangle\rangle$\ \ }} 
+
+% I really should put this in a package file! Note how I set up some parameters before opening
+% the listing. This used to be necessary when I was using verbatim environments. Is it still
+% necessary with the listings package? Are those other settings just being overridden?
+%
+\newsavebox{\savebigbox}
+\newenvironment{bigbox}{\begin{lrbox}{\savebigbox}
+  \begin{minipage}{0.95\columnwidth}%
+    \small\setlength{\baselineskip}{0.9\baselineskip}}
+{\end{minipage}\end{lrbox}\fbox{\usebox{\savebigbox}}}
+
+% This version should be used for full width boxes.
+\newsavebox{\savewbigbox}
+\newenvironment{wbigbox}{\begin{lrbox}{\savewbigbox}
+  \begin{minipage}{0.9\textwidth}%
+    \small\setlength{\baselineskip}{0.9\baselineskip}}
+{\end{minipage}\end{lrbox}\fbox{\usebox{\savewbigbox}}}
+
+% This horrifying hack is for making subtitles. Surely there is a better way.
+% See: http://groups.google.com/group/comp.text.tex/msg/3aa4f67d8b3a979b?hl=en-EN&
+\makeatletter
+\def\s@btitle{\relax}
+\def\subtitle#1{\gdef\s@btitle{#1}}
+\def\@maketitle{%
+  \newpage
+  \null
+  \vskip 2em%
+  \begin{center}%
+    \let \footnote \thanks
+    {\LARGE \@title \par}%
+    \if\s@btitle\relax
+    \else\typeout{[subtitle]}%
+    \vskip .5pc
+    \begin{large}%
+      \textsl{\s@btitle}%
+      \par
+    \end{large}%
+    \fi
+    \vskip 1.5em%
+    {\large
+      \lineskip .5em%
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+    \vskip 1em%
+    {\large \@date}%
+  \end{center}%
+  \par
+  \vskip 1.5em}
+\makeatother 
