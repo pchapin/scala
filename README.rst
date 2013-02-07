@@ -2,6 +2,16 @@
                               THE SCALA REPOSITORY
 ################################################################################
 
+This repository is an experimental fork of the Scala compiler and libraries
+called "Scalaness." The compiler has been modified so that it can specialize,
+compose, and type check components written in the embedded systems language
+nesC. One unique feature of Scalaness is its type system. If a Scalaness
+program type checks then all possible generated nesC programs will also type
+check successfully. See the documentation in the scalaness/doc folder for
+more information. Please send questions to PChapin@vtc.vsc.edu.
+
+The material below is the README from the original Scala compiler repository.
+
 This document describes the Scala core (core library and compiler) repository
 and how to build it. For information about Scala as a language, you can visit
 the web site http://www.scala-lang.org/

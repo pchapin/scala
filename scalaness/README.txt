@@ -8,6 +8,9 @@ Blink
 Checksum
     This folder contains a sample that specializes a module that computes checksums.
 
+doc
+    The Scalaness documentation set in DocBook format.
+
 Figure1
     This folder contains a live version of the sample used in Figure 1 of the nesT/Scalaness
     paper.
