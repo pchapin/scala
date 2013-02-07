@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- FILE    : IML.xsd
+     SUBJECT : XML schema for describing software issues.
+
+This markup is intended for use by software developers to record information about "issues" of
+various kinds. Examples of issues are faults (bugs), TODO items, enhancement requests, etc.
+
+{ How do I put this under the GPL or similar license? }
+
+TO DO
+
++ Multitudes of things. Ultimately issues about IML should be tracked in an IML database.
+-->
+
+<xs:schema targetNamespace="http://vortex.cis.vtc.edu/xml/IML_0.0"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://vortex.cis.vtc.edu/xml/IML_0.0"
+  elementFormDefault="qualified" xml:lang="en-US">
+
+  <xs:annotation>
+    <xs:documentation>This is the XML Schema that defines the XML format used for describing
+      issues that arise during the development of software. Issues include faults (bugs), TODO
+      items, enhancement requests, and similar things.</xs:documentation>
+  </xs:annotation>
+
+  <xs:include schemaLocation="LibType.xsd"/>
+
+  <!-- ROOT ELEMENTS -->
+
+  <xs:element name="issue-set" type="issueSetType">
+    <xs:annotation>
+      <xs:documentation>An issue set is a wrapper around multiple issue elements. It is provided
+        for organizational purposes.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="issue" type="issueType">
+    <xs:annotation>
+      <xs:documentation>An issue holds information about an issue throughout the issues entire
+        lifespan.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- COMPLEX TYPES FOR THE ROOT ELEMENTS -->
+
+  <xs:complexType name="issueSetType">
+    <xs:annotation>
+      <xs:documentation>An issue set is an element that can bind issues or nested issue sets
+        together. The ability to nest issue sets is only intended as an organizational option.
+        It is not necessary for there to be a semantic connection between the issues in a nested
+        issue set and its enclosing issue set.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:choice>
+        <xs:element name="issue" type="issueType"/>
+        <xs:element name="issue-set" type="issueSetType"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="issueType">
+    <xs:annotation>
+      <xs:documentation>An issue element represents all the information about a single
+        issue.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="summary" type="xs:string"/>
+      <xs:element name="creation-date" type="dateTimeType"/>
+      <xs:element name="discharge-date" type="dateTimeType" minOccurs="0"/>
+      <xs:element name="comments" type="commentsType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="commentsType">
+    <xs:annotation>
+      <xs:documentation>A comments element is a wrapper around a collection of individual
+        comments.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="comment" type="commentType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="commentType">
+    <xs:annotation>
+      <xs:documentation>A comment element holds information about a specific comment related to
+        an issue.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="reporter" type="reporterType"/>
+      <xs:element name="comment-date" type="dateTimeType"/>
+      <xs:element name="notes" type="notesType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

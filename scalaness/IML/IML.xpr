@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="14.1">
+    <meta>
+        <filters directoryPatterns="" filePatterns="" positiveFilePatterns="" showHiddenFiles="false"/>
+        <options/>
+    </meta>
+    <projectTree name="IML.xpr">
+        <file name="IML.xsd"/>
+        <file name="IML.xsl"/>
+        <file name="LibType.xsd"/>
+        <file name="Scalaness.xml"/>
+    </projectTree>
+</project>
