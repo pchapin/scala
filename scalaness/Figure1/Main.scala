@@ -5,6 +5,9 @@ import edu.uvm.scalaness.LiftableTypes._
 
 object Main {
 
+  @ModuleType("""{}
+                 < addrT <: UInt32; >
+                 { ; radio(message: MessageType): ErrorT}""")
   class RadioC extends MininessComponent {
     
     /////////
@@ -38,6 +41,11 @@ object Main {
     "RadioC.nc"
   }
 
+
+  @ModuleType("""{}
+                 < addrT <: UInt32; >
+                 { radio(message: MessageType): ErrorT;
+                   send(s: addrT, d: addrT, data: UInt8): ErrorT }""")
   class SendC extends MininessComponent {
 
     /////////
@@ -71,6 +79,10 @@ object Main {
     "SendC.nc"
   }
 
+  @ModuleType("""{}
+                 < addrT <: UInt32; self: UInt32, neighbor: UInt32 >
+                 { send(s: addrT, d: addrT, data: UInt8): ErrorT;
+                   main(): ErrorT }""")
   class NodeC extends MininessComponent {
 
     /////////
@@ -112,10 +124,10 @@ object Main {
     self    : UInt32,
     neighbor: UInt32,
     nmax    : UInt32,
-    @ModuleType(
+    /* @ModuleType(
       """{}< addrT <: UInt32; >{
            ;
-           radio(src: addrT, dest: addrT, data: Int32): ErrorT}""") radioC: RadioC) = {
+           radio(message: MessageType): ErrorT}""") */ radioC: RadioC) = {
 
     val addrt: MetaType[UInt32] =
       if (nmax < UInt32(256)) new MetaType[UInt32](MininessTypes.UInt8)
@@ -123,15 +135,15 @@ object Main {
 
     @ModuleType("""{ addrT <: UInt32 }<;>{
                      ;
-                     send(s: addrT, d: addrT, data: Int32): ErrorT}""")
+                     send(s: addrT, d: addrT, data: UInt8): ErrorT}""")
     val scode = ((new SendC).instantiate(addrt)) +> radioC.instantiate(addrt)
 
     @ModuleType("""{ addrT <: UInt32 }<;>{
-                     send(s: addrT, d: addrT, data: Int32): ErrorT;
+                     send(s: addrT, d: addrT, data: UInt8): ErrorT;
                      main(): ErrorT}""")
     val mcode = (new NodeC).instantiate(addrt, self, neighbor)
 
-    (mcode +> scode).validate
+    (mcode +> scode).image
   }
 
 }

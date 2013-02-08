@@ -208,4 +208,50 @@
     </comments>
   </issue>
 
+  <issue>
+    <summary>Syntax errors in ModuleType annotations should have their location reported.</summary>
+    <creation-date>
+      <date>2013-02-08</date>
+    </creation-date>
+    <comments>
+      <comment>
+        <reporter>Peter Chapin</reporter>
+        <comment-date>
+          <date>2013-02-08</date>
+        </comment-date>
+        <notes>
+          <xhtml:p>Currently if there is a syntax error in a ModuleType annotation the error is
+            reported by not its location. This makes fixing such errors harder than it should
+            be. It would be better if the location was reported as for other kinds of syntax
+            errors.</xhtml:p>
+
+          <xhtml:p>Dealing with this will be a bit tricky. ANTLR reports the error location
+            relative to the string it is parsing. That location will need to be converted into
+            an offset in the enclosing source file before the Scala compiler's error reporter
+            will be able to handle it.</xhtml:p>
+        </notes>
+      </comment>
+    </comments>
+  </issue>
+
+  <issue>
+    <summary>Syntax errors in interfaces parsed during interface unwrapping should be reported relative to the proper file.</summary>
+    <creation-date>
+      <date>2013-02-08</date>
+    </creation-date>
+    <comments>
+      <comment>
+        <reporter>Peter Chapin</reporter>
+        <comment-date>
+          <date>2013-02-08</date>
+        </comment-date>
+        <notes>
+          <xhtml:p>Currently if there is a syntax error in an interface that is being parsed
+            during interface unwrapping, the syntax error location is reported relative to the
+            main source file being processed and not the interface file. This leads to very
+            misleading error messages (they point at a totally unrelated location).</xhtml:p>
+        </notes>
+      </comment>
+    </comments>
+  </issue>
 </issue-set>

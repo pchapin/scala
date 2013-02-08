@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // FILE    : Main.scala
 // SUBJECT : The main object for the Scalaness Blink sample.
-// AUTHOR  : (C) Copyright 2012 by Peter Chapin <PChapin@vtc.vsc.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
 
@@ -20,6 +20,9 @@ object Main {
    * @param blinkCount The number of times the LED should be flashed. Intended to have type
    * flashCountType.
    */
+  @ModuleType("""{}
+                 < flashCountType <: Int32; blinkCount: Int32>
+                 { ; get_initial_count(): flashCountType }""")
   class InitialConstantsC extends MininessComponent {
 
     /////////
@@ -67,6 +70,10 @@ object Main {
    * @param period The period of the flashing (in some suitable units). Intended to have type
    * periodType.
    */
+  @ModuleType("""{}
+                 < flashCountType <: Int32, periodType <: Int32; period: Int16 >
+                 { startPeriodic(dt: Int32): Void, get_initial_count(): flashCountType;
+                   fired(): Void}""")
   class BlinkC extends MininessComponent {
 
     /////////
@@ -78,7 +85,7 @@ object Main {
 
     def instantiate(
       flashCountType: MetaType[Int32],
-      periodType    : MetaType[Int16],
+      periodType    : MetaType[Int32],
       period        : Int16) = {
 
       val result = new BlinkC
@@ -132,7 +139,7 @@ object Main {
                      { ; get_initial_count(): flashCountType}""")
     val constantModule = (new InitialConstantsC).instantiate(desiredType, count)
 
-    @ModuleType("""{flashCountType <: Int32, periodType <: Int16}<;>
+    @ModuleType("""{flashCountType <: Int32, periodType <: Int32}<;>
                      { startPeriodic(dt: Int32): Void, get_initial_count(): flashCountType;
                        fired(): Void }""")
     val blinkModule =
@@ -141,11 +148,11 @@ object Main {
           new MetaType[Int16](MininessTypes.Int8),
           new Int8(100))
 
-    @ModuleType("""{flashCountType <: Int32, periodType <: Int16}<;>
+    @ModuleType("""{flashCountType <: Int32, periodType <: Int32}<;>
                      { startPeriodic(dt: Int32): Void;
                        fired(): Void }""")
     val resultModule = blinkModule +> constantModule
-    resultModule.validate()
+    resultModule.image()
   }
     
 }       

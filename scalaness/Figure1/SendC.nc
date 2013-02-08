@@ -1,19 +1,19 @@
 
-struct messageT {
+struct MessageType {
     addrT    src;
     addrT    dest;
     uint8_t  data;  // Should be an array.
 };
 
 module SendC {
-    uses command error_t radio( struct messageT message );
+    uses command error_t radio( struct MessageType message );
     provides command error_t send( addrT s, addrT d, uint8_t data );
 }
 implementation {
     command error_t send( addrT s, addrT d, uint8_t data )
     {
         // Initializer lists are not yet handled properly by the type checker.
-        struct messageT message /* = { s, d, data } */;
+        struct MessageType message /* = { s, d, data } */;
         message.src  = s;
         message.dest = d;
         message.data = data;
