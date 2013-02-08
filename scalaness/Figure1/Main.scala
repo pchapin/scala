@@ -127,21 +127,35 @@ object Main {
     /* @ModuleType(
       """{}< addrT <: UInt32; >{
            ;
-           radio(message: MessageType): ErrorT}""") */ radioC: RadioC) = {
+           radio(message: MessageType): ErrorT}""") */ rawRadioC: RadioC) = {
 
     val addrt: MetaType[UInt32] =
       if (nmax < UInt32(256)) new MetaType[UInt32](MininessTypes.UInt8)
         else new MetaType[UInt32](MininessTypes.UInt16)
 
+    @ModuleType("""{}
+                   < addrT <: UInt32; >
+                   { radio(message: MessageType): ErrorT;
+                     send(s: addrT, d: addrT, data: UInt8): ErrorT }""")
+    val rawSendC = new SendC
+
     @ModuleType("""{ addrT <: UInt32 }<;>{
                      ;
                      send(s: addrT, d: addrT, data: UInt8): ErrorT}""")
-    val scode = ((new SendC).instantiate(addrt)) +> radioC.instantiate(addrt)
+    val scode = (rawSendC.instantiate(addrt)) +> rawRadioC.instantiate(addrt)
+    // Extra parentheses around first component above intentional. Does it work?
 
-    @ModuleType("""{ addrT <: UInt32 }<;>{
-                     send(s: addrT, d: addrT, data: UInt8): ErrorT;
+    @ModuleType("""{}
+                   < addrT <: UInt32; self: UInt32, neighbor: UInt32 >
+                   { send(s: addrT, d: addrT, data: UInt8): ErrorT;
+                     main(): ErrorT }""")
+    val rawNodeC = new NodeC
+
+    @ModuleType("""{ addrT <: UInt32 }
+                   <;>
+                   { send(s: addrT, d: addrT, data: UInt8): ErrorT;
                      main(): ErrorT}""")
-    val mcode = (new NodeC).instantiate(addrt, self, neighbor)
+    val mcode = rawNodeC.instantiate(addrt, self, neighbor)
 
     (mcode +> scode).image
   }
