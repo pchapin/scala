@@ -26,6 +26,9 @@ SendReceive
 SpartanRPC
     This folder contains a re-implementation of SpartanRPC (Sprocket) using Scalaness.
 
+www
+    This folder contains the Scalaness web site.
+
 
 For Scala compiler development we recommend Eclipse. We've used the latest Indigo (Eclipse v3.7)
 with the nightly Scala IDE for Scala 2.10. Follow the instructions in src/eclipse for setting up

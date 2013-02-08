@@ -11,6 +11,10 @@ check successfully. See the documentation in the scalaness/doc folder for
 more information. Please send questions to PChapin@vtc.vsc.edu.
 
 The material below is the README from the original Scala compiler repository.
+Most of the material (for example build instructions) is applicable to Scalaness.
+
+Part 0. The original README
+--------------------------------------------------------------------------------
 
 This document describes the Scala core (core library and compiler) repository
 and how to build it. For information about Scala as a language, you can visit
@@ -35,6 +39,7 @@ build script or user-created if needed.  This is not a complete listing. ::
    +--pull-binary-libs.sh       Pulls binary artifacts from remote repository.
    +--push-binary-libs.sh       Pushes new binary artifacts and creates sha.
    +--README.rst                The file you are currently reading.
+   +--scalaness                 Documentation and sample code for Scalaness.
    +--src/                      All the source files of Scala.
    |   +--actors/               The sources of the Actor library.
    |   +--compiler/             The sources of the Scala compiler.
