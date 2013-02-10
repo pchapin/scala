@@ -31,15 +31,18 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
 
   def newTransformer(unit: CompilationUnit) = new PostParserTransformer
 
-  // The methods surrounded by '=' are currently duplicated in ScalanessTyper.scala. They should be factored out.
-  //===================================================================================================================
+  // The methods surrounded by '=' are currently duplicated in ScalanessTyper.scala.
+  // They should be factored out.
+  //=============================================================================================
 
   /*
    * Check to see if last item in the class definition is a string literal.
    *
    * @param lastItem The AST of the last item in a class definition.
-   * @return Some( (shortName, fullName) ) if the last item is a string literal. Here shortName is the value of the
-   * string literal and fullName is the full path to the inclusion. This method does not check if the inclusion file
+   * @return Some( (shortName, fullName) ) if the last item is a string literal. Here shortName
+   * is the value of the
+   * string literal and fullName is the full path to the inclusion. This method does not check if
+   * the inclusion file
    * actually exists. None is returned if the last item is not a string literal.
    */
   private def checkForMininessInclusion(lastItem: Tree) = {
@@ -113,8 +116,8 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
    * Extracts the type and value parameters of a class representing a Mininess module.
    *
    * @param body A collection of AST roots that define the body of the class.
-   * @return A pair of maps where the first map takes a type parameter name to its upper bound and the second map takes
-   *         a value parameter name to its type.
+   * @return A pair of maps where the first map takes a type parameter name to its upper bound
+   * and the second map takes a value parameter name to its type.
    */
   private def extractTypeAndValueParameters(body: List[Tree]) = {
     // TODO: Report errors with proper source position information.
@@ -132,11 +135,13 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
             val List(parameters) = vparamss
             parameters foreach { parameter =>
               val ValDef(mods, name, tpt, rhs) = parameter
-              // Examine the type of the module's parameter. In theory I should match against the AST of the type.
-              // However it's very difficult to figure out the proper structure because the compiler options for
-              // printing ASTs only print "abbreviated" ASTs that aren't actually useful to me. Thus I'm going to
-              // convert the type to its string representation and analyze the string. It's a hack, but when (if) the
-              // compiler internals are better documented this can be changed to do it the right way.
+              // Examine the type of the module's parameter. In theory I should match against
+              // the AST of the type. However it's very difficult to figure out the proper
+              // structure because the compiler options for printing ASTs only print
+              // "abbreviated" ASTs that aren't actually useful to me. Thus I'm going to convert
+              // the type to its string representation and analyze the string. It's a hack, but
+              // when (if) the compiler internals are better documented this can be changed to
+              // do it the right way.
               //
               val typeName = tpt.toString()  // Or should this be tpt.tpe.toString()?
               val leftSquareBracketIndex = typeName.indexOf('[')
@@ -146,9 +151,10 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
                   (name.toString -> liftType(typeName))
               }
               else {
-                // It is parameterized. Verify that it's a MetaType. This is a little dicey because at this point the
-                // normal namer and typer phases have not yet run. Thus type names have not been put into a canonical
-                // form yet. The code below works for typical cases.
+                // It is parameterized. Verify that it's a MetaType. This is a little dicey
+                // because at this point the normal namer and typer phases have not yet run.
+                // Thus type names have not been put into a canonical form yet. The code below
+                // works for typical cases.
                 //
                 val constructorName = typeName.substring(0, leftSquareBracketIndex)
                 if (constructorName != "MetaType") {
@@ -170,11 +176,11 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
     (typeParameterDeclarations, valueParameterDeclarations)
   }
 
-  //===================================================================================================================
+  //=============================================================================================
 
   /**
-   * Process the body of a class or module definition to see if it contains a Mininess inclusion. If it does, then
-   * inject appropriate material, etc.
+   * Process the body of a class or module definition to see if it contains a Mininess inclusion.
+   * If it does, then inject appropriate material, etc.
    *
    * @param tparams The type parameters of the enclosing class (an empty list for a module).
    * @param impl The AST of the body of the class or module.
@@ -195,7 +201,9 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
           val (typeParameters, valueParameters) = extractTypeAndValueParameters(body)
           // println(s"typeParameters = $typeParameters, valueParameters = $valueParameters")
 
-          // Compute 'val abstractSyntax = Parser.reparse("/ExampleC.nc", List("firstType", "secondType"))'
+          // Compute 'val abstractSyntax =
+          //            Parser.reparse("/ExampleC.nc", List("firstType", "secondType"))'
+          //
           // TODO: Make the synthesized val private.
           // TODO: Be sure appropriate imports are available.
           val typeNames = for ( (typeName, _) <- typeParameters ) yield Literal(Constant(typeName))
@@ -205,8 +213,10 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
             Apply(Select(Ident("Parser"), "reparse"), List(Literal(Constant(s"/$shortName")), typeNameList))
           val abstractSyntaxVal = treeBuilder.makePatDef(Ident("abstractSyntax"), reparseInvocation)
 
-          // This loop ensures we insert our new material after the synthesized primary constructor.
-          // I'm not sure how necessary that really is, but it seems like a good idea.
+          // This loop ensures we insert our new material after the synthesized primary
+          // constructor. I'm not sure how necessary that really is, but it seems like a good
+          // idea.
+          //
           val newBody = for (bodyItem <- body) yield {
             bodyItem match {
               case someDef @ DefDef(_, name, _, _, _, _) =>

@@ -1,4 +1,4 @@
-// $ANTLR 3.4 Mininess.g 2013-01-27 15:41:28
+// $ANTLR 3.4 Mininess.g 2013-02-10 10:59:54
 
     package edu.uvm.mininess.parser;
 
@@ -2172,8 +2172,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = RAW_IDENTIFIER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:730:5: ( ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )* )
-            // Mininess.g:730:10: ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
+            // Mininess.g:733:5: ( ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )* )
+            // Mininess.g:733:10: ( '_' | 'a' .. 'z' | 'A' .. 'Z' ) ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
             {
             if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
                 input.consume();
@@ -2185,7 +2185,7 @@ public class MininessLexer extends Lexer {
             }
 
 
-            // Mininess.g:730:42: ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
+            // Mininess.g:733:42: ( '_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' )*
             loop1:
             do {
                 int alt1=2;
@@ -2235,8 +2235,8 @@ public class MininessLexer extends Lexer {
         try {
             int _type = CONSTANT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:733:5: ( NUMBER )
-            // Mininess.g:733:10: NUMBER
+            // Mininess.g:736:5: ( NUMBER )
+            // Mininess.g:736:10: NUMBER
             {
             mNUMBER(); 
 
@@ -2257,12 +2257,12 @@ public class MininessLexer extends Lexer {
         try {
             int _type = STRING_LITERAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:736:5: ( '\"' ( options {greedy=false; } : . )* '\"' )
-            // Mininess.g:736:10: '\"' ( options {greedy=false; } : . )* '\"'
+            // Mininess.g:739:5: ( '\"' ( options {greedy=false; } : . )* '\"' )
+            // Mininess.g:739:10: '\"' ( options {greedy=false; } : . )* '\"'
             {
             match('\"'); 
 
-            // Mininess.g:736:14: ( options {greedy=false; } : . )*
+            // Mininess.g:739:14: ( options {greedy=false; } : . )*
             loop2:
             do {
                 int alt2=2;
@@ -2278,7 +2278,7 @@ public class MininessLexer extends Lexer {
 
                 switch (alt2) {
             	case 1 :
-            	    // Mininess.g:736:41: .
+            	    // Mininess.g:739:41: .
             	    {
             	    matchAny(); 
 
@@ -2309,12 +2309,12 @@ public class MininessLexer extends Lexer {
         try {
             int _type = CHARACTER_LITERAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:739:5: ( '\\'' ( options {greedy=false; } : . )* '\\'' )
-            // Mininess.g:739:10: '\\'' ( options {greedy=false; } : . )* '\\''
+            // Mininess.g:742:5: ( '\\'' ( options {greedy=false; } : . )* '\\'' )
+            // Mininess.g:742:10: '\\'' ( options {greedy=false; } : . )* '\\''
             {
             match('\''); 
 
-            // Mininess.g:739:15: ( options {greedy=false; } : . )*
+            // Mininess.g:742:15: ( options {greedy=false; } : . )*
             loop3:
             do {
                 int alt3=2;
@@ -2330,7 +2330,7 @@ public class MininessLexer extends Lexer {
 
                 switch (alt3) {
             	case 1 :
-            	    // Mininess.g:739:42: .
+            	    // Mininess.g:742:42: .
             	    {
             	    matchAny(); 
 
@@ -2361,10 +2361,10 @@ public class MininessLexer extends Lexer {
         try {
             int _type = WHITESPACE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:742:5: ( ( '\\t' | ' ' | '\\r' | '\\n' | '\\f' )+ )
-            // Mininess.g:742:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\f' )+
+            // Mininess.g:745:5: ( ( '\\t' | ' ' | '\\r' | '\\n' | '\\f' )+ )
+            // Mininess.g:745:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\f' )+
             {
-            // Mininess.g:742:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\f' )+
+            // Mininess.g:745:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\f' )+
             int cnt4=0;
             loop4:
             do {
@@ -2421,14 +2421,14 @@ public class MininessLexer extends Lexer {
         try {
             int _type = COMMENT1;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:745:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
-            // Mininess.g:745:10: '/*' ( options {greedy=false; } : . )* '*/'
+            // Mininess.g:748:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
+            // Mininess.g:748:10: '/*' ( options {greedy=false; } : . )* '*/'
             {
             match("/*"); 
 
 
 
-            // Mininess.g:745:15: ( options {greedy=false; } : . )*
+            // Mininess.g:748:15: ( options {greedy=false; } : . )*
             loop5:
             do {
                 int alt5=2;
@@ -2453,7 +2453,7 @@ public class MininessLexer extends Lexer {
 
                 switch (alt5) {
             	case 1 :
-            	    // Mininess.g:745:42: .
+            	    // Mininess.g:748:42: .
             	    {
             	    matchAny(); 
 
@@ -2488,14 +2488,14 @@ public class MininessLexer extends Lexer {
         try {
             int _type = COMMENT2;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // Mininess.g:748:5: ( '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' ) )
-            // Mininess.g:748:10: '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' )
+            // Mininess.g:751:5: ( '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' ) )
+            // Mininess.g:751:10: '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' )
             {
             match("//"); 
 
 
 
-            // Mininess.g:748:15: ( options {greedy=false; } : . )*
+            // Mininess.g:751:15: ( options {greedy=false; } : . )*
             loop6:
             do {
                 int alt6=2;
@@ -2511,7 +2511,7 @@ public class MininessLexer extends Lexer {
 
                 switch (alt6) {
             	case 1 :
-            	    // Mininess.g:748:42: .
+            	    // Mininess.g:751:42: .
             	    {
             	    matchAny(); 
 
@@ -2550,7 +2550,7 @@ public class MininessLexer extends Lexer {
     // $ANTLR start "NUMBER"
     public final void mNUMBER() throws RecognitionException {
         try {
-            // Mininess.g:759:5: ( DEC_NUMBER | HEX_NUMBER )
+            // Mininess.g:762:5: ( DEC_NUMBER | HEX_NUMBER )
             int alt7=2;
             int LA7_0 = input.LA(1);
 
@@ -2576,7 +2576,7 @@ public class MininessLexer extends Lexer {
             }
             switch (alt7) {
                 case 1 :
-                    // Mininess.g:759:10: DEC_NUMBER
+                    // Mininess.g:762:10: DEC_NUMBER
                     {
                     mDEC_NUMBER(); 
 
@@ -2584,7 +2584,7 @@ public class MininessLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // Mininess.g:760:10: HEX_NUMBER
+                    // Mininess.g:763:10: HEX_NUMBER
                     {
                     mHEX_NUMBER(); 
 
@@ -2604,10 +2604,10 @@ public class MininessLexer extends Lexer {
     // $ANTLR start "DEC_NUMBER"
     public final void mDEC_NUMBER() throws RecognitionException {
         try {
-            // Mininess.g:763:5: ( ( DIGIT )+ ( NUMBER_SUFFIX )? )
-            // Mininess.g:763:10: ( DIGIT )+ ( NUMBER_SUFFIX )?
+            // Mininess.g:766:5: ( ( DIGIT )+ ( NUMBER_SUFFIX )? )
+            // Mininess.g:766:10: ( DIGIT )+ ( NUMBER_SUFFIX )?
             {
-            // Mininess.g:763:10: ( DIGIT )+
+            // Mininess.g:766:10: ( DIGIT )+
             int cnt8=0;
             loop8:
             do {
@@ -2646,7 +2646,7 @@ public class MininessLexer extends Lexer {
             } while (true);
 
 
-            // Mininess.g:763:21: ( NUMBER_SUFFIX )?
+            // Mininess.g:766:21: ( NUMBER_SUFFIX )?
             int alt9=2;
             int LA9_0 = input.LA(1);
 
@@ -2655,7 +2655,7 @@ public class MininessLexer extends Lexer {
             }
             switch (alt9) {
                 case 1 :
-                    // Mininess.g:763:23: NUMBER_SUFFIX
+                    // Mininess.g:766:23: NUMBER_SUFFIX
                     {
                     mNUMBER_SUFFIX(); 
 
@@ -2679,13 +2679,13 @@ public class MininessLexer extends Lexer {
     // $ANTLR start "HEX_NUMBER"
     public final void mHEX_NUMBER() throws RecognitionException {
         try {
-            // Mininess.g:766:5: ( NUMBER_PREFIX ( HEX_DIGIT )+ ( NUMBER_SUFFIX )? )
-            // Mininess.g:766:10: NUMBER_PREFIX ( HEX_DIGIT )+ ( NUMBER_SUFFIX )?
+            // Mininess.g:769:5: ( NUMBER_PREFIX ( HEX_DIGIT )+ ( NUMBER_SUFFIX )? )
+            // Mininess.g:769:10: NUMBER_PREFIX ( HEX_DIGIT )+ ( NUMBER_SUFFIX )?
             {
             mNUMBER_PREFIX(); 
 
 
-            // Mininess.g:766:24: ( HEX_DIGIT )+
+            // Mininess.g:769:24: ( HEX_DIGIT )+
             int cnt10=0;
             loop10:
             do {
@@ -2724,7 +2724,7 @@ public class MininessLexer extends Lexer {
             } while (true);
 
 
-            // Mininess.g:766:39: ( NUMBER_SUFFIX )?
+            // Mininess.g:769:39: ( NUMBER_SUFFIX )?
             int alt11=2;
             int LA11_0 = input.LA(1);
 
@@ -2733,7 +2733,7 @@ public class MininessLexer extends Lexer {
             }
             switch (alt11) {
                 case 1 :
-                    // Mininess.g:766:41: NUMBER_SUFFIX
+                    // Mininess.g:769:41: NUMBER_SUFFIX
                     {
                     mNUMBER_SUFFIX(); 
 
@@ -2757,7 +2757,7 @@ public class MininessLexer extends Lexer {
     // $ANTLR start "DIGIT"
     public final void mDIGIT() throws RecognitionException {
         try {
-            // Mininess.g:769:5: ( '0' .. '9' )
+            // Mininess.g:772:5: ( '0' .. '9' )
             // Mininess.g:
             {
             if ( (input.LA(1) >= '0' && input.LA(1) <= '9') ) {
@@ -2783,7 +2783,7 @@ public class MininessLexer extends Lexer {
     // $ANTLR start "HEX_DIGIT"
     public final void mHEX_DIGIT() throws RecognitionException {
         try {
-            // Mininess.g:772:5: ( '0' .. '9' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' )
+            // Mininess.g:775:5: ( '0' .. '9' | 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' )
             // Mininess.g:
             {
             if ( (input.LA(1) >= '0' && input.LA(1) <= '9')||(input.LA(1) >= 'A' && input.LA(1) <= 'F')||(input.LA(1) >= 'a' && input.LA(1) <= 'f') ) {
@@ -2809,8 +2809,8 @@ public class MininessLexer extends Lexer {
     // $ANTLR start "NUMBER_PREFIX"
     public final void mNUMBER_PREFIX() throws RecognitionException {
         try {
-            // Mininess.g:775:5: ( '0x' )
-            // Mininess.g:775:10: '0x'
+            // Mininess.g:778:5: ( '0x' )
+            // Mininess.g:778:10: '0x'
             {
             match("0x"); 
 
@@ -2829,10 +2829,10 @@ public class MininessLexer extends Lexer {
     // $ANTLR start "NUMBER_SUFFIX"
     public final void mNUMBER_SUFFIX() throws RecognitionException {
         try {
-            // Mininess.g:778:5: ( ( 'l' | 'L' | 'u' | 'U' | 'lu' | 'ul' | 'LU' | 'UL' ) )
-            // Mininess.g:778:10: ( 'l' | 'L' | 'u' | 'U' | 'lu' | 'ul' | 'LU' | 'UL' )
+            // Mininess.g:781:5: ( ( 'l' | 'L' | 'u' | 'U' | 'lu' | 'ul' | 'LU' | 'UL' ) )
+            // Mininess.g:781:10: ( 'l' | 'L' | 'u' | 'U' | 'lu' | 'ul' | 'LU' | 'UL' )
             {
-            // Mininess.g:778:10: ( 'l' | 'L' | 'u' | 'U' | 'lu' | 'ul' | 'LU' | 'UL' )
+            // Mininess.g:781:10: ( 'l' | 'L' | 'u' | 'U' | 'lu' | 'ul' | 'LU' | 'UL' )
             int alt12=8;
             switch ( input.LA(1) ) {
             case 'l':
@@ -2893,35 +2893,35 @@ public class MininessLexer extends Lexer {
 
             switch (alt12) {
                 case 1 :
-                    // Mininess.g:778:11: 'l'
+                    // Mininess.g:781:11: 'l'
                     {
                     match('l'); 
 
                     }
                     break;
                 case 2 :
-                    // Mininess.g:778:17: 'L'
+                    // Mininess.g:781:17: 'L'
                     {
                     match('L'); 
 
                     }
                     break;
                 case 3 :
-                    // Mininess.g:778:23: 'u'
+                    // Mininess.g:781:23: 'u'
                     {
                     match('u'); 
 
                     }
                     break;
                 case 4 :
-                    // Mininess.g:778:29: 'U'
+                    // Mininess.g:781:29: 'U'
                     {
                     match('U'); 
 
                     }
                     break;
                 case 5 :
-                    // Mininess.g:778:35: 'lu'
+                    // Mininess.g:781:35: 'lu'
                     {
                     match("lu"); 
 
@@ -2930,7 +2930,7 @@ public class MininessLexer extends Lexer {
                     }
                     break;
                 case 6 :
-                    // Mininess.g:778:42: 'ul'
+                    // Mininess.g:781:42: 'ul'
                     {
                     match("ul"); 
 
@@ -2939,7 +2939,7 @@ public class MininessLexer extends Lexer {
                     }
                     break;
                 case 7 :
-                    // Mininess.g:778:49: 'LU'
+                    // Mininess.g:781:49: 'LU'
                     {
                     match("LU"); 
 
@@ -2948,7 +2948,7 @@ public class MininessLexer extends Lexer {
                     }
                     break;
                 case 8 :
-                    // Mininess.g:778:56: 'UL'
+                    // Mininess.g:781:56: 'UL'
                     {
                     match("UL"); 
 

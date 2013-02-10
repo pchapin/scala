@@ -321,13 +321,15 @@ trait ScalanessTyper {
                 TreeConverter.dumpAST(abstractSyntax)
               }
 
-              // Unwrap full interface definitions.
-              // TODO: The interface files should be preprocessed as well.
-              println("**** Interface Unwrapping")
-              val Some(interfaceFolder) = scalanessSettings("interfacePath")
-              val interfaceWorker = new edu.uvm.mininess.InterfaceUnwrapper(List(interfaceFolder))
-              val unwrappedAbstractSyntax = interfaceWorker.unwrapInterface(abstractSyntax)
-               
+              // // Unwrap full interface definitions.
+              // // TODO: The interface files should be preprocessed as well.
+              // println("**** Interface Unwrapping")
+              // val Some(interfaceFolder) = scalanessSettings("interfacePath")
+              // val interfaceWorker =
+              //   new edu.uvm.mininess.InterfaceUnwrapper(List(interfaceFolder))
+              // val unwrappedAbstractSyntax = interfaceWorker.unwrapInterface(abstractSyntax)
+              val unwrappedAbstractSyntax = abstractSyntax  // In case we put unwrapping back.
+
               // Decorate the AST by populating symbol tables from various declarations.
               println("**** Symbol Processing")
               edu.uvm.mininess.Symbols.decorateAST(unwrappedAbstractSyntax)

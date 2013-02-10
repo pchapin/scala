@@ -1,4 +1,4 @@
-// $ANTLR 3.4 Mininess.g 2013-01-27 15:41:27
+// $ANTLR 3.4 Mininess.g 2013-02-10 10:59:52
 
     package edu.uvm.mininess.parser;
     import java.util.LinkedList;
@@ -174,7 +174,7 @@ public class MininessParser extends Parser {
     }
     public MininessParser(TokenStream input, RecognizerSharedState state) {
         super(input, state);
-        this.state.ruleMemo = new HashMap[240+1];
+        this.state.ruleMemo = new HashMap[234+1];
          
 
     }
@@ -545,7 +545,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
             // AST REWRITE
-            // elements: postfix_expression_modifier, primary_expression, call_kind
+            // elements: primary_expression, call_kind, postfix_expression_modifier
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -856,7 +856,7 @@ public TreeAdaptor getTreeAdaptor() {
                     if ( state.backtracking==0 ) stream_identifier.add(identifier18.getTree());
 
                     // AST REWRITE
-                    // elements: DOT, identifier
+                    // elements: identifier, DOT
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -4937,7 +4937,7 @@ public TreeAdaptor getTreeAdaptor() {
                                  }
 
                     // AST REWRITE
-                    // elements: declaration_specifiers, init_declarator_list
+                    // elements: init_declarator_list, declaration_specifiers
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -5074,7 +5074,7 @@ public TreeAdaptor getTreeAdaptor() {
                                  }
 
                     // AST REWRITE
-                    // elements: init_declarator_list, declaration_specifiers, TYPEDEF
+                    // elements: init_declarator_list, TYPEDEF, declaration_specifiers
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -5532,7 +5532,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
             // AST REWRITE
-            // elements: initializer, declarator
+            // elements: declarator, initializer
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -6322,7 +6322,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
                     // AST REWRITE
-                    // elements: struct_declaration_list, struct_or_union, identifier
+                    // elements: struct_or_union, struct_declaration_list, identifier
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -6656,7 +6656,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
             // AST REWRITE
-            // elements: struct_declarator_list, specifier_qualifier_list
+            // elements: specifier_qualifier_list, struct_declarator_list
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -7441,7 +7441,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
                     // AST REWRITE
-                    // elements: enumerator_list, identifier, ENUM
+                    // elements: identifier, ENUM, enumerator_list
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -7725,7 +7725,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
             // AST REWRITE
-            // elements: constant_expression, identifier
+            // elements: identifier, constant_expression
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -7914,7 +7914,7 @@ public TreeAdaptor getTreeAdaptor() {
             if ( state.backtracking==0 ) stream_direct_declarator.add(direct_declarator200.getTree());
 
             // AST REWRITE
-            // elements: direct_declarator, pointer
+            // elements: pointer, direct_declarator
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -11101,7 +11101,7 @@ public TreeAdaptor getTreeAdaptor() {
                     if ( state.backtracking==0 ) stream_statement.add(statement269.getTree());
 
                     // AST REWRITE
-                    // elements: CASE, constant_expression, statement
+                    // elements: constant_expression, CASE, statement
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -11799,7 +11799,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
                     // AST REWRITE
-                    // elements: expression, statement, statement, IF
+                    // elements: expression, statement, IF, statement
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -11872,7 +11872,7 @@ public TreeAdaptor getTreeAdaptor() {
                     if ( state.backtracking==0 ) stream_statement.add(statement291.getTree());
 
                     // AST REWRITE
-                    // elements: statement, expression, SWITCH
+                    // elements: expression, statement, SWITCH
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -12038,7 +12038,7 @@ public TreeAdaptor getTreeAdaptor() {
                     if ( state.backtracking==0 ) stream_statement.add(statement296.getTree());
 
                     // AST REWRITE
-                    // elements: WHILE, statement, expression
+                    // elements: statement, expression, WHILE
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -12177,7 +12177,7 @@ public TreeAdaptor getTreeAdaptor() {
                     if ( state.backtracking==0 ) stream_statement.add(statement302.getTree());
 
                     // AST REWRITE
-                    // elements: statement, FOR, iter, init, cond
+                    // elements: statement, init, iter, cond, FOR
                     // token labels: 
                     // rule labels: retval, init, iter, cond
                     // token list labels: 
@@ -12777,7 +12777,7 @@ public TreeAdaptor getTreeAdaptor() {
             if ( state.backtracking==0 ) stream_compound_statement.add(compound_statement315.getTree());
 
             // AST REWRITE
-            // elements: declaration_specifiers, compound_statement, declarator
+            // elements: declarator, compound_statement, declaration_specifiers
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -12836,7 +12836,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "mininess_file"
-    // Mininess.g:673:1: mininess_file : ( ( translation_unit )? interface_definition -> ^( FILE ( translation_unit )? interface_definition ) | ( translation_unit )? component -> ^( FILE ( translation_unit )? component ) );
+    // Mininess.g:674:1: mininess_file : ( translation_unit )? component -> ^( FILE ( translation_unit )? component ) ;
     public final MininessParser.mininess_file_return mininess_file() throws RecognitionException {
         MininessParser.mininess_file_return retval = new MininessParser.mininess_file_return();
         retval.start = input.LT(1);
@@ -12847,835 +12847,50 @@ public TreeAdaptor getTreeAdaptor() {
 
         MininessParser.translation_unit_return translation_unit316 =null;
 
-        MininessParser.interface_definition_return interface_definition317 =null;
-
-        MininessParser.translation_unit_return translation_unit318 =null;
-
-        MininessParser.component_return component319 =null;
+        MininessParser.component_return component317 =null;
 
 
         RewriteRuleSubtreeStream stream_component=new RewriteRuleSubtreeStream(adaptor,"rule component");
-        RewriteRuleSubtreeStream stream_interface_definition=new RewriteRuleSubtreeStream(adaptor,"rule interface_definition");
         RewriteRuleSubtreeStream stream_translation_unit=new RewriteRuleSubtreeStream(adaptor,"rule translation_unit");
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 67) ) { return retval; }
 
-            // Mininess.g:674:5: ( ( translation_unit )? interface_definition -> ^( FILE ( translation_unit )? interface_definition ) | ( translation_unit )? component -> ^( FILE ( translation_unit )? component ) )
-            int alt93=2;
-            switch ( input.LA(1) ) {
-            case COMMAND:
-            case EVENT:
-            case TASK:
-                {
-                int LA93_1 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 1, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case VOID:
-                {
-                int LA93_2 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 2, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case CHAR:
-                {
-                int LA93_3 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 3, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case SHORT:
-                {
-                int LA93_4 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 4, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case INT:
-                {
-                int LA93_5 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 5, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case LONG:
-                {
-                int LA93_6 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 6, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case SIGNED:
-                {
-                int LA93_7 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 7, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case UNSIGNED:
-                {
-                int LA93_8 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 8, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case INT8_T:
-                {
-                int LA93_9 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 9, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case INT16_T:
-                {
-                int LA93_10 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 10, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case INT32_T:
-                {
-                int LA93_11 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 11, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case UINT8_T:
-                {
-                int LA93_12 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 12, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case UINT16_T:
-                {
-                int LA93_13 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 13, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case UINT32_T:
-                {
-                int LA93_14 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 14, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case NX_UINT8_T:
-                {
-                int LA93_15 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 15, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case NX_UINT16_T:
-                {
-                int LA93_16 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 16, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case NX_UINT32_T:
-                {
-                int LA93_17 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 17, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case ERROR_T:
-                {
-                int LA93_18 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 18, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case NX_STRUCT:
-            case STRUCT:
-                {
-                int LA93_19 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 19, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case ENUM:
-                {
-                int LA93_20 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 20, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case RAW_IDENTIFIER:
-                {
-                int LA93_21 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 21, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case CONST:
-                {
-                int LA93_22 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 22, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case DEFAULT:
-                {
-                int LA93_23 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 23, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case TYPEDEF:
-                {
-                int LA93_24 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 24, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case HASH:
-                {
-                int LA93_25 = input.LA(2);
-
-                if ( (synpred155_Mininess()) ) {
-                    alt93=1;
-                }
-                else if ( (true) ) {
-                    alt93=2;
-                }
-                else {
-                    if (state.backtracking>0) {state.failed=true; return retval;}
-                    NoViableAltException nvae =
-                        new NoViableAltException("", 93, 25, input);
-
-                    throw nvae;
-
-                }
-                }
-                break;
-            case INTERFACE:
-                {
-                alt93=1;
-                }
-                break;
-            case MODULE:
-                {
-                alt93=2;
-                }
-                break;
-            default:
-                if (state.backtracking>0) {state.failed=true; return retval;}
-                NoViableAltException nvae =
-                    new NoViableAltException("", 93, 0, input);
-
-                throw nvae;
-
-            }
-
-            switch (alt93) {
-                case 1 :
-                    // Mininess.g:674:10: ( translation_unit )? interface_definition
-                    {
-                    // Mininess.g:674:10: ( translation_unit )?
-                    int alt91=2;
-                    int LA91_0 = input.LA(1);
-
-                    if ( (LA91_0==CHAR||LA91_0==COMMAND||LA91_0==CONST||LA91_0==DEFAULT||LA91_0==ENUM||(LA91_0 >= ERROR_T && LA91_0 <= EVENT)||LA91_0==HASH||(LA91_0 >= INT && LA91_0 <= INT8_T)||LA91_0==LONG||(LA91_0 >= NX_STRUCT && LA91_0 <= NX_UINT8_T)||LA91_0==RAW_IDENTIFIER||(LA91_0 >= SHORT && LA91_0 <= SIGNED)||LA91_0==STRUCT||(LA91_0 >= TASK && LA91_0 <= UINT8_T)||LA91_0==UNSIGNED||LA91_0==VOID) ) {
-                        alt91=1;
-                    }
-                    switch (alt91) {
-                        case 1 :
-                            // Mininess.g:674:10: translation_unit
-                            {
-                            pushFollow(FOLLOW_translation_unit_in_mininess_file5807);
-                            translation_unit316=translation_unit();
-
-                            state._fsp--;
-                            if (state.failed) return retval;
-                            if ( state.backtracking==0 ) stream_translation_unit.add(translation_unit316.getTree());
-
-                            }
-                            break;
-
-                    }
-
-
-                    pushFollow(FOLLOW_interface_definition_in_mininess_file5810);
-                    interface_definition317=interface_definition();
-
-                    state._fsp--;
-                    if (state.failed) return retval;
-                    if ( state.backtracking==0 ) stream_interface_definition.add(interface_definition317.getTree());
-
-                    // AST REWRITE
-                    // elements: interface_definition, translation_unit
-                    // token labels: 
-                    // rule labels: retval
-                    // token list labels: 
-                    // rule list labels: 
-                    // wildcard labels: 
-                    if ( state.backtracking==0 ) {
-
-                    retval.tree = root_0;
-                    RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
-
-                    root_0 = (Object)adaptor.nil();
-                    // 674:49: -> ^( FILE ( translation_unit )? interface_definition )
-                    {
-                        // Mininess.g:674:52: ^( FILE ( translation_unit )? interface_definition )
-                        {
-                        Object root_1 = (Object)adaptor.nil();
-                        root_1 = (Object)adaptor.becomeRoot(
-                        (Object)adaptor.create(FILE, "FILE")
-                        , root_1);
-
-                        // Mininess.g:674:59: ( translation_unit )?
-                        if ( stream_translation_unit.hasNext() ) {
-                            adaptor.addChild(root_1, stream_translation_unit.nextTree());
-
-                        }
-                        stream_translation_unit.reset();
-
-                        adaptor.addChild(root_1, stream_interface_definition.nextTree());
-
-                        adaptor.addChild(root_0, root_1);
-                        }
-
-                    }
-
-
-                    retval.tree = root_0;
-                    }
-
-                    }
-                    break;
-                case 2 :
-                    // Mininess.g:675:10: ( translation_unit )? component
-                    {
-                    // Mininess.g:675:10: ( translation_unit )?
-                    int alt92=2;
-                    int LA92_0 = input.LA(1);
-
-                    if ( (LA92_0==CHAR||LA92_0==COMMAND||LA92_0==CONST||LA92_0==DEFAULT||LA92_0==ENUM||(LA92_0 >= ERROR_T && LA92_0 <= EVENT)||LA92_0==HASH||(LA92_0 >= INT && LA92_0 <= INT8_T)||LA92_0==LONG||(LA92_0 >= NX_STRUCT && LA92_0 <= NX_UINT8_T)||LA92_0==RAW_IDENTIFIER||(LA92_0 >= SHORT && LA92_0 <= SIGNED)||LA92_0==STRUCT||(LA92_0 >= TASK && LA92_0 <= UINT8_T)||LA92_0==UNSIGNED||LA92_0==VOID) ) {
-                        alt92=1;
-                    }
-                    switch (alt92) {
-                        case 1 :
-                            // Mininess.g:675:10: translation_unit
-                            {
-                            pushFollow(FOLLOW_translation_unit_in_mininess_file5832);
-                            translation_unit318=translation_unit();
-
-                            state._fsp--;
-                            if (state.failed) return retval;
-                            if ( state.backtracking==0 ) stream_translation_unit.add(translation_unit318.getTree());
-
-                            }
-                            break;
-
-                    }
-
-
-                    pushFollow(FOLLOW_component_in_mininess_file5835);
-                    component319=component();
-
-                    state._fsp--;
-                    if (state.failed) return retval;
-                    if ( state.backtracking==0 ) stream_component.add(component319.getTree());
-
-                    // AST REWRITE
-                    // elements: component, translation_unit
-                    // token labels: 
-                    // rule labels: retval
-                    // token list labels: 
-                    // rule list labels: 
-                    // wildcard labels: 
-                    if ( state.backtracking==0 ) {
-
-                    retval.tree = root_0;
-                    RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
-
-                    root_0 = (Object)adaptor.nil();
-                    // 675:38: -> ^( FILE ( translation_unit )? component )
-                    {
-                        // Mininess.g:675:41: ^( FILE ( translation_unit )? component )
-                        {
-                        Object root_1 = (Object)adaptor.nil();
-                        root_1 = (Object)adaptor.becomeRoot(
-                        (Object)adaptor.create(FILE, "FILE")
-                        , root_1);
-
-                        // Mininess.g:675:48: ( translation_unit )?
-                        if ( stream_translation_unit.hasNext() ) {
-                            adaptor.addChild(root_1, stream_translation_unit.nextTree());
-
-                        }
-                        stream_translation_unit.reset();
-
-                        adaptor.addChild(root_1, stream_component.nextTree());
-
-                        adaptor.addChild(root_0, root_1);
-                        }
-
-                    }
-
-
-                    retval.tree = root_0;
-                    }
-
-                    }
-                    break;
-
-            }
-            retval.stop = input.LT(-1);
-
-
-            if ( state.backtracking==0 ) {
-
-            retval.tree = (Object)adaptor.rulePostProcessing(root_0);
-            adaptor.setTokenBoundaries(retval.tree, retval.start, retval.stop);
-            }
-        }
-
-            catch (RecognitionException e) {
-                throw e;
-            }
-
-        finally {
-        	// do for sure before leaving
-            if ( state.backtracking>0 ) { memoize(input, 67, mininess_file_StartIndex); }
-
-        }
-        return retval;
-    }
-    // $ANTLR end "mininess_file"
-
-
-    public static class interface_definition_return extends ParserRuleReturnScope {
-        Object tree;
-        public Object getTree() { return tree; }
-    };
-
-
-    // $ANTLR start "interface_definition"
-    // Mininess.g:678:1: interface_definition : INTERFACE identifier '{' ( declaration | line_directive )* '}' -> ^( INTERFACE identifier ( declaration )* ) ;
-    public final MininessParser.interface_definition_return interface_definition() throws RecognitionException {
-        MininessParser.interface_definition_return retval = new MininessParser.interface_definition_return();
-        retval.start = input.LT(1);
-
-        int interface_definition_StartIndex = input.index();
-
-        Object root_0 = null;
-
-        Token INTERFACE320=null;
-        Token char_literal322=null;
-        Token char_literal325=null;
-        MininessParser.identifier_return identifier321 =null;
-
-        MininessParser.declaration_return declaration323 =null;
-
-        MininessParser.line_directive_return line_directive324 =null;
-
-
-        Object INTERFACE320_tree=null;
-        Object char_literal322_tree=null;
-        Object char_literal325_tree=null;
-        RewriteRuleTokenStream stream_INTERFACE=new RewriteRuleTokenStream(adaptor,"token INTERFACE");
-        RewriteRuleTokenStream stream_RBRACE=new RewriteRuleTokenStream(adaptor,"token RBRACE");
-        RewriteRuleTokenStream stream_LBRACE=new RewriteRuleTokenStream(adaptor,"token LBRACE");
-        RewriteRuleSubtreeStream stream_declaration=new RewriteRuleSubtreeStream(adaptor,"rule declaration");
-        RewriteRuleSubtreeStream stream_line_directive=new RewriteRuleSubtreeStream(adaptor,"rule line_directive");
-        RewriteRuleSubtreeStream stream_identifier=new RewriteRuleSubtreeStream(adaptor,"rule identifier");
-        try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 68) ) { return retval; }
-
-            // Mininess.g:679:5: ( INTERFACE identifier '{' ( declaration | line_directive )* '}' -> ^( INTERFACE identifier ( declaration )* ) )
-            // Mininess.g:679:10: INTERFACE identifier '{' ( declaration | line_directive )* '}'
+            // Mininess.g:675:5: ( ( translation_unit )? component -> ^( FILE ( translation_unit )? component ) )
+            // Mininess.g:675:10: ( translation_unit )? component
             {
-            INTERFACE320=(Token)match(input,INTERFACE,FOLLOW_INTERFACE_in_interface_definition5862); if (state.failed) return retval; 
-            if ( state.backtracking==0 ) stream_INTERFACE.add(INTERFACE320);
+            // Mininess.g:675:10: ( translation_unit )?
+            int alt91=2;
+            int LA91_0 = input.LA(1);
+
+            if ( (LA91_0==CHAR||LA91_0==COMMAND||LA91_0==CONST||LA91_0==DEFAULT||LA91_0==ENUM||(LA91_0 >= ERROR_T && LA91_0 <= EVENT)||LA91_0==HASH||(LA91_0 >= INT && LA91_0 <= INT8_T)||LA91_0==LONG||(LA91_0 >= NX_STRUCT && LA91_0 <= NX_UINT8_T)||LA91_0==RAW_IDENTIFIER||(LA91_0 >= SHORT && LA91_0 <= SIGNED)||LA91_0==STRUCT||(LA91_0 >= TASK && LA91_0 <= UINT8_T)||LA91_0==UNSIGNED||LA91_0==VOID) ) {
+                alt91=1;
+            }
+            switch (alt91) {
+                case 1 :
+                    // Mininess.g:675:10: translation_unit
+                    {
+                    pushFollow(FOLLOW_translation_unit_in_mininess_file5808);
+                    translation_unit316=translation_unit();
+
+                    state._fsp--;
+                    if (state.failed) return retval;
+                    if ( state.backtracking==0 ) stream_translation_unit.add(translation_unit316.getTree());
+
+                    }
+                    break;
+
+            }
 
 
-            pushFollow(FOLLOW_identifier_in_interface_definition5864);
-            identifier321=identifier();
+            pushFollow(FOLLOW_component_in_mininess_file5811);
+            component317=component();
 
             state._fsp--;
             if (state.failed) return retval;
-            if ( state.backtracking==0 ) stream_identifier.add(identifier321.getTree());
-
-            char_literal322=(Token)match(input,LBRACE,FOLLOW_LBRACE_in_interface_definition5874); if (state.failed) return retval; 
-            if ( state.backtracking==0 ) stream_LBRACE.add(char_literal322);
-
-
-            if ( state.backtracking==0 ) { symbols.enterScope(); }
-
-            // Mininess.g:681:9: ( declaration | line_directive )*
-            loop94:
-            do {
-                int alt94=3;
-                int LA94_0 = input.LA(1);
-
-                if ( (LA94_0==CHAR||LA94_0==COMMAND||LA94_0==CONST||LA94_0==DEFAULT||LA94_0==ENUM||(LA94_0 >= ERROR_T && LA94_0 <= EVENT)||(LA94_0 >= INT && LA94_0 <= INT8_T)||LA94_0==LONG||(LA94_0 >= NX_STRUCT && LA94_0 <= NX_UINT8_T)||LA94_0==RAW_IDENTIFIER||(LA94_0 >= SHORT && LA94_0 <= SIGNED)||LA94_0==STRUCT||(LA94_0 >= TASK && LA94_0 <= UINT8_T)||LA94_0==UNSIGNED||LA94_0==VOID) ) {
-                    alt94=1;
-                }
-                else if ( (LA94_0==HASH) ) {
-                    alt94=2;
-                }
-
-
-                switch (alt94) {
-            	case 1 :
-            	    // Mininess.g:681:10: declaration
-            	    {
-            	    pushFollow(FOLLOW_declaration_in_interface_definition5887);
-            	    declaration323=declaration();
-
-            	    state._fsp--;
-            	    if (state.failed) return retval;
-            	    if ( state.backtracking==0 ) stream_declaration.add(declaration323.getTree());
-
-            	    }
-            	    break;
-            	case 2 :
-            	    // Mininess.g:681:24: line_directive
-            	    {
-            	    pushFollow(FOLLOW_line_directive_in_interface_definition5891);
-            	    line_directive324=line_directive();
-
-            	    state._fsp--;
-            	    if (state.failed) return retval;
-            	    if ( state.backtracking==0 ) stream_line_directive.add(line_directive324.getTree());
-
-            	    }
-            	    break;
-
-            	default :
-            	    break loop94;
-                }
-            } while (true);
-
-
-            if ( state.backtracking==0 ) { symbols.exitScope();  }
-
-            char_literal325=(Token)match(input,RBRACE,FOLLOW_RBRACE_in_interface_definition5909); if (state.failed) return retval; 
-            if ( state.backtracking==0 ) stream_RBRACE.add(char_literal325);
-
+            if ( state.backtracking==0 ) stream_component.add(component317.getTree());
 
             // AST REWRITE
-            // elements: INTERFACE, declaration, identifier
+            // elements: component, translation_unit
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -13687,23 +12902,23 @@ public TreeAdaptor getTreeAdaptor() {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 683:13: -> ^( INTERFACE identifier ( declaration )* )
+            // 675:38: -> ^( FILE ( translation_unit )? component )
             {
-                // Mininess.g:683:16: ^( INTERFACE identifier ( declaration )* )
+                // Mininess.g:675:41: ^( FILE ( translation_unit )? component )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(
-                stream_INTERFACE.nextNode()
+                (Object)adaptor.create(FILE, "FILE")
                 , root_1);
 
-                adaptor.addChild(root_1, stream_identifier.nextTree());
-
-                // Mininess.g:683:39: ( declaration )*
-                while ( stream_declaration.hasNext() ) {
-                    adaptor.addChild(root_1, stream_declaration.nextTree());
+                // Mininess.g:675:48: ( translation_unit )?
+                if ( stream_translation_unit.hasNext() ) {
+                    adaptor.addChild(root_1, stream_translation_unit.nextTree());
 
                 }
-                stream_declaration.reset();
+                stream_translation_unit.reset();
+
+                adaptor.addChild(root_1, stream_component.nextTree());
 
                 adaptor.addChild(root_0, root_1);
                 }
@@ -13732,12 +12947,12 @@ public TreeAdaptor getTreeAdaptor() {
 
         finally {
         	// do for sure before leaving
-            if ( state.backtracking>0 ) { memoize(input, 68, interface_definition_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 67, mininess_file_StartIndex); }
 
         }
         return retval;
     }
-    // $ANTLR end "interface_definition"
+    // $ANTLR end "mininess_file"
 
 
     public static class component_return extends ParserRuleReturnScope {
@@ -13747,7 +12962,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "component"
-    // Mininess.g:685:1: component : MODULE identifier component_specification implementation -> ^( MODULE identifier component_specification implementation ) ;
+    // Mininess.g:688:1: component : MODULE identifier component_specification implementation -> ^( MODULE identifier component_specification implementation ) ;
     public final MininessParser.component_return component() throws RecognitionException {
         MininessParser.component_return retval = new MininessParser.component_return();
         retval.start = input.LT(1);
@@ -13756,52 +12971,52 @@ public TreeAdaptor getTreeAdaptor() {
 
         Object root_0 = null;
 
-        Token MODULE326=null;
-        MininessParser.identifier_return identifier327 =null;
+        Token MODULE318=null;
+        MininessParser.identifier_return identifier319 =null;
 
-        MininessParser.component_specification_return component_specification328 =null;
+        MininessParser.component_specification_return component_specification320 =null;
 
-        MininessParser.implementation_return implementation329 =null;
+        MininessParser.implementation_return implementation321 =null;
 
 
-        Object MODULE326_tree=null;
+        Object MODULE318_tree=null;
         RewriteRuleTokenStream stream_MODULE=new RewriteRuleTokenStream(adaptor,"token MODULE");
         RewriteRuleSubtreeStream stream_component_specification=new RewriteRuleSubtreeStream(adaptor,"rule component_specification");
         RewriteRuleSubtreeStream stream_implementation=new RewriteRuleSubtreeStream(adaptor,"rule implementation");
         RewriteRuleSubtreeStream stream_identifier=new RewriteRuleSubtreeStream(adaptor,"rule identifier");
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 69) ) { return retval; }
+            if ( state.backtracking>0 && alreadyParsedRule(input, 68) ) { return retval; }
 
-            // Mininess.g:686:5: ( MODULE identifier component_specification implementation -> ^( MODULE identifier component_specification implementation ) )
-            // Mininess.g:686:9: MODULE identifier component_specification implementation
+            // Mininess.g:689:5: ( MODULE identifier component_specification implementation -> ^( MODULE identifier component_specification implementation ) )
+            // Mininess.g:689:9: MODULE identifier component_specification implementation
             {
-            MODULE326=(Token)match(input,MODULE,FOLLOW_MODULE_in_component5950); if (state.failed) return retval; 
-            if ( state.backtracking==0 ) stream_MODULE.add(MODULE326);
+            MODULE318=(Token)match(input,MODULE,FOLLOW_MODULE_in_component5851); if (state.failed) return retval; 
+            if ( state.backtracking==0 ) stream_MODULE.add(MODULE318);
 
 
-            pushFollow(FOLLOW_identifier_in_component5952);
-            identifier327=identifier();
-
-            state._fsp--;
-            if (state.failed) return retval;
-            if ( state.backtracking==0 ) stream_identifier.add(identifier327.getTree());
-
-            pushFollow(FOLLOW_component_specification_in_component5954);
-            component_specification328=component_specification();
+            pushFollow(FOLLOW_identifier_in_component5853);
+            identifier319=identifier();
 
             state._fsp--;
             if (state.failed) return retval;
-            if ( state.backtracking==0 ) stream_component_specification.add(component_specification328.getTree());
+            if ( state.backtracking==0 ) stream_identifier.add(identifier319.getTree());
 
-            pushFollow(FOLLOW_implementation_in_component5956);
-            implementation329=implementation();
+            pushFollow(FOLLOW_component_specification_in_component5855);
+            component_specification320=component_specification();
 
             state._fsp--;
             if (state.failed) return retval;
-            if ( state.backtracking==0 ) stream_implementation.add(implementation329.getTree());
+            if ( state.backtracking==0 ) stream_component_specification.add(component_specification320.getTree());
+
+            pushFollow(FOLLOW_implementation_in_component5857);
+            implementation321=implementation();
+
+            state._fsp--;
+            if (state.failed) return retval;
+            if ( state.backtracking==0 ) stream_implementation.add(implementation321.getTree());
 
             // AST REWRITE
-            // elements: identifier, MODULE, implementation, component_specification
+            // elements: MODULE, implementation, identifier, component_specification
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -13813,9 +13028,9 @@ public TreeAdaptor getTreeAdaptor() {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 687:13: -> ^( MODULE identifier component_specification implementation )
+            // 690:13: -> ^( MODULE identifier component_specification implementation )
             {
-                // Mininess.g:687:16: ^( MODULE identifier component_specification implementation )
+                // Mininess.g:690:16: ^( MODULE identifier component_specification implementation )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(
@@ -13855,7 +13070,7 @@ public TreeAdaptor getTreeAdaptor() {
 
         finally {
         	// do for sure before leaving
-            if ( state.backtracking>0 ) { memoize(input, 69, component_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 68, component_StartIndex); }
 
         }
         return retval;
@@ -13870,7 +13085,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "implementation"
-    // Mininess.g:689:1: implementation : module_implementation ;
+    // Mininess.g:692:1: implementation : module_implementation ;
     public final MininessParser.implementation_return implementation() throws RecognitionException {
         MininessParser.implementation_return retval = new MininessParser.implementation_return();
         retval.start = input.LT(1);
@@ -13879,25 +13094,25 @@ public TreeAdaptor getTreeAdaptor() {
 
         Object root_0 = null;
 
-        MininessParser.module_implementation_return module_implementation330 =null;
+        MininessParser.module_implementation_return module_implementation322 =null;
 
 
 
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 70) ) { return retval; }
+            if ( state.backtracking>0 && alreadyParsedRule(input, 69) ) { return retval; }
 
-            // Mininess.g:690:5: ( module_implementation )
-            // Mininess.g:690:10: module_implementation
+            // Mininess.g:693:5: ( module_implementation )
+            // Mininess.g:693:10: module_implementation
             {
             root_0 = (Object)adaptor.nil();
 
 
-            pushFollow(FOLLOW_module_implementation_in_implementation5995);
-            module_implementation330=module_implementation();
+            pushFollow(FOLLOW_module_implementation_in_implementation5896);
+            module_implementation322=module_implementation();
 
             state._fsp--;
             if (state.failed) return retval;
-            if ( state.backtracking==0 ) adaptor.addChild(root_0, module_implementation330.getTree());
+            if ( state.backtracking==0 ) adaptor.addChild(root_0, module_implementation322.getTree());
 
             }
 
@@ -13917,7 +13132,7 @@ public TreeAdaptor getTreeAdaptor() {
 
         finally {
         	// do for sure before leaving
-            if ( state.backtracking>0 ) { memoize(input, 70, implementation_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 69, implementation_StartIndex); }
 
         }
         return retval;
@@ -13932,7 +13147,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "module_implementation"
-    // Mininess.g:695:1: module_implementation : IMPLEMENTATION '{' translation_unit '}' -> ^( IMPLEMENTATION translation_unit ) ;
+    // Mininess.g:698:1: module_implementation : IMPLEMENTATION '{' translation_unit '}' -> ^( IMPLEMENTATION translation_unit ) ;
     public final MininessParser.module_implementation_return module_implementation() throws RecognitionException {
         MininessParser.module_implementation_return retval = new MininessParser.module_implementation_return();
         retval.start = input.LT(1);
@@ -13941,50 +13156,50 @@ public TreeAdaptor getTreeAdaptor() {
 
         Object root_0 = null;
 
-        Token IMPLEMENTATION331=null;
-        Token char_literal332=null;
-        Token char_literal334=null;
-        MininessParser.translation_unit_return translation_unit333 =null;
+        Token IMPLEMENTATION323=null;
+        Token char_literal324=null;
+        Token char_literal326=null;
+        MininessParser.translation_unit_return translation_unit325 =null;
 
 
-        Object IMPLEMENTATION331_tree=null;
-        Object char_literal332_tree=null;
-        Object char_literal334_tree=null;
+        Object IMPLEMENTATION323_tree=null;
+        Object char_literal324_tree=null;
+        Object char_literal326_tree=null;
         RewriteRuleTokenStream stream_IMPLEMENTATION=new RewriteRuleTokenStream(adaptor,"token IMPLEMENTATION");
         RewriteRuleTokenStream stream_RBRACE=new RewriteRuleTokenStream(adaptor,"token RBRACE");
         RewriteRuleTokenStream stream_LBRACE=new RewriteRuleTokenStream(adaptor,"token LBRACE");
         RewriteRuleSubtreeStream stream_translation_unit=new RewriteRuleSubtreeStream(adaptor,"rule translation_unit");
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 71) ) { return retval; }
+            if ( state.backtracking>0 && alreadyParsedRule(input, 70) ) { return retval; }
 
-            // Mininess.g:696:5: ( IMPLEMENTATION '{' translation_unit '}' -> ^( IMPLEMENTATION translation_unit ) )
-            // Mininess.g:696:10: IMPLEMENTATION '{' translation_unit '}'
+            // Mininess.g:699:5: ( IMPLEMENTATION '{' translation_unit '}' -> ^( IMPLEMENTATION translation_unit ) )
+            // Mininess.g:699:10: IMPLEMENTATION '{' translation_unit '}'
             {
-            IMPLEMENTATION331=(Token)match(input,IMPLEMENTATION,FOLLOW_IMPLEMENTATION_in_module_implementation6013); if (state.failed) return retval; 
-            if ( state.backtracking==0 ) stream_IMPLEMENTATION.add(IMPLEMENTATION331);
+            IMPLEMENTATION323=(Token)match(input,IMPLEMENTATION,FOLLOW_IMPLEMENTATION_in_module_implementation5914); if (state.failed) return retval; 
+            if ( state.backtracking==0 ) stream_IMPLEMENTATION.add(IMPLEMENTATION323);
 
 
-            char_literal332=(Token)match(input,LBRACE,FOLLOW_LBRACE_in_module_implementation6015); if (state.failed) return retval; 
-            if ( state.backtracking==0 ) stream_LBRACE.add(char_literal332);
+            char_literal324=(Token)match(input,LBRACE,FOLLOW_LBRACE_in_module_implementation5916); if (state.failed) return retval; 
+            if ( state.backtracking==0 ) stream_LBRACE.add(char_literal324);
 
 
             if ( state.backtracking==0 ) { symbols.enterScope(); }
 
-            pushFollow(FOLLOW_translation_unit_in_module_implementation6047);
-            translation_unit333=translation_unit();
+            pushFollow(FOLLOW_translation_unit_in_module_implementation5948);
+            translation_unit325=translation_unit();
 
             state._fsp--;
             if (state.failed) return retval;
-            if ( state.backtracking==0 ) stream_translation_unit.add(translation_unit333.getTree());
+            if ( state.backtracking==0 ) stream_translation_unit.add(translation_unit325.getTree());
 
             if ( state.backtracking==0 ) { symbols.exitScope(); symbols.exitScope(); }
 
-            char_literal334=(Token)match(input,RBRACE,FOLLOW_RBRACE_in_module_implementation6103); if (state.failed) return retval; 
-            if ( state.backtracking==0 ) stream_RBRACE.add(char_literal334);
+            char_literal326=(Token)match(input,RBRACE,FOLLOW_RBRACE_in_module_implementation6004); if (state.failed) return retval; 
+            if ( state.backtracking==0 ) stream_RBRACE.add(char_literal326);
 
 
             // AST REWRITE
-            // elements: IMPLEMENTATION, translation_unit
+            // elements: translation_unit, IMPLEMENTATION
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -13996,9 +13211,9 @@ public TreeAdaptor getTreeAdaptor() {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 700:13: -> ^( IMPLEMENTATION translation_unit )
+            // 703:13: -> ^( IMPLEMENTATION translation_unit )
             {
-                // Mininess.g:700:16: ^( IMPLEMENTATION translation_unit )
+                // Mininess.g:703:16: ^( IMPLEMENTATION translation_unit )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(
@@ -14034,7 +13249,7 @@ public TreeAdaptor getTreeAdaptor() {
 
         finally {
         	// do for sure before leaving
-            if ( state.backtracking>0 ) { memoize(input, 71, module_implementation_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 70, module_implementation_StartIndex); }
 
         }
         return retval;
@@ -14049,7 +13264,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "component_specification"
-    // Mininess.g:706:1: component_specification : '{' ( uses_provides | line_directive )* '}' -> ^( SPECIFICATION ( uses_provides )* ) ;
+    // Mininess.g:709:1: component_specification : '{' ( uses_provides | line_directive )* '}' -> ^( SPECIFICATION ( uses_provides )* ) ;
     public final MininessParser.component_specification_return component_specification() throws RecognitionException {
         MininessParser.component_specification_return retval = new MininessParser.component_specification_return();
         retval.start = input.LT(1);
@@ -14058,79 +13273,79 @@ public TreeAdaptor getTreeAdaptor() {
 
         Object root_0 = null;
 
-        Token char_literal335=null;
-        Token char_literal338=null;
-        MininessParser.uses_provides_return uses_provides336 =null;
+        Token char_literal327=null;
+        Token char_literal330=null;
+        MininessParser.uses_provides_return uses_provides328 =null;
 
-        MininessParser.line_directive_return line_directive337 =null;
+        MininessParser.line_directive_return line_directive329 =null;
 
 
-        Object char_literal335_tree=null;
-        Object char_literal338_tree=null;
+        Object char_literal327_tree=null;
+        Object char_literal330_tree=null;
         RewriteRuleTokenStream stream_RBRACE=new RewriteRuleTokenStream(adaptor,"token RBRACE");
         RewriteRuleTokenStream stream_LBRACE=new RewriteRuleTokenStream(adaptor,"token LBRACE");
         RewriteRuleSubtreeStream stream_uses_provides=new RewriteRuleSubtreeStream(adaptor,"rule uses_provides");
         RewriteRuleSubtreeStream stream_line_directive=new RewriteRuleSubtreeStream(adaptor,"rule line_directive");
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 72) ) { return retval; }
+            if ( state.backtracking>0 && alreadyParsedRule(input, 71) ) { return retval; }
 
-            // Mininess.g:707:5: ( '{' ( uses_provides | line_directive )* '}' -> ^( SPECIFICATION ( uses_provides )* ) )
-            // Mininess.g:707:10: '{' ( uses_provides | line_directive )* '}'
+            // Mininess.g:710:5: ( '{' ( uses_provides | line_directive )* '}' -> ^( SPECIFICATION ( uses_provides )* ) )
+            // Mininess.g:710:10: '{' ( uses_provides | line_directive )* '}'
             {
-            char_literal335=(Token)match(input,LBRACE,FOLLOW_LBRACE_in_component_specification6142); if (state.failed) return retval; 
-            if ( state.backtracking==0 ) stream_LBRACE.add(char_literal335);
+            char_literal327=(Token)match(input,LBRACE,FOLLOW_LBRACE_in_component_specification6043); if (state.failed) return retval; 
+            if ( state.backtracking==0 ) stream_LBRACE.add(char_literal327);
 
 
             if ( state.backtracking==0 ) { symbols.enterScope(); }
 
-            // Mininess.g:708:11: ( uses_provides | line_directive )*
-            loop95:
+            // Mininess.g:711:11: ( uses_provides | line_directive )*
+            loop92:
             do {
-                int alt95=3;
-                int LA95_0 = input.LA(1);
+                int alt92=3;
+                int LA92_0 = input.LA(1);
 
-                if ( (LA95_0==PROVIDES||LA95_0==USES) ) {
-                    alt95=1;
+                if ( (LA92_0==PROVIDES||LA92_0==USES) ) {
+                    alt92=1;
                 }
-                else if ( (LA95_0==HASH) ) {
-                    alt95=2;
+                else if ( (LA92_0==HASH) ) {
+                    alt92=2;
                 }
 
 
-                switch (alt95) {
+                switch (alt92) {
             	case 1 :
-            	    // Mininess.g:708:12: uses_provides
+            	    // Mininess.g:711:12: uses_provides
             	    {
-            	    pushFollow(FOLLOW_uses_provides_in_component_specification6157);
-            	    uses_provides336=uses_provides();
+            	    pushFollow(FOLLOW_uses_provides_in_component_specification6058);
+            	    uses_provides328=uses_provides();
 
             	    state._fsp--;
             	    if (state.failed) return retval;
-            	    if ( state.backtracking==0 ) stream_uses_provides.add(uses_provides336.getTree());
+            	    if ( state.backtracking==0 ) stream_uses_provides.add(uses_provides328.getTree());
 
             	    }
             	    break;
             	case 2 :
-            	    // Mininess.g:708:28: line_directive
+            	    // Mininess.g:711:28: line_directive
             	    {
-            	    pushFollow(FOLLOW_line_directive_in_component_specification6161);
-            	    line_directive337=line_directive();
+            	    pushFollow(FOLLOW_line_directive_in_component_specification6062);
+            	    line_directive329=line_directive();
 
             	    state._fsp--;
             	    if (state.failed) return retval;
-            	    if ( state.backtracking==0 ) stream_line_directive.add(line_directive337.getTree());
+            	    if ( state.backtracking==0 ) stream_line_directive.add(line_directive329.getTree());
 
             	    }
             	    break;
 
             	default :
-            	    break loop95;
+            	    break loop92;
                 }
             } while (true);
 
 
-            char_literal338=(Token)match(input,RBRACE,FOLLOW_RBRACE_in_component_specification6165); if (state.failed) return retval; 
-            if ( state.backtracking==0 ) stream_RBRACE.add(char_literal338);
+            char_literal330=(Token)match(input,RBRACE,FOLLOW_RBRACE_in_component_specification6066); if (state.failed) return retval; 
+            if ( state.backtracking==0 ) stream_RBRACE.add(char_literal330);
 
 
             // AST REWRITE
@@ -14146,16 +13361,16 @@ public TreeAdaptor getTreeAdaptor() {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 708:49: -> ^( SPECIFICATION ( uses_provides )* )
+            // 711:49: -> ^( SPECIFICATION ( uses_provides )* )
             {
-                // Mininess.g:708:52: ^( SPECIFICATION ( uses_provides )* )
+                // Mininess.g:711:52: ^( SPECIFICATION ( uses_provides )* )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(
                 (Object)adaptor.create(SPECIFICATION, "SPECIFICATION")
                 , root_1);
 
-                // Mininess.g:708:68: ( uses_provides )*
+                // Mininess.g:711:68: ( uses_provides )*
                 while ( stream_uses_provides.hasNext() ) {
                     adaptor.addChild(root_1, stream_uses_provides.nextTree());
 
@@ -14189,7 +13404,7 @@ public TreeAdaptor getTreeAdaptor() {
 
         finally {
         	// do for sure before leaving
-            if ( state.backtracking>0 ) { memoize(input, 72, component_specification_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 71, component_specification_StartIndex); }
 
         }
         return retval;
@@ -14204,7 +13419,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "uses_provides"
-    // Mininess.g:710:1: uses_provides : ( USES specification_element_list -> ^( USES specification_element_list ) | PROVIDES specification_element_list -> ^( PROVIDES specification_element_list ) );
+    // Mininess.g:713:1: uses_provides : ( USES specification_element_list -> ^( USES specification_element_list ) | PROVIDES specification_element_list -> ^( PROVIDES specification_element_list ) );
     public final MininessParser.uses_provides_return uses_provides() throws RecognitionException {
         MininessParser.uses_provides_return retval = new MininessParser.uses_provides_return();
         retval.start = input.LT(1);
@@ -14213,53 +13428,53 @@ public TreeAdaptor getTreeAdaptor() {
 
         Object root_0 = null;
 
-        Token USES339=null;
-        Token PROVIDES341=null;
-        MininessParser.specification_element_list_return specification_element_list340 =null;
+        Token USES331=null;
+        Token PROVIDES333=null;
+        MininessParser.specification_element_list_return specification_element_list332 =null;
 
-        MininessParser.specification_element_list_return specification_element_list342 =null;
+        MininessParser.specification_element_list_return specification_element_list334 =null;
 
 
-        Object USES339_tree=null;
-        Object PROVIDES341_tree=null;
+        Object USES331_tree=null;
+        Object PROVIDES333_tree=null;
         RewriteRuleTokenStream stream_PROVIDES=new RewriteRuleTokenStream(adaptor,"token PROVIDES");
         RewriteRuleTokenStream stream_USES=new RewriteRuleTokenStream(adaptor,"token USES");
         RewriteRuleSubtreeStream stream_specification_element_list=new RewriteRuleSubtreeStream(adaptor,"rule specification_element_list");
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 73) ) { return retval; }
+            if ( state.backtracking>0 && alreadyParsedRule(input, 72) ) { return retval; }
 
-            // Mininess.g:711:5: ( USES specification_element_list -> ^( USES specification_element_list ) | PROVIDES specification_element_list -> ^( PROVIDES specification_element_list ) )
-            int alt96=2;
-            int LA96_0 = input.LA(1);
+            // Mininess.g:714:5: ( USES specification_element_list -> ^( USES specification_element_list ) | PROVIDES specification_element_list -> ^( PROVIDES specification_element_list ) )
+            int alt93=2;
+            int LA93_0 = input.LA(1);
 
-            if ( (LA96_0==USES) ) {
-                alt96=1;
+            if ( (LA93_0==USES) ) {
+                alt93=1;
             }
-            else if ( (LA96_0==PROVIDES) ) {
-                alt96=2;
+            else if ( (LA93_0==PROVIDES) ) {
+                alt93=2;
             }
             else {
                 if (state.backtracking>0) {state.failed=true; return retval;}
                 NoViableAltException nvae =
-                    new NoViableAltException("", 96, 0, input);
+                    new NoViableAltException("", 93, 0, input);
 
                 throw nvae;
 
             }
-            switch (alt96) {
+            switch (alt93) {
                 case 1 :
-                    // Mininess.g:711:10: USES specification_element_list
+                    // Mininess.g:714:10: USES specification_element_list
                     {
-                    USES339=(Token)match(input,USES,FOLLOW_USES_in_uses_provides6189); if (state.failed) return retval; 
-                    if ( state.backtracking==0 ) stream_USES.add(USES339);
+                    USES331=(Token)match(input,USES,FOLLOW_USES_in_uses_provides6090); if (state.failed) return retval; 
+                    if ( state.backtracking==0 ) stream_USES.add(USES331);
 
 
-                    pushFollow(FOLLOW_specification_element_list_in_uses_provides6191);
-                    specification_element_list340=specification_element_list();
+                    pushFollow(FOLLOW_specification_element_list_in_uses_provides6092);
+                    specification_element_list332=specification_element_list();
 
                     state._fsp--;
                     if (state.failed) return retval;
-                    if ( state.backtracking==0 ) stream_specification_element_list.add(specification_element_list340.getTree());
+                    if ( state.backtracking==0 ) stream_specification_element_list.add(specification_element_list332.getTree());
 
                     // AST REWRITE
                     // elements: specification_element_list, USES
@@ -14274,9 +13489,9 @@ public TreeAdaptor getTreeAdaptor() {
                     RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
                     root_0 = (Object)adaptor.nil();
-                    // 711:42: -> ^( USES specification_element_list )
+                    // 714:42: -> ^( USES specification_element_list )
                     {
-                        // Mininess.g:711:45: ^( USES specification_element_list )
+                        // Mininess.g:714:45: ^( USES specification_element_list )
                         {
                         Object root_1 = (Object)adaptor.nil();
                         root_1 = (Object)adaptor.becomeRoot(
@@ -14297,21 +13512,21 @@ public TreeAdaptor getTreeAdaptor() {
                     }
                     break;
                 case 2 :
-                    // Mininess.g:712:10: PROVIDES specification_element_list
+                    // Mininess.g:715:10: PROVIDES specification_element_list
                     {
-                    PROVIDES341=(Token)match(input,PROVIDES,FOLLOW_PROVIDES_in_uses_provides6210); if (state.failed) return retval; 
-                    if ( state.backtracking==0 ) stream_PROVIDES.add(PROVIDES341);
+                    PROVIDES333=(Token)match(input,PROVIDES,FOLLOW_PROVIDES_in_uses_provides6111); if (state.failed) return retval; 
+                    if ( state.backtracking==0 ) stream_PROVIDES.add(PROVIDES333);
 
 
-                    pushFollow(FOLLOW_specification_element_list_in_uses_provides6212);
-                    specification_element_list342=specification_element_list();
+                    pushFollow(FOLLOW_specification_element_list_in_uses_provides6113);
+                    specification_element_list334=specification_element_list();
 
                     state._fsp--;
                     if (state.failed) return retval;
-                    if ( state.backtracking==0 ) stream_specification_element_list.add(specification_element_list342.getTree());
+                    if ( state.backtracking==0 ) stream_specification_element_list.add(specification_element_list334.getTree());
 
                     // AST REWRITE
-                    // elements: specification_element_list, PROVIDES
+                    // elements: PROVIDES, specification_element_list
                     // token labels: 
                     // rule labels: retval
                     // token list labels: 
@@ -14323,9 +13538,9 @@ public TreeAdaptor getTreeAdaptor() {
                     RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
                     root_0 = (Object)adaptor.nil();
-                    // 712:46: -> ^( PROVIDES specification_element_list )
+                    // 715:46: -> ^( PROVIDES specification_element_list )
                     {
-                        // Mininess.g:712:49: ^( PROVIDES specification_element_list )
+                        // Mininess.g:715:49: ^( PROVIDES specification_element_list )
                         {
                         Object root_1 = (Object)adaptor.nil();
                         root_1 = (Object)adaptor.becomeRoot(
@@ -14363,7 +13578,7 @@ public TreeAdaptor getTreeAdaptor() {
 
         finally {
         	// do for sure before leaving
-            if ( state.backtracking>0 ) { memoize(input, 73, uses_provides_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 72, uses_provides_StartIndex); }
 
         }
         return retval;
@@ -14378,7 +13593,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "specification_element_list"
-    // Mininess.g:714:1: specification_element_list : ( specification_element -> specification_element | '{' ( specification_element )+ '}' -> ( specification_element )+ );
+    // Mininess.g:717:1: specification_element_list : ( specification_element -> specification_element | '{' ( specification_element )+ '}' -> ( specification_element )+ );
     public final MininessParser.specification_element_list_return specification_element_list() throws RecognitionException {
         MininessParser.specification_element_list_return retval = new MininessParser.specification_element_list_return();
         retval.start = input.LT(1);
@@ -14387,49 +13602,49 @@ public TreeAdaptor getTreeAdaptor() {
 
         Object root_0 = null;
 
-        Token char_literal344=null;
-        Token char_literal346=null;
-        MininessParser.specification_element_return specification_element343 =null;
+        Token char_literal336=null;
+        Token char_literal338=null;
+        MininessParser.specification_element_return specification_element335 =null;
 
-        MininessParser.specification_element_return specification_element345 =null;
+        MininessParser.specification_element_return specification_element337 =null;
 
 
-        Object char_literal344_tree=null;
-        Object char_literal346_tree=null;
+        Object char_literal336_tree=null;
+        Object char_literal338_tree=null;
         RewriteRuleTokenStream stream_RBRACE=new RewriteRuleTokenStream(adaptor,"token RBRACE");
         RewriteRuleTokenStream stream_LBRACE=new RewriteRuleTokenStream(adaptor,"token LBRACE");
         RewriteRuleSubtreeStream stream_specification_element=new RewriteRuleSubtreeStream(adaptor,"rule specification_element");
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 74) ) { return retval; }
+            if ( state.backtracking>0 && alreadyParsedRule(input, 73) ) { return retval; }
 
-            // Mininess.g:715:5: ( specification_element -> specification_element | '{' ( specification_element )+ '}' -> ( specification_element )+ )
-            int alt98=2;
-            int LA98_0 = input.LA(1);
+            // Mininess.g:718:5: ( specification_element -> specification_element | '{' ( specification_element )+ '}' -> ( specification_element )+ )
+            int alt95=2;
+            int LA95_0 = input.LA(1);
 
-            if ( (LA98_0==CHAR||LA98_0==COMMAND||LA98_0==CONST||LA98_0==DEFAULT||LA98_0==ENUM||(LA98_0 >= ERROR_T && LA98_0 <= EVENT)||(LA98_0 >= INT && LA98_0 <= INTERFACE)||LA98_0==LONG||(LA98_0 >= NX_STRUCT && LA98_0 <= NX_UINT8_T)||LA98_0==RAW_IDENTIFIER||(LA98_0 >= SHORT && LA98_0 <= SIGNED)||LA98_0==STRUCT||(LA98_0 >= TASK && LA98_0 <= UINT8_T)||LA98_0==UNSIGNED||LA98_0==VOID) ) {
-                alt98=1;
+            if ( (LA95_0==CHAR||LA95_0==COMMAND||LA95_0==CONST||LA95_0==DEFAULT||LA95_0==ENUM||(LA95_0 >= ERROR_T && LA95_0 <= EVENT)||(LA95_0 >= INT && LA95_0 <= INT8_T)||LA95_0==LONG||(LA95_0 >= NX_STRUCT && LA95_0 <= NX_UINT8_T)||LA95_0==RAW_IDENTIFIER||(LA95_0 >= SHORT && LA95_0 <= SIGNED)||LA95_0==STRUCT||(LA95_0 >= TASK && LA95_0 <= UINT8_T)||LA95_0==UNSIGNED||LA95_0==VOID) ) {
+                alt95=1;
             }
-            else if ( (LA98_0==LBRACE) ) {
-                alt98=2;
+            else if ( (LA95_0==LBRACE) ) {
+                alt95=2;
             }
             else {
                 if (state.backtracking>0) {state.failed=true; return retval;}
                 NoViableAltException nvae =
-                    new NoViableAltException("", 98, 0, input);
+                    new NoViableAltException("", 95, 0, input);
 
                 throw nvae;
 
             }
-            switch (alt98) {
+            switch (alt95) {
                 case 1 :
-                    // Mininess.g:715:10: specification_element
+                    // Mininess.g:718:10: specification_element
                     {
-                    pushFollow(FOLLOW_specification_element_in_specification_element_list6235);
-                    specification_element343=specification_element();
+                    pushFollow(FOLLOW_specification_element_in_specification_element_list6136);
+                    specification_element335=specification_element();
 
                     state._fsp--;
                     if (state.failed) return retval;
-                    if ( state.backtracking==0 ) stream_specification_element.add(specification_element343.getTree());
+                    if ( state.backtracking==0 ) stream_specification_element.add(specification_element335.getTree());
 
                     // AST REWRITE
                     // elements: specification_element
@@ -14444,7 +13659,7 @@ public TreeAdaptor getTreeAdaptor() {
                     RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
                     root_0 = (Object)adaptor.nil();
-                    // 715:32: -> specification_element
+                    // 718:32: -> specification_element
                     {
                         adaptor.addChild(root_0, stream_specification_element.nextTree());
 
@@ -14457,51 +13672,51 @@ public TreeAdaptor getTreeAdaptor() {
                     }
                     break;
                 case 2 :
-                    // Mininess.g:716:10: '{' ( specification_element )+ '}'
+                    // Mininess.g:719:10: '{' ( specification_element )+ '}'
                     {
-                    char_literal344=(Token)match(input,LBRACE,FOLLOW_LBRACE_in_specification_element_list6250); if (state.failed) return retval; 
-                    if ( state.backtracking==0 ) stream_LBRACE.add(char_literal344);
+                    char_literal336=(Token)match(input,LBRACE,FOLLOW_LBRACE_in_specification_element_list6151); if (state.failed) return retval; 
+                    if ( state.backtracking==0 ) stream_LBRACE.add(char_literal336);
 
 
-                    // Mininess.g:716:14: ( specification_element )+
-                    int cnt97=0;
-                    loop97:
+                    // Mininess.g:719:14: ( specification_element )+
+                    int cnt94=0;
+                    loop94:
                     do {
-                        int alt97=2;
-                        int LA97_0 = input.LA(1);
+                        int alt94=2;
+                        int LA94_0 = input.LA(1);
 
-                        if ( (LA97_0==CHAR||LA97_0==COMMAND||LA97_0==CONST||LA97_0==DEFAULT||LA97_0==ENUM||(LA97_0 >= ERROR_T && LA97_0 <= EVENT)||(LA97_0 >= INT && LA97_0 <= INTERFACE)||LA97_0==LONG||(LA97_0 >= NX_STRUCT && LA97_0 <= NX_UINT8_T)||LA97_0==RAW_IDENTIFIER||(LA97_0 >= SHORT && LA97_0 <= SIGNED)||LA97_0==STRUCT||(LA97_0 >= TASK && LA97_0 <= UINT8_T)||LA97_0==UNSIGNED||LA97_0==VOID) ) {
-                            alt97=1;
+                        if ( (LA94_0==CHAR||LA94_0==COMMAND||LA94_0==CONST||LA94_0==DEFAULT||LA94_0==ENUM||(LA94_0 >= ERROR_T && LA94_0 <= EVENT)||(LA94_0 >= INT && LA94_0 <= INT8_T)||LA94_0==LONG||(LA94_0 >= NX_STRUCT && LA94_0 <= NX_UINT8_T)||LA94_0==RAW_IDENTIFIER||(LA94_0 >= SHORT && LA94_0 <= SIGNED)||LA94_0==STRUCT||(LA94_0 >= TASK && LA94_0 <= UINT8_T)||LA94_0==UNSIGNED||LA94_0==VOID) ) {
+                            alt94=1;
                         }
 
 
-                        switch (alt97) {
+                        switch (alt94) {
                     	case 1 :
-                    	    // Mininess.g:716:14: specification_element
+                    	    // Mininess.g:719:14: specification_element
                     	    {
-                    	    pushFollow(FOLLOW_specification_element_in_specification_element_list6252);
-                    	    specification_element345=specification_element();
+                    	    pushFollow(FOLLOW_specification_element_in_specification_element_list6153);
+                    	    specification_element337=specification_element();
 
                     	    state._fsp--;
                     	    if (state.failed) return retval;
-                    	    if ( state.backtracking==0 ) stream_specification_element.add(specification_element345.getTree());
+                    	    if ( state.backtracking==0 ) stream_specification_element.add(specification_element337.getTree());
 
                     	    }
                     	    break;
 
                     	default :
-                    	    if ( cnt97 >= 1 ) break loop97;
+                    	    if ( cnt94 >= 1 ) break loop94;
                     	    if (state.backtracking>0) {state.failed=true; return retval;}
                                 EarlyExitException eee =
-                                    new EarlyExitException(97, input);
+                                    new EarlyExitException(94, input);
                                 throw eee;
                         }
-                        cnt97++;
+                        cnt94++;
                     } while (true);
 
 
-                    char_literal346=(Token)match(input,RBRACE,FOLLOW_RBRACE_in_specification_element_list6255); if (state.failed) return retval; 
-                    if ( state.backtracking==0 ) stream_RBRACE.add(char_literal346);
+                    char_literal338=(Token)match(input,RBRACE,FOLLOW_RBRACE_in_specification_element_list6156); if (state.failed) return retval; 
+                    if ( state.backtracking==0 ) stream_RBRACE.add(char_literal338);
 
 
                     // AST REWRITE
@@ -14517,7 +13732,7 @@ public TreeAdaptor getTreeAdaptor() {
                     RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
                     root_0 = (Object)adaptor.nil();
-                    // 716:41: -> ( specification_element )+
+                    // 719:41: -> ( specification_element )+
                     {
                         if ( !(stream_specification_element.hasNext()) ) {
                             throw new RewriteEarlyExitException();
@@ -14554,7 +13769,7 @@ public TreeAdaptor getTreeAdaptor() {
 
         finally {
         	// do for sure before leaving
-            if ( state.backtracking>0 ) { memoize(input, 74, specification_element_list_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 73, specification_element_list_StartIndex); }
 
         }
         return retval;
@@ -14569,7 +13784,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "specification_element"
-    // Mininess.g:718:1: specification_element : ( declaration | INTERFACE identifier ';' -> ^( INTERFACE identifier ) );
+    // Mininess.g:721:1: specification_element : declaration ;
     public final MininessParser.specification_element_return specification_element() throws RecognitionException {
         MininessParser.specification_element_return retval = new MininessParser.specification_element_return();
         retval.start = input.LT(1);
@@ -14578,110 +13793,28 @@ public TreeAdaptor getTreeAdaptor() {
 
         Object root_0 = null;
 
-        Token INTERFACE348=null;
-        Token char_literal350=null;
-        MininessParser.declaration_return declaration347 =null;
-
-        MininessParser.identifier_return identifier349 =null;
+        MininessParser.declaration_return declaration339 =null;
 
 
-        Object INTERFACE348_tree=null;
-        Object char_literal350_tree=null;
-        RewriteRuleTokenStream stream_INTERFACE=new RewriteRuleTokenStream(adaptor,"token INTERFACE");
-        RewriteRuleTokenStream stream_141=new RewriteRuleTokenStream(adaptor,"token 141");
-        RewriteRuleSubtreeStream stream_identifier=new RewriteRuleSubtreeStream(adaptor,"rule identifier");
+
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 75) ) { return retval; }
+            if ( state.backtracking>0 && alreadyParsedRule(input, 74) ) { return retval; }
 
-            // Mininess.g:719:5: ( declaration | INTERFACE identifier ';' -> ^( INTERFACE identifier ) )
-            int alt99=2;
-            int LA99_0 = input.LA(1);
+            // Mininess.g:722:5: ( declaration )
+            // Mininess.g:722:10: declaration
+            {
+            root_0 = (Object)adaptor.nil();
 
-            if ( (LA99_0==CHAR||LA99_0==COMMAND||LA99_0==CONST||LA99_0==DEFAULT||LA99_0==ENUM||(LA99_0 >= ERROR_T && LA99_0 <= EVENT)||(LA99_0 >= INT && LA99_0 <= INT8_T)||LA99_0==LONG||(LA99_0 >= NX_STRUCT && LA99_0 <= NX_UINT8_T)||LA99_0==RAW_IDENTIFIER||(LA99_0 >= SHORT && LA99_0 <= SIGNED)||LA99_0==STRUCT||(LA99_0 >= TASK && LA99_0 <= UINT8_T)||LA99_0==UNSIGNED||LA99_0==VOID) ) {
-                alt99=1;
-            }
-            else if ( (LA99_0==INTERFACE) ) {
-                alt99=2;
-            }
-            else {
-                if (state.backtracking>0) {state.failed=true; return retval;}
-                NoViableAltException nvae =
-                    new NoViableAltException("", 99, 0, input);
 
-                throw nvae;
+            pushFollow(FOLLOW_declaration_in_specification_element6176);
+            declaration339=declaration();
+
+            state._fsp--;
+            if (state.failed) return retval;
+            if ( state.backtracking==0 ) adaptor.addChild(root_0, declaration339.getTree());
 
             }
-            switch (alt99) {
-                case 1 :
-                    // Mininess.g:719:10: declaration
-                    {
-                    root_0 = (Object)adaptor.nil();
 
-
-                    pushFollow(FOLLOW_declaration_in_specification_element6275);
-                    declaration347=declaration();
-
-                    state._fsp--;
-                    if (state.failed) return retval;
-                    if ( state.backtracking==0 ) adaptor.addChild(root_0, declaration347.getTree());
-
-                    }
-                    break;
-                case 2 :
-                    // Mininess.g:720:10: INTERFACE identifier ';'
-                    {
-                    INTERFACE348=(Token)match(input,INTERFACE,FOLLOW_INTERFACE_in_specification_element6286); if (state.failed) return retval; 
-                    if ( state.backtracking==0 ) stream_INTERFACE.add(INTERFACE348);
-
-
-                    pushFollow(FOLLOW_identifier_in_specification_element6288);
-                    identifier349=identifier();
-
-                    state._fsp--;
-                    if (state.failed) return retval;
-                    if ( state.backtracking==0 ) stream_identifier.add(identifier349.getTree());
-
-                    char_literal350=(Token)match(input,141,FOLLOW_141_in_specification_element6290); if (state.failed) return retval; 
-                    if ( state.backtracking==0 ) stream_141.add(char_literal350);
-
-
-                    // AST REWRITE
-                    // elements: INTERFACE, identifier
-                    // token labels: 
-                    // rule labels: retval
-                    // token list labels: 
-                    // rule list labels: 
-                    // wildcard labels: 
-                    if ( state.backtracking==0 ) {
-
-                    retval.tree = root_0;
-                    RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
-
-                    root_0 = (Object)adaptor.nil();
-                    // 720:35: -> ^( INTERFACE identifier )
-                    {
-                        // Mininess.g:720:38: ^( INTERFACE identifier )
-                        {
-                        Object root_1 = (Object)adaptor.nil();
-                        root_1 = (Object)adaptor.becomeRoot(
-                        stream_INTERFACE.nextNode()
-                        , root_1);
-
-                        adaptor.addChild(root_1, stream_identifier.nextTree());
-
-                        adaptor.addChild(root_0, root_1);
-                        }
-
-                    }
-
-
-                    retval.tree = root_0;
-                    }
-
-                    }
-                    break;
-
-            }
             retval.stop = input.LT(-1);
 
 
@@ -14698,7 +13831,7 @@ public TreeAdaptor getTreeAdaptor() {
 
         finally {
         	// do for sure before leaving
-            if ( state.backtracking>0 ) { memoize(input, 75, specification_element_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 74, specification_element_StartIndex); }
 
         }
         return retval;
@@ -14713,7 +13846,7 @@ public TreeAdaptor getTreeAdaptor() {
 
 
     // $ANTLR start "identifier"
-    // Mininess.g:722:1: identifier : id= RAW_IDENTIFIER {...}?;
+    // Mininess.g:725:1: identifier : id= RAW_IDENTIFIER {...}?;
     public final MininessParser.identifier_return identifier() throws RecognitionException {
         MininessParser.identifier_return retval = new MininessParser.identifier_return();
         retval.start = input.LT(1);
@@ -14727,15 +13860,15 @@ public TreeAdaptor getTreeAdaptor() {
         Object id_tree=null;
 
         try {
-            if ( state.backtracking>0 && alreadyParsedRule(input, 76) ) { return retval; }
+            if ( state.backtracking>0 && alreadyParsedRule(input, 75) ) { return retval; }
 
-            // Mininess.g:723:5: (id= RAW_IDENTIFIER {...}?)
-            // Mininess.g:723:9: id= RAW_IDENTIFIER {...}?
+            // Mininess.g:726:5: (id= RAW_IDENTIFIER {...}?)
+            // Mininess.g:726:9: id= RAW_IDENTIFIER {...}?
             {
             root_0 = (Object)adaptor.nil();
 
 
-            id=(Token)match(input,RAW_IDENTIFIER,FOLLOW_RAW_IDENTIFIER_in_identifier6314); if (state.failed) return retval;
+            id=(Token)match(input,RAW_IDENTIFIER,FOLLOW_RAW_IDENTIFIER_in_identifier6193); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             id_tree = 
             (Object)adaptor.create(id)
@@ -14766,7 +13899,7 @@ public TreeAdaptor getTreeAdaptor() {
 
         finally {
         	// do for sure before leaving
-            if ( state.backtracking>0 ) { memoize(input, 76, identifier_StartIndex); }
+            if ( state.backtracking>0 ) { memoize(input, 75, identifier_StartIndex); }
 
         }
         return retval;
@@ -14885,13 +14018,13 @@ public TreeAdaptor getTreeAdaptor() {
         if (state.failed) return ;
 
         // Mininess.g:340:33: ( init_declarator_list )?
-        int alt101=2;
-        int LA101_0 = input.LA(1);
+        int alt97=2;
+        int LA97_0 = input.LA(1);
 
-        if ( (LA101_0==LPARENS||LA101_0==RAW_IDENTIFIER||LA101_0==STAR) ) {
-            alt101=1;
+        if ( (LA97_0==LPARENS||LA97_0==RAW_IDENTIFIER||LA97_0==STAR) ) {
+            alt97=1;
         }
-        switch (alt101) {
+        switch (alt97) {
             case 1 :
                 // Mininess.g:340:33: init_declarator_list
                 {
@@ -14968,13 +14101,13 @@ public TreeAdaptor getTreeAdaptor() {
         // Mininess.g:454:10: ( declarator )? ':' constant_expression
         {
         // Mininess.g:454:10: ( declarator )?
-        int alt103=2;
-        int LA103_0 = input.LA(1);
+        int alt99=2;
+        int LA99_0 = input.LA(1);
 
-        if ( (LA103_0==LPARENS||LA103_0==RAW_IDENTIFIER||LA103_0==STAR) ) {
-            alt103=1;
+        if ( (LA99_0==LPARENS||LA99_0==RAW_IDENTIFIER||LA99_0==STAR) ) {
+            alt99=1;
         }
-        switch (alt103) {
+        switch (alt99) {
             case 1 :
                 // Mininess.g:454:10: declarator
                 {
@@ -15011,13 +14144,13 @@ public TreeAdaptor getTreeAdaptor() {
         match(input,ENUM,FOLLOW_ENUM_in_synpred99_Mininess4111); if (state.failed) return ;
 
         // Mininess.g:458:15: ( identifier )?
-        int alt104=2;
-        int LA104_0 = input.LA(1);
+        int alt100=2;
+        int LA100_0 = input.LA(1);
 
-        if ( (LA104_0==RAW_IDENTIFIER) ) {
-            alt104=1;
+        if ( (LA100_0==RAW_IDENTIFIER) ) {
+            alt100=1;
         }
-        switch (alt104) {
+        switch (alt100) {
             case 1 :
                 // Mininess.g:458:15: identifier
                 {
@@ -15042,13 +14175,13 @@ public TreeAdaptor getTreeAdaptor() {
         if (state.failed) return ;
 
         // Mininess.g:458:47: ( ',' )?
-        int alt105=2;
-        int LA105_0 = input.LA(1);
+        int alt101=2;
+        int LA101_0 = input.LA(1);
 
-        if ( (LA105_0==COMMA) ) {
-            alt105=1;
+        if ( (LA101_0==COMMA) ) {
+            alt101=1;
         }
-        switch (alt105) {
+        switch (alt101) {
             case 1 :
                 // Mininess.g:458:47: ','
                 {
@@ -15089,13 +14222,13 @@ public TreeAdaptor getTreeAdaptor() {
         if (state.failed) return ;
 
         // Mininess.g:460:46: ( ',' )?
-        int alt106=2;
-        int LA106_0 = input.LA(1);
+        int alt102=2;
+        int LA102_0 = input.LA(1);
 
-        if ( (LA106_0==COMMA) ) {
-            alt106=1;
+        if ( (LA102_0==COMMA) ) {
+            alt102=1;
         }
-        switch (alt106) {
+        switch (alt102) {
             case 1 :
                 // Mininess.g:460:46: ','
                 {
@@ -15122,13 +14255,13 @@ public TreeAdaptor getTreeAdaptor() {
         match(input,LBRACKET,FOLLOW_LBRACKET_in_synpred109_Mininess4454); if (state.failed) return ;
 
         // Mininess.g:506:13: ( constant_expression )?
-        int alt108=2;
-        int LA108_0 = input.LA(1);
+        int alt104=2;
+        int LA104_0 = input.LA(1);
 
-        if ( (LA108_0==AMP||LA108_0==BITCOMPLEMENT||LA108_0==CALL||LA108_0==CHARACTER_LITERAL||LA108_0==CONSTANT||LA108_0==LPARENS||LA108_0==MINUS||LA108_0==MINUSMINUS||LA108_0==NOT||LA108_0==PLUS||LA108_0==PLUSPLUS||LA108_0==POST||LA108_0==RAW_IDENTIFIER||LA108_0==SIZEOF||LA108_0==STAR||LA108_0==STRING_LITERAL) ) {
-            alt108=1;
+        if ( (LA104_0==AMP||LA104_0==BITCOMPLEMENT||LA104_0==CALL||LA104_0==CHARACTER_LITERAL||LA104_0==CONSTANT||LA104_0==LPARENS||LA104_0==MINUS||LA104_0==MINUSMINUS||LA104_0==NOT||LA104_0==PLUS||LA104_0==PLUSPLUS||LA104_0==POST||LA104_0==RAW_IDENTIFIER||LA104_0==SIZEOF||LA104_0==STAR||LA104_0==STRING_LITERAL) ) {
+            alt104=1;
         }
-        switch (alt108) {
+        switch (alt104) {
             case 1 :
                 // Mininess.g:506:13: constant_expression
                 {
@@ -15179,13 +14312,13 @@ public TreeAdaptor getTreeAdaptor() {
         // Mininess.g:550:10: ( pointer )? direct_abstract_declarator
         {
         // Mininess.g:550:10: ( pointer )?
-        int alt111=2;
-        int LA111_0 = input.LA(1);
+        int alt107=2;
+        int LA107_0 = input.LA(1);
 
-        if ( (LA111_0==STAR) ) {
-            alt111=1;
+        if ( (LA107_0==STAR) ) {
+            alt107=1;
         }
-        switch (alt111) {
+        switch (alt107) {
             case 1 :
                 // Mininess.g:550:10: pointer
                 {
@@ -15290,52 +14423,13 @@ public TreeAdaptor getTreeAdaptor() {
     }
     // $ANTLR end synpred153_Mininess
 
-    // $ANTLR start synpred155_Mininess
-    public final void synpred155_Mininess_fragment() throws RecognitionException {
-        // Mininess.g:674:10: ( ( translation_unit )? interface_definition )
-        // Mininess.g:674:10: ( translation_unit )? interface_definition
-        {
-        // Mininess.g:674:10: ( translation_unit )?
-        int alt116=2;
-        int LA116_0 = input.LA(1);
-
-        if ( (LA116_0==CHAR||LA116_0==COMMAND||LA116_0==CONST||LA116_0==DEFAULT||LA116_0==ENUM||(LA116_0 >= ERROR_T && LA116_0 <= EVENT)||LA116_0==HASH||(LA116_0 >= INT && LA116_0 <= INT8_T)||LA116_0==LONG||(LA116_0 >= NX_STRUCT && LA116_0 <= NX_UINT8_T)||LA116_0==RAW_IDENTIFIER||(LA116_0 >= SHORT && LA116_0 <= SIGNED)||LA116_0==STRUCT||(LA116_0 >= TASK && LA116_0 <= UINT8_T)||LA116_0==UNSIGNED||LA116_0==VOID) ) {
-            alt116=1;
-        }
-        switch (alt116) {
-            case 1 :
-                // Mininess.g:674:10: translation_unit
-                {
-                pushFollow(FOLLOW_translation_unit_in_synpred155_Mininess5807);
-                translation_unit();
-
-                state._fsp--;
-                if (state.failed) return ;
-
-                }
-                break;
-
-        }
-
-
-        pushFollow(FOLLOW_interface_definition_in_synpred155_Mininess5810);
-        interface_definition();
-
-        state._fsp--;
-        if (state.failed) return ;
-
-        }
-
-    }
-    // $ANTLR end synpred155_Mininess
-
     // Delegated rules
 
-    public final boolean synpred118_Mininess() {
+    public final boolean synpred23_Mininess() {
         state.backtracking++;
         int start = input.mark();
         try {
-            synpred118_Mininess_fragment(); // can never throw exception
+            synpred23_Mininess_fragment(); // can never throw exception
         } catch (RecognitionException re) {
             System.err.println("impossible: "+re);
         }
@@ -15345,11 +14439,11 @@ public TreeAdaptor getTreeAdaptor() {
         state.failed=false;
         return success;
     }
-    public final boolean synpred23_Mininess() {
+    public final boolean synpred118_Mininess() {
         state.backtracking++;
         int start = input.mark();
         try {
-            synpred23_Mininess_fragment(); // can never throw exception
+            synpred118_Mininess_fragment(); // can never throw exception
         } catch (RecognitionException re) {
             System.err.println("impossible: "+re);
         }
@@ -15560,20 +14654,6 @@ public TreeAdaptor getTreeAdaptor() {
         int start = input.mark();
         try {
             synpred101_Mininess_fragment(); // can never throw exception
-        } catch (RecognitionException re) {
-            System.err.println("impossible: "+re);
-        }
-        boolean success = !state.failed;
-        input.rewind(start);
-        state.backtracking--;
-        state.failed=false;
-        return success;
-    }
-    public final boolean synpred155_Mininess() {
-        state.backtracking++;
-        int start = input.mark();
-        try {
-            synpred155_Mininess_fragment(); // can never throw exception
         } catch (RecognitionException re) {
             System.err.println("impossible: "+re);
         }
@@ -15990,42 +15070,31 @@ public TreeAdaptor getTreeAdaptor() {
     public static final BitSet FOLLOW_declaration_specifiers_in_function_definition5755 = new BitSet(new long[]{0x0000000000000000L,0x0400200000000800L});
     public static final BitSet FOLLOW_declarator_in_function_definition5757 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000020L});
     public static final BitSet FOLLOW_compound_statement_in_function_definition5759 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_translation_unit_in_mininess_file5807 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000010L});
-    public static final BitSet FOLLOW_interface_definition_in_mininess_file5810 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_translation_unit_in_mininess_file5832 = new BitSet(new long[]{0x0000000000000000L,0x0000000000040000L});
-    public static final BitSet FOLLOW_component_in_mininess_file5835 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_INTERFACE_in_interface_definition5862 = new BitSet(new long[]{0x0000000000000000L,0x0000200000000000L});
-    public static final BitSet FOLLOW_identifier_in_interface_definition5864 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000020L});
-    public static final BitSet FOLLOW_LBRACE_in_interface_definition5874 = new BitSet(new long[]{0x0100C81011200000L,0xA03060007800040FL,0x000000000000014FL});
-    public static final BitSet FOLLOW_declaration_in_interface_definition5887 = new BitSet(new long[]{0x0100C81011200000L,0xA03060007800040FL,0x000000000000014FL});
-    public static final BitSet FOLLOW_line_directive_in_interface_definition5891 = new BitSet(new long[]{0x0100C81011200000L,0xA03060007800040FL,0x000000000000014FL});
-    public static final BitSet FOLLOW_RBRACE_in_interface_definition5909 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_MODULE_in_component5950 = new BitSet(new long[]{0x0000000000000000L,0x0000200000000000L});
-    public static final BitSet FOLLOW_identifier_in_component5952 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000020L});
-    public static final BitSet FOLLOW_component_specification_in_component5954 = new BitSet(new long[]{0x2000000000000000L});
-    public static final BitSet FOLLOW_implementation_in_component5956 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_module_implementation_in_implementation5995 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_IMPLEMENTATION_in_module_implementation6013 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000020L});
-    public static final BitSet FOLLOW_LBRACE_in_module_implementation6015 = new BitSet(new long[]{0x0100C81011200000L,0xA03020007800040FL,0x000000000000014FL});
-    public static final BitSet FOLLOW_translation_unit_in_module_implementation6047 = new BitSet(new long[]{0x0000000000000000L,0x0000400000000000L});
-    public static final BitSet FOLLOW_RBRACE_in_module_implementation6103 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LBRACE_in_component_specification6142 = new BitSet(new long[]{0x0100000000000000L,0x0000500000000000L,0x0000000000000080L});
-    public static final BitSet FOLLOW_uses_provides_in_component_specification6157 = new BitSet(new long[]{0x0100000000000000L,0x0000500000000000L,0x0000000000000080L});
-    public static final BitSet FOLLOW_line_directive_in_component_specification6161 = new BitSet(new long[]{0x0100000000000000L,0x0000500000000000L,0x0000000000000080L});
-    public static final BitSet FOLLOW_RBRACE_in_component_specification6165 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_USES_in_uses_provides6189 = new BitSet(new long[]{0x0000C81011200000L,0xA03020007800043FL,0x000000000000014FL});
-    public static final BitSet FOLLOW_specification_element_list_in_uses_provides6191 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_PROVIDES_in_uses_provides6210 = new BitSet(new long[]{0x0000C81011200000L,0xA03020007800043FL,0x000000000000014FL});
-    public static final BitSet FOLLOW_specification_element_list_in_uses_provides6212 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_specification_element_in_specification_element_list6235 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LBRACE_in_specification_element_list6250 = new BitSet(new long[]{0x0000C81011200000L,0xA03020007800041FL,0x000000000000014FL});
-    public static final BitSet FOLLOW_specification_element_in_specification_element_list6252 = new BitSet(new long[]{0x0000C81011200000L,0xA03060007800041FL,0x000000000000014FL});
-    public static final BitSet FOLLOW_RBRACE_in_specification_element_list6255 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_declaration_in_specification_element6275 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_INTERFACE_in_specification_element6286 = new BitSet(new long[]{0x0000000000000000L,0x0000200000000000L});
-    public static final BitSet FOLLOW_identifier_in_specification_element6288 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000002000L});
-    public static final BitSet FOLLOW_141_in_specification_element6290 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_RAW_IDENTIFIER_in_identifier6314 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_translation_unit_in_mininess_file5808 = new BitSet(new long[]{0x0000000000000000L,0x0000000000040000L});
+    public static final BitSet FOLLOW_component_in_mininess_file5811 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_MODULE_in_component5851 = new BitSet(new long[]{0x0000000000000000L,0x0000200000000000L});
+    public static final BitSet FOLLOW_identifier_in_component5853 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000020L});
+    public static final BitSet FOLLOW_component_specification_in_component5855 = new BitSet(new long[]{0x2000000000000000L});
+    public static final BitSet FOLLOW_implementation_in_component5857 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_module_implementation_in_implementation5896 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_IMPLEMENTATION_in_module_implementation5914 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000020L});
+    public static final BitSet FOLLOW_LBRACE_in_module_implementation5916 = new BitSet(new long[]{0x0100C81011200000L,0xA03020007800040FL,0x000000000000014FL});
+    public static final BitSet FOLLOW_translation_unit_in_module_implementation5948 = new BitSet(new long[]{0x0000000000000000L,0x0000400000000000L});
+    public static final BitSet FOLLOW_RBRACE_in_module_implementation6004 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LBRACE_in_component_specification6043 = new BitSet(new long[]{0x0100000000000000L,0x0000500000000000L,0x0000000000000080L});
+    public static final BitSet FOLLOW_uses_provides_in_component_specification6058 = new BitSet(new long[]{0x0100000000000000L,0x0000500000000000L,0x0000000000000080L});
+    public static final BitSet FOLLOW_line_directive_in_component_specification6062 = new BitSet(new long[]{0x0100000000000000L,0x0000500000000000L,0x0000000000000080L});
+    public static final BitSet FOLLOW_RBRACE_in_component_specification6066 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_USES_in_uses_provides6090 = new BitSet(new long[]{0x0000C81011200000L,0xA03020007800042FL,0x000000000000014FL});
+    public static final BitSet FOLLOW_specification_element_list_in_uses_provides6092 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_PROVIDES_in_uses_provides6111 = new BitSet(new long[]{0x0000C81011200000L,0xA03020007800042FL,0x000000000000014FL});
+    public static final BitSet FOLLOW_specification_element_list_in_uses_provides6113 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_specification_element_in_specification_element_list6136 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LBRACE_in_specification_element_list6151 = new BitSet(new long[]{0x0000C81011200000L,0xA03020007800040FL,0x000000000000014FL});
+    public static final BitSet FOLLOW_specification_element_in_specification_element_list6153 = new BitSet(new long[]{0x0000C81011200000L,0xA03060007800040FL,0x000000000000014FL});
+    public static final BitSet FOLLOW_RBRACE_in_specification_element_list6156 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_declaration_in_specification_element6176 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_RAW_IDENTIFIER_in_identifier6193 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_SIZEOF_in_synpred23_Mininess2445 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000800L});
     public static final BitSet FOLLOW_LPARENS_in_synpred23_Mininess2447 = new BitSet(new long[]{0x0000480010200000L,0x203020007800040FL,0x000000000000014EL});
     public static final BitSet FOLLOW_type_name_in_synpred23_Mininess2449 = new BitSet(new long[]{0x0000000000000000L,0x0002000000000000L});
@@ -16073,7 +15142,5 @@ public TreeAdaptor getTreeAdaptor() {
     public static final BitSet FOLLOW_ELSE_in_synpred144_Mininess5375 = new BitSet(new long[]{0x11020010204C2020L,0x5441205400214820L,0x0000000000002200L});
     public static final BitSet FOLLOW_statement_in_synpred144_Mininess5377 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_CONSTANT_in_synpred153_Mininess5727 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_translation_unit_in_synpred155_Mininess5807 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000010L});
-    public static final BitSet FOLLOW_interface_definition_in_synpred155_Mininess5810 = new BitSet(new long[]{0x0000000000000002L});
 
 }

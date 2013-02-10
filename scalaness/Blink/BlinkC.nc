@@ -6,12 +6,11 @@
 // system using a very basic (but still real) example.
 
 module BlinkC {
-    uses interface Boot;
-    uses interface Leds;
-
+    uses     command void led0Toggle( );
     uses     command void startPeriodic( int32_t dt );
-    provides command void fired( );
     uses     command flashCountType get_initial_count( );  // Silly, but shows module composition.
+    provides command void booted( );
+    provides command void fired( );
 }
 implementation {
     
@@ -27,7 +26,7 @@ implementation {
     command void fired( )
     {
         if( flash_count > 0 ) {
-            call Leds.led0Toggle( );
+            call led0Toggle( );
             --flash_count;
         }
     }

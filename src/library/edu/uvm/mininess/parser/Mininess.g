@@ -666,21 +666,24 @@ function_definition
 
 // The FILE pseudo-token is needed to provide a wrapper for the entire file. Otherwise if the
 // optional translation unit is present, a null token is used as the parent of that unit's
-// declarations and the interface|component. This null token is awkward. NOTE: The optional
-// translation unit is part of the full nesC grammar. It may never become part of Mininess's
-// grammar. However, just in case, I'm retaining the structure for now.
+// declarations and the interface|component. This null token is awkward. NOTE: Mininess does
+// not currently support interface files or the handling of interfaces in program specifications.
+// However, some of the productions supporting them are still here (commented out) for possible
+// future expansion.
 //
 mininess_file
-    :    translation_unit? interface_definition -> ^(FILE translation_unit? interface_definition)
-    |    translation_unit? component -> ^(FILE translation_unit? component);
+    :    translation_unit? component -> ^(FILE translation_unit? component);
 
-// Interface scope is nested inside the global scope.
-interface_definition
-    :    INTERFACE identifier
-        '{' { symbols.enterScope(); }
-        (declaration | line_directive)*
-            { symbols.exitScope();  } '}'
-            -> ^(INTERFACE identifier declaration*);
+//  :    translation_unit? interface_definition -> ^(FILE translation_unit? interface_definition)
+
+
+// // Interface scope is nested inside the global scope.
+// interface_definition
+//     :    INTERFACE identifier
+//         '{' { symbols.enterScope(); }
+//         (declaration | line_directive)*
+//             { symbols.exitScope();  } '}'
+//             -> ^(INTERFACE identifier declaration*);
     
 component
     :   MODULE identifier component_specification implementation
@@ -716,8 +719,8 @@ specification_element_list
     |    '{' specification_element+ '}' -> specification_element+;
 
 specification_element
-    :    declaration
-    |    INTERFACE identifier ';' -> ^(INTERFACE identifier);
+    :    declaration;
+//    |    INTERFACE identifier ';' -> ^(INTERFACE identifier);
 
 identifier
     :   id=RAW_IDENTIFIER { !symbols.isType($id.text) }?;
