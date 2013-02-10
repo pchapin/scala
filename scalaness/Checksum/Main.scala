@@ -112,10 +112,10 @@ object Main {
   // A component for creating messages.
   @ModuleType("""{}
                  < checksumType <: UInt32; size: UInt16 >
-                 { startPeriodic(period: UInt32): Void,
-                   compute_checksum(data: Array[UInt8]): checksumType;
-                   fired(): Void,
-                   booted(): Void }""")
+                 { compute_checksum(data: Array[UInt8]): checksumType,
+                   startPeriodic(period: UInt32): Void;
+                   booted(): Void,
+                   fired(): Void }""")
   class MessageFormatterC extends MininessComponent {
 
     /////////

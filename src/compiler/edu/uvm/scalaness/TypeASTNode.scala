@@ -47,23 +47,34 @@ object TypeASTNode {
     }
   }
   
+  private def processType(typeNode: TypeASTNode): Representation = {
+    if (typeNode.tokenType == ModuleTypeLexer.POINTER_TO)
+      Pointer(processType(typeNode.children(0)))
+    else
+      getGeneralizedTypeName(typeNode)
+  }
+  
   private def processSimpleDeclarationList(nodes: List[TypeASTNode]): List[(String, Representation)] = {
     for (node <- nodes) yield {
       val TypeASTNode(ModuleTypeLexer.COLON, _, children) = node
       val declaredType =
-        if (children(1).tokenType == ModuleTypeLexer.ARRAY)
-          Array(getGeneralizedTypeName(children(1).children(0)), "")
-        else
-          getGeneralizedTypeName(children(1))
+        children(1).tokenType match {
+          // Arrays are handled in a special way (arrays of arrays not supported here).
+          case ModuleTypeLexer.ARRAY =>
+            Array(processType(children(1).children(0)), "")
+          case _ =>
+            processType(children(1))
+        }
+
       (children(0).text, declaredType)
     }
   }
-  
+
   private def processFunctionList(nodes: List[TypeASTNode]): List[(String, Representation)] = {
     for (node <- nodes) yield {
       val TypeASTNode(ModuleTypeLexer.FUNCTION_DECLARATION, _, children) = node
       val parameters = processSimpleDeclarationList(children.drop(2)) map { _._2 }
-      (children(0).text, Function(getGeneralizedTypeName(children(1)), parameters ))
+      (children(0).text, Function(processType(children(1)), parameters ))
     }
   }
   

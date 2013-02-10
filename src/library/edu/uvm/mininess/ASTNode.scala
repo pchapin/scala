@@ -7,8 +7,8 @@
 package edu.uvm.mininess
 
 /**
- * Class representing nodes in the AST of a Mininess program. Either the field children or the field parent must be a
- * var so that mutually referential ASTNode instances can be built.
+ * Class representing nodes in the AST of a Mininess program. Either the field children or the
+ * field parent must be a var so that mutually referential ASTNode instances can be built.
  */
 sealed case class ASTNode(
   tokenType      : Int,             // Token identifier as defined by ANTLR
@@ -17,9 +17,9 @@ sealed case class ASTNode(
   var parent     : Option[ASTNode], // The parent node or None for the root node.
   var symbolTable: Option[Symbols]) // The symbol table associated with this node, if any.
 {
-  // I don't really want to match on these and the class's parameter list is already too long. Thus I'm making these
-  // class members. They need to be vars so they can be set during tree conversion. They should never be modified after
-  // that, however.
+  // I don't really want to match on these and the class's parameter list is already too long.
+  // Thus I'm making these class members. They need to be vars so they can be set during tree
+  // conversion. They should never be modified after that, however.
   // 
   var line = 0
   var positionInLine = 0

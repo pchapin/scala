@@ -175,10 +175,10 @@ class MininessTyper(
           case Some(childType) => childType
           case _ => throw new TypeException("'for' condition must have a type")
         }
-        if (areSubtypes(childType, Int32)) {
+        if (areSubtypes(childType, Int32) || areSubtypes(childType, UInt32)) {
           Some(Okay)
         }
-        else throw new TypeException("'for' condition must be an integer")
+        else throw new TypeException("'for' condition must be a signed or unsigned integer")
       } // Check for subtype of Int, OKAY
 
       case ASTNode(MininessLexer.FOR_INITIALIZE, _, children, _, _) => {
@@ -209,14 +209,14 @@ class MininessTyper(
           case Some(conditionType) => conditionType
           case _ => throw new TypeException("'if' condition must have a type")
         }
-        if (areSubtypes(conditionType, Int32)) {
+        if (areSubtypes(conditionType, Int32) || areSubtypes(conditionType, UInt32)) {
           val firstChildType = checkMininessInclusion(children(1), depth + 1)
           if (children.length == 3) {
             val secondChildType = checkMininessInclusion(children(2), depth + 1)
           }
           Some(Okay)
         }
-        else throw new TypeException("'if' condition must be an integer")
+        else throw new TypeException("'if' condition must be a signed or unsigned integer")
       }
 
       case ASTNode(MininessLexer.IMPLEMENTATION, _, children, _, _) => {
@@ -421,11 +421,11 @@ class MininessTyper(
           case Some(conditionType) => conditionType
           case _ => throw new TypeException("'while' condition must have a type")
         }
-        if (areSubtypes(conditionType, Int32)) {
+        if (areSubtypes(conditionType, Int32) || areSubtypes(conditionType, UInt32)) {
           val childType = checkMininessInclusion(children(1), depth + 1)
           Some(Okay)
         }
-        else throw new TypeException("'while' condition must be an integer")
+        else throw new TypeException("'while' condition must be a signed or unsigned integer")
       }
 
       case _ => {
@@ -447,11 +447,12 @@ class MininessTyper(
 
 
   /**
-   * Type check a Mininess expression. Calling this method on an ASTNode causes that node and all its child nodes to be
-   * type checked. If this method returns normally (and not by way of an exception) then there are no type errors.
+   * Type check a Mininess expression. Calling this method on an ASTNode causes that node and all
+   * its child nodes to be type checked. If this method returns normally (and not by way of an
+   * exception) then there are no type errors.
    *
-   * @param node The AST node to be type checked. This check extends recursively to all child nodes, however the node
-   *             provided to this method should be an expression node.
+   * @param node The AST node to be type checked. This check extends recursively to all child
+   * nodes, however the node provided to this method should be an expression node.
    *
    * @return The representation of the node's type or None if the node does not have a type.
    * @throws PositionalNesCTypeException if a type error is detected.
@@ -1042,10 +1043,16 @@ class MininessTyper(
           }
           modifierType // Place-holder, this has to be different if the PFE is modified
         }
-      }  // Tests for a CALL/POST child, but needs to be updated with the case that a CALL/POST does exist and what to
-         // do with it? Fixed return type. No modifiers returns child type. If there exists modifiers, it will type
-         // check the modifiers and return the modifier type. Problem may exist: More than one modifier? a[3]++ <- needs
-         // attention.
+      }  // Tests for a CALL/POST child, but needs to be updated with the case that a CALL/POST
+         // does exist and what to do with it? Fixed return type. No modifiers returns child
+         // type. If there exists modifiers, it will typevcheck the modifiers and return the
+         // modifier type. Problem may exist: More than one modifier? a[3]++ <- needs attention.
+
+      case ASTNode(MininessLexer.SIZEOF_TYPE, _, _, _, _) =>
+        // TODO: Type check children?
+        // TODO: The actual type returned by sizeof() should be configurable.
+        // TODO: Also handle SIZEOF_EXPRESSION and SIZEOF
+        Some(UInt16)
 
       case ASTNode(MininessLexer.STAR, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)

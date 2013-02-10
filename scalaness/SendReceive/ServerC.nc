@@ -5,36 +5,43 @@
 #include "SendReceive.h"
 
 module ServerC {
-    uses interface Leds;
-    uses interface Receive;
+    // uses interface Leds;
+    uses command void led0On( );
+    uses command void led1On( );
+    uses command void led2On( );
+    uses command void led0Off( );
+    uses command void led1Off( );
+    uses command void led2Off( );
+
+    // uses interface Receive;
+    provides command message_t *receive( message_t *msg, void *payload, uint8_t len );
 }
 implementation {
 
     void setLeds( uint16_t val )
     {
-        if( val & 0x01 )
-            call Leds.led0On( );
+        if( val & 0x01U )
+            call led0On( );
         else 
-            call Leds.led0Off( );
-        if( val & 0x02 )
-            call Leds.led1On( );
+            call led0Off( );
+        if( val & 0x02U )
+            call led1On( );
         else
-            call Leds.led1Off( );
-        if( val & 0x04 )
-            call Leds.led2On( );
+            call led1Off( );
+        if( val & 0x04U )
+            call led2On( );
         else
-            call Leds.led2Off( );
+            call led2Off( );
     }
 
 
-    event message_t *Receive.receive( message_t *msg, void *payload, uint8_t len )
+    command message_t *receive( message_t *msg, void *payload, uint8_t len )
     {
-        if( len == sizeof( BenchmarkMsg ) ) {
-            BenchmarkMsg *btrpkt = ( BenchmarkMsg * )payload;
+        if( len == sizeof( struct BenchmarkMsg ) ) {
+            struct BenchmarkMsg *btrpkt = ( struct BenchmarkMsg * )payload;
             setLeds( btrpkt->counter );
         }
         return msg;
     }
 
 }
-

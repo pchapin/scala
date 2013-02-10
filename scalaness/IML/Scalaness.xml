@@ -254,4 +254,28 @@
       </comment>
     </comments>
   </issue>
+
+  <issue>
+    <summary>Should external structures and external types be supported in Mininess?</summary>
+    <creation-date>
+      <date>2013-02-10</date>
+    </creation-date>
+    <comments>
+      <comment>
+        <reporter>Peter Chapin</reporter>
+        <comment-date>
+          <date>2013-02-10</date>
+        </comment-date>
+        <notes>
+          <xhtml:p>The <code>nx_struct</code> structures and related types are currently outside
+            the Mininess subset. It might be useful to include them. Doing so would involve
+            changing the Mininess type checker and maybe also the declaration and symbol table
+            handling of Mininess code. Allowing such types in imports and exports would also
+            require adjustments to the ModuleType annotation syntax and associated processing.
+            Thus this change has a significant ripple effect and shouldn't be undertaken too
+            lightly.</xhtml:p>
+        </notes>
+      </comment>
+    </comments>
+  </issue>
 </issue-set>

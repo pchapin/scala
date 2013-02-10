@@ -155,8 +155,12 @@ function_declaration_list
     :    function_declaration (','! function_declaration)*;
 
 function_declaration
-    :    name=IDENTIFIER '(' simple_declaration_list? ')' ':' return_type=generalized_type_name
+    :    name=IDENTIFIER '(' simple_declaration_list? ')' ':' return_type=return_type_name
          -> ^(FUNCTION_DECLARATION $name $return_type simple_declaration_list?);
+
+return_type_name
+    :    generalized_type_name
+    |    POINTER_TO '[' generalized_type_name ']' -> ^(POINTER_TO generalized_type_name);
 
 type_specifier
     :    generalized_type_name
