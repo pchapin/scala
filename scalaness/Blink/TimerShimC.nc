@@ -5,7 +5,7 @@
 // supported in Mininess. Is this an acceptable workaround or does Mininess need to support
 // generic interfaces, at least in module specifications?
 
-#include "Timer.h"
+#include <Timer.h>
 
 module TimerShimC {
     uses interface Timer<TMilli> as Timer0;

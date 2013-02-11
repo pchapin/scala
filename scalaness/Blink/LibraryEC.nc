@@ -5,10 +5,15 @@ configuration LibraryEC {
 
     // nesT version of the Leds interface.
     provides command void led0Toggle( );
+
+    // nesT version of the Timer interface.
+    provides command void startPeriodic( uint32_t dt );
 }
 implementation {
-    components LedsShimC, LedsC;
+    components LedsShimC, LedsC, SpecificTimerC;
 
     led0Toggle = LedsShimC.led0Toggle;
     LedsShimC.Leds -> LedsC;
+
+    startPeriodic = SpecificTimerC.startPeriodic;
 }
