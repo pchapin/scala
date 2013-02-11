@@ -11,21 +11,21 @@ import org.antlr.runtime.tree._
 import parser.MininessLexer
 
 /**
- * This object has methods for handling abstract syntax tree conversions and other high level AST preparations. Since
- * Scala can only do pattern matching on "case classes" one service provided by this object is conversion to/from the
- * trees produced by ANTLR to instances of a suitably defined case class (ASTNode). Some additional high level methods
- * are also provided.
+ * This object has methods for handling abstract syntax tree conversions and other high level AST
+ * preparations. Since Scala can only do pattern matching on "case classes" one service provided
+ * by this object is conversion to/from the trees produced by ANTLR to instances of a suitably
+ * defined case class (ASTNode). Some additional high level methods are also provided.
  */
 object TreeConverter {
 
   /**
-   * Convert an ANTLR-style abstract syntax tree into an ASTNode case class instance. Note that some of the information
-   * contained inside the ANTLR produced tree is not preserved in the case class instance. Currently that is information
-   * not needed.
+   * Convert an ANTLR-style abstract syntax tree into an ASTNode case class instance. Note that
+   * some of the information contained inside the ANTLR produced tree is not preserved in the
+   * case class instance. Currently that is information not needed.
    * 
    * @param t The ANTLR-style abstract syntax tree to be converted.
-   * @return An ASTNode instance that represents the tree. The parent of the returned node is None. The symbol tables
-   *         attached to the returned node and its children are all None.
+   * @return An ASTNode instance that represents the tree. The parent of the returned node is
+   * None. The symbol tables attached to the returned node and its children are all None.
    */
   def ANTLRToScala(t: Tree): ASTNode = {
     var childList = List[ASTNode]()
@@ -35,8 +35,8 @@ object TreeConverter {
     }    
     val newNode = ASTNode(t.getType, t.getText, childList, None, None)
     
-    // The Scala compiler's source positioning is zero based. ANTLR uses one based positions for line numbers and zero
-    // based positions for column numbers.
+    // The Scala compiler's source positioning is zero based. ANTLR uses one based positions for
+    // line numbers and zero based positions for column numbers.
     // 
     newNode.line = t.getLine - 1
     newNode.positionInLine = t.getCharPositionInLine
@@ -50,9 +50,10 @@ object TreeConverter {
 
 
   /**
-   * Convert an ASTNode case class instance into an ANTLR-style abstract syntax tree. This is done so the modified trees
-   * created by Scalaness can be passed back to Java for final output. The ANTLR-style abstract syntax tree returned
-   * does not contain all the information about tokens that would normally be present.
+   * Convert an ASTNode case class instance into an ANTLR-style abstract syntax tree. This is
+   * done so the modified trees created by Scalaness can be passed back to Java for final output.
+   * The ANTLR-style abstract syntax tree returned does not contain all the information about
+   * tokens that would normally be present.
    * 
    * @param root The ASTNode instance to convert.
    * @return An ANTLR-style abstract syntax tree.
@@ -80,8 +81,8 @@ object TreeConverter {
 
 
   /**
-   * Writes the abstract syntax tree to standard output. Each level of the tree is indented relative to the level above
-   * it. This method is useful for debugging.
+   * Writes the abstract syntax tree to standard output. Each level of the tree is indented
+   * relative to the level above it. This method is useful for debugging.
    *
    * @param root The root of the tree to dump.
    */
@@ -107,8 +108,8 @@ object TreeConverter {
   
   
   /**
-   * Writes the abstract syntax tree to the indicated PrintStream as serialized nesC source code. This method is used
-   * during the output of the specialized nesC templates.
+   * Writes the abstract syntax tree to the indicated PrintStream as serialized nesC source code.
+   * This method is used during the output of the specialized nesC templates.
    * 
    * @param out The object where the source will be written.
    * @param root The root of the tree to dump.
@@ -120,7 +121,8 @@ object TreeConverter {
 
 
   /**
-   * Processes a Mininess AST and replaces cast operations with calls to an appropriate conversion command.
+   * Processes a Mininess AST and replaces cast operations with calls to an appropriate
+   * conversion command.
    *
    * @param root The root of the AST to process.
    * @return A new AST with all cast operations replaced.
@@ -131,8 +133,10 @@ object TreeConverter {
       
       case ASTNode(MininessLexer.CAST, text, children, parent, symbolTable) => {
 
-        // Here we look up the cast target's type and the cast type and build a method string based on these names
-        // This method name format is up to us how we want the programmer to provide it, so it can change if neccessary
+        // Here we look up the cast target's type and the cast type and build a method string
+        // based on these names. This method name format is up to us how we want the programmer
+        // to provide it, so it can change if neccessary
+        //
         val castTarget = children(0).children(0).text
         val isStructCast = if (children(1).text == "struct") 
                              true 
@@ -227,8 +231,10 @@ object TreeConverter {
         
         val arrayStatementNode = getStatementNode(root)
         val (firstHalf,secondHalf) = getTwoNumbers(arrayStatementNode)
-        // This will be where we pass in the arrayStatementNode, get its parent, split its parents children into two lists (with it heading the second list)
-        // and return two lists.  The two lists then can later be merged together with the inclusion of the constructed if statement between them
+        // This will be where we pass in the arrayStatementNode, get its parent, split its
+        // parents children into two lists (with it heading the second list) and return two
+        // lists. The two lists then can later be merged together with the inclusion of the
+        // constructed if statement between them
                 
         val statementParentNode = arrayStatementNode.parent match {
           case Some(pNode) => pNode
@@ -301,10 +307,11 @@ object TreeConverter {
       statementNode
     }
     
-    // Test to see how returning a pair works, we need to pass it an ASTNode, grab the parent, and use its ID to split
-    // the children up. We just have to be careful to make sure that we split at right spot, just checking for
-    // "declaration" doesn't guarantee the right one, it has to be exact. This may take some thought to find a way to
-    // make sure it is the exact child.
+    // Test to see how returning a pair works, we need to pass it an ASTNode, grab the parent,
+    // and use its ID to split the children up. We just have to be careful to make sure that we
+    // split at right spot, just checking for "declaration" doesn't guarantee the right one, it
+    // has to be exact. This may take some thought to find a way to make sure it is the exact
+    // child.
     //
     def getTwoNumbers(node: ASTNode): (List[ASTNode], List[ASTNode]) ={
       val parentNode = node.parent match {
@@ -328,8 +335,6 @@ object TreeConverter {
       }
       (firstList.toList,secondList.toList)
     }
-   
-    
     root
   }
   
