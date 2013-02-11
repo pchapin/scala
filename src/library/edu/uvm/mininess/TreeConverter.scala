@@ -218,7 +218,6 @@ object TreeConverter {
         }
         val arrayName = arrayNode.text
         val arrayType = Symbols.lookupVariable(root,arrayName)
-        println(s"arrayType = $arrayType")
         val arraySize = arrayType match {
           case MininessTypes.Array(_, aSize) => aSize
           case _ => throw new Exception("Unable to locate array size")
