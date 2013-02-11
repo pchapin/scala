@@ -278,4 +278,24 @@
       </comment>
     </comments>
   </issue>
+
+  <issue>
+    <summary>Unknown configuration items should not cause the compiler to crash.</summary>
+    <creation-date>
+      <date>2013-02-11</date>
+    </creation-date>
+    <comments>
+      <comment>
+        <reporter>Peter Chapin</reporter>
+        <comment-date>
+          <date>2013-02-11</date>
+        </comment-date>
+        <notes>
+          <xhtml:p>Currently if the compiler discovers an unrecognized configuration setting in
+            the Scalaness configuration file, it throws and unhandled exception and crashes.
+            This is clearly inelegant.</xhtml:p>
+        </notes>
+      </comment>
+    </comments>
+  </issue>
 </issue-set>

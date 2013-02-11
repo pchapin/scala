@@ -26,14 +26,23 @@ object Specialize {
     value     : A): ASTNode = {
     
     // TODO: The editor should respect scopes but it currently does not.
+
+    def isNumeric(value: A) = {
+      val textRepresentation = value.toString
+      textRepresentation.forall( ch => (ch >= '0' && ch <= '9') )
+    }
     
     node match {
       // Check raw identifiers.
       case ASTNode(MininessLexer.RAW_IDENTIFIER, text, children, parent, symbolTable) =>
-        if (identifier == text)
-          ASTNode(MininessLexer.RAW_IDENTIFIER, value.toString, children, parent, symbolTable)
-        else
+        if (identifier != text)
           node
+        else {
+          if (isNumeric(value))
+            ASTNode(MininessLexer.CONSTANT, value.toString, children, parent, symbolTable)
+          else
+            ASTNode(MininessLexer.RAW_IDENTIFIER, value.toString, children, parent, symbolTable)
+        }
         
       // Recursively process all other node types.
       case ASTNode(token, text, children, parent, symbolTable) =>
