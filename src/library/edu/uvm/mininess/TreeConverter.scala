@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // FILE    : TreeConverter.scala
 // SUBJECT : Object to convert ANTLR CommonTrees into SyntaxTrees.
-// AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
 package edu.uvm.mininess
@@ -137,17 +137,10 @@ object TreeConverter {
         // based on these names. This method name format is up to us how we want the programmer
         // to provide it, so it can change if neccessary
         //
-        val castTarget = children(0).children(0).text
-        val isStructCast = if (children(1).text == "struct") 
-                             true 
-                           else 
-                             false
-                           
-        val castType = if (isStructCast) 
-                         children(1).children(0).text
-                       else
-                         children(1).text
-        val valueType = Symbols.lookupVariable(root,castTarget)
+        val castTarget    = children(0).children(0).text
+        val isStructCast  = (children(1).text == "struct") 
+        val castType      = if (isStructCast) children(1).children(0).text else children(1).text
+        val valueType     = Symbols.lookupVariable(root,castTarget)
         val valTypeString = valueType match {
           case MininessTypes.Structure(structName,structFields) => structName
           case typeName => typeName
@@ -155,16 +148,23 @@ object TreeConverter {
         val castMethodString = valTypeString+"_"+castType
         
         
-        val newNode = ASTNode(MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), parent, symbolTable)
-        val newNode2 = ASTNode(MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(newNode), symbolTable)
+        val newNode = ASTNode(
+          MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), parent, symbolTable)
+        val newNode2 = ASTNode(
+          MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(newNode), symbolTable)
         newNode.children = List(newNode2)
-        val callNode = ASTNode(MininessLexer.CALL, "call", List(), Some(newNode2), symbolTable)
-        val functionNode = ASTNode(MininessLexer.RAW_IDENTIFIER, castMethodString, List(), Some(newNode2), symbolTable)
-        val argListNode = ASTNode(MininessLexer.ARGUMENT_LIST, "ARGUMENT_LIST", List(), Some(newNode2), symbolTable)
+        val callNode = ASTNode(
+          MininessLexer.CALL, "call", List(), Some(newNode2), symbolTable)
+        val functionNode = ASTNode(
+          MininessLexer.RAW_IDENTIFIER, castMethodString, List(), Some(newNode2), symbolTable)
+        val argListNode = ASTNode(
+          MininessLexer.ARGUMENT_LIST, "ARGUMENT_LIST", List(), Some(newNode2), symbolTable)
         newNode2.children = List(callNode, functionNode, argListNode)
-        val newNode3 = ASTNode(MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(argListNode), symbolTable)
+        val newNode3 = ASTNode(
+          MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(argListNode), symbolTable)
         argListNode.children = List(newNode3)
-        val argumentNode = ASTNode(MininessLexer.RAW_IDENTIFIER, castTarget, List(), Some(newNode3), symbolTable)
+        val argumentNode = ASTNode(
+          MininessLexer.RAW_IDENTIFIER, castTarget, List(), Some(newNode3), symbolTable)
         newNode3.children = List(argumentNode)
         val parentNode = parent match {
           case Some(ptNode) => ptNode
@@ -199,35 +199,25 @@ object TreeConverter {
    */
   def addArrayBoundsChecks(root: ASTNode): ASTNode = {
     // if (root.parent == None) dumpAST(root)
-
     root match {
-      
       case ASTNode(MininessLexer.ARRAY_ELEMENT_SELECTION, text, children, parent, symbolTable) => {
-        
         val access = 5
         val parentNode = parent match {
           case Some(pNode) => pNode
           case None => root // Should throw an error
         }
-        val arrayNode = parentNode.children(0)
+        val arrayNode    = parentNode.children(0)
         val arrayPFENode = root.children(0)
-        val accessNode = arrayPFENode.children(0)
-        val isIdentifier = accessNode.tokenType match {
-          case MininessLexer.RAW_IDENTIFIER => true
-          case _ => false
-        }
-        val arrayName = arrayNode.text
-        val arrayType = Symbols.lookupVariable(root,arrayName)
+        val accessNode   = arrayPFENode.children(0)
+        val isIdentifier = (accessNode.tokenType == MininessLexer.RAW_IDENTIFIER)
+        val arrayName    = arrayNode.text
+        val arrayType    = Symbols.lookupVariable(root,arrayName)
         val arraySize = arrayType match {
           case MininessTypes.Array(_, aSize) => aSize
           case _ => throw new Exception("Unable to locate array size")
         }
-        val isConstant = try {
-                           val test = arraySize.toInt
-                           true
-                         } catch { 
-                           case e: Exception => false
-                         }
+        val isConstant =
+          try { val test = arraySize.toInt; true } catch { case e: Exception => false }
         
         val arrayStatementNode = getStatementNode(root)
         val (firstHalf,secondHalf) = getTwoNumbers(arrayStatementNode)
@@ -241,35 +231,53 @@ object TreeConverter {
           case _           => throw new Exception("Unable to locate parent node")
         }
         
-        val ifNode = ASTNode(MininessLexer.IF, "if", List(), Some(statementParentNode), symbolTable)
-        val LENode = ASTNode(MininessLexer.GREATEREQUAL, ">=", List(), Some(ifNode), symbolTable)
-        val newNode = ASTNode(MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(LENode), symbolTable)
-        val newNode2 = ASTNode(MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(LENode), symbolTable)
+        val ifNode = ASTNode(
+          MininessLexer.IF, "if", List(), Some(statementParentNode), symbolTable)
+        val LENode = ASTNode(
+          MininessLexer.GREATEREQUAL, ">=", List(), Some(ifNode), symbolTable)
+        val newNode = ASTNode(
+          MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(LENode), symbolTable)
+        val newNode2 = ASTNode(
+          MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(LENode), symbolTable)
         LENode.children = List(newNode, newNode2)
+
         if (isIdentifier) {
-          val accessorNode = ASTNode(MininessLexer.RAW_IDENTIFIER, accessNode.text, List(), Some(newNode), symbolTable)
-          newNode.children = List(accessorNode)
-        } else {
-          val accessorNode = ASTNode(MininessLexer.CONSTANT, accessNode.text, List(), Some(newNode), symbolTable)
+          val accessorNode = ASTNode(
+            MininessLexer.RAW_IDENTIFIER, accessNode.text, List(), Some(newNode), symbolTable)
           newNode.children = List(accessorNode)
         }
+        else {
+          val accessorNode = ASTNode(
+            MininessLexer.CONSTANT, accessNode.text, List(), Some(newNode), symbolTable)
+          newNode.children = List(accessorNode)
+        }
+
         if (isConstant) {
-          val sizeNode = ASTNode(MininessLexer.CONSTANT, arraySize, List(), Some(newNode2), symbolTable)
+          val sizeNode = ASTNode(
+            MininessLexer.CONSTANT, arraySize, List(), Some(newNode2), symbolTable)
           newNode2.children = List(sizeNode)
-        } else {
+        }
+        else {
           val sizeType = Symbols.lookupVariable(root, arraySize)
           if (!(MininessTypes.areSubtypes(sizeType, MininessTypes.Int32) || 
                 MininessTypes.areSubtypes(sizeType, MininessTypes.UInt32)))
             throw new Exception("Array size must be integer type")
-          val sizeNode = ASTNode(MininessLexer.RAW_IDENTIFIER, arraySize, List(), Some(newNode2), symbolTable)
+          val sizeNode = ASTNode(
+            MininessLexer.RAW_IDENTIFIER, arraySize, List(), Some(newNode2), symbolTable)
           newNode2.children = List(sizeNode)
         }
-        val statementNode = ASTNode(MininessLexer.STATEMENT, "STATEMENT", List(), Some(ifNode), symbolTable)
-        val statementPFENode = ASTNode(MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(statementNode), symbolTable)
+
+        val statementNode = ASTNode(
+          MininessLexer.STATEMENT, "STATEMENT", List(), Some(ifNode), symbolTable)
+        val statementPFENode = ASTNode(
+          MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(statementNode), symbolTable)
         statementNode.children = List(statementPFENode)
-        val callNode = ASTNode(MininessLexer.CALL, "call", List(), Some(statementPFENode), symbolTable)
-        val functionNode = ASTNode(MininessLexer.RAW_IDENTIFIER, "restartNode", List(), Some(statementPFENode), symbolTable)
-        val argListNode = ASTNode(MininessLexer.ARGUMENT_LIST, "ARGUMENT_LIST", List(), Some(statementPFENode), symbolTable)
+        val callNode = ASTNode(
+          MininessLexer.CALL, "call", List(), Some(statementPFENode), symbolTable)
+        val functionNode = ASTNode(
+          MininessLexer.RAW_IDENTIFIER, "restartNode", List(), Some(statementPFENode), symbolTable)
+        val argListNode = ASTNode(
+          MininessLexer.ARGUMENT_LIST, "ARGUMENT_LIST", List(), Some(statementPFENode), symbolTable)
         statementPFENode.children = List(callNode, functionNode, argListNode)
         ifNode.children = List(LENode, statementNode)
         val newSecondHalf = ifNode::secondHalf

@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // FILE    : NamedProgramComponent.scala
 // SUBJECT : Class representing components of the generated minimal nesC program.
-// AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
 package edu.uvm.scalaness
@@ -79,7 +79,8 @@ class NamedProgramComponent(
       // TODO: Is this really the right place for this?
       Symbols.decorateAST(fullySpecializedAST)
       val transformedAST1 = TreeConverter.addArrayBoundsChecks(fullySpecializedAST)
-      val viewer = new SyntaxViewer(outputFile, transformedAST1)
+      val transformedAST2 = TreeConverter.replaceCastOperations(transformedAST1)
+      val viewer = new SyntaxViewer(outputFile, transformedAST2)
       viewer.rewrite()
     }
     finally {
