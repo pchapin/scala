@@ -39,6 +39,35 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
     with DocComments
     with Positions { self =>
 
+  // Scalaness settings.
+  // TODO: It would be better(?) if these settings were handled as other compiler settings.
+  object sSettings {
+    import edu.uvm.scalaness.ConfigurationSettings
+
+    private val configurableItems =
+      Map("ASTOutput"         -> ConfigurationSettings.basicBooleanValidator _,
+          "configFile"        -> ConfigurationSettings.basicPathValidator _,
+          "debug"             -> ConfigurationSettings.basicBooleanValidator _,
+          "displayGenerated"  -> ConfigurationSettings.basicBooleanValidator _,
+          "inclusionPath"     -> ConfigurationSettings.basicPathValidator _,
+          "interfacePath"     -> ConfigurationSettings.basicPathValidator _,
+          "typeCompatibility" -> ConfigurationSettings.basicPathValidator _)
+    val scalanessSettings = new ConfigurationSettings(configurableItems)
+    scalanessSettings.setDefaults(
+      Map("ASTOutput"         -> "FALSE",
+          "debug"             -> "FALSE",
+          "displayGenerated"  -> "FALSE",
+          "inclusionPath"     -> ".",
+          "interfacePath"     -> "."))
+
+    // TODO: This assumes that currentSettings is already well defined. Is that so?
+    private val configName =
+      if (currentSettings.scalanessconfig.value == "") "Scalaness.cfg"
+        else currentSettings.scalanessconfig.value
+    scalanessSettings.readConfigurationFile(configName)
+  }
+  val scalanessSettings = sSettings.scalanessSettings
+
   // the mirror --------------------------------------------------
 
   override def isCompilerUniverse = true

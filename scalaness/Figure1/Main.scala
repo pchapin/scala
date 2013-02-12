@@ -20,7 +20,7 @@ object Main {
       this
     }
 
-    private val abstractSyntax = Parser.reparse("Radio.nc", List("addrT"))
+    // private val abstractSyntax = Parser.reparse("Radio.nc", List("addrT"))
       
     val configuration =
       new ProgramComponentWrapper(new NamedProgramComponent(
@@ -58,7 +58,7 @@ object Main {
       this
     }
 
-    private val abstractSyntax = Parser.reparse("SendC.nc", List("addrT"))
+    // private val abstractSyntax = Parser.reparse("SendC.nc", List("addrT"))
       
     val configuration =
       new ProgramComponentWrapper(new NamedProgramComponent(
@@ -99,7 +99,7 @@ object Main {
       this
     }
 
-    private val abstractSyntax = Parser.reparse("NodeC.nc", List("addrT"))
+    // private val abstractSyntax = Parser.reparse("NodeC.nc", List("addrT"))
       
     val configuration =
       new ProgramComponentWrapper(new NamedProgramComponent(

@@ -116,8 +116,8 @@ trait Plugins {
     for (p <- plugins; c <- p.components) addToPhasesSet(c, c.description)
     
     // This is terribly hacked. I'm basically hard coding a plugin component.
-    // val postParser = new edu.uvm.scalaness.ScalanessPostParser(this)
-    // addToPhasesSet(postParser, postParser.description)
+    val postParser = new edu.uvm.scalaness.ScalanessPostParser(this)
+    addToPhasesSet(postParser, postParser.description)
   }
 
   /** Summary of the options for all loaded plugins */

@@ -94,7 +94,7 @@ object Main {
       result
     }
 
-    private val abstractSyntax = Parser.reparse("InitialConstantsC.nc", List("flashCountType"))
+    // private val abstractSyntax = Parser.reparse("InitialConstantsC.nc", List("flashCountType"))
       
     val configuration =
       new ProgramComponentWrapper(new NamedProgramComponent(
@@ -155,8 +155,8 @@ object Main {
       result
     }
 
-    private val abstractSyntax  =
-      Parser.reparse("BlinkC.nc", List("flashCountType", "periodType"))
+    // private val abstractSyntax  =
+    //   Parser.reparse("BlinkC.nc", List("flashCountType", "periodType"))
     
     val configuration =
       new ProgramComponentWrapper(new NamedProgramComponent(

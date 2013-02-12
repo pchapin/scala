@@ -87,7 +87,7 @@ object Main {
       result
     }
 
-    private val abstractSyntax = Parser.reparse("ChecksumC.nc", List("checksumType"))
+    // private val abstractSyntax = Parser.reparse("ChecksumC.nc", List("checksumType"))
       
     val configuration =
       new ProgramComponentWrapper(new NamedProgramComponent(
@@ -131,8 +131,8 @@ object Main {
       result
     }
 
-    private val abstractSyntax  =
-      Parser.reparse("MessageFormatterC.nc", List("checksumType"))
+    // private val abstractSyntax  =
+    //   Parser.reparse("MessageFormatterC.nc", List("checksumType"))
     
     val configuration =
       new ProgramComponentWrapper(new NamedProgramComponent(
