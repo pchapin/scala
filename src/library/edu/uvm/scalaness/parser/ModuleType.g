@@ -167,7 +167,7 @@ return_type
 // TODO: Arrays of arrays are allowed but there is currently no place to specify array size.
 type_specifier
     :    generalized_type_name
-    |    ARRAY '[' type_specifier ']' -> ^(ARRAY type_specifier)
+    |    ARRAY '[' type_specifier (',' NUMBER)? ']' -> ^(ARRAY type_specifier NUMBER?)
     |    POINTER_TO '[' type_specifier ']' -> ^(POINTER_TO type_specifier)
     |    structure_type;
 
@@ -194,6 +194,9 @@ primitive_type_name
 
 IDENTIFIER
     :    ('_' | 'a' .. 'z' | 'A' .. 'Z') ('_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9')*;
+
+NUMBER
+    :    ('0' .. '9')+;
     
 WHITESPACE
     :    ( '\t' | ' ' | '\r' | '\n' | '\\n' | '\f' | '"')+  {$channel = HIDDEN;};

@@ -1,4 +1,4 @@
-// $ANTLR 3.4 ModuleType.g 2013-02-12 09:28:05
+// $ANTLR 3.4 ModuleType.g 2013-02-12 10:59:35
 
     package edu.uvm.scalaness.parser;
 
@@ -30,22 +30,23 @@ public class ModuleTypeLexer extends Lexer {
     public static final int LBRACKET=20;
     public static final int LPARENS=21;
     public static final int MODULE_TYPE=22;
-    public static final int PARAMETER_LIST=23;
-    public static final int POINTER_TO=24;
-    public static final int RANGLE=25;
-    public static final int RBRACE=26;
-    public static final int RBRACKET=27;
-    public static final int RPARENS=28;
-    public static final int SEMI=29;
-    public static final int STRUCTURE=30;
-    public static final int SUBTYPE=31;
-    public static final int TYPE_PARAMETER_LIST=32;
-    public static final int UINT16=33;
-    public static final int UINT32=34;
-    public static final int UINT8=35;
-    public static final int VALUE_PARAMETER_LIST=36;
-    public static final int VOID=37;
-    public static final int WHITESPACE=38;
+    public static final int NUMBER=23;
+    public static final int PARAMETER_LIST=24;
+    public static final int POINTER_TO=25;
+    public static final int RANGLE=26;
+    public static final int RBRACE=27;
+    public static final int RBRACKET=28;
+    public static final int RPARENS=29;
+    public static final int SEMI=30;
+    public static final int STRUCTURE=31;
+    public static final int SUBTYPE=32;
+    public static final int TYPE_PARAMETER_LIST=33;
+    public static final int UINT16=34;
+    public static final int UINT32=35;
+    public static final int UINT8=36;
+    public static final int VALUE_PARAMETER_LIST=37;
+    public static final int VOID=38;
+    public static final int WHITESPACE=39;
 
         // This is mostly just a placeholder.
         private final int VERSION = 1;
@@ -613,107 +614,39 @@ public class ModuleTypeLexer extends Lexer {
     }
     // $ANTLR end "IDENTIFIER"
 
-    // $ANTLR start "WHITESPACE"
-    public final void mWHITESPACE() throws RecognitionException {
+    // $ANTLR start "NUMBER"
+    public final void mNUMBER() throws RecognitionException {
         try {
-            int _type = WHITESPACE;
+            int _type = NUMBER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:199:5: ( ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+ )
-            // ModuleType.g:199:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
+            // ModuleType.g:199:5: ( ( '0' .. '9' )+ )
+            // ModuleType.g:199:10: ( '0' .. '9' )+
             {
-            // ModuleType.g:199:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
+            // ModuleType.g:199:10: ( '0' .. '9' )+
             int cnt2=0;
             loop2:
             do {
-                int alt2=8;
-                switch ( input.LA(1) ) {
-                case '\t':
-                    {
-                    alt2=1;
-                    }
-                    break;
-                case ' ':
-                    {
-                    alt2=2;
-                    }
-                    break;
-                case '\r':
-                    {
-                    alt2=3;
-                    }
-                    break;
-                case '\n':
-                    {
-                    alt2=4;
-                    }
-                    break;
-                case '\\':
-                    {
-                    alt2=5;
-                    }
-                    break;
-                case '\f':
-                    {
-                    alt2=6;
-                    }
-                    break;
-                case '\"':
-                    {
-                    alt2=7;
-                    }
-                    break;
+                int alt2=2;
+                int LA2_0 = input.LA(1);
 
+                if ( ((LA2_0 >= '0' && LA2_0 <= '9')) ) {
+                    alt2=1;
                 }
+
 
                 switch (alt2) {
             	case 1 :
-            	    // ModuleType.g:199:12: '\\t'
+            	    // ModuleType.g:
             	    {
-            	    match('\t'); 
-
+            	    if ( (input.LA(1) >= '0' && input.LA(1) <= '9') ) {
+            	        input.consume();
             	    }
-            	    break;
-            	case 2 :
-            	    // ModuleType.g:199:19: ' '
-            	    {
-            	    match(' '); 
-
+            	    else {
+            	        MismatchedSetException mse = new MismatchedSetException(null,input);
+            	        recover(mse);
+            	        throw mse;
             	    }
-            	    break;
-            	case 3 :
-            	    // ModuleType.g:199:25: '\\r'
-            	    {
-            	    match('\r'); 
 
-            	    }
-            	    break;
-            	case 4 :
-            	    // ModuleType.g:199:32: '\\n'
-            	    {
-            	    match('\n'); 
-
-            	    }
-            	    break;
-            	case 5 :
-            	    // ModuleType.g:199:39: '\\\\n'
-            	    {
-            	    match("\\n"); 
-
-
-
-            	    }
-            	    break;
-            	case 6 :
-            	    // ModuleType.g:199:47: '\\f'
-            	    {
-            	    match('\f'); 
-
-            	    }
-            	    break;
-            	case 7 :
-            	    // ModuleType.g:199:54: '\"'
-            	    {
-            	    match('\"'); 
 
             	    }
             	    break;
@@ -725,6 +658,132 @@ public class ModuleTypeLexer extends Lexer {
                         throw eee;
                 }
                 cnt2++;
+            } while (true);
+
+
+            }
+
+            state.type = _type;
+            state.channel = _channel;
+        }
+        finally {
+        	// do for sure before leaving
+        }
+    }
+    // $ANTLR end "NUMBER"
+
+    // $ANTLR start "WHITESPACE"
+    public final void mWHITESPACE() throws RecognitionException {
+        try {
+            int _type = WHITESPACE;
+            int _channel = DEFAULT_TOKEN_CHANNEL;
+            // ModuleType.g:202:5: ( ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+ )
+            // ModuleType.g:202:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
+            {
+            // ModuleType.g:202:10: ( '\\t' | ' ' | '\\r' | '\\n' | '\\\\n' | '\\f' | '\"' )+
+            int cnt3=0;
+            loop3:
+            do {
+                int alt3=8;
+                switch ( input.LA(1) ) {
+                case '\t':
+                    {
+                    alt3=1;
+                    }
+                    break;
+                case ' ':
+                    {
+                    alt3=2;
+                    }
+                    break;
+                case '\r':
+                    {
+                    alt3=3;
+                    }
+                    break;
+                case '\n':
+                    {
+                    alt3=4;
+                    }
+                    break;
+                case '\\':
+                    {
+                    alt3=5;
+                    }
+                    break;
+                case '\f':
+                    {
+                    alt3=6;
+                    }
+                    break;
+                case '\"':
+                    {
+                    alt3=7;
+                    }
+                    break;
+
+                }
+
+                switch (alt3) {
+            	case 1 :
+            	    // ModuleType.g:202:12: '\\t'
+            	    {
+            	    match('\t'); 
+
+            	    }
+            	    break;
+            	case 2 :
+            	    // ModuleType.g:202:19: ' '
+            	    {
+            	    match(' '); 
+
+            	    }
+            	    break;
+            	case 3 :
+            	    // ModuleType.g:202:25: '\\r'
+            	    {
+            	    match('\r'); 
+
+            	    }
+            	    break;
+            	case 4 :
+            	    // ModuleType.g:202:32: '\\n'
+            	    {
+            	    match('\n'); 
+
+            	    }
+            	    break;
+            	case 5 :
+            	    // ModuleType.g:202:39: '\\\\n'
+            	    {
+            	    match("\\n"); 
+
+
+
+            	    }
+            	    break;
+            	case 6 :
+            	    // ModuleType.g:202:47: '\\f'
+            	    {
+            	    match('\f'); 
+
+            	    }
+            	    break;
+            	case 7 :
+            	    // ModuleType.g:202:54: '\"'
+            	    {
+            	    match('\"'); 
+
+            	    }
+            	    break;
+
+            	default :
+            	    if ( cnt3 >= 1 ) break loop3;
+                        EarlyExitException eee =
+                            new EarlyExitException(3, input);
+                        throw eee;
+                }
+                cnt3++;
             } while (true);
 
 
@@ -746,39 +805,39 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = COMMENT1;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:202:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
-            // ModuleType.g:202:10: '/*' ( options {greedy=false; } : . )* '*/'
+            // ModuleType.g:205:5: ( '/*' ( options {greedy=false; } : . )* '*/' )
+            // ModuleType.g:205:10: '/*' ( options {greedy=false; } : . )* '*/'
             {
             match("/*"); 
 
 
 
-            // ModuleType.g:202:15: ( options {greedy=false; } : . )*
-            loop3:
+            // ModuleType.g:205:15: ( options {greedy=false; } : . )*
+            loop4:
             do {
-                int alt3=2;
-                int LA3_0 = input.LA(1);
+                int alt4=2;
+                int LA4_0 = input.LA(1);
 
-                if ( (LA3_0=='*') ) {
-                    int LA3_1 = input.LA(2);
+                if ( (LA4_0=='*') ) {
+                    int LA4_1 = input.LA(2);
 
-                    if ( (LA3_1=='/') ) {
-                        alt3=2;
+                    if ( (LA4_1=='/') ) {
+                        alt4=2;
                     }
-                    else if ( ((LA3_1 >= '\u0000' && LA3_1 <= '.')||(LA3_1 >= '0' && LA3_1 <= '\uFFFF')) ) {
-                        alt3=1;
+                    else if ( ((LA4_1 >= '\u0000' && LA4_1 <= '.')||(LA4_1 >= '0' && LA4_1 <= '\uFFFF')) ) {
+                        alt4=1;
                     }
 
 
                 }
-                else if ( ((LA3_0 >= '\u0000' && LA3_0 <= ')')||(LA3_0 >= '+' && LA3_0 <= '\uFFFF')) ) {
-                    alt3=1;
+                else if ( ((LA4_0 >= '\u0000' && LA4_0 <= ')')||(LA4_0 >= '+' && LA4_0 <= '\uFFFF')) ) {
+                    alt4=1;
                 }
 
 
-                switch (alt3) {
+                switch (alt4) {
             	case 1 :
-            	    // ModuleType.g:202:42: .
+            	    // ModuleType.g:205:42: .
             	    {
             	    matchAny(); 
 
@@ -786,7 +845,7 @@ public class ModuleTypeLexer extends Lexer {
             	    break;
 
             	default :
-            	    break loop3;
+            	    break loop4;
                 }
             } while (true);
 
@@ -813,30 +872,30 @@ public class ModuleTypeLexer extends Lexer {
         try {
             int _type = COMMENT2;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // ModuleType.g:205:5: ( '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' ) )
-            // ModuleType.g:205:10: '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' )
+            // ModuleType.g:208:5: ( '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' ) )
+            // ModuleType.g:208:10: '//' ( options {greedy=false; } : . )* ( '\\r' | '\\n' )
             {
             match("//"); 
 
 
 
-            // ModuleType.g:205:15: ( options {greedy=false; } : . )*
-            loop4:
+            // ModuleType.g:208:15: ( options {greedy=false; } : . )*
+            loop5:
             do {
-                int alt4=2;
-                int LA4_0 = input.LA(1);
+                int alt5=2;
+                int LA5_0 = input.LA(1);
 
-                if ( (LA4_0=='\n'||LA4_0=='\r') ) {
-                    alt4=2;
+                if ( (LA5_0=='\n'||LA5_0=='\r') ) {
+                    alt5=2;
                 }
-                else if ( ((LA4_0 >= '\u0000' && LA4_0 <= '\t')||(LA4_0 >= '\u000B' && LA4_0 <= '\f')||(LA4_0 >= '\u000E' && LA4_0 <= '\uFFFF')) ) {
-                    alt4=1;
+                else if ( ((LA5_0 >= '\u0000' && LA5_0 <= '\t')||(LA5_0 >= '\u000B' && LA5_0 <= '\f')||(LA5_0 >= '\u000E' && LA5_0 <= '\uFFFF')) ) {
+                    alt5=1;
                 }
 
 
-                switch (alt4) {
+                switch (alt5) {
             	case 1 :
-            	    // ModuleType.g:205:42: .
+            	    // ModuleType.g:208:42: .
             	    {
             	    matchAny(); 
 
@@ -844,7 +903,7 @@ public class ModuleTypeLexer extends Lexer {
             	    break;
 
             	default :
-            	    break loop4;
+            	    break loop5;
                 }
             } while (true);
 
@@ -873,10 +932,10 @@ public class ModuleTypeLexer extends Lexer {
     // $ANTLR end "COMMENT2"
 
     public void mTokens() throws RecognitionException {
-        // ModuleType.g:1:8: ( ARRAY | COLON | COMMA | ERRORT | INT16 | INT32 | INT8 | LANGLE | LBRACE | LBRACKET | LPARENS | POINTER_TO | RANGLE | RBRACE | RBRACKET | RPARENS | SEMI | SUBTYPE | UINT16 | UINT32 | UINT8 | VOID | IDENTIFIER | WHITESPACE | COMMENT1 | COMMENT2 )
-        int alt5=26;
-        alt5 = dfa5.predict(input);
-        switch (alt5) {
+        // ModuleType.g:1:8: ( ARRAY | COLON | COMMA | ERRORT | INT16 | INT32 | INT8 | LANGLE | LBRACE | LBRACKET | LPARENS | POINTER_TO | RANGLE | RBRACE | RBRACKET | RPARENS | SEMI | SUBTYPE | UINT16 | UINT32 | UINT8 | VOID | IDENTIFIER | NUMBER | WHITESPACE | COMMENT1 | COMMENT2 )
+        int alt6=27;
+        alt6 = dfa6.predict(input);
+        switch (alt6) {
             case 1 :
                 // ModuleType.g:1:10: ARRAY
                 {
@@ -1062,23 +1121,31 @@ public class ModuleTypeLexer extends Lexer {
                 }
                 break;
             case 24 :
-                // ModuleType.g:1:174: WHITESPACE
+                // ModuleType.g:1:174: NUMBER
+                {
+                mNUMBER(); 
+
+
+                }
+                break;
+            case 25 :
+                // ModuleType.g:1:181: WHITESPACE
                 {
                 mWHITESPACE(); 
 
 
                 }
                 break;
-            case 25 :
-                // ModuleType.g:1:185: COMMENT1
+            case 26 :
+                // ModuleType.g:1:192: COMMENT1
                 {
                 mCOMMENT1(); 
 
 
                 }
                 break;
-            case 26 :
-                // ModuleType.g:1:194: COMMENT2
+            case 27 :
+                // ModuleType.g:1:201: COMMENT2
                 {
                 mCOMMENT2(); 
 
@@ -1091,141 +1158,141 @@ public class ModuleTypeLexer extends Lexer {
     }
 
 
-    protected DFA5 dfa5 = new DFA5(this);
-    static final String DFA5_eotS =
-        "\1\uffff\1\22\2\uffff\2\22\1\31\3\uffff\1\22\5\uffff\2\22\3\uffff"+
-        "\3\22\2\uffff\3\22\2\uffff\12\22\1\61\2\22\1\66\1\67\1\22\1\71\1"+
-        "\72\1\uffff\3\22\1\76\2\uffff\1\77\2\uffff\1\22\1\101\1\102\2\uffff"+
-        "\1\22\2\uffff\1\22\1\105\1\uffff";
-    static final String DFA5_eofS =
-        "\106\uffff";
-    static final String DFA5_minS =
+    protected DFA6 dfa6 = new DFA6(this);
+    static final String DFA6_eotS =
+        "\1\uffff\1\22\2\uffff\2\22\1\32\3\uffff\1\22\5\uffff\2\22\4\uffff"+
+        "\3\22\2\uffff\3\22\2\uffff\12\22\1\62\2\22\1\67\1\70\1\22\1\72\1"+
+        "\73\1\uffff\3\22\1\77\2\uffff\1\100\2\uffff\1\22\1\102\1\103\2\uffff"+
+        "\1\22\2\uffff\1\22\1\106\1\uffff";
+    static final String DFA6_eofS =
+        "\107\uffff";
+    static final String DFA6_minS =
         "\1\11\1\162\2\uffff\1\162\1\156\1\72\3\uffff\1\157\5\uffff\1\111"+
-        "\1\157\2\uffff\1\52\2\162\1\164\2\uffff\1\151\1\156\1\151\2\uffff"+
+        "\1\157\3\uffff\1\52\2\162\1\164\2\uffff\1\151\1\156\1\151\2\uffff"+
         "\1\141\1\157\1\61\1\156\1\164\1\144\1\171\1\162\1\66\1\62\1\60\1"+
         "\164\1\61\2\60\1\124\2\60\1\uffff\1\145\1\66\1\62\1\60\2\uffff\1"+
         "\60\2\uffff\1\162\2\60\2\uffff\1\124\2\uffff\1\157\1\60\1\uffff";
-    static final String DFA5_maxS =
+    static final String DFA6_maxS =
         "\1\175\1\162\2\uffff\1\162\1\156\1\72\3\uffff\1\157\5\uffff\1\111"+
-        "\1\157\2\uffff\1\57\2\162\1\164\2\uffff\1\151\1\156\1\151\2\uffff"+
+        "\1\157\3\uffff\1\57\2\162\1\164\2\uffff\1\151\1\156\1\151\2\uffff"+
         "\1\141\1\157\1\70\1\156\1\164\1\144\1\171\1\162\1\66\1\62\1\172"+
         "\1\164\1\70\2\172\1\124\2\172\1\uffff\1\145\1\66\1\62\1\172\2\uffff"+
         "\1\172\2\uffff\1\162\2\172\2\uffff\1\124\2\uffff\1\157\1\172\1\uffff";
-    static final String DFA5_acceptS =
+    static final String DFA6_acceptS =
         "\2\uffff\1\2\1\3\3\uffff\1\11\1\12\1\13\1\uffff\1\15\1\16\1\17\1"+
-        "\20\1\21\2\uffff\1\27\1\30\4\uffff\1\22\1\10\3\uffff\1\31\1\32\22"+
-        "\uffff\1\7\4\uffff\1\26\1\1\1\uffff\1\5\1\6\3\uffff\1\25\1\4\1\uffff"+
-        "\1\23\1\24\2\uffff\1\14";
-    static final String DFA5_specialS =
-        "\106\uffff}>";
-    static final String[] DFA5_transitionS = {
-            "\2\23\1\uffff\2\23\22\uffff\1\23\1\uffff\1\23\5\uffff\1\11\1"+
-            "\16\2\uffff\1\3\2\uffff\1\24\12\uffff\1\2\1\17\1\6\1\uffff\1"+
-            "\13\2\uffff\1\1\3\22\1\4\3\22\1\5\6\22\1\12\4\22\1\20\1\21\4"+
-            "\22\1\10\1\23\1\15\1\uffff\1\22\1\uffff\32\22\1\7\1\uffff\1"+
-            "\14",
-            "\1\25",
-            "",
-            "",
+        "\20\1\21\2\uffff\1\27\1\30\1\31\4\uffff\1\22\1\10\3\uffff\1\32\1"+
+        "\33\22\uffff\1\7\4\uffff\1\26\1\1\1\uffff\1\5\1\6\3\uffff\1\25\1"+
+        "\4\1\uffff\1\23\1\24\2\uffff\1\14";
+    static final String DFA6_specialS =
+        "\107\uffff}>";
+    static final String[] DFA6_transitionS = {
+            "\2\24\1\uffff\2\24\22\uffff\1\24\1\uffff\1\24\5\uffff\1\11\1"+
+            "\16\2\uffff\1\3\2\uffff\1\25\12\23\1\2\1\17\1\6\1\uffff\1\13"+
+            "\2\uffff\1\1\3\22\1\4\3\22\1\5\6\22\1\12\4\22\1\20\1\21\4\22"+
+            "\1\10\1\24\1\15\1\uffff\1\22\1\uffff\32\22\1\7\1\uffff\1\14",
             "\1\26",
+            "",
+            "",
             "\1\27",
             "\1\30",
-            "",
-            "",
-            "",
-            "\1\32",
-            "",
-            "",
+            "\1\31",
             "",
             "",
             "",
             "\1\33",
+            "",
+            "",
+            "",
+            "",
+            "",
             "\1\34",
+            "\1\35",
             "",
             "",
-            "\1\35\4\uffff\1\36",
-            "\1\37",
+            "",
+            "\1\36\4\uffff\1\37",
             "\1\40",
             "\1\41",
-            "",
-            "",
             "\1\42",
+            "",
+            "",
             "\1\43",
             "\1\44",
-            "",
-            "",
             "\1\45",
+            "",
+            "",
             "\1\46",
-            "\1\47\1\uffff\1\50\4\uffff\1\51",
-            "\1\52",
+            "\1\47",
+            "\1\50\1\uffff\1\51\4\uffff\1\52",
             "\1\53",
             "\1\54",
             "\1\55",
             "\1\56",
             "\1\57",
             "\1\60",
+            "\1\61",
             "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
-            "\1\62",
-            "\1\63\1\uffff\1\64\4\uffff\1\65",
+            "\1\63",
+            "\1\64\1\uffff\1\65\4\uffff\1\66",
             "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
             "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
-            "\1\70",
+            "\1\71",
             "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
             "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
             "",
-            "\1\73",
             "\1\74",
             "\1\75",
+            "\1\76",
             "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
             "",
             "",
             "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
             "",
             "",
-            "\1\100",
+            "\1\101",
             "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
             "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
-            "",
-            "",
-            "\1\103",
             "",
             "",
             "\1\104",
+            "",
+            "",
+            "\1\105",
             "\12\22\7\uffff\32\22\4\uffff\1\22\1\uffff\32\22",
             ""
     };
 
-    static final short[] DFA5_eot = DFA.unpackEncodedString(DFA5_eotS);
-    static final short[] DFA5_eof = DFA.unpackEncodedString(DFA5_eofS);
-    static final char[] DFA5_min = DFA.unpackEncodedStringToUnsignedChars(DFA5_minS);
-    static final char[] DFA5_max = DFA.unpackEncodedStringToUnsignedChars(DFA5_maxS);
-    static final short[] DFA5_accept = DFA.unpackEncodedString(DFA5_acceptS);
-    static final short[] DFA5_special = DFA.unpackEncodedString(DFA5_specialS);
-    static final short[][] DFA5_transition;
+    static final short[] DFA6_eot = DFA.unpackEncodedString(DFA6_eotS);
+    static final short[] DFA6_eof = DFA.unpackEncodedString(DFA6_eofS);
+    static final char[] DFA6_min = DFA.unpackEncodedStringToUnsignedChars(DFA6_minS);
+    static final char[] DFA6_max = DFA.unpackEncodedStringToUnsignedChars(DFA6_maxS);
+    static final short[] DFA6_accept = DFA.unpackEncodedString(DFA6_acceptS);
+    static final short[] DFA6_special = DFA.unpackEncodedString(DFA6_specialS);
+    static final short[][] DFA6_transition;
 
     static {
-        int numStates = DFA5_transitionS.length;
-        DFA5_transition = new short[numStates][];
+        int numStates = DFA6_transitionS.length;
+        DFA6_transition = new short[numStates][];
         for (int i=0; i<numStates; i++) {
-            DFA5_transition[i] = DFA.unpackEncodedString(DFA5_transitionS[i]);
+            DFA6_transition[i] = DFA.unpackEncodedString(DFA6_transitionS[i]);
         }
     }
 
-    class DFA5 extends DFA {
+    class DFA6 extends DFA {
 
-        public DFA5(BaseRecognizer recognizer) {
+        public DFA6(BaseRecognizer recognizer) {
             this.recognizer = recognizer;
-            this.decisionNumber = 5;
-            this.eot = DFA5_eot;
-            this.eof = DFA5_eof;
-            this.min = DFA5_min;
-            this.max = DFA5_max;
-            this.accept = DFA5_accept;
-            this.special = DFA5_special;
-            this.transition = DFA5_transition;
+            this.decisionNumber = 6;
+            this.eot = DFA6_eot;
+            this.eof = DFA6_eof;
+            this.min = DFA6_min;
+            this.max = DFA6_max;
+            this.accept = DFA6_accept;
+            this.special = DFA6_special;
+            this.transition = DFA6_transition;
         }
         public String getDescription() {
-            return "1:1: Tokens : ( ARRAY | COLON | COMMA | ERRORT | INT16 | INT32 | INT8 | LANGLE | LBRACE | LBRACKET | LPARENS | POINTER_TO | RANGLE | RBRACE | RBRACKET | RPARENS | SEMI | SUBTYPE | UINT16 | UINT32 | UINT8 | VOID | IDENTIFIER | WHITESPACE | COMMENT1 | COMMENT2 );";
+            return "1:1: Tokens : ( ARRAY | COLON | COMMA | ERRORT | INT16 | INT32 | INT8 | LANGLE | LBRACE | LBRACKET | LPARENS | POINTER_TO | RANGLE | RBRACE | RBRACKET | RPARENS | SEMI | SUBTYPE | UINT16 | UINT32 | UINT8 | VOID | IDENTIFIER | NUMBER | WHITESPACE | COMMENT1 | COMMENT2 );";
         }
     }
  

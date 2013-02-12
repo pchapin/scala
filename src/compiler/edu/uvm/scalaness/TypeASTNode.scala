@@ -51,6 +51,11 @@ object TypeASTNode {
     typeNode.tokenType match {
       case ModuleTypeLexer.POINTER_TO =>
         Pointer(processType(typeNode.children(0)))
+      case ModuleTypeLexer.ARRAY =>
+        if (typeNode.children.length > 1)
+          Array(processType(typeNode.children(0)), typeNode.children(1).text)
+        else
+          Array(processType(typeNode.children(0)), "")  // Array of unspecified size.
       case ModuleTypeLexer.STRUCTURE =>
         Structure(typeNode.children(0).text, processSimpleDeclarationList(typeNode.children.tail))
       case _ =>
@@ -61,16 +66,7 @@ object TypeASTNode {
   private def processSimpleDeclarationList(nodes: List[TypeASTNode]): List[(String, Representation)] = {
     for (node <- nodes) yield {
       val TypeASTNode(ModuleTypeLexer.COLON, _, children) = node
-      val declaredType =
-        children(1).tokenType match {
-          // Arrays are handled in a special way (arrays of arrays not supported here).
-          case ModuleTypeLexer.ARRAY =>
-            Array(processType(children(1).children(0)), "")
-          case _ =>
-            processType(children(1))
-        }
-
-      (children(0).text, declaredType)
+      (children(0).text, processType(children(1)))
     }
   }
 

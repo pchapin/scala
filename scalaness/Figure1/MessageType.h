@@ -5,7 +5,7 @@
 struct MessageType {
     addrT    src;
     addrT    dest;
-    uint8_t  data;  // Should be an array.
+    uint8_t  data[64];
 };
 
 #endif
