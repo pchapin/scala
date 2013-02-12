@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // FILE    : TypeASTNode.scala
 // SUBJECT : Class representing nodes the Module type abstract syntax tree.
-// AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
 package edu.uvm.scalaness
@@ -48,10 +48,14 @@ object TypeASTNode {
   }
   
   private def processType(typeNode: TypeASTNode): Representation = {
-    if (typeNode.tokenType == ModuleTypeLexer.POINTER_TO)
-      Pointer(processType(typeNode.children(0)))
-    else
-      getGeneralizedTypeName(typeNode)
+    typeNode.tokenType match {
+      case ModuleTypeLexer.POINTER_TO =>
+        Pointer(processType(typeNode.children(0)))
+      case ModuleTypeLexer.STRUCTURE =>
+        Structure(typeNode.children(0).text, processSimpleDeclarationList(typeNode.children.tail))
+      case _ =>
+        getGeneralizedTypeName(typeNode)
+    }
   }
   
   private def processSimpleDeclarationList(nodes: List[TypeASTNode]): List[(String, Representation)] = {

@@ -7,7 +7,7 @@ implementation {
 
     command error_t main(  )
     {
-        return call send( (addrT)self, (addrT)neighbor, 0 /* "Hello" */ );
+        return call send( (addrT)self, (addrT)neighbor, 0U /* "Hello" */ );
     }
 
 }
