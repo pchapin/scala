@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // FILE    : ScalanessTyper.scala
 // SUBJECT : Handling of Scalaness specific type checking.
-// AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
 package edu.uvm.scalaness
@@ -23,28 +23,10 @@ trait ScalanessTyper {
   self: Analyzer =>
   import global._
   import global.definitions._
-  
-  private val configurableItems =
-    Map("ASTOutput"     -> ConfigurationSettings.basicBooleanValidator _,
-        "configFile"    -> ConfigurationSettings.basicPathValidator _,
-        "debug"         -> ConfigurationSettings.basicBooleanValidator _,
-        "inclusionPath" -> ConfigurationSettings.basicPathValidator _,
-        "interfacePath" -> ConfigurationSettings.basicPathValidator _,
-        "typeCompatibility" -> ConfigurationSettings.basicPathValidator _)
-  private val scalanessSettings = new ConfigurationSettings(configurableItems)
-  scalanessSettings.setDefaults(
-    Map("ASTOutput"     -> "FALSE",
-        "debug"         -> "FALSE",
-        "inclusionPath" -> ".",
-        "interfacePath" -> "."))
-  private val configName =
-    if (currentSettings.scalanessconfig.value == "") "Scalaness.cfg"
-      else currentSettings.scalanessconfig.value
-  scalanessSettings.readConfigurationFile(configName)
-  // TODO: It would be better if these settings were handled the way other compiler settings are.
-  
+    
   /**
-   * Return true if the given Type is a subtype of MininessComponent or ProgramComponent; false otherwise.
+   * Return true if the given Type is a subtype of MininessComponent or ProgramComponent; false
+   * otherwise.
    */
   def isNesTComponent(tpe: Type) = {
     (tpe.baseClasses exists { _.toString == "trait MininessComponent" }) || (tpe.baseClasses exists { _.toString == "class ProgramComponent" })

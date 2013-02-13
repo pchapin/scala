@@ -1,9 +1,5 @@
 
-struct MessageType {
-    addrT    src;
-    addrT    dest;
-    uint8_t  data;  // Should be an array.
-};
+#include "MessageType.h"
 
 module RadioC {
     provides command error_t radio( struct MessageType message );

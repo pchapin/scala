@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // FILE    : MininessTyper.scala
 // SUBJECT : Class for type checking Mininess inclusions.
-// AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //                             and Michael P. Watson <mpwatson@uvm.edu>
 //
 //-----------------------------------------------------------------------
@@ -25,11 +25,11 @@ object MininessTyper {
 /**
  * Wraps facilities for type checking Minimal nesC code.
  *
- * @param typeVars     A map of type variable names to their upper bound types. These type variables parameterize the
- *                     entire component.
- * @param typeRelation The isCompatible predicate. Two types are in this relation if the first is convertable to the
- *                     second.
- * @param debugFlag    Set to true if debugging information should be dumped during the check.
+ * @param typeVars A map of type variable names to their upper bound types. These type variables
+ * parameterize the entire component.
+ * @param typeRelation The isCompatible predicate. Two types are in this relation if the first is
+ * convertable to the second.
+ * @param debugFlag Set to true if debugging information should be dumped during the check.
  */
 class MininessTyper(
   typeVars    : Map[String, MininessTypes.Representation],
@@ -553,9 +553,9 @@ class MininessTyper(
           }
            
           if (!(areSubtypes(childType, parameterType)))
-            throw new TypeException("Parameter type mismatch")
+            throw new TypeException(s"Argument type mismatch. Found: $childType, Expected: $parameterType")
         } // Compares each argument type to the parameter being asked for by the function.
-          // Argument should be subtype of parameter, is this right?
+          // The argument should be subtype of parameter.
 
         Some(returnType)
       } // Case for the argument list of a function.

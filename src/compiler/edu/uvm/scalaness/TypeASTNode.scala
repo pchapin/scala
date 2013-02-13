@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // FILE    : TypeASTNode.scala
 // SUBJECT : Class representing nodes the Module type abstract syntax tree.
-// AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
 package edu.uvm.scalaness
@@ -48,25 +48,25 @@ object TypeASTNode {
   }
   
   private def processType(typeNode: TypeASTNode): Representation = {
-    if (typeNode.tokenType == ModuleTypeLexer.POINTER_TO)
-      Pointer(processType(typeNode.children(0)))
-    else
-      getGeneralizedTypeName(typeNode)
+    typeNode.tokenType match {
+      case ModuleTypeLexer.POINTER_TO =>
+        Pointer(processType(typeNode.children(0)))
+      case ModuleTypeLexer.ARRAY =>
+        if (typeNode.children.length > 1)
+          Array(processType(typeNode.children(0)), typeNode.children(1).text)
+        else
+          Array(processType(typeNode.children(0)), "")  // Array of unspecified size.
+      case ModuleTypeLexer.STRUCTURE =>
+        Structure(typeNode.children(0).text, processSimpleDeclarationList(typeNode.children.tail))
+      case _ =>
+        getGeneralizedTypeName(typeNode)
+    }
   }
   
   private def processSimpleDeclarationList(nodes: List[TypeASTNode]): List[(String, Representation)] = {
     for (node <- nodes) yield {
       val TypeASTNode(ModuleTypeLexer.COLON, _, children) = node
-      val declaredType =
-        children(1).tokenType match {
-          // Arrays are handled in a special way (arrays of arrays not supported here).
-          case ModuleTypeLexer.ARRAY =>
-            Array(processType(children(1).children(0)), "")
-          case _ =>
-            processType(children(1))
-        }
-
-      (children(0).text, declaredType)
+      (children(0).text, processType(children(1)))
     }
   }
 

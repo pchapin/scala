@@ -1,22 +1,20 @@
 
-struct MessageType {
-    addrT    src;
-    addrT    dest;
-    uint8_t  data;  // Should be an array.
-};
+#include "MessageType.h"
 
 module SendC {
     uses command error_t radio( struct MessageType message );
-    provides command error_t send( addrT s, addrT d, uint8_t data );
+    provides command error_t send( addrT s, addrT d, uint8_t data[] );
 }
 implementation {
-    command error_t send( addrT s, addrT d, uint8_t data )
+    command error_t send( addrT s, addrT d, uint8_t data[] )
     {
-        // Initializer lists are not yet handled properly by the type checker.
-        struct MessageType message /* = { s, d, data } */;
+        int i;
+        struct MessageType message;
         message.src  = s;
         message.dest = d;
-        message.data = data;
+        for( i = 0; i < 64; ++i ) {
+            message.dest[i] = data[i];
+        }
         return call radio( message );
     }
 }

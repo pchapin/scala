@@ -42,6 +42,7 @@ tokens {
     IMPORT_LIST;
     MODULE_TYPE;
     PARAMETER_LIST;
+    STRUCTURE;
     TYPE_PARAMETER_LIST;
     VALUE_PARAMETER_LIST;
 }
@@ -143,7 +144,7 @@ coercion_list
     :   coercion (','! coercion)*;
 
 coercion
-    :   IDENTIFIER '<:'^ type_name;
+    :   IDENTIFIER '<:'^ primitive_type_name;
 
 simple_declaration_list
     :    simple_declaration (','! simple_declaration)*;
@@ -155,22 +156,29 @@ function_declaration_list
     :    function_declaration (','! function_declaration)*;
 
 function_declaration
-    :    name=IDENTIFIER '(' simple_declaration_list? ')' ':' return_type=return_type_name
-         -> ^(FUNCTION_DECLARATION $name $return_type simple_declaration_list?);
+    :    name=IDENTIFIER '(' simple_declaration_list? ')' ':' return_type
+         -> ^(FUNCTION_DECLARATION $name return_type simple_declaration_list?);
 
-return_type_name
+// We forbid returning arrays in the syntax.
+return_type
     :    generalized_type_name
-    |    POINTER_TO '[' generalized_type_name ']' -> ^(POINTER_TO generalized_type_name);
+    |    POINTER_TO '[' return_type ']' -> ^(POINTER_TO return_type);
 
+// TODO: Arrays of arrays are allowed but there is currently no place to specify array size.
 type_specifier
     :    generalized_type_name
-    |    ARRAY '[' generalized_type_name ']' -> ^(ARRAY generalized_type_name)
-    |    POINTER_TO '[' generalized_type_name ']' -> ^(POINTER_TO generalized_type_name);
+    |    ARRAY '[' type_specifier (',' NUMBER)? ']' -> ^(ARRAY type_specifier NUMBER?)
+    |    POINTER_TO '[' type_specifier ']' -> ^(POINTER_TO type_specifier)
+    |    structure_type;
+
+structure_type
+    :    IDENTIFIER '{' simple_declaration_list? '}'
+         -> ^(STRUCTURE IDENTIFIER simple_declaration_list?);
 
 generalized_type_name
-    :    type_name | IDENTIFIER;
+    :    primitive_type_name | IDENTIFIER;
 
-type_name
+primitive_type_name
     :    VOID
     |    INT8
     |    INT16
@@ -186,6 +194,9 @@ type_name
 
 IDENTIFIER
     :    ('_' | 'a' .. 'z' | 'A' .. 'Z') ('_' | 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9')*;
+
+NUMBER
+    :    ('0' .. '9')+;
     
 WHITESPACE
     :    ( '\t' | ' ' | '\r' | '\n' | '\\n' | '\f' | '"')+  {$channel = HIDDEN;};

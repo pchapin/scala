@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // FILE    : ASTNode.scala
 // SUBJECT : Class representing nodes the Mininess abstract syntax tree.
-// AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
 package edu.uvm.mininess
@@ -12,7 +12,7 @@ package edu.uvm.mininess
  */
 sealed case class ASTNode(
   tokenType      : Int,             // Token identifier as defined by ANTLR
-  var text           : String,          // The actual text of the token.
+  var text       : String,          // The actual text of the token.
   var children   : List[ASTNode],   // The child nodes in the AST.
   var parent     : Option[ASTNode], // The parent node or None for the root node.
   var symbolTable: Option[Symbols]) // The symbol table associated with this node, if any.

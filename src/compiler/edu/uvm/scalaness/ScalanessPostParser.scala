@@ -26,8 +26,8 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
 
   val runsAfter = List("parser")
   override val runsBefore = List("namer")
-  override def description = "Injects Scalaness boilerplate"
-  val phaseName = "scalanesspostparser"
+  override def description = "injects Scalaness boilerplate"
+  val phaseName = "postparser"
 
   def newTransformer(unit: CompilationUnit) = new PostParserTransformer
 
@@ -40,10 +40,9 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
    *
    * @param lastItem The AST of the last item in a class definition.
    * @return Some( (shortName, fullName) ) if the last item is a string literal. Here shortName
-   * is the value of the
-   * string literal and fullName is the full path to the inclusion. This method does not check if
-   * the inclusion file
-   * actually exists. None is returned if the last item is not a string literal.
+   * is the value of the string literal and fullName is the full path to the inclusion. This
+   * method does not check if the inclusion file actually exists. None is returned if the last
+   * item is not a string literal.
    */
   private def checkForMininessInclusion(lastItem: Tree) = {
     lastItem match {
@@ -128,7 +127,7 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
       bodyItem match {
         case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
           // TODO: Handle the case where there are multiple constructors.
-          if (name.toString == "<init>") {
+          if (name.toString == "instantiate" /* "<init>" */) {
             if (vparamss.length > 1)
               reporter.error(null, "Mininess modules can't have multiple parameter lists")
 
@@ -196,13 +195,13 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
         case None => impl
         case Some( (shortName, fullName) ) => {
           // This is a hackish way of getting (for example) ExampleC from ExampleC.nc.
-          val MininessComponentName = shortName.substring(0, shortName.indexOf('.'))
+          val MininessComponentName = shortName.substring(0, shortName.lastIndexOf('.'))
 
           val (typeParameters, valueParameters) = extractTypeAndValueParameters(body)
           // println(s"typeParameters = $typeParameters, valueParameters = $valueParameters")
 
           // Compute 'val abstractSyntax =
-          //            Parser.reparse("/ExampleC.nc", List("firstType", "secondType"))'
+          //            Parser.reparse("ExampleC.nc", List("firstType", "secondType"))'
           //
           // TODO: Make the synthesized val private.
           // TODO: Be sure appropriate imports are available.
@@ -210,8 +209,13 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
           val typeNameList =
             Apply(Ident("List"), typeNames.toList)
           val reparseInvocation =
-            Apply(Select(Ident("Parser"), "reparse"), List(Literal(Constant(s"/$shortName")), typeNameList))
+            Apply(Select(Ident("Parser"), "reparse"), List(Literal(Constant(s"$shortName")), typeNameList))
           val abstractSyntaxVal = treeBuilder.makePatDef(Ident("abstractSyntax"), reparseInvocation)
+          val Some(displayGenerated) = scalanessSettings("displayGenerated")
+          if (displayGenerated == "true") {
+            println(s"Code generated into $MininessComponentName...")
+            println(s"\t$abstractSyntaxVal")
+          }
 
           // This loop ensures we insert our new material after the synthesized primary
           // constructor. I'm not sure how necessary that really is, but it seems like a good

@@ -5,3 +5,9 @@ NOTES.txt
 + In scala/tools/nsc/Global.scala, in the method compileUnitsInternal (around line 1506). Here
   the compiler appears to execute the phases in order. I think you can execute code between the
   phases by putting it right after the invocation of globalPhase.run.
+
++ In scala/tools/nsc/plugins/Plugins.scala, around line 120, is a place where plugins are
+  loaded. I hacked in an explicit call to addToPhasesSet to load the plugin for the Scalaness
+  post-parser. This is really hacky and I'm not sure if this is a good way to go about it, but
+  basically the post-parser is treated like a plugin phase that happens to have its code built
+  into the compiler.

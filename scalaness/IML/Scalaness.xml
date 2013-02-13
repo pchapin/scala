@@ -278,4 +278,51 @@
       </comment>
     </comments>
   </issue>
+
+  <issue>
+    <summary>Unknown configuration items should not cause the compiler to crash.</summary>
+    <creation-date>
+      <date>2013-02-11</date>
+    </creation-date>
+    <comments>
+      <comment>
+        <reporter>Peter Chapin</reporter>
+        <comment-date>
+          <date>2013-02-11</date>
+        </comment-date>
+        <notes>
+          <xhtml:p>Currently if the compiler discovers an unrecognized configuration setting in
+            the Scalaness configuration file, it throws and unhandled exception and crashes.
+            This is clearly inelegant.</xhtml:p>
+        </notes>
+      </comment>
+    </comments>
+  </issue>
+
+  <issue>
+    <summary>Mininess argument type mismatch errors are incorrectly indicated.</summary>
+    <creation-date>
+      <date>2013-02-12</date>
+    </creation-date>
+    <comments>
+      <comment>
+        <reporter>Peter Chapin</reporter>
+        <comment-date>
+          <date>2013-02-12</date>
+        </comment-date>
+        <notes>
+          <xhtml:p>If there is a mismatch between an argument type and a parameter type when a
+            Mininess function/command is called, the error report points at the first argument
+            in the argument list regardless of which argument is in error. This is
+            misleading.</xhtml:p>
+
+          <xhtml:p>This arises because the TypeException thrown to indicate the error is using
+            the position of the current node in the AST as the location of the error. However,
+            the current node in this case is the ARGUMENT_LIST node and so the error is reported
+            for the list as a single unit (pointing at the first argument in the
+            list).</xhtml:p>
+        </notes>
+      </comment>
+    </comments>
+  </issue>
 </issue-set>

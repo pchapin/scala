@@ -7,7 +7,7 @@ object Main {
 
   @ModuleType("""{}
                  < addrT <: UInt32; >
-                 { ; radio(message: MessageType): ErrorT}""")
+                 { ; radio(message: MessageType{src: addrT, dest: addrT, data: Array[UInt8,64]}): ErrorT}""")
   class RadioC extends MininessComponent {
     
     /////////
@@ -20,7 +20,7 @@ object Main {
       this
     }
 
-    private val abstractSyntax = Parser.reparse("Radio.nc", List("addrT"))
+    // private val abstractSyntax = Parser.reparse("Radio.nc", List("addrT"))
       
     val configuration =
       new ProgramComponentWrapper(new NamedProgramComponent(
@@ -44,8 +44,8 @@ object Main {
 
   @ModuleType("""{}
                  < addrT <: UInt32; >
-                 { radio(message: MessageType): ErrorT;
-                   send(s: addrT, d: addrT, data: UInt8): ErrorT }""")
+                 { radio(message: MessageType{src: addrT, dest: addrT, data: Array[UInt8,64]}): ErrorT;
+                   send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT }""")
   class SendC extends MininessComponent {
 
     /////////
@@ -58,7 +58,7 @@ object Main {
       this
     }
 
-    private val abstractSyntax = Parser.reparse("SendC.nc", List("addrT"))
+    // private val abstractSyntax = Parser.reparse("SendC.nc", List("addrT"))
       
     val configuration =
       new ProgramComponentWrapper(new NamedProgramComponent(
@@ -81,7 +81,7 @@ object Main {
 
   @ModuleType("""{}
                  < addrT <: UInt32; self: UInt32, neighbor: UInt32 >
-                 { send(s: addrT, d: addrT, data: UInt8): ErrorT;
+                 { send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT;
                    main(): ErrorT }""")
   class NodeC extends MininessComponent {
 
@@ -99,7 +99,7 @@ object Main {
       this
     }
 
-    private val abstractSyntax = Parser.reparse("NodeC.nc", List("addrT"))
+    // private val abstractSyntax = Parser.reparse("NodeC.nc", List("addrT"))
       
     val configuration =
       new ProgramComponentWrapper(new NamedProgramComponent(
@@ -124,10 +124,9 @@ object Main {
     self    : UInt32,
     neighbor: UInt32,
     nmax    : UInt32,
-    /*@ModuleType(
-      """{}< addrT <: UInt32; >{
-           ;
-           radio(message: MessageType): ErrorT}""")*/ rawRadioC: RadioC) = {
+    /* @ModuleType(
+      """{}< addrT <: UInt32; >{ ;
+           radio(message: MessageType{src: addrT, dest: addrT, data: Array[UInt8,64]}): ErrorT}""") */ rawRadioC: RadioC) = {
 
     val addrt: MetaType[UInt32] =
       if (nmax < UInt32(256)) new MetaType[UInt32](MininessTypes.UInt8)
@@ -135,26 +134,26 @@ object Main {
 
     @ModuleType("""{}
                    < addrT <: UInt32; >
-                   { radio(message: MessageType): ErrorT;
-                     send(s: addrT, d: addrT, data: UInt8): ErrorT }""")
+                   { radio(message: MessageType{src: addrT, dest: addrT, data: Array[UInt8,64]}): ErrorT;
+                     send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT }""")
     val rawSendC = new SendC
     
 
     @ModuleType("""{ addrT <: UInt32 }<;>{
                      ;
-                     send(s: addrT, d: addrT, data: UInt8): ErrorT}""")
+                     send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT}""")
     val scode = (rawSendC.instantiate(addrt)) +> rawRadioC.instantiate(addrt)
     // Extra parentheses around first component above intentional. Does it work?
 
     @ModuleType("""{}
                    < addrT <: UInt32; self: UInt32, neighbor: UInt32 >
-                   { send(s: addrT, d: addrT, data: UInt8): ErrorT;
+                   { send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT;
                      main(): ErrorT }""")
     val rawNodeC = new NodeC
 
     @ModuleType("""{ addrT <: UInt32 }
                    <;>
-                   { send(s: addrT, d: addrT, data: UInt8): ErrorT;
+                   { send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT;
                      main(): ErrorT}""")
     val mcode = rawNodeC.instantiate(addrt, self, neighbor)
 

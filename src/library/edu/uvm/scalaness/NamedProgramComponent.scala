@@ -1,13 +1,13 @@
 //-----------------------------------------------------------------------
 // FILE    : NamedProgramComponent.scala
 // SUBJECT : Class representing components of the generated minimal nesC program.
-// AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
 package edu.uvm.scalaness
 
 import java.io.{File, PrintStream}
-import edu.uvm.mininess.{ASTNode, SyntaxViewer}
+import edu.uvm.mininess.{ASTNode, Symbols, SyntaxViewer, TreeConverter}
 
 /**
  * Immutable class to represent a named program component during first stage execution. These
@@ -61,6 +61,8 @@ class NamedProgramComponent(
     // Objects with null abstract syntax trees are not specialized. Such objects represent
     // hand coded shims. Shim objects can't be processed by Scalaness because they may contain
     // arbitrary nesC code.
+    // TODO: Is this check still necessary?
+    //
     if (abstractSyntax == null) return ()
     
     val outputFile = new PrintStream(new File(outputFolder, name + ".nc"))
@@ -72,7 +74,13 @@ class NamedProgramComponent(
         { item => (item._1, item._2.wrappedType) }
       val fullySpecializedAST =
         doSpecialization(typeList, valueSpecializedAST, Specialize.editor _)
-      val viewer = new SyntaxViewer(outputFile, fullySpecializedAST)
+
+      // Do the necessary transformations on array bounds and casts.
+      // TODO: Is this really the right place for this?
+      Symbols.decorateAST(fullySpecializedAST)
+      val transformedAST1 = TreeConverter.addArrayBoundsChecks(fullySpecializedAST)
+      val transformedAST2 = TreeConverter.replaceCastOperations(transformedAST1)
+      val viewer = new SyntaxViewer(outputFile, transformedAST2)
       viewer.rewrite()
     }
     finally {

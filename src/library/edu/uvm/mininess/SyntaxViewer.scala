@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // FILE    : SyntaxViewer.scala
 // SUBJECT : Class that allows an abstract syntax tree to be viewed.
-// AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
 package edu.uvm.mininess
@@ -25,27 +25,27 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
 
   // Used to handle parentheses in nested declarators in a nice way. Consider, for example,
   //     int (*p)(int x);
-  // In this case the declarator '*p' should be parenthesized, but neither the declarator 'x' nor the overall declarator
-  // needs to be. (Note that they could be, but that is ugly).
+  // In this case the declarator '*p' should be parenthesized, but neither the declarator 'x'
+  // nor the overall declarator needs to be. (Note that they could be, but that is ugly).
   //
   private val declaratorNestingLevels = new Stack[Int]()
   declaratorNestingLevels.push(0)
 
-  // Used to prevent the top level expression from being parenthesized. For example, normally we have something like
-  // this:
+  // Used to prevent the top level expression from being parenthesized. For example, normally we
+  // have something like this:
   //     ( x = ( a * ( b + c ) ) );
   // If this flag is set to false before rewriting this expression we have instead:
   //       x = ( a * ( b + c ) );
-  // This looks a little nicer (especially in, for example, the conditional expressions of if, while, and for loops).
-  // Fully "correct" handling of this issue would require the rewriter to consider operator precedence when deciding
-  // when to parenthesize.
+  // This looks a little nicer (especially in, for example, the conditional expressions of if,
+  // while, and for loops). Fully "correct" handling of this issue would require the rewriter to
+  // consider operator precedence when deciding when to parenthesize.
   //
   private var enableExpressionParentheses = true
 
 
   /**
-   * Indents by an amount related to the current indentation level. This method is used during rewriting to make the
-   * output look approximately nice.
+   * Indents by an amount related to the current indentation level. This method is used during
+   * rewriting to make the output look approximately nice.
    */
   private def indent() {
     for (i <- 0 until indentationLevel) {
@@ -55,8 +55,8 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
 
 
   /**
-   * Outputs the entire syntax tree in source code form. The output is sent to the PrintStream object previously given
-   * to the constructor. This method adds a '\n' to the end of the output.
+   * Outputs the entire syntax tree in source code form. The output is sent to the PrintStream
+   * object previously given to the constructor. This method adds a '\n' to the end of the output.
    *
    */
   def rewrite() {
@@ -66,8 +66,8 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
 
 
   /**
-   * Outputs the syntax tree rooted at t in source code form. The output is sent to the PrintStream object previously
-   * given to the constructor.
+   * Outputs the syntax tree rooted at t in source code form. The output is sent to the
+   * PrintStream object previously given to the constructor.
    *
    * @param t The tree to output.
    */
@@ -76,11 +76,12 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
     var currentChild = 0  // Used when processing struct/enum declarations.
 
     t.tokenType match {
-      // Putting a space after all occurrences of RAW_IDENTIFIER is overkill. However, it is important to include a
-      // space after RAW_IDENTIFIERS that are type names (at least when they appear as a declaration specifier in a
-      // declaration or function definition). Ideally the rewriter for those constructs would include the extra space
-      // when necessary. However, it is easier to just include it here. Aside from making the output look a little
-      // funny, the extra space is harmless in other cases.
+      // Putting a space after all occurrences of RAW_IDENTIFIER is overkill. However, it is
+      // important to include a space after RAW_IDENTIFIERS that are type names (at least when
+      // they appear as a declaration specifier in a declaration or function definition). Ideally
+      // the rewriter for those constructs would include the extra space when necessary. However,
+      // it is easier to just include it here. Aside from making the output look a little funny,
+      // the extra space is harmless in other cases.
       //
       case MininessLexer.RAW_IDENTIFIER =>
           sink.print(t.text)
@@ -89,10 +90,11 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
       // Declarations
       // ------------
 
-      // Raw tokens. These tokens just stand for themselves in the AST. These cases could be handled by the default case
-      // instead. However, having them here makes it explicit which tokens should be processed in this way. Eventually
-      // the default case should probably be changed to throw an exception of some kind to indicate that an unexpected
-      // token was encountered.
+      // Raw tokens. These tokens just stand for themselves in the AST. These cases could be
+      // handled by the default case instead. However, having them here makes it explicit which
+      // tokens should be processed in this way. Eventually the default case should probably be
+      // changed to throw an exception of some kind to indicate that an unexpected token was
+      // encountered.
       //
       case MininessLexer.CALL     |
            MininessLexer.CHAR     |
@@ -486,11 +488,11 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
             rewrite(child)
         }
 
-      // This is a simple hack. Emit a #include for line directives that reference header files. If #includes were
-      // nested this will cause spurious #include directives to be emitted here. However, that should not cause any
-      // problems for the back end nesC compiler. Note that the AST for material in a header file should not be
-      // rewritten. However, when a line directive for the main .nc file is encountered, rewriting should be turned on
-      // again.
+      // This is a simple hack. Emit a #include for line directives that reference header files.
+      // If #includes were nested this will cause spurious #include directives to be emitted
+      // here. However, that should not cause any problems for the back end nesC compiler. Note
+      // that the AST for material in a header file should not be rewritten. However, when a line
+      // directive for the main .nc file is encountered, rewriting should be turned on again.
       //
       case MininessLexer.LINE_DIRECTIVE =>
         val fileNameWithQuotes = t.children(0).text
@@ -551,16 +553,15 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         indentationLevel -= 1
         sink.print("}\n")
 
-      // The NULL token should probably not appear in the trees given to this method. It is intended to be used as a
-      // placeholder by other programs that manipulate trees (such as Sprocket). The idea is that all NULL tokens would
-      // be removed from the tree before rewriting. However, in case a NULL token does remain, the code below does the
-      // most natural thing with it.
+      // The NULL token is used as a placeholder to allow multiple nodes to replace a single
+      // node when a tree is transformed. All of it's children should be treated as if they are
+      // it siblings.
       //
       case MininessLexer.NULL =>
         t.children.foreach(rewrite)
 
-      // Is it right to have this default case? It is useful during development because it shows the "next" token that
-      // needs to be implemented in order to get a proper rewriting.
+      // Is it right to have this default case? It is useful during development because it shows
+      // the "next" token that needs to be implemented in order to get a proper rewriting.
       //
       case _ =>
         sink.print(t.text)

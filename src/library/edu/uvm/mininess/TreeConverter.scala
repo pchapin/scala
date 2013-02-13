@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // FILE    : TreeConverter.scala
 // SUBJECT : Object to convert ANTLR CommonTrees into SyntaxTrees.
-// AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
 package edu.uvm.mininess
@@ -11,21 +11,21 @@ import org.antlr.runtime.tree._
 import parser.MininessLexer
 
 /**
- * This object has methods for handling abstract syntax tree conversions and other high level AST preparations. Since
- * Scala can only do pattern matching on "case classes" one service provided by this object is conversion to/from the
- * trees produced by ANTLR to instances of a suitably defined case class (ASTNode). Some additional high level methods
- * are also provided.
+ * This object has methods for handling abstract syntax tree conversions and other high level AST
+ * preparations. Since Scala can only do pattern matching on "case classes" one service provided
+ * by this object is conversion to/from the trees produced by ANTLR to instances of a suitably
+ * defined case class (ASTNode). Some additional high level methods are also provided.
  */
 object TreeConverter {
 
   /**
-   * Convert an ANTLR-style abstract syntax tree into an ASTNode case class instance. Note that some of the information
-   * contained inside the ANTLR produced tree is not preserved in the case class instance. Currently that is information
-   * not needed.
+   * Convert an ANTLR-style abstract syntax tree into an ASTNode case class instance. Note that
+   * some of the information contained inside the ANTLR produced tree is not preserved in the
+   * case class instance. Currently that is information not needed.
    * 
    * @param t The ANTLR-style abstract syntax tree to be converted.
-   * @return An ASTNode instance that represents the tree. The parent of the returned node is None. The symbol tables
-   *         attached to the returned node and its children are all None.
+   * @return An ASTNode instance that represents the tree. The parent of the returned node is
+   * None. The symbol tables attached to the returned node and its children are all None.
    */
   def ANTLRToScala(t: Tree): ASTNode = {
     var childList = List[ASTNode]()
@@ -35,8 +35,8 @@ object TreeConverter {
     }    
     val newNode = ASTNode(t.getType, t.getText, childList, None, None)
     
-    // The Scala compiler's source positioning is zero based. ANTLR uses one based positions for line numbers and zero
-    // based positions for column numbers.
+    // The Scala compiler's source positioning is zero based. ANTLR uses one based positions for
+    // line numbers and zero based positions for column numbers.
     // 
     newNode.line = t.getLine - 1
     newNode.positionInLine = t.getCharPositionInLine
@@ -50,9 +50,10 @@ object TreeConverter {
 
 
   /**
-   * Convert an ASTNode case class instance into an ANTLR-style abstract syntax tree. This is done so the modified trees
-   * created by Scalaness can be passed back to Java for final output. The ANTLR-style abstract syntax tree returned
-   * does not contain all the information about tokens that would normally be present.
+   * Convert an ASTNode case class instance into an ANTLR-style abstract syntax tree. This is
+   * done so the modified trees created by Scalaness can be passed back to Java for final output.
+   * The ANTLR-style abstract syntax tree returned does not contain all the information about
+   * tokens that would normally be present.
    * 
    * @param root The ASTNode instance to convert.
    * @return An ANTLR-style abstract syntax tree.
@@ -80,8 +81,8 @@ object TreeConverter {
 
 
   /**
-   * Writes the abstract syntax tree to standard output. Each level of the tree is indented relative to the level above
-   * it. This method is useful for debugging.
+   * Writes the abstract syntax tree to standard output. Each level of the tree is indented
+   * relative to the level above it. This method is useful for debugging.
    *
    * @param root The root of the tree to dump.
    */
@@ -107,8 +108,8 @@ object TreeConverter {
   
   
   /**
-   * Writes the abstract syntax tree to the indicated PrintStream as serialized nesC source code. This method is used
-   * during the output of the specialized nesC templates.
+   * Writes the abstract syntax tree to the indicated PrintStream as serialized nesC source code.
+   * This method is used during the output of the specialized nesC templates.
    * 
    * @param out The object where the source will be written.
    * @param root The root of the tree to dump.
@@ -120,7 +121,8 @@ object TreeConverter {
 
 
   /**
-   * Processes a Mininess AST and replaces cast operations with calls to an appropriate conversion command.
+   * Processes a Mininess AST and replaces cast operations with calls to an appropriate
+   * conversion command.
    *
    * @param root The root of the AST to process.
    * @return A new AST with all cast operations replaced.
@@ -131,36 +133,38 @@ object TreeConverter {
       
       case ASTNode(MininessLexer.CAST, text, children, parent, symbolTable) => {
 
-        // Here we look up the cast target's type and the cast type and build a method string based on these names
-        // This method name format is up to us how we want the programmer to provide it, so it can change if neccessary
-        val castTarget = children(0).children(0).text
-        val isStructCast = if (children(1).text == "struct") 
-                             true 
-                           else 
-                             false
-                           
-        val castType = if (isStructCast) 
-                         children(1).children(0).text
-                       else
-                         children(1).text
-        val valueType = Symbols.lookupVariable(root,castTarget)
+        // Here we look up the cast target's type and the cast type and build a method string
+        // based on these names. This method name format is up to us how we want the programmer
+        // to provide it, so it can change if neccessary
+        //
+        val castTarget    = children(0).children(0).text
+        val isStructCast  = (children(1).text == "struct") 
+        val castType      = if (isStructCast) children(1).children(0).text else children(1).text
+        val valueType     = Symbols.lookupVariable(root,castTarget)
         val valTypeString = valueType match {
           case MininessTypes.Structure(structName,structFields) => structName
           case typeName => typeName
         }
-        val castMethodString = valTypeString+"_"+castType
+        val castMethodString = valTypeString + "_" + castType
         
         
-        val newNode = ASTNode(MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), parent, symbolTable)
-        val newNode2 = ASTNode(MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(newNode), symbolTable)
+        val newNode = ASTNode(
+          MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), parent, symbolTable)
+        val newNode2 = ASTNode(
+          MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(newNode), symbolTable)
         newNode.children = List(newNode2)
-        val callNode = ASTNode(MininessLexer.CALL, "call", List(), Some(newNode2), symbolTable)
-        val functionNode = ASTNode(MininessLexer.RAW_IDENTIFIER, castMethodString, List(), Some(newNode2), symbolTable)
-        val argListNode = ASTNode(MininessLexer.ARGUMENT_LIST, "ARGUMENT_LIST", List(), Some(newNode2), symbolTable)
+        val callNode = ASTNode(
+          MininessLexer.CALL, "call", List(), Some(newNode2), symbolTable)
+        val functionNode = ASTNode(
+          MininessLexer.RAW_IDENTIFIER, castMethodString, List(), Some(newNode2), symbolTable)
+        val argListNode = ASTNode(
+          MininessLexer.ARGUMENT_LIST, "ARGUMENT_LIST", List(), Some(newNode2), symbolTable)
         newNode2.children = List(callNode, functionNode, argListNode)
-        val newNode3 = ASTNode(MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(argListNode), symbolTable)
+        val newNode3 = ASTNode(
+          MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(argListNode), symbolTable)
         argListNode.children = List(newNode3)
-        val argumentNode = ASTNode(MininessLexer.RAW_IDENTIFIER, castTarget, List(), Some(newNode3), symbolTable)
+        val argumentNode = ASTNode(
+          MininessLexer.RAW_IDENTIFIER, castTarget, List(), Some(newNode3), symbolTable)
         newNode3.children = List(argumentNode)
         val parentNode = parent match {
           case Some(ptNode) => ptNode
@@ -195,75 +199,85 @@ object TreeConverter {
    */
   def addArrayBoundsChecks(root: ASTNode): ASTNode = {
     // if (root.parent == None) dumpAST(root)
-
     root match {
-      
       case ASTNode(MininessLexer.ARRAY_ELEMENT_SELECTION, text, children, parent, symbolTable) => {
-        
         val access = 5
         val parentNode = parent match {
           case Some(pNode) => pNode
           case None => root // Should throw an error
         }
-        val arrayNode = parentNode.children(0)
+        val arrayNode    = parentNode.children(0)
         val arrayPFENode = root.children(0)
-        val accessNode = arrayPFENode.children(0)
-        val isIdentifier = accessNode.tokenType match {
-          case MininessLexer.RAW_IDENTIFIER => true
-          case _ => false
-        }
-        val arrayName = arrayNode.text
-        val arrayType = Symbols.lookupVariable(root,arrayName)
+        val accessNode   = arrayPFENode.children(0)
+        val isIdentifier = (accessNode.tokenType == MininessLexer.RAW_IDENTIFIER)
+        val arrayName    = arrayNode.text
+        val arrayType    = Symbols.lookupVariable(root,arrayName)
         val arraySize = arrayType match {
           case MininessTypes.Array(_, aSize) => aSize
           case _ => throw new Exception("Unable to locate array size")
         }
-        val isConstant = try {
-                           val test = arraySize.toInt
-                           true
-                         } catch { 
-                           case e: Exception => false
-                         }
+        val isConstant =
+          try { val test = arraySize.toInt; true } catch { case e: Exception => false }
         
         val arrayStatementNode = getStatementNode(root)
         val (firstHalf,secondHalf) = getTwoNumbers(arrayStatementNode)
-        // This will be where we pass in the arrayStatementNode, get its parent, split its parents children into two lists (with it heading the second list)
-        // and return two lists.  The two lists then can later be merged together with the inclusion of the constructed if statement between them
+        // This will be where we pass in the arrayStatementNode, get its parent, split its
+        // parents children into two lists (with it heading the second list) and return two
+        // lists. The two lists then can later be merged together with the inclusion of the
+        // constructed if statement between them
                 
         val statementParentNode = arrayStatementNode.parent match {
           case Some(pNode) => pNode
           case _           => throw new Exception("Unable to locate parent node")
         }
         
-        val ifNode = ASTNode(MininessLexer.IF, "if", List(), Some(statementParentNode), symbolTable)
-        val LENode = ASTNode(MininessLexer.GREATEREQUAL, ">=", List(), Some(ifNode), symbolTable)
-        val newNode = ASTNode(MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(LENode), symbolTable)
-        val newNode2 = ASTNode(MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(LENode), symbolTable)
+        val ifNode = ASTNode(
+          MininessLexer.IF, "if", List(), Some(statementParentNode), symbolTable)
+        val LENode = ASTNode(
+          MininessLexer.GREATEREQUAL, ">=", List(), Some(ifNode), symbolTable)
+        val newNode = ASTNode(
+          MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(LENode), symbolTable)
+        val newNode2 = ASTNode(
+          MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(LENode), symbolTable)
         LENode.children = List(newNode, newNode2)
+
         if (isIdentifier) {
-          val accessorNode = ASTNode(MininessLexer.RAW_IDENTIFIER, accessNode.text, List(), Some(newNode), symbolTable)
-          newNode.children = List(accessorNode)
-        } else {
-          val accessorNode = ASTNode(MininessLexer.CONSTANT, accessNode.text, List(), Some(newNode), symbolTable)
+          val accessorNode = ASTNode(
+            MininessLexer.RAW_IDENTIFIER, accessNode.text, List(), Some(newNode), symbolTable)
           newNode.children = List(accessorNode)
         }
+        else {
+          val accessorNode = ASTNode(
+            MininessLexer.CONSTANT, accessNode.text, List(), Some(newNode), symbolTable)
+          newNode.children = List(accessorNode)
+        }
+
         if (isConstant) {
-          val sizeNode = ASTNode(MininessLexer.CONSTANT, arraySize, List(), Some(newNode2), symbolTable)
+          val sizeNode = ASTNode(
+            MininessLexer.CONSTANT, arraySize, List(), Some(newNode2), symbolTable)
           newNode2.children = List(sizeNode)
-        } else {
+        }
+        else {
           val sizeType = Symbols.lookupVariable(root, arraySize)
           if (!(MininessTypes.areSubtypes(sizeType, MininessTypes.Int32) || 
                 MininessTypes.areSubtypes(sizeType, MininessTypes.UInt32)))
             throw new Exception("Array size must be integer type")
-          val sizeNode = ASTNode(MininessLexer.RAW_IDENTIFIER, arraySize, List(), Some(newNode2), symbolTable)
+          val sizeNode = ASTNode(
+            MininessLexer.RAW_IDENTIFIER, arraySize, List(), Some(newNode2), symbolTable)
           newNode2.children = List(sizeNode)
         }
-        val statementNode = ASTNode(MininessLexer.STATEMENT, "STATEMENT", List(), Some(ifNode), symbolTable)
-        val statementPFENode = ASTNode(MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(statementNode), symbolTable)
+
+        val statementNode = ASTNode(
+          MininessLexer.STATEMENT, "STATEMENT", List(), Some(ifNode), symbolTable)
+        val statementPFENode = ASTNode(
+          MininessLexer.POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(statementNode), symbolTable)
         statementNode.children = List(statementPFENode)
-        val callNode = ASTNode(MininessLexer.CALL, "call", List(), Some(statementPFENode), symbolTable)
-        val functionNode = ASTNode(MininessLexer.RAW_IDENTIFIER, "restartNode", List(), Some(statementPFENode), symbolTable)
-        val argListNode = ASTNode(MininessLexer.ARGUMENT_LIST, "ARGUMENT_LIST", List(), Some(statementPFENode), symbolTable)
+        val callNode = ASTNode(
+          MininessLexer.CALL, "call", List(), Some(statementPFENode), symbolTable)
+        val functionNode = ASTNode(
+          MininessLexer.RAW_IDENTIFIER, "restartNode", List(), Some(statementPFENode), symbolTable)
+        val argListNode = ASTNode(
+          MininessLexer.ARGUMENT_LIST, "ARGUMENT_LIST", List(), Some(statementPFENode), symbolTable)
         statementPFENode.children = List(callNode, functionNode, argListNode)
         ifNode.children = List(LENode, statementNode)
         val newSecondHalf = ifNode::secondHalf
@@ -301,10 +315,11 @@ object TreeConverter {
       statementNode
     }
     
-    // Test to see how returning a pair works, we need to pass it an ASTNode, grab the parent, and use its ID to split
-    // the children up. We just have to be careful to make sure that we split at right spot, just checking for
-    // "declaration" doesn't guarantee the right one, it has to be exact. This may take some thought to find a way to
-    // make sure it is the exact child.
+    // Test to see how returning a pair works, we need to pass it an ASTNode, grab the parent,
+    // and use its ID to split the children up. We just have to be careful to make sure that we
+    // split at right spot, just checking for "declaration" doesn't guarantee the right one, it
+    // has to be exact. This may take some thought to find a way to make sure it is the exact
+    // child.
     //
     def getTwoNumbers(node: ASTNode): (List[ASTNode], List[ASTNode]) ={
       val parentNode = node.parent match {
@@ -328,8 +343,6 @@ object TreeConverter {
       }
       (firstList.toList,secondList.toList)
     }
-   
-    
     root
   }
   
