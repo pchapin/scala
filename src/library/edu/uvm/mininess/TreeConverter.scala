@@ -145,7 +145,7 @@ object TreeConverter {
           case MininessTypes.Structure(structName,structFields) => structName
           case typeName => typeName
         }
-        val castMethodString = valTypeString+"_"+castType
+        val castMethodString = valTypeString + "_" + castType
         
         
         val newNode = ASTNode(
