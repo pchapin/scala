@@ -3201,11 +3201,10 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
                             for (i <- 0 until formals.length) yield { formals(i).toString }
                           val (metaTypeUBs, liftedTypes) =
                               edu.uvm.scalaness.TypeRules.stripStrings(formalString.toList)
-                          if (qual.tpe.nesTModuleType == None)
+                          val uninstantiatedType = if(qual.symbol.isParameter) qual.tpe.typeOfThis.nesTModuleType else qual.tpe.nesTModuleType
+                          if (uninstantiatedType == None)
                             throw new Exception("Module type required for instantiate");
-                            
-                            
-                          val findType = qual.tpe.nesTModuleType match {
+                          val findType = uninstantiatedType match {
                             case Some(mType) => mType
                             case _ => throw new Exception("Module Type Required for Wire")
                           }

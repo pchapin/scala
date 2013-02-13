@@ -198,10 +198,11 @@ object TreeConverter {
    * @return A new AST with all the checks added.
    */
   def addArrayBoundsChecks(root: ASTNode): ASTNode = {
-    // if (root.parent == None) dumpAST(root)
+  
+    if (root.parent == None) println("NOW WE TRANSFORM")
+    if (root.parent == None) dumpAST(root)
     root match {
       case ASTNode(MininessLexer.ARRAY_ELEMENT_SELECTION, text, children, parent, symbolTable) => {
-        val access = 5
         val parentNode = parent match {
           case Some(pNode) => pNode
           case None => root // Should throw an error

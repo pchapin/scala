@@ -282,9 +282,10 @@ trait ScalanessTyper {
             println("")
             println("**** Preprocessing Mininess inclusion: " + fullName)
             // TODO: Handle the (error) case where the full name does not contain any dots.
-            val dotPosition = fullName.lastIndexOf('.')
-            val preprocessedFullName = fullName.substring(0, dotPosition) + ".i"
-            runPreprocessor(fullName, preprocessedFullName)
+            val slashedFullName = fullName.replace('\\','/')
+            val dotPosition = slashedFullName.lastIndexOf('.')
+            val preprocessedFullName = slashedFullName.substring(0, dotPosition) + ".i"
+            runPreprocessor(slashedFullName, preprocessedFullName)
              
             val virtualFile = new VirtualFile(shortName, preprocessedFullName)
             val fileText = readMininessInclusion(preprocessedFullName)   // Might throw java.io.IOException
