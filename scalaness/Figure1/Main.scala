@@ -123,13 +123,13 @@ object Main {
   def nodeSpecialize(
     self    : UInt32,
     neighbor: UInt32,
-    nmax    : UInt32,
+    nmax    : Int,
     @ModuleType(
       """{}< addrT <: UInt32; >{ ;
            radio(message: MessageType{src: addrT, dest: addrT, data: Array[UInt8,64]}): ErrorT}""") rawRadioC: RadioC) = {
 
     val addrt: MetaType[UInt32] =
-      if (nmax < UInt32(256)) new MetaType[UInt32](MininessTypes.UInt8)
+      if (nmax < 256) new MetaType[UInt32](MininessTypes.UInt8)
         else new MetaType[UInt32](MininessTypes.UInt16)
 
     @ModuleType("""{}
@@ -158,6 +158,29 @@ object Main {
     val mcode = rawNodeC.instantiate(addrt, self, neighbor)
 
     (mcode +> scode).image
+  }
+
+
+  /**
+   * The main method allows the code above to be executed and generates a residual program.
+   */
+  def main(args: Array[String]) {
+    if (args.length != 1) {
+      println("Usage: Main network-size")
+    }
+    else {
+      val networkSize = args(0).toInt
+      @ModuleType("""{}
+                     < addrT <: UInt32; >
+                     { ;
+                       radio(message: MessageType{src: addrT, dest: addrT, data: Array[UInt8,64]}): ErrorT}""")
+      val uninstantiatedRadio = new RadioC
+      nodeSpecialize(
+        self      = new UInt32(1),  // Hard code our address (for now).
+        neighbor  = new UInt32(2),  // Hard code the neighbor address (for now).
+        nmax      = networkSize,
+        rawRadioC = uninstantiatedRadio)
+    }
   }
 
 }

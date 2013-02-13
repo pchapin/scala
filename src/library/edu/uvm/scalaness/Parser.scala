@@ -25,7 +25,7 @@ object Parser {
    * it is necessary to distinguish type names from non-type names during parsing.
    */
   def reparse(mininessFileName: String, typeVars: List[String]) = {
-    
+
     val MininessReader = try {
       // Try getting the file out of the file system.
       new BufferedReader(new InputStreamReader(new FileInputStream(mininessFileName)))

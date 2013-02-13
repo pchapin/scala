@@ -196,12 +196,13 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
         case Some( (shortName, fullName) ) => {
           // This is a hackish way of getting (for example) ExampleC from ExampleC.nc.
           val MininessComponentName = shortName.substring(0, shortName.lastIndexOf('.'))
+          val reparseName = fullName.replace(".nc", ".i")
 
           val (typeParameters, valueParameters) = extractTypeAndValueParameters(body)
           // println(s"typeParameters = $typeParameters, valueParameters = $valueParameters")
 
           // Compute 'val abstractSyntax =
-          //            Parser.reparse("ExampleC.nc", List("firstType", "secondType"))'
+          //            Parser.reparse("ExampleC.i", List("firstType", "secondType"))'
           //
           // TODO: Make the synthesized val private.
           // TODO: Be sure appropriate imports are available.
@@ -209,7 +210,7 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
           val typeNameList =
             Apply(Ident("List"), typeNames.toList)
           val reparseInvocation =
-            Apply(Select(Ident("Parser"), "reparse"), List(Literal(Constant(s"$shortName")), typeNameList))
+            Apply(Select(Ident("Parser"), "reparse"), List(Literal(Constant(s"$reparseName")), typeNameList))
           val abstractSyntaxVal = treeBuilder.makePatDef(Ident("abstractSyntax"), reparseInvocation)
           val Some(displayGenerated) = scalanessSettings("displayGenerated")
           if (displayGenerated == "true") {

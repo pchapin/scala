@@ -6,7 +6,7 @@ module SendC {
     provides command error_t send( addrT s, addrT d, uint8_t data[] );
 }
 implementation {
-    command error_t send( addrT s, addrT d, uint8_t data[] )
+    command error_t send( addrT s, addrT d, uint8_t data[64] )
     {
         int i;
         struct MessageType message;
