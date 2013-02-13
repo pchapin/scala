@@ -33,7 +33,6 @@ class InterfaceSourceLocator(sourceFolders: List[String]) extends InterfaceLocat
       if (tentativeFile.exists) tentativeName else ""
     }
     val validNames = fileNames filter { _.length > 0 }
-    
     // It might be better, in the case where the interface is found in more than one source file, to return the first
     // one found for some reasonable definition of "first." However, having two different definitions of the same
     // interface is likely to be an error so for now let's treat it as such.

@@ -124,10 +124,10 @@ object Main {
     self    : UInt32,
     neighbor: UInt32,
     nmax    : UInt32,
-    /* @ModuleType(
+    /*@ModuleType(
       """{}< addrT <: UInt32; >{
            ;
-           radio(message: MessageType): ErrorT}""") */ rawRadioC: RadioC) = {
+           radio(message: MessageType): ErrorT}""")*/ rawRadioC: RadioC) = {
 
     val addrt: MetaType[UInt32] =
       if (nmax < UInt32(256)) new MetaType[UInt32](MininessTypes.UInt8)
@@ -138,6 +138,7 @@ object Main {
                    { radio(message: MessageType): ErrorT;
                      send(s: addrT, d: addrT, data: UInt8): ErrorT }""")
     val rawSendC = new SendC
+    
 
     @ModuleType("""{ addrT <: UInt32 }<;>{
                      ;

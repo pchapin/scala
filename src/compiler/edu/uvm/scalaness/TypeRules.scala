@@ -341,6 +341,7 @@ object TypeRules {
       
     }
     
+    
     def listEqual(
       listOne: List[Any], listTwo: List[Any]): Boolean = {
       

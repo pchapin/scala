@@ -1990,7 +1990,7 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
       val sym = vdef.symbol.initialize
       val typer1 = constrTyperIf(sym.isParameter && sym.owner.isConstructor)
       val typedMods = typedModifiers(vdef.mods)
-
+    
       sym.annotations.map(_.completeInfo)
       val tpt1 = checkNoEscaping.privates(sym, typer1.typedType(vdef.tpt))
       checkNonCyclic(vdef, tpt1)
@@ -2034,27 +2034,35 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
           } else tpt1.tpe
           newTyper(typer1.context.make(vdef, sym)).transformedOrTyped(vdef.rhs, EXPRmode | BYVALmode, tpt2)
         }
-      
+        
       if (doNesTTypeCheck) {
+        
         var nesTModuleType = rhs1.tpe.nesTModuleType
-          
-        if (!(annotatedNesTModuleType == None && nesTModuleType == None)) {
+        
+        if (sym.isParameter)
+          nesTModuleType = annotatedNesTModuleType 
+        else {
             
-          if (rhs1.symbol.isConstructor) {
-            val classSingleton = SingleType(NoPrefix,rhs1.symbol.skipConstructor)
-            nesTModuleType = classSingleton.nesTModuleType
-          }
-            
-           if (!(edu.uvm.scalaness.TypeRules.moduleEqual(annotatedNesTModuleType,nesTModuleType))) {
-            reporter.error(vdef.pos, s"""nesT module type mismatch
-                                        |\tAnnotated = ${annotatedNesTModuleType.toString}
-                                        |\tInitializer = ${nesTModuleType.toString}""".stripMargin)
-          }
+            if (!(annotatedNesTModuleType == None && nesTModuleType == None)) {
+                
+              if (rhs1.symbol.isConstructor) {
+                val classSingleton = SingleType(NoPrefix,rhs1.symbol.skipConstructor)
+                nesTModuleType = classSingleton.nesTModuleType
+              }
+                
+               if (!(edu.uvm.scalaness.TypeRules.moduleEqual(annotatedNesTModuleType,nesTModuleType))) {
+                reporter.error(vdef.pos, s"""nesT module type mismatch
+                                            |\tAnnotated = ${annotatedNesTModuleType.toString}
+                                            |\tInitializer = ${nesTModuleType.toString}""".stripMargin)
+              }
+            }
+        
         }
           
         // Stores the nesT information in a singleton type associated with the symbol
         val singletonType = singleType(NoPrefix,sym)
         singletonType.nesTModuleType = nesTModuleType
+
       }
       treeCopy.ValDef(vdef, typedMods, vdef.name, tpt1, checkDead(rhs1)) setType NoType
     }
@@ -2343,7 +2351,7 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
           checkFeature(ddef.pos, ImplicitConversionsFeature, meth.toString)
         case _ =>
       }
-
+      
       treeCopy.DefDef(ddef, typedMods, ddef.name, tparams1, vparamss1, tpt1, rhs1) setType NoType
     }
 
@@ -3158,11 +3166,10 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
               
                     name.toString match {
                       case "$plus$greater" =>
-                        if (!isNesTComponent(qual.tpe))
+                        if (!isNesTComponent(qual.tpe) && (qual.tpe.nesTModuleType == None))
                           None
                          else {
                           // debugMessage("+>")
-          
                           val leftType = qual.tpe.nesTModuleType match {
                             case Some(mType) => mType
                             case _ => throw new Exception("Module Type Required for Wire")
@@ -3186,7 +3193,7 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
                         }
 
                       case "instantiate" =>
-                        if (!isNesTComponent(qual.tpe))
+                        if (!isNesTComponent(qual.tpe) && (qual.tpe.nesTModuleType == None))
                           None
                         else {
                           // debugMessage("instantiate")
@@ -3207,7 +3214,7 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
                         }
                           
                       case "image" =>
-                        if (!isNesTComponent(qual.tpe))
+                        if (!isNesTComponent(qual.tpe) && (qual.tpe.nesTModuleType == None))
                           None
                         else {
                           // debugMessage("image")
