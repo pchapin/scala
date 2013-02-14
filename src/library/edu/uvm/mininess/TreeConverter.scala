@@ -128,6 +128,8 @@ object TreeConverter {
    * @return A new AST with all function declarations and calls adjusted as necessary.
    */
   def rewriteArrayParameters(root: ASTNode): Unit = {
+    import MininessLexer._
+
     // if (root.parent == None) dumpAST(root)
     root match {
       case ASTNode(MininessLexer.PARAMETER, text, children, parent, symbolTable) =>
@@ -139,19 +141,14 @@ object TreeConverter {
             declaratorComponents(1) match {
               case ASTNode(MininessLexer.DECLARATOR_ARRAY_MODIFIER, _, _, _, _) =>
                 println(s"${declaredIdentifier.text} is an array!")
-                val n1 = ASTNode(MininessLexer.RAW_IDENTIFIER, "xyzzy", List(), None, None)
-                val n2 = ASTNode(MininessLexer.IDENTIFIER_PATH, "", List(n1), None, None)
-                n1.parent = Some(n2)
-                val n3 = ASTNode(MininessLexer.DECLARATOR, "", List(n2), None, None)
-                n2.parent = Some(n3)
-                val n4 = ASTNode(MininessLexer.UINT16_T, "uint16_t", List(), None, None)
-                val n5 = ASTNode(MininessLexer.PARAMETER, "", List(n4, n3), None, None)
-                n3.parent = Some(n5)
-                n4.parent = Some(n5)
+                val parameter = Mini(PARAMETER)
+                parameter ~~> Mini(UINT16_T, "uint16_t")
+                parameter ~~>
+                  Mini(DECLARATOR) ~~> Mini(IDENTIFIER_PATH) ~~> Mini(RAW_IDENTIFIER, "xyzzy")
 
-                val Some(parameterNode) = root.parent
-                n5.parent = Some(parameterNode)
-                parameterNode.children = n5 :: parameterNode.children
+                val Some(parameterListNode) = root.parent
+                parameter.node.parent = Some(parameterListNode)
+                parameterListNode.children = parameterListNode.children ::: List(parameter.node)
 
               case _ =>
                 // Do nothing. We are only interested in array parameters.
