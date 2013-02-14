@@ -79,10 +79,7 @@ class NamedProgramComponent(
       // TODO: Is this really the right place for this?
       Symbols.decorateAST(fullySpecializedAST)
       TreeConverter.rewriteArrayParameters(fullySpecializedAST)
-      println("BEFORE WE TRANSFORM")
       val transformedAST1 = TreeConverter.addArrayBoundsChecks(fullySpecializedAST)
-      println("THUS WE RECIEVE")
-      TreeConverter.dumpAST(transformedAST1)
       val transformedAST2 = TreeConverter.replaceCastOperations(transformedAST1)
       val viewer = new SyntaxViewer(outputFile, transformedAST2)
       viewer.rewrite()

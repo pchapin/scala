@@ -21,5 +21,6 @@ class Mini(val node: ASTNode) {
 }
 
 object Mini {
+  def apply(node: ASTNode) = new Mini(node)
   def apply(tokenType: Int, text: String = "") = new Mini(tokenType, text)
 }

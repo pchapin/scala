@@ -8,7 +8,7 @@ module ChecksumC {
 implementation {
    
     // Computes a simple checksum over the data array.
-    command checksumType compute_checksum(uint8_t data[size])  // Try taking 'size' out here :)
+    command checksumType compute_checksum(uint8_t data[])
     {
         checksumType sum = 0;
         int16_t i;
