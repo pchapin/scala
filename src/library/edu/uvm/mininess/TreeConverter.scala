@@ -252,12 +252,18 @@ object TreeConverter {
           case Some(pNode) => pNode
           case None => root // Should throw an error
         }
+        val arrayStructMember = if (parentNode.children.length > 2) true else false
         val arrayNode    = parentNode.children(0)
         val arrayPFENode = root.children(0)
         val accessNode   = arrayPFENode.children(0)
         val isIdentifier = (accessNode.tokenType == MininessLexer.RAW_IDENTIFIER)
         val arrayName    = arrayNode.text
-        val arrayType    = Symbols.lookupVariable(root,arrayName)
+        val arrayType    = if(!(arrayStructMember)) Symbols.lookupVariable(root,arrayName)
+                           else {
+                             val structName = arrayName
+                             val fieldName = parentNode.children(1).children(0).text
+                             getStructMemberType(Symbols.lookupVariable(root,structName),fieldName)
+                           }
         val arraySize = arrayType match {
           case MininessTypes.Array(_, aSize) => aSize
           case _ => throw new Exception("Unable to locate array size")
@@ -388,6 +394,25 @@ object TreeConverter {
         siblingList(i)
       }
       (firstList.toList,secondList.toList)
+    }
+    
+    def getStructMemberType(structType: MininessTypes.Representation, memberName: String): MininessTypes.Representation = {
+      var returnType = structType
+      var found = false
+      val memberList = structType match {
+        case MininessTypes.Structure(_, mList) => mList
+        case _ => throw new Exception("Expected structure type.")
+      }
+      for (i <- 0 until memberList.size) {
+        memberList(i) match {
+          case (memberName, mType) => {
+            returnType = mType
+            found = true
+          }
+          case _ => 
+        }
+      }
+      if (found) returnType else throw new Exception("Unable to locate struct member.")
     }
     root
   }

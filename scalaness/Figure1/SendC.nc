@@ -13,7 +13,7 @@ implementation {
         message.src  = s;
         message.dest = d;
         for( i = 0; i < 64; ++i ) {
-            message.dest[i] = data[i];
+            message.data[i] = data[i];
         }
         return call radio( message );
     }
