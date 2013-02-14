@@ -275,7 +275,7 @@ object TreeConverter {
         val accessNode   = arrayPFENode.children(0)
         val isIdentifier = (accessNode.tokenType == RAW_IDENTIFIER)
         val arrayName    = arrayNode.text
-        val tempVarName =  "_sc__1" // This should call name generator
+        val tempVarName =  NameGenerator.get
         val arrayType    = if (!(arrayStructMember)) Symbols.lookupVariable(root,arrayName)
                            else {
                              val structName = arrayName
