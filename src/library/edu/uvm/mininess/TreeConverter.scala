@@ -155,6 +155,26 @@ object TreeConverter {
           }
         }
 
+      case ASTNode(ARGUMENT_LIST, text, children, parent, symbolTable) =>
+        val rootNode = Mini(root)
+        for (child <- children
+             if child.children.length > 0 && child.children(0).tokenType == RAW_IDENTIFIER) {
+          val argumentName = child.children(0).text
+          val argumentType = Symbols.lookupVariable(root, argumentName)
+          argumentType match {
+            case MininessTypes.Array(_, arraySize) =>
+              if (arraySize == "") {
+                val sizeVariable = "_sc__" + argumentName + "_SIZE"
+                rootNode ~~> Mini(RAW_IDENTIFIER, sizeVariable)
+              }
+              else {
+                rootNode ~~> Mini(CONSTANT, arraySize)
+              }
+            case _ =>
+              // Do nothing. We are only interested in array parameters.
+          }
+        }
+
       case ASTNode(tokenType, text, children, parent, symbolTable) =>
         children foreach rewriteArrayParameters
     }
