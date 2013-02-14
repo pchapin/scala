@@ -262,7 +262,7 @@ object TreeConverter {
    * @return A new AST with all the checks added.
    */
   def addArrayBoundsChecks(root: ASTNode): ASTNode = {
-    if (root.parent == None) dumpAST(root)
+    // if (root.parent == None) dumpAST(root)
     root match {
       case ASTNode(ARRAY_ELEMENT_SELECTION, text, children, parent, symbolTable) => {
         val parentNode = parent match {
@@ -337,16 +337,7 @@ object TreeConverter {
         else
           ASTNode(CONSTANT, accessNode.text, List(), Some(dPFENode), symbolTable)
         dPFENode.children = List(oldVarNode)
-          
-        
-        
-        /*
-        val accessorNode = if (isIdentifier)
-          ASTNode(RAW_IDENTIFIER, accessNode.text, List(), Some(newNode), symbolTable)
-        else
-          ASTNode(CONSTANT, accessNode.text, List(), Some(newNode), symbolTable)
-        newNode.children = List(accessorNode)
-        */
+
         val accessorNode = ASTNode(RAW_IDENTIFIER, tempVarName, List(), Some(newNode), symbolTable)
         newNode.children = List(accessorNode)
         accessNode.text = tempVarName
@@ -401,7 +392,7 @@ object TreeConverter {
         }
         newNode.line = root.line
         newNode.positionInLine = root.positionInLine
-
+       
         // Add a new USES node at the end of the list.
         val declaratorNode = Mini(DECLARATOR)
         declaratorNode ~~>
@@ -417,6 +408,37 @@ object TreeConverter {
             Mini(INIT_DECLARATOR) ~~>
               declaratorNode
         Mini(newNode) ~~> Mini(USES, "uses") ~~> declarationNode
+ 
+        /*
+        val usesNode = 
+          ASTNode(USES, "USES", List(), Some(root), symbolTable)
+        val decNode =
+          ASTNode(DECLARATION, "DECLARATION", List(), Some(usesNode), symbolTable)
+        usesNode.children = List(decNode)
+        val cmdNode =
+          ASTNode(COMMAND, "command", List(), Some(decNode), symbolTable)
+        val voidNode =
+          ASTNode(VOID, "void", List(), Some(decNode), symbolTable)
+        val decListNode =
+          ASTNode(DECLARATOR_LIST, "DECLARATOR_LIST", List(), Some(decNode), symbolTable)
+        decNode.children = List(cmdNode,voidNode,decListNode)
+        val initDecNode = 
+          ASTNode(INIT_DECLARATOR, "INIT_DECLARATOR", List(), Some(decListNode), symbolTable)
+        decListNode.children = List(initDecNode)
+        val decrNode =
+          ASTNode(DECLARATOR, "DECLARATOR", List(), Some(initDecNode), symbolTable)
+        initDecNode.children = List(decrNode)
+        val idPathNode = 
+          ASTNode(IDENTIFIER_PATH, "IDENTIFIER_PATH", List(), Some(decrNode), symbolTable)
+        val dplmNode = 
+          ASTNode(DECLARATOR_PARAMETER_LIST_MODIFIER, "DECLARATOR_PARAMETER_LIST_MODIFIER", List(), Some(decrNode), symbolTable)
+        decrNode.children = List(idPathNode, dplmNode)
+        val newMthNode = 
+          ASTNode(RAW_IDENTIFIER, "boundsCheckFailed", List(), Some(idPathNode), symbolTable)
+        idPathNode.children = List(newMthNode)
+        val currChildren = root.children
+        root.children = currChildren:::List(usesNode)
+        */
         newNode
       
       // All other token types are handled here.
