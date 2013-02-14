@@ -47,7 +47,13 @@ object Specialize {
       // Recursively process all other node types.
       case ASTNode(token, text, children, parent, symbolTable) =>
         val newChildren = children map { child => editor(child, identifier, value) }
-        ASTNode(token, text, newChildren, parent, symbolTable)
+        val newNode = ASTNode(token, text, newChildren, parent, symbolTable)
+        for (child <- newChildren) {
+          child.parent = Some(newNode)
+        }
+        newNode.line = node.line
+        newNode.positionInLine = node.positionInLine
+        newNode
     }
   }
 

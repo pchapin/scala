@@ -78,6 +78,7 @@ class NamedProgramComponent(
       // Do the necessary transformations on array bounds and casts.
       // TODO: Is this really the right place for this?
       Symbols.decorateAST(fullySpecializedAST)
+      TreeConverter.rewriteArrayParameters(fullySpecializedAST)
       println("BEFORE WE TRANSFORM")
       val transformedAST1 = TreeConverter.addArrayBoundsChecks(fullySpecializedAST)
       println("THUS WE RECIEVE")
