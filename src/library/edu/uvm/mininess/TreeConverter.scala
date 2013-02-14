@@ -242,7 +242,7 @@ object TreeConverter {
    * @return A new AST with all the checks added.
    */
   def addArrayBoundsChecks(root: ASTNode): ASTNode = {
-    // if (root.parent == None) dumpAST(root)
+    if (root.parent == None) dumpAST(root)
     root match {
       case ASTNode(ARRAY_ELEMENT_SELECTION, text, children, parent, symbolTable) => {
         val parentNode = parent match {
@@ -255,6 +255,7 @@ object TreeConverter {
         val accessNode   = arrayPFENode.children(0)
         val isIdentifier = (accessNode.tokenType == RAW_IDENTIFIER)
         val arrayName    = arrayNode.text
+        val tempVarName =  "_sc__1" // This should call name generator
         val arrayType    = if (!(arrayStructMember)) Symbols.lookupVariable(root,arrayName)
                            else {
                              val structName = arrayName
@@ -290,12 +291,46 @@ object TreeConverter {
           ASTNode(POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(LENode), symbolTable)
         LENode.children = List(newNode, newNode2)
 
+        val decNode =
+          ASTNode(DECLARATION, "DECLARATION", List(), Some(statementParentNode), symbolTable)
+        val intNode =
+          ASTNode(INT, "int", List(), Some(decNode), symbolTable)
+        val decListNode =
+          ASTNode(DECLARATOR_LIST, "DECLARATOR_LIST", List(), Some(decNode), symbolTable)
+        decNode.children = List(intNode,decListNode)
+        val initDecNode = 
+          ASTNode(INIT_DECLARATOR, "INIT_DECLARATOR", List(), Some(decListNode), symbolTable)
+        decListNode.children = List(initDecNode)
+        val decrNode =
+          ASTNode(DECLARATOR, "DECLARATOR", List(), Some(initDecNode), symbolTable)
+        val dPFENode = 
+          ASTNode(POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(initDecNode), symbolTable)
+        initDecNode.children = List(decrNode, dPFENode)
+        val idPathNode = 
+          ASTNode(IDENTIFIER_PATH, "IDENTIFIER_PATH", List(), Some(decrNode), symbolTable)
+        decrNode.children = List(idPathNode)
+        val newVarNode = 
+          ASTNode(RAW_IDENTIFIER, tempVarName, List(), Some(idPathNode), symbolTable)
+        idPathNode.children = List(newVarNode)
+        val oldVarNode = if (isIdentifier)
+          ASTNode(RAW_IDENTIFIER, accessNode.text, List(), Some(dPFENode), symbolTable)
+        else
+          ASTNode(CONSTANT, accessNode.text, List(), Some(dPFENode), symbolTable)
+        dPFENode.children = List(oldVarNode)
+          
+        
+        
+        /*
         val accessorNode = if (isIdentifier)
           ASTNode(RAW_IDENTIFIER, accessNode.text, List(), Some(newNode), symbolTable)
         else
           ASTNode(CONSTANT, accessNode.text, List(), Some(newNode), symbolTable)
         newNode.children = List(accessorNode)
-
+        */
+        val accessorNode = ASTNode(RAW_IDENTIFIER, tempVarName, List(), Some(newNode), symbolTable)
+        newNode.children = List(accessorNode)
+        accessNode.text = tempVarName
+        
         val sizeNode = if (isConstant) {
           ASTNode(CONSTANT, arraySize, List(), Some(newNode2), symbolTable)
         }
@@ -329,7 +364,8 @@ object TreeConverter {
         statementPFENode.children = List(callNode, functionNode, argListNode)
         ifNode.children = List(LENode, statementNode)
         val newSecondHalf = ifNode::secondHalf
-        val newChildren = firstHalf:::newSecondHalf
+        val finalSecondHalf = decNode::newSecondHalf
+        val newChildren = firstHalf:::finalSecondHalf
         statementParentNode.children = newChildren
         root
       }
