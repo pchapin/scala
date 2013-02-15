@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>Scalaness/nesT Error Messages</title>
+
+    <!-- <link rel="stylesheet" href="scalaness.css" /> -->
+
+    <meta name="Author" content="Scalaness Contributors" />
+    <meta name="Description" content="Error examples for the nesT/Scalaness project." />
+    <meta name="robots" content="index, follow" />
+    <style type="text/css">
+      html{
+        color:black;
+        text-align:left;
+        font-family:garamond, geneva, calibri, georgia, palatino, times, serif;
+      }
+      body{
+        /*  background-image: url('tree.png'); */
+        background-repeat:no-repeat;
+        background-attachment:fixed;
+      }
+      ul{
+        list-style:circle;
+      }
+      dl,
+      dt,
+      ul{
+        /*  color: black; */
+        /*  font-size: small; */
+        text-align:left;
+        margin-right:1cm;
+      }
+      P{
+        text-align:justify;
+        /*  color: black; */
+        /*   font-size: small; */
+        /*  font-family: Arial, Helvetica, sans-serif;   */
+      }
+      a{
+        /* color: #3F65AE; */
+        color:#880308;
+        text-decoration:none;
+      }
+      .feed-icon{
+        float:right;
+      }
+      .validator-link{
+        font-family:Arial, Helvetica, times, serif;
+        font-size:0.8em;
+      }
+      img{
+        border:0px;
+      }
+      A:visited{
+      }
+      A:link{
+      }
+      A:hover{
+        text-decoration:underline;
+      }
+      .menu,
+      .submenu{
+        font-family:Arial, Helvetica, sans-serif;
+      }
+      .menu{
+        font-size:12px;
+        border-bottom:1px solid #52547a;
+      }
+      .submenu{
+        text-align:right;
+        font-size:10px;
+      }
+      P.emph2{
+        border:1px solid black;
+        padding:10px;
+        background:url('pattern26.gif') repeat;
+      }
+      HR{
+        border:1px solid #880308;
+        /* background-color: #3F65AE; */
+      
+      }
+      P.emph{
+        color:white;
+        border:1px solid black;
+        padding:10px;
+        background-color:#3F65AE;
+        /* background: url('1960_dots.gif') repeat;  */
+      }
+      A.emph{
+        color:white;
+        font-style:italic;
+      }
+      A.emph:visited{
+        color:white;
+      }
+      A.bold{
+        font-weight:bold;
+      }
+      DIV.abstract{
+        margin-left:1in;
+        margin-right:1in;
+      }
+      .box{
+        padding:0px 0px;
+        /*    background-color: #fff; */
+      }
+      #contents{
+        width:71%;
+        margin:auto;
+      }
+      #topcontents{
+        width:71%;
+        margin:auto;
+      }
+      .paper-title{
+        font-weight:bold;
+      }
+      .paper-venue{
+        font-style:italic;
+      }
+      h1{
+        margin:0;
+      }</style>
+  </head>
+  <body>
+    <div id="topcontents">
+      <div class="box">
+        <table width="90%">
+          <tbody>
+            <tr>
+              <td valign="top"> </td>
+              <td>
+                <hr />
+                <h1 style="white-space: nowrap;">Scalaness/nesT</h1>
+                <h2>Error Messages</h2>
+                <hr />
+                <div class="box">
+                  <h2>Overview</h2>
+                  <p>This page shows some samples of error messages produced by the current
+                    Scalaness implementation. Both of the samples here are modifications of the
+                    Checksum sample.</p>
+                </div>
+                <div class="box">
+                  <h2>Scalaness Type Errors</h2>
+                  <p>In the code snippet below the export list in the ModuleType annotation
+                    fails to include the <code>booted</code> command. The compiler computes the
+                    resulting module type of the wiring operation but the implementation
+                    requires the programmer to confirm this type.</p>
+                  <pre>
+@ModuleType("""{ checksumType &lt;: UInt32 }
+                 &lt;;>
+               { startPeriodic(period: UInt32): Void; 
+                 fired(): Void  }""")
+val wireModule = formattingModule +> checkingModule
+</pre>
+                  <p>In this case the compiler responds with</p>
+                  <pre>
+Main.scala:242: error: nesT module type mismatch
+	Annotated = Some((Map(TypeVariable(checksumType) -> uint32_t),
+	  Module(List(),
+	         List(),
+	         List((startPeriodic,Function(void,List(uint32_t)))),
+	         List((fired,Function(void,List()))))))
+	Initializer = Some((Map(TypeVariable(checksumType) -> uint32_t),
+	  Module(List(),
+	         List(),
+	         List((startPeriodic,Function(void,List(uint32_t)))),
+	         List((booted,Function(void,List())), (fired,Function(void,List()))))))
+      val wireModule = formattingModule +> checkingModule
+          ^
+one error found
+</pre>
+                </div>
+                <div class="box">
+                  <h2>nesT Type Errors</h2>
+                  <p>In the code snippet below, taken from <code>MessageFormatterC</code> the
+                    value <code>i</code> is assigned to <code>checksum</code>. The problem is
+                    that <code>i</code> is declared as <code>uint16_t</code> whereas
+                      <code>checksum</code> is of type <code>checksumType</code>, a type
+                    parameter of the module that is only known statically to be a subtype of
+                      <code>uint32_t</code>.</p>
+                  <pre>                                     
+command void fired( )
+{
+    uint8_t raw[size];
+    int16_t i;
+    checksumType checksum;
+        
+    // Construct message.
+    for( i = 0; i &lt; (int16_t)size; ++i ) {
+        raw[i] = (i &amp; 0x00FF);
+    }
+    checksum = i; // call compute_checksum( raw );
+}
+</pre>
+                  <p>The nesT language does not permit assignment of a wider type to a narrower
+                    one. The compiler responds with</p>
+                  <pre>
+./MessageFormatterC.i:36: error: Left and right operands of '=' must be like types
+        checksum = i;
+                 ^
+Main.scala:119: error: nesT module type mismatch
+	Annotated = Some((Map(),
+	  Module(List((TypeVariable(checksumType),uint32_t)),
+	         List((size,uint16_t)),
+	         List((compute_checksum,Function(TypeVariable(checksumType),List(Array(uint8_t,)))),
+	              (startPeriodic,Function(void,List(uint32_t)))),
+	         List((booted,Function(void,List())), (fired,Function(void,List()))))))
+	Body = None
+  class MessageFormatterC extends MininessComponent {
+        ^
+two errors found
+</pre>
+                  <p>The second error message arises because the compiler is not able to assign
+                    a module type to the nesT code and thus gives it the type "None" which does
+                    not match the annotation on the class.</p>
+                </div>
+                <br />
+                <hr />
+                <p style="text-align: right;">
+                  <a style="font-family: Arial, Helvetica, times, serif; font-size: 0.8em"
+                    href="http://validator.w3.org/check/referer">Valid XHTML</a>
+                  <a style="font-family: Arial, Helvetica, times, serif; font-size: 0.8em"
+                    href="http://jigsaw.w3.org/css-validator/">Valid CSS</a>
+                </p></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

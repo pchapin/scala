@@ -5,6 +5,7 @@
         <options/>
     </meta>
     <projectTree name="www.xpr">
+        <file name="errors.html"/>
         <file name="index.html"/>
         <file name="scalaness.css"/>
     </projectTree>
