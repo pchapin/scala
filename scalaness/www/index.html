@@ -1,36 +1,122 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-<!-- FILE         : Scalaness/index.html
-     AUTHOR       : (C) Copyright 2013 by Peter C. Chapin
-     SUBJECT      : My Scalaness web page. -->
-
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
-
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-    <meta name="Author" content="Peter C. Chapin" />
-    <meta name="ROBOTS" content="NOARCHIVE" />
-    <link rel="stylesheet" href="scalaness.css" type="text/css" />
-    <title>Scalaness</title>
-  </head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>Scalaness/nesT Examples for LCTES13</title>
 
+    <link rel="stylesheet" href="scalaness.css" />
+
+    <meta name="Author" content="Scalaness Contributors" />
+    <meta name="Description" content="Homepage for the nesT/Scalaness project." />
+    <meta name="robots" content="index, follow" />
+
+  </head>
   <body>
-    <h1>Scalaness</h1>
-    <p>Scalaness is a modified Scala compiler that supports a form of staged programming for
-      embedded systems developers using nesC. The Scalaness compiler allows the user to
-      specialize and compose nesC modules. One unique aspect of the Scalaness system is that if
-      the Scalaness program type checks then every possible generated nesC program will also
-      type check.</p>
-    <p>The Scalaness <a href="https://github.com/pchapin/scala">source code is currently on
-        GitHub</a></p>
-    <p>For any questions or comments, please contact me at <b>PChapin... at... vtc... vsc...
-        edu</b>.</p>
-    <!-- BEGIN signature block -->
-    <hr />
-    <address>
-      &copy; Copyright 2013 by Peter C. Chapin.<br />
-      Last Revised: <b>February 7, 2013</b>
-    </address>
-    <!-- END signature block -->
+    <div id="topcontents">
+      <div class="box">
+        <table width="90%">
+          <tbody>
+            <tr>
+              <td valign="top"> </td>
+              <td>
+                <hr />
+                <h1 style="white-space: nowrap;">Scalaness/nesT</h1>
+                <h2>Code Examples and Compiler Download</h2>
+                <hr />
+                <div class="box">
+                  <h2>Overview</h2>
+                  <p>This web page provides supplementary materials for the paper entitled
+                      <i>Scalaness/nesT: Type Specialized Staged Programming for Sensor
+                      Networks</i>, submitted to LCTES 2013. We have included two working
+                    program code examples, two code examples that contain type errors caught by
+                    our type analysis, and a link to GitHub the latest Scalaness/nesT compiler
+                    is located. See the <a
+                      href="https://github.com/pchapin/scala/blob/scalaness/scalaness/README.rst"
+                      >Scalaness README</a> for more information about the samples currently in
+                    the GitHub repository and how to run them.</p>
+                </div>
+                <div class="box">
+                  <h2>Valid Code Examples</h2>
+                  <h3>Message Header Type Specialization (Figure 1 from paper)</h3>
+                  <ul>
+                    <li><a class="bold"
+                        href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/Main.scala"
+                        >Scalaness/nesT source code</a>
+                      <br />
+                    </li>
+                    <li>Unspecialized nesT components: <b><a
+                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/NodeC.nc"
+                            ><tt>NodeC</tt></a></b>, <b><a
+                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/RadioC.nc"
+                            ><tt>RadioC</tt></a></b>, and <b><a
+                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/SendC.nc"
+                            ><tt>SendC</tt></a></b><br />
+                    </li>
+                    <li>Residual nesC components from command "<tt>Main 300</tt>:" <b><a
+                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/generated/NodeC.nc"
+                            ><tt>NodeC</tt></a></b>, <b><a
+                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/generated/RadioC.nc"
+                            ><tt>RadioC</tt></a></b>, and <b><a
+                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/generated/SendC.nc"
+                            ><tt>SendC</tt></a></b>
+                    </li>
+                  </ul>
+                  <h3>Checksum Computation Example</h3>
+                  <ul>
+                    <li><a class="bold"
+                        href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Checksum/Main.scala"
+                        > Scalaness/nesT source code</a>
+                      <br />
+                    </li>
+                    <li>Unspecialized nesT components: <b><a
+                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Checksum/ChecksumC.nc"
+                            ><tt>ChecksumC</tt></a></b> and <b><a
+                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Checksum/MessageFormatterC.nc"
+                            ><tt>MessageFormatterC</tt></a></b><br />
+                    </li>
+                    <li>Residual nesC components from command "<tt>Main 16 1024</tt>:" <b><a
+                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Checksum/generated/ChecksumC.nc"
+                            ><tt>ChecksumC</tt></a></b> and <b><a
+                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Checksum/generated/MessageFormatterC.nc"
+                            ><tt>MessageFormatterC</tt></a></b>
+                    </li>
+                  </ul>
+                </div>
+                <div class="box">
+                  <h2>Code Examples with Type Errors</h2>
+                  <ul>
+                    <li><a class="bold" href="">Code with Scalaness-level type error</a>
+                      <br />
+                    </li>
+                    <li><a class="bold" href="">Code with nesT-level type error</a><br />
+                    </li>
+                    <li><a class="bold" href="">Type error messages for these examples</a><br />
+                    </li>
+                  </ul>
+                </div>
+                <div class="box">
+                  <h2>Compiler Source Code</h2>
+                  <p>The <a href="https://github.com/pchapin/scala">source code of the
+                      Scalaness/nesT compiler, examples, and associated documentation</a> is
+                    available on GitHub. The valid code examples above can be successfully
+                    compiled with this compiler, and it will detect type errors in the invalid
+                    code examples. Please see the main <a
+                      href="https://github.com/pchapin/scala/blob/scalaness/README.rst"
+                      >README</a> file for instructions for building the compiler. </p></div>
+                <br />
+                <hr />
+                <p style="text-align: right;">
+                  <a style="font-family: Arial, Helvetica, times, serif; font-size: 0.8em"
+                    href="http://validator.w3.org/check/referer">Valid XHTML</a>
+                  <a style="font-family: Arial, Helvetica, times, serif; font-size: 0.8em"
+                    href="http://jigsaw.w3.org/css-validator/">Valid CSS</a>
+                </p></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </body>
 </html>
