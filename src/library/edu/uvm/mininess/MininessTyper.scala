@@ -530,6 +530,9 @@ class MininessTyper(
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
           Some(Int16)
         }
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+          Some(Int16)
+        }
         else throw new TypeException("Operands of '&&' must be integers")
       }
 
@@ -570,6 +573,8 @@ class MininessTyper(
         }
         if (isArray && areSubtypes(secondChildType,Int16))
           Some(firstChildType)
+        else if (isArray && areSubtypes(secondChildType,UInt16))
+          Some(firstChildType)
         else throw new TypeException("Must increment an Array by a Integer value")
       }
         
@@ -586,6 +591,9 @@ class MininessTyper(
           case _ => throw new TypeException("Array index must have a type")
         }
         if (areSubtypes(childType,Int16)) {
+          Some(arrayType)
+        }
+        else if (areSubtypes(childType,UInt16)) {
           Some(arrayType)
         }
         else throw new TypeException("Array index must be Int16")
@@ -620,7 +628,7 @@ class MininessTyper(
             case Some(rightType) => rightType
             case _ => throw new TypeException("Right operand of '=' must have a type")
           }
-          if (areSubtypes(leftType, rightType) || areSubtypes(rightType, leftType)) {
+          if (areSubtypes(rightType, leftType)) {
             Some(Okay)
           }
           else throw new TypeException("Left and right operands of '=' must be like types")
@@ -632,6 +640,12 @@ class MininessTyper(
       case ASTNode(MininessLexer.BITANDASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32)) {
+          if (areSubtypes(secondChildType, firstChildType)) {
+            Some(firstChildType)
+          }
+          else throw new TypeException("Right operand of '&=' must be a subtype of left operand")
+        }
+        else if (areSubtypes(firstChildType, UInt32)) {
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
@@ -676,6 +690,12 @@ class MininessTyper(
           }
           else throw new TypeException("Right operand of '|=' must be a subtype of left operand")
         }
+        else if (areSubtypes(firstChildType, UInt32)) {
+          if (areSubtypes(secondChildType, firstChildType)) {
+            Some(firstChildType)
+          }
+          else throw new TypeException("Right operand of '|=' must be a subtype of left operand")
+        }
         else throw new TypeException("Left operand of '|=' must have numeric type")
       } // Right side must be a subtype of left side, so var type of left side doesn't change?
 
@@ -694,6 +714,12 @@ class MininessTyper(
       case ASTNode(MininessLexer.BITXORASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32)) {
+          if (areSubtypes(secondChildType, firstChildType)) {
+            Some(firstChildType)
+          }
+          else throw new TypeException("Right operand of '^=' must be a subtype of left operand")
+        }
+        else if (areSubtypes(firstChildType, UInt32)) {
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
@@ -767,12 +793,21 @@ class MininessTyper(
           }
           else throw new TypeException("Right operand of '/=' must be a subtype of left operand")
         }
+        else if (areSubtypes(firstChildType, UInt32)) {
+          if (areSubtypes(secondChildType, firstChildType)) {
+            Some(firstChildType)
+          }
+          else throw new TypeException("Right operand of '/=' must be a subtype of left operand")
+        }
         else throw new TypeException("Left operand of '/=' must have numeric type")
       } // Right side must be a subtype of left side, so var type of left side doesn't change?
 
       case ASTNode(MininessLexer.DIVIDE, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+          Some(leastUpperBound(firstChildType, secondChildType))
+        }
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
         else throw new TypeException("Operands of '/' must have integer type")
@@ -809,12 +844,18 @@ class MininessTyper(
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
           Some(Int16)
         }
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+          Some(Int16)
+        }
         else throw new TypeException("Operands of '>' must have integer type")
       }
 
       case ASTNode(MininessLexer.GREATEREQUAL, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+          Some(Int16)
+        }
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
           Some(Int16)
         }
         else throw new TypeException("Operands of '>=' must have integer type")
@@ -825,6 +866,9 @@ class MininessTyper(
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
           Some(Int16)
         }
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+          Some(Int16)
+        }
         else throw new TypeException("Operands of '<' must have integer type")
       }
 
@@ -833,12 +877,18 @@ class MininessTyper(
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
           Some(Int16)
         }
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+          Some(Int16)
+        }
         else throw new TypeException("Operands of '<=' must have integer type")
       }
 
       case ASTNode(MininessLexer.LSHIFT, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+          Some(leastUpperBound(firstChildType, secondChildType))
+        }
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
         else throw new TypeException("Operands of '<<' must have integer types")
@@ -852,6 +902,12 @@ class MininessTyper(
           }
           else throw new TypeException("Right operand of '<<=' must be a subtype of left operand")
         }
+        else if (areSubtypes(firstChildType, UInt32)) {
+          if (areSubtypes(secondChildType, firstChildType)) {
+            Some(firstChildType)
+          }
+          else throw new TypeException("Right operand of '<<=' must be a subtype of left operand")
+        }
         else throw new TypeException("Left operand of '<<=' must have numeric type")
       } // Right side must be a subtype of left side, so var type of left side doesn't change?
 
@@ -860,12 +916,21 @@ class MininessTyper(
         if (areSubtypes(firstChildType,Int16) && areSubtypes(secondChildType,Int16)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
+        else if (areSubtypes(firstChildType,UInt16) && areSubtypes(secondChildType,UInt16)) {
+          Some(leastUpperBound(firstChildType, secondChildType))
+        }
         else throw new TypeException("Operands of '-' must have integer type")
       }
 
       case ASTNode(MininessLexer.MINUSASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32)) {
+          if (areSubtypes(secondChildType, firstChildType)) {
+            Some(firstChildType)
+          }
+          else throw new TypeException("Right operand of '-=' must be a subtype of left operand")
+        }
+        else if (areSubtypes(firstChildType, UInt32)) {
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
@@ -881,7 +946,10 @@ class MininessTyper(
           case _ => throw new TypeException("Operand of '--' must have a type")
         }
         if (areSubtypes(siblingType, Int32)) {
-          Some(Int16)
+          Some(siblingType)
+        }
+        else if (areSubtypes(siblingType, UInt32)) {
+          Some(siblingType)
         }
         else throw new TypeException("Operand of '--' have integer type")
       }
@@ -889,6 +957,12 @@ class MininessTyper(
       case ASTNode(MininessLexer.MODASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32)) {
+          if (areSubtypes(secondChildType, firstChildType)) {
+            Some(firstChildType)
+          }
+          else throw new TypeException("Right operand of '%=' must be a subtype of left operand")
+        }
+        else if (areSubtypes(firstChildType, UInt32)) {
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
@@ -902,12 +976,21 @@ class MininessTyper(
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+          Some(leastUpperBound(firstChildType, secondChildType))
+        }
         else throw new TypeException("Operands of '%' must have integer type")
       } // Updated to include subtyping - Valid if left and right are subtypes of Int16
 
       case ASTNode(MininessLexer.MULASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32)) {
+          if (areSubtypes(secondChildType, firstChildType)) {
+            Some(firstChildType)
+          }
+          else throw new TypeException("Right operand of '*=' must be a subtype of left operand")
+        }
+        else if (areSubtypes(firstChildType, UInt32)) {
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
@@ -923,6 +1006,9 @@ class MininessTyper(
           case _ => throw new TypeException("Operand of '!' must have a type")
         }
         if (areSubtypes(childType, Int32)){
+         Some(Int16)
+        }
+        else if (areSubtypes(childType, UInt32)){
          Some(Int16)
         }
         else throw new TypeException("Operand of '!' must have integer type")
@@ -942,6 +1028,9 @@ class MininessTyper(
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
           Some(Int16)
         }
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+          Some(Int16)
+        }
         else throw new TypeException("Operands of '||' must have integer type")
       }
 
@@ -950,12 +1039,21 @@ class MininessTyper(
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
           Some(leastUpperBound(firstChildType,secondChildType))
         }
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+          Some(leastUpperBound(firstChildType,secondChildType))
+        }
         else throw new TypeException("Operands of '+' must have integer type")
       }
 
       case ASTNode(MininessLexer.PLUSASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32)) {
+          if (areSubtypes(secondChildType, firstChildType)) {
+            Some(firstChildType)
+          }
+          else throw new TypeException("Right operand of '+=' must be a subtype of left operand")
+        }
+        else if (areSubtypes(firstChildType, UInt32)) {
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
@@ -971,7 +1069,10 @@ class MininessTyper(
           case _ => throw new TypeException("Operand of '++' must have a type")
         }
         if (areSubtypes(siblingType, Int32)) {
-          Some(Int16)
+          Some(siblingType)
+        }
+        else if (areSubtypes(siblingType, Int32)) {
+          Some(siblingType)
         }
         else throw new TypeException("Expression must be applied to integer")
       }
@@ -983,7 +1084,10 @@ class MininessTyper(
           case _ => throw new TypeException("Operand of '--' must have a type")
         }
         if (areSubtypes(childType, Int32)) {
-         Some(Int16)
+         Some(childType)
+        }
+        else if (areSubtypes(childType, UInt32)) {
+         Some(childType)
         }
         else throw new TypeException("Operand of '--' must have integer type")
       }
@@ -995,7 +1099,10 @@ class MininessTyper(
           case _ => throw new TypeException("Operand of '++' must have a type")
         }
         if (areSubtypes(childType, Int32)) {
-         Some(Int16)
+         Some(childType)
+        }
+        else if (areSubtypes(childType, UInt32)) {
+         Some(childType)
         }
         else throw new TypeException("Operand of '++ must have an integer type")
       }
@@ -1010,12 +1117,21 @@ class MininessTyper(
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+          Some(leastUpperBound(firstChildType, secondChildType))
+        }
         else throw new TypeException("Operands of '>>' must have integer types")
       }
 
       case ASTNode(MininessLexer.RSHIFTASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32)) {
+          if (areSubtypes(secondChildType, firstChildType)) {
+            Some(firstChildType)
+          }
+          else throw new TypeException("Right operand of '>>=' must be a subtype of left operand")
+        }
+        else if (areSubtypes(firstChildType, UInt32)) {
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
@@ -1057,6 +1173,9 @@ class MininessTyper(
       case ASTNode(MininessLexer.STAR, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+          Some(leastUpperBound(firstChildType, secondChildType))
+        }
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
         else throw new TypeException("Operands of '*' must have integer types")
