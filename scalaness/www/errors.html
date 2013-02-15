@@ -178,31 +178,31 @@ one error found
                 <div class="box">
                   <h2>nesT Type Errors</h2>
                   <p>In the code snippet below, taken from <code>MessageFormatterC</code> the
-                    value <code>i</code> is assigned to <code>checksum</code>. The problem is
-                    that <code>i</code> is declared as <code>uint16_t</code> whereas
-                      <code>checksum</code> is of type <code>checksumType</code>, a type
-                    parameter of the module that is only known statically to be a subtype of
-                      <code>uint32_t</code>.</p>
+                    result of <code>compute_checksum</code> is assigned to <code>i</code>. The
+                    problem is that <code>i</code> is declared as <code>uint16_t</code> whereas
+                      <code>compute_checksum</code> returns type <code>checksumType</code>, a
+                    type parameter of the module that is only known statically to be a subtype
+                    of <code>uint32_t</code>.</p>
                   <pre>                                     
 command void fired( )
 {
     uint8_t raw[size];
-    int16_t i;
+    uint16_t i;
     checksumType checksum;
         
     // Construct message.
-    for( i = 0; i &lt; (int16_t)size; ++i ) {
+    for( i = 0U; i &lt; size; ++i ) {
         raw[i] = (i &amp; 0x00FF);
     }
-    checksum = i; // call compute_checksum( raw );
+    i = call compute_checksum( raw );
 }
 </pre>
                   <p>The nesT language does not permit assignment of a wider type to a narrower
                     one. The compiler responds with</p>
                   <pre>
 ./MessageFormatterC.i:36: error: Left and right operands of '=' must be like types
-        checksum = i;
-                 ^
+        i = call compute_checksum( raw );
+          ^
 Main.scala:119: error: nesT module type mismatch
 	Annotated = Some((Map(),
 	  Module(List((TypeVariable(checksumType),uint32_t)),

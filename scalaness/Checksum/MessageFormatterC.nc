@@ -22,11 +22,11 @@ implementation {
     command void fired( )
     {
         uint8_t raw[size];
-        int16_t i;
+        uint16_t i;
         checksumType checksum;
         
         // Construct message.
-        for( i = 0; i < (int16_t)size; ++i ) {
+        for( i = 0U; i < size; ++i ) {
             raw[i] = (i & 0x00FF);
         }
         checksum = call compute_checksum( raw );

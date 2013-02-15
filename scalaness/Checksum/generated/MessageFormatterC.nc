@@ -24,9 +24,9 @@ implementation {
     command void fired  (  ) 
     {
         uint8_t raw  [1024 ] ;
-        int16_t i  ;
+        uint16_t i  ;
         uint16_t  checksum  ;
-        for( i  = 0 ; i  < (int16_t )( 1024  ); ++i  )
+        for( i  = 0U ; i  < 1024 ; ++i  )
         {
             int _sc__1   = i ;
             if( _sc__1  >= 1024  )
