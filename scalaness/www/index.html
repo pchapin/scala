@@ -6,12 +6,125 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <title>Scalaness/nesT Examples for LCTES13</title>
 
-    <link rel="stylesheet" href="scalaness.css" />
+    <!-- <link rel="stylesheet" href="scalaness.css" /> -->
 
     <meta name="Author" content="Scalaness Contributors" />
     <meta name="Description" content="Homepage for the nesT/Scalaness project." />
     <meta name="robots" content="index, follow" />
-
+    <style type="text/css">
+      html{
+          color:black;
+          text-align:left;
+          font-family:garamond, geneva, calibri, georgia, palatino, times, serif;
+      }
+      body{
+          /*  background-image: url('tree.png'); */
+          background-repeat:no-repeat;
+          background-attachment:fixed;
+      }
+      ul{
+          list-style:circle;
+      }
+      dl,
+      dt,
+      ul{
+          /*  color: black; */
+          /*  font-size: small; */
+          text-align:left;
+          margin-right:1cm;
+      }
+      P{
+          text-align:justify;
+          /*  color: black; */
+          /*   font-size: small; */
+          /*  font-family: Arial, Helvetica, sans-serif;   */
+      }
+      a{
+          /* color: #3F65AE; */
+          color:#880308;
+          text-decoration:none;
+      }
+      .feed-icon{
+          float:right;
+      }
+      .validator-link{
+          font-family:Arial, Helvetica, times, serif;
+          font-size:0.8em;
+      }
+      img{
+          border:0px;
+      }
+      A:visited{
+      }
+      A:link{
+      }
+      A:hover{
+          text-decoration:underline;
+      }
+      .menu,
+      .submenu{
+          font-family:Arial, Helvetica, sans-serif;
+      }
+      .menu{
+          font-size:12px;
+          border-bottom:1px solid #52547a;
+      }
+      .submenu{
+          text-align:right;
+          font-size:10px;
+      }
+      P.emph2{
+          border:1px solid black;
+          padding:10px;
+          background:url('pattern26.gif') repeat;
+      }
+      HR{
+          border:1px solid #880308;
+          /* background-color: #3F65AE; */
+      
+      }
+      P.emph{
+          color:white;
+          border:1px solid black;
+          padding:10px;
+          background-color:#3F65AE;
+          /* background: url('1960_dots.gif') repeat;  */
+      }
+      A.emph{
+          color:white;
+          font-style:italic;
+      }
+      A.emph:visited{
+          color:white;
+      }
+      A.bold{
+          font-weight:bold;
+      }
+      DIV.abstract{
+          margin-left:1in;
+          margin-right:1in;
+      }
+      .box{
+          padding:0px 0px;
+          /*    background-color: #fff; */
+      }
+      #contents{
+          width:71%;
+          margin:auto;
+      }
+      #topcontents{
+          width:71%;
+          margin:auto;
+      }
+      .paper-title{
+          font-weight:bold;
+      }
+      .paper-venue{
+          font-style:italic;
+      }
+      h1{
+          margin:0;
+      }</style>
   </head>
   <body>
     <div id="topcontents">
@@ -39,48 +152,54 @@
                 </div>
                 <div class="box">
                   <h2>Valid Code Examples</h2>
-                  <h3>Message Header Type Specialization (Figure 1 from paper)</h3>
+                  <h3><a
+                      href="https://github.com/pchapin/scala/tree/scalaness/scalaness/Figure1"
+                      >Message Header Type Specialization</a> (Figure 1 from paper)</h3>
                   <ul>
                     <li><a class="bold"
                         href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/Main.scala"
                         >Scalaness/nesT source code</a>
                       <br />
                     </li>
-                    <li>Unspecialized nesT components: <b><a
-                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/NodeC.nc"
-                            ><tt>NodeC</tt></a></b>, <b><a
-                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/RadioC.nc"
-                            ><tt>RadioC</tt></a></b>, and <b><a
-                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/SendC.nc"
-                            ><tt>SendC</tt></a></b><br />
+                    <li>Unspecialized nesT components: <a class="bold"
+                        href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/NodeC.nc"
+                          ><tt>NodeC</tt></a>, <a class="bold"
+                        href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/RadioC.nc"
+                          ><tt>RadioC</tt></a>, and <a class="bold"
+                        href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/SendC.nc"
+                          ><tt>SendC</tt></a><br />
                     </li>
-                    <li>Residual nesC components from command "<tt>Main 300</tt>:" <b><a
-                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/generated/NodeC.nc"
-                            ><tt>NodeC</tt></a></b>, <b><a
-                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/generated/RadioC.nc"
-                            ><tt>RadioC</tt></a></b>, and <b><a
-                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/generated/SendC.nc"
-                            ><tt>SendC</tt></a></b>
+                    <li>Residual nesC components generated by command <tt>Main 300</tt>: <a
+                        class="bold"
+                        href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/generated/NodeC.nc"
+                          ><tt>NodeC</tt></a>, <a class="bold"
+                        href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/generated/RadioC.nc"
+                          ><tt>RadioC</tt></a>, and <a class="bold"
+                        href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Figure1/generated/SendC.nc"
+                          ><tt>SendC</tt></a>
                     </li>
                   </ul>
-                  <h3>Checksum Computation Example</h3>
+                  <h3><a
+                      href="https://github.com/pchapin/scala/tree/scalaness/scalaness/Checksum"
+                      >Checksum Computation</a></h3>
                   <ul>
                     <li><a class="bold"
                         href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Checksum/Main.scala"
                         > Scalaness/nesT source code</a>
                       <br />
                     </li>
-                    <li>Unspecialized nesT components: <b><a
-                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Checksum/ChecksumC.nc"
-                            ><tt>ChecksumC</tt></a></b> and <b><a
-                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Checksum/MessageFormatterC.nc"
-                            ><tt>MessageFormatterC</tt></a></b><br />
+                    <li>Unspecialized nesT components: <a class="bold"
+                        href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Checksum/ChecksumC.nc"
+                          ><tt>ChecksumC</tt></a> and <a class="bold"
+                        href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Checksum/MessageFormatterC.nc"
+                          ><tt>MessageFormatterC</tt></a><br />
                     </li>
-                    <li>Residual nesC components from command "<tt>Main 16 1024</tt>:" <b><a
-                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Checksum/generated/ChecksumC.nc"
-                            ><tt>ChecksumC</tt></a></b> and <b><a
-                          href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Checksum/generated/MessageFormatterC.nc"
-                            ><tt>MessageFormatterC</tt></a></b>
+                    <li>Residual nesC components generated by command <tt>Main 16 1024</tt>: <a
+                        class="bold"
+                        href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Checksum/generated/ChecksumC.nc"
+                          ><tt>ChecksumC</tt></a> and <a class="bold"
+                        href="https://github.com/pchapin/scala/blob/scalaness/scalaness/Checksum/generated/MessageFormatterC.nc"
+                          ><tt>MessageFormatterC</tt></a>
                     </li>
                   </ul>
                 </div>
