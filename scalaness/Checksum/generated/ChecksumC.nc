@@ -2,6 +2,9 @@ module ChecksumC  {
     provides {
         command uint16_t  compute_checksum  ( uint8_t data  [] , uint16_t _sc__data_SIZE   ) ;
     }
+    uses {
+        command void boundsCheckFailed  (  ) ;
+    }
 }
 implementation {
     command uint16_t compute_checksum  ( uint8_t data  [] , uint16_t _sc__data_SIZE   ) 

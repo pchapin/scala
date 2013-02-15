@@ -383,35 +383,8 @@ object TreeConverter {
 
       // It is necessary to add "uses command void boundsCheckFailed()" to the specification.
       case ASTNode(SPECIFICATION, text, children, parent, symbolTable) =>
-
-        // Process all children normally.
-        val newChildren = children map addArrayBoundsChecks
-        val newNode = ASTNode(SPECIFICATION, text, newChildren, parent, symbolTable)
-        for (child <- newChildren) {
-          child.parent = Some(newNode)
-        }
-        newNode.line = root.line
-        newNode.positionInLine = root.positionInLine
-       
-        // Add a new USES node at the end of the list.
-        val declaratorNode = Mini(DECLARATOR)
-        declaratorNode ~~>
-          Mini(IDENTIFIER_PATH) ~~>
-            Mini(RAW_IDENTIFIER, "boundsCheckFailed")
-        declaratorNode ~~> Mini(DECLARATOR_PARAMETER_LIST_MODIFIER)
-
-        val declarationNode = Mini(DECLARATION)
-        declarationNode ~~> Mini(COMMAND, "command")
-        declarationNode ~~> Mini(VOID, "void")
-        declarationNode ~~>
-          Mini(DECLARATOR_LIST) ~~>
-            Mini(INIT_DECLARATOR) ~~>
-              declaratorNode
-        Mini(newNode) ~~> Mini(USES, "uses") ~~> declarationNode
- 
-        /*
         val usesNode = 
-          ASTNode(USES, "USES", List(), Some(root), symbolTable)
+          ASTNode(USES, "uses", List(), Some(root), symbolTable)
         val decNode =
           ASTNode(DECLARATION, "DECLARATION", List(), Some(usesNode), symbolTable)
         usesNode.children = List(decNode)
@@ -433,13 +406,16 @@ object TreeConverter {
         val dplmNode = 
           ASTNode(DECLARATOR_PARAMETER_LIST_MODIFIER, "DECLARATOR_PARAMETER_LIST_MODIFIER", List(), Some(decrNode), symbolTable)
         decrNode.children = List(idPathNode, dplmNode)
+        val pListNode = 
+          ASTNode(PARAMETER_LIST, "PARAMETER_LIST", List(), Some(dplmNode), symbolTable)
+        dplmNode.children = List(pListNode)
         val newMthNode = 
           ASTNode(RAW_IDENTIFIER, "boundsCheckFailed", List(), Some(idPathNode), symbolTable)
         idPathNode.children = List(newMthNode)
         val currChildren = root.children
-        root.children = currChildren:::List(usesNode)
-        */
-        newNode
+        val newChildren = currChildren:::List(usesNode)
+        root.children = newChildren
+        root
       
       // All other token types are handled here.
       case ASTNode(tokenType, text, children, parent, symbolTable) => {
