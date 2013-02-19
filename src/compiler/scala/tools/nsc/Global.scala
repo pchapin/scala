@@ -16,7 +16,6 @@ import scala.reflect.internal.util.{ OffsetPosition, SourceFile, NoSourceFile, B
 import scala.reflect.internal.pickling.{ PickleBuffer, PickleFormat }
 import symtab.{ Flags, SymbolTable, SymbolLoaders, SymbolTrackers }
 import symtab.classfile.Pickler
-import dependencies.DependencyAnalysis
 import plugins.Plugins
 import ast._
 import ast.parser._
@@ -358,9 +357,6 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
     }
   }
 
-  if (!dependencyAnalysis.off)
-    dependencyAnalysis.loadDependencyAnalysis()
-
   if (settings.verbose.value || settings.Ylogcp.value) {
     // Uses the "do not truncate" inform
     informComplete("[search path for source files: " + classPath.sourcepaths.mkString(",") + "]")
@@ -634,14 +630,6 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
     val runsAfter = List("dce")
     val runsRightAfter = None
   } with GenASM
-
-  // This phase is optional: only added if settings.make option is given.
-  // phaseName = "dependencyAnalysis"
-  object dependencyAnalysis extends {
-    val global: Global.this.type = Global.this
-    val runsAfter = List("jvm")
-    val runsRightAfter = None
-  } with DependencyAnalysis
 
   // phaseName = "terminal"
   object terminal extends {
@@ -1148,13 +1136,13 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
 
   /** Collects for certain classes of warnings during this run. */
   class ConditionalWarning(what: String, option: Settings#BooleanSetting) {
-    val warnings = new mutable.ListBuffer[(Position, String)]
+    val warnings = mutable.LinkedHashMap[Position, String]()
     def warn(pos: Position, msg: String) =
       if (option.value) reporter.warning(pos, msg)
-      else warnings += ((pos, msg))
+      else if (!(warnings contains pos)) warnings += ((pos, msg))
     def summarize() =
-      if (option.isDefault && warnings.nonEmpty)
-        reporter.warning(NoPosition, "there were %d %s warnings; re-run with %s for details".format(warnings.size, what, option.name))
+      if (warnings.nonEmpty && (option.isDefault || settings.fatalWarnings.value))
+        warning("there were %d %s warning(s); re-run with %s for details".format(warnings.size, what, option.name))
   }
 
   def newUnitParser(code: String)      = new syntaxAnalyzer.UnitParser(newCompilationUnit(code))
@@ -1422,7 +1410,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
     def compiles(sym: Symbol): Boolean =
       if (sym == NoSymbol) false
       else if (symSource.isDefinedAt(sym)) true
-      else if (!sym.owner.isPackageClass) compiles(sym.enclosingTopLevelClass)
+      else if (!sym.isTopLevel) compiles(sym.enclosingTopLevelClass)
       else if (sym.isModuleClass) compiles(sym.sourceModule)
       else false
 
@@ -1504,8 +1492,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
     }
 
     /** Compile list of source files */
-    def compileSources(_sources: List[SourceFile]) {
-      val sources = dependencyAnalysis calculateFiles _sources.distinct
+    def compileSources(sources: List[SourceFile]) {
       // there is a problem already, e.g. a plugin was passed a bad option
       if (reporter.hasErrors)
         return
@@ -1602,10 +1589,6 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
       reportCompileErrors()
       symSource.keys foreach (x => resetPackageClass(x.owner))
       informTime("total", startTime)
-
-      // record dependency data
-      if (!dependencyAnalysis.off)
-        dependencyAnalysis.saveDependencyAnalysis()
 
       // Clear any sets or maps created via perRunCaches.
       perRunCaches.clearAll()

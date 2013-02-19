@@ -39,7 +39,7 @@ trait Contexts { self: Analyzer =>
   def ambiguousDefnAndImport(owner: Symbol, imp: ImportInfo) =
     LookupAmbiguous(s"it is both defined in $owner and imported subsequently by \n$imp")
 
-  private val startContext = {
+  private lazy val startContext = {
     NoContext.make(
     Template(List(), emptyValDef, List()) setSymbol global.NoSymbol setType global.NoType,
     rootMirror.RootClass,
@@ -169,6 +169,7 @@ trait Contexts { self: Analyzer =>
     def typingIndent = "  " * typingIndentLevel
 
     var buffer: mutable.Set[AbsTypeError] = _
+    var warningsBuffer: mutable.Set[(Position, String)] = _
 
     def enclClassOrMethod: Context =
       if ((owner eq NoSymbol) || (owner.isClass) || (owner.isMethod)) this
@@ -190,6 +191,7 @@ trait Contexts { self: Analyzer =>
 
     def errBuffer = buffer
     def hasErrors = buffer.nonEmpty
+    def hasWarnings = warningsBuffer.nonEmpty
 
     def state: Int = mode
     def restoreState(state0: Int) = mode = state0
@@ -216,6 +218,11 @@ trait Contexts { self: Analyzer =>
     def flushAndReturnBuffer(): mutable.Set[AbsTypeError] = {
       val current = buffer.clone()
       buffer.clear()
+      current
+    }
+    def flushAndReturnWarningsBuffer(): mutable.Set[(Position, String)] = {
+      val current = warningsBuffer.clone()
+      warningsBuffer.clear()
       current
     }
 
@@ -305,6 +312,7 @@ trait Contexts { self: Analyzer =>
       c.retyping = this.retyping
       c.openImplicits = this.openImplicits
       c.buffer = if (this.buffer == null) mutable.LinkedHashSet[AbsTypeError]() else this.buffer // need to initialize
+      c.warningsBuffer = if (this.warningsBuffer == null) mutable.LinkedHashSet[(Position, String)]() else this.warningsBuffer
       registerContext(c.asInstanceOf[analyzer.Context])
       debuglog("[context] ++ " + c.unit + " / " + tree.summaryString)
       c
@@ -353,6 +361,16 @@ trait Contexts { self: Analyzer =>
       c
     }
 
+    /**
+     * A context for typing constructor parameter ValDefs, super or self invocation arguments and default getters
+     * of constructors. These expressions need to be type checked in a scope outside the class, cf. spec 5.3.1.
+     *
+     * This method is called by namer / typer where `this` is the context for the constructor DefDef. The
+     * owner of the resulting (new) context is the outer context for the Template, i.e. the context for the
+     * ClassDef. This means that class type parameters will be in scope. The value parameters of the current
+     * constructor are also entered into the new constructor scope. Members of the class however will not be
+     * accessible.
+     */
     def makeConstructorContext = {
       var baseContext = enclClass.outer
       while (baseContext.tree.isInstanceOf[Template])
@@ -372,6 +390,8 @@ trait Contexts { self: Analyzer =>
           enterLocalElems(c.scope.elems)
         }
       }
+      // Enter the scope elements of this (the scope for the constructor DefDef) into the new constructor scope.
+      // Concretely, this will enter the value parameters of constructor.
       enterElems(this)
       argContext
     }
@@ -427,6 +447,7 @@ trait Contexts { self: Analyzer =>
     def warning(pos: Position, msg: String): Unit = warning(pos, msg, false)
     def warning(pos: Position, msg: String, force: Boolean) {
       if (reportErrors || force) unit.warning(pos, msg)
+      else if (bufferErrors) warningsBuffer += ((pos, msg))
     }
 
     def isLocal(): Boolean = tree match {
@@ -609,7 +630,14 @@ trait Contexts { self: Analyzer =>
         new ImplicitInfo(sym.name, pre, sym)
 
     private def collectImplicitImports(imp: ImportInfo): List[ImplicitInfo] = {
-      val pre = imp.qual.tpe
+      val qual = imp.qual
+
+      val pre =
+        if (qual.tpe.typeSymbol.isPackageClass)
+          // SI-6225 important if the imported symbol is inherited by the the package object.
+          singleType(qual.tpe, qual.tpe member nme.PACKAGE)
+        else
+          qual.tpe
       def collect(sels: List[ImportSelector]): List[ImplicitInfo] = sels match {
         case List() =>
           List()

@@ -153,7 +153,7 @@ trait ContextErrors {
         // members present, then display along with the expected members. This is done here because
         // this is the last point where we still have access to the original tree, rather than just
         // the found/req types.
-        val foundType: Type = req.normalize match {
+        val foundType: Type = req.dealiasWiden match {
           case RefinedType(parents, decls) if !decls.isEmpty && found.typeSymbol.isAnonOrRefinementClass =>
             val retyped    = typed (tree.duplicate.clearType())
             val foundDecls = retyped.tpe.decls filter (sym => !sym.isConstructor && !sym.isSynthetic)
@@ -736,7 +736,7 @@ trait ContextErrors {
           } catch {
             // the code above tries various tricks to detect the relevant portion of the stack trace
             // if these tricks fail, just fall back to uninformative, but better than nothing, getMessage
-            case NonFatal(ex) =>
+            case NonFatal(ex) => // currently giving a spurious warning, see SI-6994
               macroLogVerbose("got an exception when processing a macro generated exception\n" +
                               "offender = " + stackTraceString(realex) + "\n" +
                               "error = " + stackTraceString(ex))
@@ -772,10 +772,14 @@ trait ContextErrors {
         ))
       }
 
-      def MacroImplementationNotFoundError(expandee: Tree) =
-        macroExpansionError(expandee,
+      def MacroImplementationNotFoundError(expandee: Tree) = {
+        val message =
           "macro implementation not found: " + expandee.symbol.name + " " +
-          "(the most common reason for that is that you cannot use macro implementations in the same compilation run that defines them)")
+          "(the most common reason for that is that you cannot use macro implementations in the same compilation run that defines them)" +
+          (if (forScaladoc) ". When generating scaladocs for multiple projects at once, consider using -Ymacro-no-expand to disable macro expansions altogether."
+           else "")
+        macroExpansionError(expandee, message)
+      }
     }
   }
 
@@ -1048,8 +1052,8 @@ trait ContextErrors {
         val s1 = if (prevSym.isModule) "case class companion " else ""
         val s2 = if (prevSym.isSynthetic) "(compiler-generated) " + s1 else ""
         val s3 = if (prevSym.isCase) "case class " + prevSym.name else "" + prevSym
-        val where = if (currentSym.owner.isPackageClass != prevSym.owner.isPackageClass) {
-                      val inOrOut = if (prevSym.owner.isPackageClass) "outside of" else "in"
+        val where = if (currentSym.isTopLevel != prevSym.isTopLevel) {
+                      val inOrOut = if (prevSym.isTopLevel) "outside of" else "in"
                       " %s package object %s".format(inOrOut, ""+prevSym.effectiveOwner.name)
                     } else ""
 

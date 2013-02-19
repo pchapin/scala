@@ -153,7 +153,7 @@ trait Types extends api.Types { self: SymbolTable =>
     }
 
     /** No sync necessary, because record should only
-     *  be called from within a undo or undoUnless block,
+     *  be called from within an undo or undoUnless block,
      *  which is already synchronized.
      */
     private[reflect] def record(tv: TypeVar) = {
@@ -234,7 +234,14 @@ trait Types extends api.Types { self: SymbolTable =>
    *  forwarded here. Some operations are rewrapped again.
    */
   trait RewrappingTypeProxy extends SimpleTypeProxy {
-    protected def maybeRewrap(newtp: Type) = if (newtp eq underlying) this else rewrap(newtp)
+    protected def maybeRewrap(newtp: Type) = (
+      if (newtp eq underlying) this
+      // BoundedWildcardTypes reach here during erroneous compilation: neg/t6258
+      // Higher-kinded exclusion is because [x]CC[x] compares =:= to CC: pos/t3800
+      // Otherwise, if newtp =:= underlying, don't rewrap it.
+      else if (!newtp.isWildcard && !newtp.isHigherKinded && (newtp =:= underlying)) this
+      else rewrap(newtp)
+    )
     protected def rewrap(newtp: Type): Type
 
     // the following are all operations in class Type that are overridden in some subclass
@@ -564,9 +571,29 @@ trait Types extends api.Types { self: SymbolTable =>
      *  Expands type aliases and converts higher-kinded TypeRefs to PolyTypes.
      *  Functions on types are also implemented as PolyTypes.
      *
-     *  Example: (in the below, <List> is the type constructor of List)
-     *    TypeRef(pre, <List>, List()) is replaced by
-     *    PolyType(X, TypeRef(pre, <List>, List(X)))
+     *  Example: (in the below, `<List>` is the type constructor of List)
+     *    TypeRef(pre, `<List>`, List()) is replaced by
+     *    PolyType(X, TypeRef(pre, `<List>`, List(X)))
+     *
+     *  Discussion: normalize is NOT usually what you want to be calling.
+     *  The (very real) danger with normalize is that it will force types
+     *  which would not otherwise have been forced, leading to mysterious
+     *  behavioral differences, cycles, and other elements of mysteries.
+     *  Under most conditions the method you should be calling is `dealiasWiden`
+     *  (see that method for more info.)
+     *
+     *  Here are a few of the side-effect-trail-leaving methods called
+     *  by various implementations of normalize:
+     *
+     *   - sym.info
+     *   - tpe.etaExpand
+     *   - tpe.betaReduce
+     *   - tpe.memberType
+     *   - sym.nextOverriddenSymbol
+     *   - constraint.inst
+     *
+     *  If you've been around the compiler a while that list must fill
+     *  your heart with fear.
      */
     def normalize = this // @MAT
 
@@ -576,6 +603,8 @@ trait Types extends api.Types { self: SymbolTable =>
     /** Repeatedly apply widen and dealias until they have no effect.
      *  This compensates for the fact that type aliases can hide beneath
      *  singleton types and singleton types can hide inside type aliases.
+     *  !!! - and yet it is still inadequate, because aliases and singletons
+     *  might lurk in the upper bounds of an abstract type. See SI-7051.
      */
     def dealiasWiden: Type = (
       if (this ne widen) widen.dealiasWiden
@@ -713,7 +742,7 @@ trait Types extends api.Types { self: SymbolTable =>
         val trivial = (
              this.isTrivial
           || phase.erasedTypes && pre.typeSymbol != ArrayClass
-          || pre.normalize.isTrivial && !isPossiblePrefix(clazz)
+          || skipPrefixOf(pre, clazz)
         )
         if (trivial) this
         else {
@@ -838,23 +867,27 @@ trait Types extends api.Types { self: SymbolTable =>
     }
 
     /** Is this type a subtype of that type in a pattern context?
-     *  Any type arguments on the right hand side are replaced with
+     *  Dummy type arguments on the right hand side are replaced with
      *  fresh existentials, except for Arrays.
      *
      *  See bug1434.scala for an example of code which would fail
      *  if only a <:< test were applied.
      */
-    def matchesPattern(that: Type): Boolean = {
-      (this <:< that) || ((this, that) match {
-        case (TypeRef(_, ArrayClass, List(arg1)), TypeRef(_, ArrayClass, List(arg2))) if arg2.typeSymbol.typeParams.nonEmpty =>
-          arg1 matchesPattern arg2
-        case (_, TypeRef(_, _, args)) =>
-          val newtp = existentialAbstraction(args map (_.typeSymbol), that)
-          !(that =:= newtp) && (this <:< newtp)
-        case _ =>
-          false
-      })
-    }
+    def matchesPattern(that: Type): Boolean = (this <:< that) || (that match {
+      case ArrayTypeRef(elem2) if elem2.typeConstructor.isHigherKinded =>
+        this match {
+          case ArrayTypeRef(elem1) => elem1 matchesPattern elem2
+          case _                   => false
+        }
+      case TypeRef(_, sym, args) =>
+        val that1 = existentialAbstraction(args map (_.typeSymbol), that)
+        (that ne that1) && (this <:< that1) && {
+          log(s"$this.matchesPattern($that) depended on discarding args and testing <:< $that1")
+          true
+        }
+      case _ =>
+        false
+    })
 
     def stat_<:<(that: Type): Boolean = {
       if (Statistics.canEnable) Statistics.incCounter(subtypeCount)
@@ -1790,7 +1823,7 @@ trait Types extends api.Types { self: SymbolTable =>
       // TODO see comments around def intersectionType and def merge
       def flatten(tps: List[Type]): List[Type] = tps flatMap { case RefinedType(parents, ds) if ds.isEmpty => flatten(parents) case tp => List(tp) }
       val flattened = flatten(parents).distinct
-      if (decls.isEmpty && flattened.tail.isEmpty) {
+      if (decls.isEmpty && hasLength(flattened, 1)) {
         flattened.head
       } else if (flattened != parents) {
         refinedType(flattened, if (typeSymbol eq NoSymbol) NoSymbol else typeSymbol.owner, decls, NoPosition)
@@ -2455,7 +2488,7 @@ trait Types extends api.Types { self: SymbolTable =>
       case RepeatedParamClass => args.head + "*"
       case ByNameParamClass   => "=> " + args.head
       case _                  =>
-        def targs = normalize.typeArgs
+        def targs = dealiasWiden.typeArgs
 
         if (isFunctionType(this)) {
           // Aesthetics: printing Function1 as T => R rather than (T) => R
@@ -2464,7 +2497,9 @@ trait Types extends api.Types { self: SymbolTable =>
           targs match {
             case in :: out :: Nil if !isTupleType(in) =>
               // A => B => C should be (A => B) => C or A => (B => C)
-              val in_s  = if (isFunctionType(in)) "(" + in + ")" else "" + in
+              // Also if A is byname, then we want (=> A) => B because => is right associative and => A => B
+              // would mean => (A => B) which is a different type
+              val in_s  = if (isFunctionType(in) || isByNameParamType(in)) "(" + in + ")" else "" + in
               val out_s = if (isFunctionType(out)) "(" + out + ")" else "" + out
               in_s + " => " + out_s
             case xs =>
@@ -2868,6 +2903,13 @@ trait Types extends api.Types { self: SymbolTable =>
     }
   }
 
+  object ArrayTypeRef {
+    def unapply(tp: Type) = tp match {
+      case TypeRef(_, ArrayClass, arg :: Nil) => Some(arg)
+      case _                                  => None
+    }
+  }
+
   //@M
   // a TypeVar used to be a case class with only an origin and a constr
   // then, constr became mutable (to support UndoLog, I guess),
@@ -2936,20 +2978,6 @@ trait Types extends api.Types { self: SymbolTable =>
     private def createTypeVar(tparam: Symbol, untouchable: Boolean): TypeVar =
       createTypeVar(tparam.tpeHK, deriveConstraint(tparam), Nil, tparam.typeParams, untouchable)
   }
-
-  /** Repack existential types, otherwise they sometimes get unpacked in the
-   *  wrong location (type inference comes up with an unexpected skolem)
-   */
-  def repackExistential(tp: Type): Type = (
-    if (tp == NoType) tp
-    else existentialAbstraction(existentialsInType(tp), tp)
-  )
-
-  def containsExistential(tpe: Type) =
-    tpe exists typeIsExistentiallyBound
-
-  def existentialsInType(tpe: Type) =
-    tpe withFilter typeIsExistentiallyBound map (_.typeSymbol)
 
   /** Precondition: params.nonEmpty.  (args.nonEmpty enforced structurally.)
    */
@@ -3486,7 +3514,7 @@ trait Types extends api.Types { self: SymbolTable =>
     if (phase.erasedTypes)
       if (parents.isEmpty) ObjectClass.tpe else parents.head
     else {
-      val clazz = owner.newRefinementClass(pos) // TODO: why were we passing in NoPosition instead of pos?
+      val clazz = owner.newRefinementClass(pos)
       val result = RefinedType(parents, decls, clazz)
       clazz.setInfo(result)
       result
@@ -3736,17 +3764,14 @@ trait Types extends api.Types { self: SymbolTable =>
   }
 
   /** Type with all top-level occurrences of abstract types replaced by their bounds */
-  def abstractTypesToBounds(tp: Type): Type = tp match { // @M don't normalize here (compiler loops on pos/bug1090.scala )
-    case TypeRef(_, sym, _) if sym.isAbstractType =>
-      abstractTypesToBounds(tp.bounds.hi)
-    case TypeRef(_, sym, _) if sym.isAliasType =>
-      abstractTypesToBounds(tp.normalize)
-    case rtp @ RefinedType(parents, decls) =>
-      copyRefinedType(rtp, parents mapConserve abstractTypesToBounds, decls)
-    case AnnotatedType(_, underlying, _) =>
-      abstractTypesToBounds(underlying)
-    case _ =>
-      tp
+  object abstractTypesToBounds extends TypeMap {
+    def apply(tp: Type): Type = tp match {
+      case TypeRef(_, sym, _) if sym.isAliasType    => apply(tp.dealias)
+      case TypeRef(_, sym, _) if sym.isAbstractType => apply(tp.bounds.hi)
+      case rtp @ RefinedType(parents, decls)        => copyRefinedType(rtp, parents mapConserve this, decls)
+      case AnnotatedType(_, _, _)                   => mapOver(tp)
+      case _                                        => tp             // no recursion - top level only
+    }
   }
 
   // Set to true for A* => Seq[A]
@@ -3917,7 +3942,7 @@ trait Types extends api.Types { self: SymbolTable =>
     }
   }
   class ClassUnwrapper(existential: Boolean) extends TypeUnwrapper(poly = true, existential, annotated = true, nullary = false) {
-    override def apply(tp: Type) = super.apply(tp.normalize)
+    override def apply(tp: Type) = super.apply(tp.normalize) // normalize is required here
   }
 
   object        unwrapToClass extends ClassUnwrapper(existential = true) { }
@@ -4164,6 +4189,26 @@ trait Types extends api.Types { self: SymbolTable =>
     }
   }
 
+  /** Repack existential types, otherwise they sometimes get unpacked in the
+   *  wrong location (type inference comes up with an unexpected skolem)
+   */
+  def repackExistential(tp: Type): Type = (
+    if (tp == NoType) tp
+    else existentialAbstraction(existentialsInType(tp), tp)
+  )
+
+  def containsExistential(tpe: Type) = tpe exists typeIsExistentiallyBound
+  def existentialsInType(tpe: Type) = tpe withFilter typeIsExistentiallyBound map (_.typeSymbol)
+
+  private def isDummyOf(tpe: Type)(targ: Type) = {
+    val sym = targ.typeSymbol
+    sym.isTypeParameter && sym.owner == tpe.typeSymbol
+  }
+  def isDummyAppliedType(tp: Type) = tp.dealias match {
+    case tr @ TypeRef(_, _, args) => args exists isDummyOf(tr)
+    case _                        => false
+  }
+
   def typeParamsToExistentials(clazz: Symbol, tparams: List[Symbol]): List[Symbol] = {
     val eparams = mapWithIndex(tparams)((tparam, i) =>
       clazz.newExistential(newTypeName("?"+i), clazz.pos) setInfo tparam.info.bounds)
@@ -4173,19 +4218,21 @@ trait Types extends api.Types { self: SymbolTable =>
   def typeParamsToExistentials(clazz: Symbol): List[Symbol] =
     typeParamsToExistentials(clazz, clazz.typeParams)
 
+  def isRawIfWithoutArgs(sym: Symbol) = sym.isClass && sym.typeParams.nonEmpty && sym.isJavaDefined
+  /** Is type tp a ''raw type''? */
   //  note: it's important to write the two tests in this order,
   //  as only typeParams forces the classfile to be read. See #400
-  private def isRawIfWithoutArgs(sym: Symbol) =
-    sym.isClass && sym.typeParams.nonEmpty && sym.isJavaDefined
+  def isRawType(tp: Type) = !phase.erasedTypes && (tp match {
+    case TypeRef(_, sym, Nil) => isRawIfWithoutArgs(sym)
+    case _                    => false
+  })
 
-  def isRaw(sym: Symbol, args: List[Type]) =
-    !phase.erasedTypes && isRawIfWithoutArgs(sym) && args.isEmpty
-
-  /** Is type tp a ''raw type''? */
-  def isRawType(tp: Type) = tp match {
-    case TypeRef(_, sym, args) => isRaw(sym, args)
-    case _ => false
-  }
+  @deprecated("Use isRawType", "2.10.1") // presently used by sbt
+  def isRaw(sym: Symbol, args: List[Type]) = (
+       !phase.erasedTypes
+    && args.isEmpty
+    && isRawIfWithoutArgs(sym)
+  )
 
   /** The raw to existential map converts a ''raw type'' to an existential type.
    *  It is necessary because we might have read a raw type of a
@@ -4304,14 +4351,15 @@ trait Types extends api.Types { self: SymbolTable =>
    */
   def isPossiblePrefix(clazz: Symbol) = clazz.isClass && !clazz.isPackageClass
 
+  private def skipPrefixOf(pre: Type, clazz: Symbol) = (
+    (pre eq NoType) || (pre eq NoPrefix) || !isPossiblePrefix(clazz)
+  )
+
   /** A map to compute the asSeenFrom method  */
   class AsSeenFromMap(pre: Type, clazz: Symbol) extends TypeMap with KeepOnlyTypeConstraints {
     var capturedSkolems: List[Symbol] = List()
     var capturedParams: List[Symbol] = List()
 
-    private def skipPrefixOf(pre: Type, clazz: Symbol) = (
-      (pre eq NoType) || (pre eq NoPrefix) || !isPossiblePrefix(clazz)
-    )
     override def mapOver(tree: Tree, giveup: ()=>Nothing): Tree = {
       object annotationArgRewriter extends TypeMapTransformer {
         private def canRewriteThis(sym: Symbol) = (
@@ -4344,8 +4392,7 @@ trait Types extends api.Types { self: SymbolTable =>
     }
 
     def apply(tp: Type): Type =
-      if (skipPrefixOf(pre, clazz)) tp
-      else tp match {
+      tp match {
         case ThisType(sym) =>
           def toPrefix(pre: Type, clazz: Symbol): Type =
             if (skipPrefixOf(pre, clazz)) tp
@@ -4541,33 +4588,39 @@ trait Types extends api.Types { self: SymbolTable =>
       }
     )
 
-    override def mapOver(tree: Tree, giveup: ()=>Nothing): Tree = {
-      object trans extends TypeMapTransformer {
+    object mapTreeSymbols extends TypeMapTransformer {
+      val strictCopy = newStrictTreeCopier
 
-        def termMapsTo(sym: Symbol) = from indexOf sym match {
-          case -1   => None
-          case idx  => Some(to(idx))
-        }
-
-        override def transform(tree: Tree) =
-          tree match {
-            case tree@Ident(_) =>
-              termMapsTo(tree.symbol) match {
-                case Some(tosym) =>
-                  if (tosym.info.bounds.hi.typeSymbol isSubClass SingletonClass) {
-                    Ident(tosym.existentialToString)
-                      .setSymbol(tosym)
-                      .setPos(tosym.pos)
-                      .setType(dropSingletonType(tosym.info.bounds.hi))
-                  } else {
-                    giveup()
-                  }
-                case none => super.transform(tree)
-              }
-            case tree => super.transform(tree)
-          }
+      def termMapsTo(sym: Symbol) = from indexOf sym match {
+        case -1   => None
+        case idx  => Some(to(idx))
       }
-      trans.transform(tree)
+
+      // if tree.symbol is mapped to another symbol, passes the new symbol into the
+      // constructor `trans` and sets the symbol and the type on the resulting tree.
+      def transformIfMapped(tree: Tree)(trans: Symbol => Tree) = termMapsTo(tree.symbol) match {
+        case Some(toSym) => trans(toSym) setSymbol toSym setType tree.tpe
+        case None => tree
+      }
+
+      // changes trees which refer to one of the mapped symbols. trees are copied before attributes are modified.
+      override def transform(tree: Tree) = {
+        // super.transform maps symbol references in the types of `tree`. it also copies trees where necessary.
+        super.transform(tree) match {
+          case id @ Ident(_) =>
+            transformIfMapped(id)(toSym =>
+              strictCopy.Ident(id, toSym.name))
+
+          case sel @ Select(qual, name) =>
+            transformIfMapped(sel)(toSym =>
+              strictCopy.Select(sel, qual, toSym.name))
+
+          case tree => tree
+        }
+      }
+    }
+    override def mapOver(tree: Tree, giveup: ()=>Nothing): Tree = {
+      mapTreeSymbols.transform(tree)
     }
   }
 
@@ -4814,6 +4867,51 @@ trait Types extends api.Types { self: SymbolTable =>
         mapOver(tp)
       }
     }
+  }
+
+  /**
+   * A more persistent version of `Type#memberType` which does not require
+   * that the symbol is a direct member of the prefix.
+   *
+   * For instance:
+   *
+   * {{{
+   * class C[T] {
+   *   sealed trait F[A]
+   *   object X {
+   *     object S1 extends F[T]
+   *   }
+   *   class S2 extends F[T]
+   * }
+   * object O extends C[Int] {
+   *   def foo(f: F[Int]) = f match {...} // need to enumerate sealed subtypes of the scrutinee here.
+   * }
+   * class S3 extends O.F[String]
+   *
+   * nestedMemberType(<S1>, <O.type>, <C>) = O.X.S1.type
+   * nestedMemberType(<S2>, <O.type>, <C>) = O.S2.type
+   * nestedMemberType(<S3>, <O.type>, <C>) = S3.type
+   * }}}
+   *
+   * @param sym    The symbol of the subtype
+   * @param pre    The prefix from which the symbol is seen
+   * @param owner
+   */
+  def nestedMemberType(sym: Symbol, pre: Type, owner: Symbol): Type = {
+    def loop(tp: Type): Type =
+      if (tp.isTrivial) tp
+      else if (tp.prefix.typeSymbol isNonBottomSubClass owner) {
+        val widened = tp match {
+          case _: ConstantType => tp        // Java enum constants: don't widen to the enum type!
+          case _               => tp.widen  // C.X.type widens to C.this.X.type, otherwise `tp asSeenFrom (pre, C)` has no effect.
+        }
+        widened asSeenFrom (pre, tp.typeSymbol.owner)
+      }
+      else loop(tp.prefix) memberType tp.typeSymbol
+
+    val result = loop(sym.tpeHK)
+    assert(sym.isTerm || result.typeSymbol == sym, s"($result).typeSymbol = ${result.typeSymbol}; expected ${sym}")
+    result
   }
 
   /** The most deeply nested owner that contains all the symbols
@@ -5618,7 +5716,13 @@ trait Types extends api.Types { self: SymbolTable =>
             // for (tpFresh <- tpsFresh) tpFresh.setInfo(tpFresh.info.substSym(tparams1, tpsFresh))
         }
       } && annotationsConform(tp1.normalize, tp2.normalize)
-      case (_, _) => false // @assume !tp1.isHigherKinded || !tp2.isHigherKinded
+
+      case (PolyType(_, _), MethodType(params, _)) if params exists (_.tpe.isWildcard) =>
+        false   // don't warn on HasMethodMatching on right hand side
+
+      case (ntp1, ntp2) =>
+        devWarning(s"isHKSubType0($tp1, $tp2, _) is ${tp1.getClass}, ${tp2.getClass}: ($ntp1, $ntp2)")
+        false // @assume !tp1.isHigherKinded || !tp2.isHigherKinded
       // --> thus, cannot be subtypes (Any/Nothing has already been checked)
     }))
 
@@ -5716,7 +5820,7 @@ trait Types extends api.Types { self: SymbolTable =>
         case NotNullClass => tp1.isNotNull
         case SingletonClass => tp1.isStable || fourthTry
         case _: ClassSymbol =>
-          if (isRaw(sym2, tp2.args))
+          if (isRawType(tp2))
             isSubType(tp1, rawToExistential(tp2), depth)
           else if (sym2.name == tpnme.REFINE_CLASS_NAME)
             isSubType(tp1, sym2.info, depth)
@@ -5759,7 +5863,7 @@ trait Types extends api.Types { self: SymbolTable =>
             (sameLength(params1, params2) &&
              mt1.isImplicit == mt2.isImplicit &&
              matchingParams(params1, params2, mt1.isJava, mt2.isJava) &&
-             isSubType(res1, res2.substSym(params2, params1), depth))
+             isSubType(res1.substSym(params1, params2), res2, depth))
           // TODO: if mt1.params.isEmpty, consider NullaryMethodType?
           case _ =>
             false
@@ -5798,7 +5902,7 @@ trait Types extends api.Types { self: SymbolTable =>
                 isSingleType(tp2) && isSubType(tp1, tp2.widen, depth)
             }
           case _: ClassSymbol =>
-            if (isRaw(sym1, tr1.args))
+            if (isRawType(tp1))
               isSubType(rawToExistential(tp1), tp2, depth)
             else if (sym1.isModuleClass) tp2 match {
               case SingleType(pre2, sym2) => equalSymsAndPrefixes(sym1.sourceModule, pre1, sym2, pre2)
@@ -6289,7 +6393,7 @@ trait Types extends api.Types { self: SymbolTable =>
     val ts0 = elimSub0(ts)
     if (ts0.isEmpty || ts0.tail.isEmpty) ts0
     else {
-      val ts1 = ts0 mapConserve (t => elimAnonymousClass(t.underlying))
+      val ts1 = ts0 mapConserve (t => elimAnonymousClass(t.dealiasWiden))
       if (ts1 eq ts0) ts0
       else elimSub(ts1, depth)
     }
@@ -6419,6 +6523,8 @@ trait Types extends api.Types { self: SymbolTable =>
         NullaryMethodType(lub0(matchingRestypes(ts, Nil)))
       case ts @ TypeBounds(_, _) :: rest =>
         TypeBounds(glb(ts map (_.bounds.lo), depth), lub(ts map (_.bounds.hi), depth))
+      case ts @ AnnotatedType(annots, tpe, _) :: rest =>
+        annotationsLub(lub0(ts map (_.withoutAnnotations)), ts)
       case ts =>
         lubResults get (depth, ts) match {
           case Some(lubType) =>
@@ -6447,6 +6553,7 @@ trait Types extends api.Types { self: SymbolTable =>
             || sym.isConstructor
             || !sym.isPublic
             || isGetClass(sym)
+            || sym.isFinal
             || narrowts.exists(t => !refines(t, sym))
           )
           def lubsym(proto: Symbol): Symbol = {
