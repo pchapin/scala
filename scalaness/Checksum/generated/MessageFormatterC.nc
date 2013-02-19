@@ -9,7 +9,7 @@ module MessageFormatterC  {
         command void startPeriodic  ( uint32_t period   ) ;
     }
     uses {
-        command uint16_t  compute_checksum  ( uint8_t data  [] , uint16_t _sc__data_SIZE   ) ;
+        command uint16_t  compute_checksum  ( uint8_t data  [] , uint16_t _sc_data_SIZE   ) ;
     }
     uses {
         command void boundsCheckFailed  (  ) ;
@@ -28,10 +28,10 @@ implementation {
         uint16_t  checksum  ;
         for( i  = 0U ; i  < 1024 ; ++i  )
         {
-            int _sc__1   = i ;
-            if( _sc__1  >= 1024  )
+            int _sc_1   = i ;
+            if( _sc_1  >= 1024  )
                 call boundsCheckFailed (  );
-            raw [_sc__1 ] = ( i  & 0x00FF  );
+            raw [_sc_1 ] = ( i  & 0x00FF  );
         }
         checksum  = call compute_checksum ( raw , 1024  );
     }

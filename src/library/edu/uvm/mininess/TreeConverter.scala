@@ -143,7 +143,7 @@ object TreeConverter {
                 parameter ~~>
                   Mini(DECLARATOR) ~~>
                     Mini(IDENTIFIER_PATH) ~~>
-                      Mini(RAW_IDENTIFIER, "_sc__" + declaredIdentifier.text + "_SIZE")
+                      Mini(RAW_IDENTIFIER, "_sc_" + declaredIdentifier.text + "_SIZE")
 
                 val Some(parameterListNode) = root.parent
                 parameter.node.parent = Some(parameterListNode)
@@ -164,7 +164,7 @@ object TreeConverter {
           argumentType match {
             case MininessTypes.Array(_, arraySize) =>
               if (arraySize == "") {
-                val sizeVariable = "_sc__" + argumentName + "_SIZE"
+                val sizeVariable = "_sc_" + argumentName + "_SIZE"
                 rootNode ~~> Mini(RAW_IDENTIFIER, sizeVariable)
               }
               else {
@@ -347,7 +347,7 @@ object TreeConverter {
         }
         else {
           if (arraySize == "") {
-            val sizeVariable = "_sc__" + arrayName + "_SIZE"
+            val sizeVariable = "_sc_" + arrayName + "_SIZE"
             ASTNode(RAW_IDENTIFIER, sizeVariable, List(), Some(newNode2), symbolTable)
           }
           else {
