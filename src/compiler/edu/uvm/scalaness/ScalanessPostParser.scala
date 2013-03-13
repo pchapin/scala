@@ -228,19 +228,19 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
 
           // Compute 'var someName: SomeType = null' for each type and value parameter.
           // TODO: Be sure appropriate imports are available.
-          val typeVars = for ( (typeName, typeType) <- typeParameters ) yield {
-            println(s"typeName = $typeName; typeType = $typeType")
-            treeBuilder.makePatDef(
-              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
-              Typed(Ident("sc_" + typeName), AppliedTypeTree(Ident("MetaType"), List(Ident(lowerType(typeType.toString))))),
-              Literal(Constant("null")))
-          }
-          val valueVars = for ( (valueName, valueType) <- valueParameters) yield {
-            treeBuilder.makePatDef(
-              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
-              Typed(Ident("sc_" + valueName), TypeTree(Ident(lowerType(valueType.toString)))),
-              Literal(Constant("null")))
-          }
+//          val typeVars = for ( (typeName, typeType) <- typeParameters ) yield {
+//            println(s"typeName = $typeName; typeType = $typeType")
+//            treeBuilder.makePatDef(
+//              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
+//              Typed(Ident("sc_" + typeName), AppliedTypeTree(Ident("MetaType"), List(Ident(lowerType(typeType.toString))))),
+//              Literal(Constant("null")))
+//          }
+//          val valueVars = for ( (valueName, valueType) <- valueParameters) yield {
+//            treeBuilder.makePatDef(
+//              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
+//              Typed(Ident("sc_" + valueName), TypeTree(Ident(lowerType(valueType.toString)))),
+//              Literal(Constant("null")))
+//          }
 
           // Compute 'val abstractSyntax =
           //            Parser.reparse("ExampleC.i", List("firstType", "secondType"))'
@@ -259,8 +259,8 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
           val Some(displayGenerated) = scalanessSettings("displayGenerated")
           if (displayGenerated == "true") {
             println(s"Code generated into $MininessComponentName...")
-            println(s"\t$typeVars")
-            println(s"\t$valueVars")
+//            println(s"\t$typeVars")
+//            println(s"\t$valueVars")
             println(s"\t$abstractSyntaxVal")
           }
 
