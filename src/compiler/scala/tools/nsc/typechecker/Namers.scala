@@ -47,10 +47,11 @@ trait Namers extends MethodSynthesis {
 
   private class NormalNamer(context: Context) extends Namer(context)
   def newNamer(context: Context): Namer = new NormalNamer(context)
-  def newNamerFor(context: Context, tree: Tree): Namer =
-    newNamer(context.makeNewScope(tree, tree.symbol))
+  def newNamerFor(context: Context, tree: Tree): Namer = newNamer(context.makeNewScope(tree, tree.symbol))
 
   abstract class Namer(val context: Context) extends MethodSynth with NamerContextErrors { thisNamer =>
+    // overridden by the presentation compiler
+    def saveDefaultGetter(meth: Symbol, default: Symbol) { }
 
     import NamerErrorGen._
     val typer = newTyper(context)
@@ -502,7 +503,7 @@ trait Namers extends MethodSynthesis {
             typer.permanentlyHiddenWarning(pos, to0, e.sym)
           else if (context ne context.enclClass) {
             val defSym = context.prefix.member(to) filter (
-              sym => sym.exists && context.isAccessible(sym, context.prefix, false))
+              sym => sym.exists && context.isAccessible(sym, context.prefix, superAccess = false))
 
             defSym andAlso (typer.permanentlyHiddenWarning(pos, to0, _))
           }
@@ -592,17 +593,6 @@ trait Namers extends MethodSynthesis {
 
         new PolyTypeCompleter(tparams, mono, context) //@M
       }
-    }
-
-    def enterIfNotThere(sym: Symbol) {
-      val scope = context.scope
-      @tailrec def search(e: ScopeEntry) {
-        if ((e eq null) || (e.owner ne scope))
-          scope enter sym
-        else if (e.sym ne sym)  // otherwise, aborts since we found sym
-          search(e.tail)
-      }
-      search(scope lookupEntry sym.name)
     }
 
     def enterValDef(tree: ValDef) {
@@ -697,22 +687,9 @@ trait Namers extends MethodSynthesis {
       validateCompanionDefs(tree)
     }
 
-    // this logic is needed in case typer was interrupted half
-    // way through and then comes back to do the tree again. In
-    // that case the definitions that were already attributed as
-    // well as any default parameters of such methods need to be
-    // re-entered in the current scope.
-    protected def enterExistingSym(sym: Symbol): Context = {
-      if (forInteractive && sym != null && sym.owner.isTerm) {
-        enterIfNotThere(sym)
-        if (sym.isLazy)
-          sym.lazyAccessor andAlso enterIfNotThere
-
-        for (defAtt <- sym.attachments.get[DefaultsOfLocalMethodAttachment])
-          defAtt.defaultGetters foreach enterIfNotThere
-      }
-      this.context
-    }
+    // Hooks which are overridden in the presentation compiler
+    def enterExistingSym(sym: Symbol): Context = this.context
+    def enterIfNotThere(sym: Symbol) { }
 
     def enterSyntheticSym(tree: Tree): Symbol = {
       enterSym(tree)
@@ -828,23 +805,19 @@ trait Namers extends MethodSynthesis {
         case _ =>
           false
       }
-
-      val tpe1 = dropIllegalStarTypes(tpe.deconst)
-      val tpe2 = tpe1.widen
-
-      // This infers Foo.type instead of "object Foo"
-      // See Infer#adjustTypeArgs for the polymorphic case.
-      if (tpe.typeSymbolDirect.isModuleClass) tpe1
-      else if (sym.isVariable || sym.isMethod && !sym.hasAccessorFlag)
-        if (tpe2 <:< pt) tpe2 else tpe1
-      else if (isHidden(tpe)) tpe2
-      // In an attempt to make pattern matches involving method local vals
-      // compilable into switches, for a time I had a more generous condition:
-      //    `if (sym.isFinal || sym.isLocal) tpe else tpe1`
-      // This led to issues with expressions like classOf[List[_]] which apparently
-      // depend on being deconst-ed here, so this is again the original:
-      else if (!sym.isFinal) tpe1
-      else tpe
+      val shouldWiden = (
+           !tpe.typeSymbolDirect.isModuleClass // Infer Foo.type instead of "object Foo"
+        && (tpe.widen <:< pt)                  // Don't widen our way out of conforming to pt
+        && (   sym.isVariable
+            || sym.isMethod && !sym.hasAccessorFlag
+            || isHidden(tpe)
+           )
+      )
+      dropIllegalStarTypes(
+        if (shouldWiden) tpe.widen
+        else if (sym.isFinal) tpe    // "final val" allowed to retain constant type
+        else tpe.deconst
+      )
     }
     /** Computes the type of the body in a ValDef or DefDef, and
      *  assigns the type to the tpt's node.  Returns the type.
@@ -929,6 +902,7 @@ trait Namers extends MethodSynthesis {
       // to use. clazz is the ModuleClass. sourceModule works also for classes defined in methods.
       val module = clazz.sourceModule
       for (cda <- module.attachments.get[ConstructorDefaultsAttachment]) {
+        debuglog(s"Storing the template namer in the ConstructorDefaultsAttachment of ${module.debugLocationString}.")
         cda.companionModuleClassNamer = templateNamer
       }
       val classTp = ClassInfoType(parents, decls, clazz)
@@ -1250,8 +1224,11 @@ trait Namers extends MethodSynthesis {
                                   // module's templateNamer to classAndNamerOfModule
                 module.attachments.get[ConstructorDefaultsAttachment] match {
                   // by martin: the null case can happen in IDE; this is really an ugly hack on top of an ugly hack but it seems to work
-                  // later by lukas: disabled when fixing SI-5975, i think it cannot happen anymore
-                  case Some(cda) /*if cma.companionModuleClassNamer == null*/ =>
+                  case Some(cda) =>
+                    if (cda.companionModuleClassNamer == null) {
+                      debugwarn(s"SI-6576 The companion module namer for $meth was unexpectedly null")
+                      return
+                    }
                     val p = (cda.classWithDefault, cda.companionModuleClassNamer)
                     moduleNamer = Some(p)
                     p
@@ -1293,17 +1270,10 @@ trait Namers extends MethodSynthesis {
             if (!isConstr)
               methOwner.resetFlag(INTERFACE) // there's a concrete member now
             val default = parentNamer.enterSyntheticSym(defaultTree)
-            if (forInteractive && default.owner.isTerm) {
-              // save the default getters as attachments in the method symbol. if compiling the
-              // same local block several times (which can happen in interactive mode) we might
-              // otherwise not find the default symbol, because the second time it the method
-              // symbol will be re-entered in the scope but the default parameter will not.
-              meth.attachments.get[DefaultsOfLocalMethodAttachment] match {
-                case Some(att) => att.defaultGetters += default
-                case None      => meth.updateAttachment(new DefaultsOfLocalMethodAttachment(default))
-              }
-            }
-          } else if (baseHasDefault) {
+            if (default.owner.isTerm)
+              saveDefaultGetter(meth, default)
+          }
+          else if (baseHasDefault) {
             // the parameter does not have a default itself, but the
             // corresponding parameter in the base class does.
             sym.setFlag(DEFAULTPARAM)

@@ -20,6 +20,7 @@ import plugins.Plugins
 import ast._
 import ast.parser._
 import typechecker._
+import transform.patmat.PatternMatching
 import transform._
 import backend.icode.{ ICodes, GenICode, ICodeCheckers }
 import backend.{ ScalaPrimitives, Platform, JavaPlatform }
@@ -70,6 +71,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
   // the mirror --------------------------------------------------
 
   override def isCompilerUniverse = true
+  override val useOffsetPositions = !currentSettings.Yrangepos.value
 
   class GlobalMirror extends Roots(NoSymbol) {
     val universe: self.type = self
@@ -291,6 +293,8 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
   @inline final override def devWarning(msg: => String) {
     if (settings.developer.value || settings.debug.value)
       warning("!!! " + msg)
+    else
+      log("!!! " + msg) // such warnings always at least logged
   }
 
   private def elapsedMessage(msg: String, start: Long) =
@@ -437,7 +441,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
           currentRun.informUnitStarting(this, unit)
           apply(unit)
         }
-        currentRun.advanceUnit
+        currentRun.advanceUnit()
       } finally {
         //assert(currentUnit == unit)
         currentRun.currentUnit = unit0
@@ -450,11 +454,13 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
   val printInfers = settings.Yinferdebug.value
 
   // phaseName = "parser"
-  object syntaxAnalyzer extends {
+  lazy val syntaxAnalyzer = new {
     val global: Global.this.type = Global.this
     val runsAfter = List[String]()
     val runsRightAfter = None
   } with SyntaxAnalyzer
+
+  import syntaxAnalyzer.{ UnitScanner, UnitParser }
 
   // !!! I think we're overdue for all these phase objects being lazy vals.
   // There's no way for a Global subclass to provide a custom typer
@@ -833,8 +839,8 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
 
   /** Invalidates packages that contain classes defined in a classpath entry, and
    *  rescans that entry.
-   *  @param path  A fully qualified name that refers to a directory or jar file that's
-   *               an entry on the classpath.
+   *  @param paths  Fully qualified names that refer to directories or jar files that are
+   *                a entries on the classpath.
    *  First, causes the classpath entry referred to by `path` to be rescanned, so that
    *  any new files or deleted files or changes in subpackages are picked up.
    *  Second, invalidates any packages for which one of the following considitions is met:
@@ -1022,7 +1028,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
 
   object typeDeconstruct extends {
     val global: Global.this.type = Global.this
-  } with interpreter.StructuredTypeStrings
+  } with typechecker.StructuredTypeStrings
 
   /** There are common error conditions where when the exception hits
    *  here, currentRun.currentUnit is null.  This robs us of the knowledge
@@ -1145,9 +1151,11 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
         warning("there were %d %s warning(s); re-run with %s for details".format(warnings.size, what, option.name))
   }
 
-  def newUnitParser(code: String)      = new syntaxAnalyzer.UnitParser(newCompilationUnit(code))
-  def newCompilationUnit(code: String) = new CompilationUnit(newSourceFile(code))
-  def newSourceFile(code: String)      = new BatchSourceFile("<console>", code)
+  def newCompilationUnit(code: String)                   = new CompilationUnit(newSourceFile(code))
+  def newSourceFile(code: String)                        = new BatchSourceFile("<console>", code)
+  def newUnitScanner(unit: CompilationUnit): UnitScanner = new UnitScanner(unit)
+  def newUnitParser(unit: CompilationUnit): UnitParser   = new UnitParser(unit)
+  def newUnitParser(code: String): UnitParser            = newUnitParser(newCompilationUnit(code))
 
   // Is this the right place for this? Perhaps it should be a member of Run?
   var doNesTTypeCheck: Boolean = false
@@ -1231,7 +1239,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
 
       // Flush the cache in the terminal phase: the chain could have been built
       // before without being used. (This happens in the interpreter.)
-      terminal.reset
+      terminal.reset()
 
       // Each subcomponent supplies a phase, which are chained together.
       //   If -Ystop:phase is given, neither that phase nor any beyond it is added.
@@ -1287,8 +1295,8 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
         // this handler should not be nessasary, but it seems that `fsc`
         // eats exceptions if they appear here. Need to find out the cause for
         // this and fix it.
-        inform("[reset] exception happened: "+ex);
-        ex.printStackTrace();
+        inform("[reset] exception happened: "+ex)
+        ex.printStackTrace()
         throw ex
     }
 
@@ -1314,14 +1322,14 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
     def advancePhase() {
       unitc = 0
       phasec += 1
-      refreshProgress
+      refreshProgress()
     }
     /** take note that a phase on a unit is completed
      *  (for progress reporting)
      */
     def advanceUnit() {
       unitc += 1
-      refreshProgress
+      refreshProgress()
     }
 
     def cancel() { reporter.cancelled = true }
@@ -1431,8 +1439,8 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
 
       if (canCheck) {
         phase = globalPhase
-        if (globalPhase.id >= icodePhase.id) icodeChecker.checkICodes
-        else treeChecker.checkTrees
+        if (globalPhase.id >= icodePhase.id) icodeChecker.checkICodes()
+        else treeChecker.checkTrees()
       }
     }
 
@@ -1449,10 +1457,10 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
         }
       }
       if (settings.Xshowcls.isSetByUser)
-        showDef(splitClassAndPhase(settings.Xshowcls.value, false), false, globalPhase)
+        showDef(splitClassAndPhase(settings.Xshowcls.value, term = false), declsOnly = false, globalPhase)
 
       if (settings.Xshowobj.isSetByUser)
-        showDef(splitClassAndPhase(settings.Xshowobj.value, true), false, globalPhase)
+        showDef(splitClassAndPhase(settings.Xshowobj.value, term = true), declsOnly = false, globalPhase)
     }
 
     // Similarly, this will only be created under -Yshow-syms.
@@ -1482,7 +1490,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
         }
       }
       else {
-        allConditionalWarnings foreach (_.summarize)
+        allConditionalWarnings foreach (_.summarize())
 
         if (seenMacroExpansionsFallingBack)
           warning("some macros could not be expanded and code fell back to overridden methods;"+
@@ -1534,7 +1542,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
         val startTime = currentTime
         phase = globalPhase
         if (globalPhase.toString() == "typer") doNesTTypeCheck = true
-        globalPhase.run
+        globalPhase.run()
         // println("Completed phase: " + globalPhase)
         if (globalPhase.toString() == "typer") doNesTTypeCheck = false;
 
@@ -1576,7 +1584,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
         if (settings.Ystatistics.value)
           statistics.print(phase)
 
-        advancePhase
+        advancePhase()
       }
 
       if (traceSymbolActivity)
@@ -1636,7 +1644,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
         val maxId = math.max(globalPhase.id, typerPhase.id)
         firstPhase.iterator takeWhile (_.id < maxId) foreach (ph =>
           enteringPhase(ph)(ph.asInstanceOf[GlobalPhase] applyPhase unit))
-        refreshProgress
+        refreshProgress()
       }
     }
 
@@ -1723,8 +1731,6 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
       }
     })
   }
-  def forInteractive   = false
-  def forScaladoc      = false
   def createJavadoc    = false
 }
 

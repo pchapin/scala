@@ -43,6 +43,7 @@ trait ScalaSettings extends AbsScalaSettings
   /** Internal use - syntax enhancements. */
   private class EnableSettings[T <: BooleanSetting](val s: T) {
     def enabling(toEnable: List[BooleanSetting]): s.type = s withPostSetHook (_ => toEnable foreach (_.value = s.value))
+    def disabling(toDisable: List[BooleanSetting]): s.type = s withPostSetHook (_ => toDisable foreach (_.value = !s.value))
     def andThen(f: s.T => Unit): s.type                  = s withPostSetHook (setting => f(setting.value))
   }
   private implicit def installEnableSettings[T <: BooleanSetting](s: T) = new EnableSettings(s)
@@ -167,10 +168,12 @@ trait ScalaSettings extends AbsScalaSettings
   val Yreploutdir     = StringSetting     ("-Yrepl-outdir", "path", "Write repl-generated classfiles to given output directory (use \"\" to generate a temporary dir)" , "")
   val Ynotnull        = BooleanSetting    ("-Ynotnull", "Enable (experimental and incomplete) scala.NotNull.")
   val YmethodInfer    = BooleanSetting    ("-Yinfer-argument-types", "Infer types for arguments of overriden methods.")
-  val etaExpandKeepsStar = BooleanSetting ("-Yeta-expand-keeps-star", "Eta-expand varargs methods to T* rather than Seq[T].  This is a temporary option to ease transition.")
+  val etaExpandKeepsStar = BooleanSetting ("-Yeta-expand-keeps-star", "Eta-expand varargs methods to T* rather than Seq[T].  This is a temporary option to ease transition.").
+                                          withDeprecationMessage("This flag is scheduled for removal in 2.12. If you have a case where you need this flag then please report a bug.")
   val Yinvalidate     = StringSetting     ("-Yinvalidate", "classpath-entry", "Invalidate classpath entry before run", "")
   val noSelfCheck     = BooleanSetting    ("-Yno-self-type-checks", "Suppress check for self-type conformance among inherited members.")
   val YvirtClasses    = false // too embryonic to even expose as a -Y //BooleanSetting    ("-Yvirtual-classes", "Support virtual classes")
+  val YdisableUnreachablePrevention = BooleanSetting("-Ydisable-unreachable-prevention", "Disable the prevention of unreachable blocks in code generation.")
 
   val exposeEmptyPackage = BooleanSetting("-Yexpose-empty-package", "Internal only: expose the empty package.").internalOnly()
 
@@ -185,7 +188,6 @@ trait ScalaSettings extends AbsScalaSettings
   val Ypmatdebug              = BooleanSetting("-Ypmat-debug", "Trace all pattern matcher activity.")
   val Yposdebug               = BooleanSetting("-Ypos-debug", "Trace position validation.")
   val Yreifydebug             = BooleanSetting("-Yreify-debug", "Trace reification.")
-  val Yrepldebug              = BooleanSetting("-Yrepl-debug", "Trace all repl activity.") andThen (interpreter.replProps.debug setValue _)
   val Ytyperdebug             = BooleanSetting("-Ytyper-debug", "Trace all type assignments.")
   val Ypatmatdebug            = BooleanSetting("-Ypatmat-debug", "Trace pattern matching translation.")
 
@@ -193,6 +195,7 @@ trait ScalaSettings extends AbsScalaSettings
    */
   val future        = BooleanSetting("-Xfuture", "Turn on future language features.") enabling futureSettings
   val optimise      = BooleanSetting("-optimise", "Generates faster bytecode by applying optimisations to the program") withAbbreviation "-optimize" enabling optimiseSettings
+  val nooptimise    = BooleanSetting("-Ynooptimise", "Clears all the flags set by -optimise. Useful for testing optimizations in isolation.") withAbbreviation "-Ynooptimize" disabling optimise::optimiseSettings
   val Xexperimental = BooleanSetting("-Xexperimental", "Enable experimental extensions.") enabling experimentalSettings
 
   // Feature extensions
