@@ -19,13 +19,6 @@
             </SvnBranchConfiguration>
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/Samples/SpartanRPC">
-          <value>
-            <SvnBranchConfiguration>
-              <option name="trunkUrl" value="http://subversion.assembla.com/svn/scalaness/Samples/SpartanRPC" />
-            </SvnBranchConfiguration>
-          </value>
-        </entry>
       </map>
     </option>
     <option name="mySupportsUserInfoFilter" value="true" />

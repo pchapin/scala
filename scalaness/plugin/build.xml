@@ -27,18 +27,6 @@
   <property name="blink.distribution.dir" location="${blink.home.dir}/bin"/>
   <property name="blink.scaladoc.dir"     location="${blink.home.dir}/doc/scaladoc"/>
 
-  <!-- Set properties for the SpartanRPC sample build. -->
-  <property name="spartan.home.dir"         location="Samples/SpartanRPC"/>
-  <property name="spartan.main.sources.dir" location="${spartan.home.dir}/src"/>
-  <property name="spartan.test.sources.dir" location="${spartan.home.dir}/test"/>
-  <property name="spartan.configuration"    location="${spartan.home.dir}/Scalaness.cfg"/>
-  <property name="spartan.classes.dir"      location="${spartan.home.dir}/classes"/>
-  <property name="spartan.main.classes.dir" location="${spartan.classes.dir}/main"/>
-  <property name="spartan.test.classes.dir" location="${spartan.classes.dir}/test"/>
-  <property name="spartan.distribution.dir" location="${spartan.home.dir}/bin"/>
-  <property name="spartan.scaladoc.dir"     location="${spartan.home.dir}/doc/scaladoc"/>
-
-
   <target name="init">
     <!-- Get the Scala related tasks. -->
     <property name="scala-library.jar" location="${scala.home}/lib/scala-library.jar"/>
@@ -70,9 +58,6 @@
       <pathelement location="${scala-actors.jar}"/>
       <pathelement location="${library.dir}/antlr-3.4.jar"/>
       <pathelement location="${main.classes.dir}"/>
-      <pathelement location="${blink.main.classes.dir}"/>
-      <pathelement location="${distribution.dir}/bcprov-jdk16-145.jar"/>
-      <pathelement location="${spartan.main.classes.dir}"/>
     </path>
 
     <!-- Classpath used during plugin tests compilation. -->
@@ -85,7 +70,7 @@
       <pathelement location="${main.classes.dir}"/>
 
       <pathelement location="${library.dir}/junit-4.8.2.jar"/>
-      <pathelement location="${library.dir}/scalatest-2.0.jar"/>
+      <pathelement location="${library.dir}/scalatest_2.10-1.9.1.jar"/>
       <pathelement location="${test.classes.dir}"/>
     </path>
 
@@ -103,26 +88,6 @@
       <pathelement location="${scala-library.jar}"/>
       <pathelement location="${distribution.dir}/Scalaness.jar"/>
       <pathelement location="${blink.main.classes.dir}"/>
-      <pathelement location="${library.dir}/antlr-3.4.jar"/>
-    </path>
-
-    <!-- Classpath used during SpartanRPC sample compilation. -->
-    <path id="spartan.build.classpath">
-      <pathelement location="${scala-reflect.jar}"/>
-      <pathelement location="${scala-library.jar}"/>
-      <pathelement location="${scala-actors.jar}"/>
-      <pathelement location="${distribution.dir}/Scalaness.jar"/>
-      <pathelement location="${distribution.dir}/bcprov-jdk16-145.jar"/>
-      <pathelement location="${spartan.main.classes.dir}"/>
-    </path>
-
-    <!-- Classpath used during SpartanRPC execution. -->
-    <path id="spartan.run.classpath">
-      <pathelement location="${scala-reflect.jar}"/>
-      <pathelement location="${scala-library.jar}"/>
-      <pathelement location="${scala-actors.jar}"/>
-      <pathelement location="${distribution.dir}/Scalaness.jar"/>
-      <pathelement location="${spartan.main.classes.dir}"/>
       <pathelement location="${library.dir}/antlr-3.4.jar"/>
     </path>
 
@@ -235,7 +200,7 @@
   <!-- I don't want to try extracting documentation from invalid Scala files. -->
   <target name="scaladoc" depends="compile" description="Generate the Scaladoc" >
     <mkdir dir="${scaladoc.dir}"/>
-    <scaladoc srcdir="${main.sources.dir};${blink.main.sources.dir};${spartan.main.sources.dir}"
+    <scaladoc srcdir="${main.sources.dir}"
               destdir="${scaladoc.dir}"
               deprecation="yes"
               unchecked="yes"
@@ -290,50 +255,6 @@
   </target>
 
 
-  <!-- ================= -->
-  <!-- SPARTANRPC SAMPLE -->
-  <!-- ================= -->
-
-  <target name="spartan.compile" depends="distribution" description="Compile the SpartanRPC sample" >
-    <mkdir dir="${spartan.main.classes.dir}"/>
-
-    <!-- Compile the Scala code from ${spartan.main.sources.dir} into ${spartan.main.classes.dir} -->
-    <!-- Use parameters -Xprint:parse -Yshow-trees to display ASTs after parsing. -->
-    <!-- Use parameter  -Ybrowse:parse to browse the ASTs after parsing. -->
-    <scalac deprecation="on"
-            srcdir="${spartan.main.sources.dir}"
-            destdir="${spartan.main.classes.dir}"
-            classpathref="spartan.build.classpath"
-            addparams="-nowarn -Xpluginsdir ${distribution.dir} -Xplugin:Scalaness.jar -Xplugin:${distribution.dir}/antlr-3.4.jar -P:Scalaness:configFile:${spartan.configuration}">
-      <include name="**/*.scala"/>
-    </scalac>
-
-    <!-- Don't forget to copy the nesC templates used to the output folder. -->
-    <copy todir="${spartan.main.classes.dir}">
-      <fileset dir="${spartan.main.sources.dir}" casesensitive="yes">
-        <include name="**/*.nc"/>
-      </fileset>
-    </copy>
-    <copy file="${spartan.main.sources.dir}/Makefile"
-          tofile="${spartan.main.classes.dir}/Makefile"/>
-  </target>
-
-
-  <target name="spartan.distribution" depends="spartan.compile" description="Generate the SpartanRPC sample distribution" >
-    <jar jarfile="${spartan.distribution.dir}/SpartanRPC.jar"
-         basedir="${spartan.main.classes.dir}"/>
-  </target>
-
-
-  <target name="spartan.run" depends="spartan.distribution" description="Run the SpartanRPC sample">
-    <java classname="edu.uvm.spartanrpc.Main" fork="true" dir="${spartan.home.dir}">
-      <classpath refid="spartan.run.classpath"/>
-      <classpath path="${spartan.distribution.dir}/Spartan.jar"/>
-      <arg value="A"/>
-    </java>
-  </target>
-
-
   <!-- ======== -->
   <!-- CLEAN UP -->
   <!-- ======== -->
@@ -355,15 +276,8 @@
   </target>
 
 
-  <target name="spartan.clean" description="Clean up SpartanRPC sample">
-    <delete dir="${spartan.classes.dir}"/>
-    <delete dir="${spartan.scaladoc.dir}"/>
-    <delete dir="${spartan.distribution.dir}/SpartanRPC.jar"/>
-  </target>
-
-
   <target name="all.clean"
-          depends="clean,blink.clean,spartan.clean"
+          depends="clean,blink.clean"
           description="Clean up all project components"/>
 
 </project>
