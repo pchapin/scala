@@ -1,0 +1,19 @@
+
+TODO.txt
+========
+
+Mininess
+--------
+
++ Hooks for isCompatible and doCast.
+
+Scalaness
+---------
+
++ Liftable types.
+    - base types (ints, floats)
+    - arrays
+    - classes -> structs (non trivial casts/serialization)
+    - Serialize the Liftable types. (convert to Mininess declarations)
+
++ Explore Scala's support for existential types. Can we use it?

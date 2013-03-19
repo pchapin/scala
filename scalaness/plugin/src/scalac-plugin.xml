@@ -1,0 +1,4 @@
+<plugin>
+  <name>Scalaness</name>
+  <classname>edu.uvm.scalaness.ScalanessPlugin</classname>
+</plugin>

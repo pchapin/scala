@@ -1,0 +1,204 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+  "http://www.docbook.org/xml/4.5/docbookx.dtd">
+  
+<chapter id="User">
+  <title>Scalaness User Documentation</title>
+
+  <para>This chapter contains the user documentation for Scalaness. It is written in an informal
+    style and is intended for consumption by users trying to use Scalaness to build real
+    systems. For more detailed information about Scalaness and especially about its type system
+    see the references.</para>
+
+  <para>Scalanaess programs manipulate a reduced dialect of nesC called Mininess. The
+    simplifications in Mininess are intended to promote type and memory safety of the resulting
+    programs and yet still allow reasonable applications to be constructed. Mininess programs
+    can interface, with some restrictions as detailed here, with ordinary nesC libraries.</para>
+
+  <section id="MininessTypeSystem">
+    <title>Mininess Type System</title>
+
+    <para>This section describes the type system of Mininess. It assumes the reader is already
+      familiar with the nesC type system (which is essentially the same as the C type
+      system).</para>
+
+    <section>
+      <title>Arithmetic Types</title>
+
+      <para>In addition to the type <type>char</type>, Mininess programs can use six other
+        arithmetic types as detailed in the table below.</para>
+
+      <table>
+        <caption>Mininess Arithmetic Types</caption>
+        <tbody>
+          <tr>
+            <th>Type</th>
+            <th>Range</th>
+          </tr>
+          <tr>
+            <td><type>uint8_t</type></td>
+            <td>0 &lt;= x &lt;= 255</td>
+          </tr>
+          <tr>
+            <td><type>uint16_t</type></td>
+            <td>0 &lt;= x &lt;= 65,535</td>
+          </tr>
+          <tr>
+            <td><type>uint32_t</type></td>
+            <td>0 &lt;= x &lt;= 4,294,967,295</td>
+          </tr>
+          <tr>
+            <td><type>int8_t</type></td>
+            <td>-128 &lt;= x &lt;= 127</td>
+          </tr>
+          <tr>
+            <td><type>int16_t</type></td>
+            <td>-32768 &lt;= x &lt;= 32767</td>
+          </tr>
+          <tr>
+            <td><type>int32_t</type></td>
+            <td>-2147483648 &lt;= x &lt;= 2147483647</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <para>These types are considered built into the compiler. However there are also aliases
+        for these types as indicated in the table below.</para>
+
+      <table>
+        <caption>Arithmetic Type Aliases</caption>
+        <tbody>
+          <tr>
+            <th>Alias</th>
+            <th>Aliased Type</th>
+          </tr>
+          <tr>
+            <td><type>unsigned short</type></td>
+            <td><type>uint16_t</type></td>
+          </tr>
+          <tr>
+            <td><type>unsigned int</type></td>
+            <td><type>uint16_t</type></td>
+          </tr>
+          <tr>
+            <td><type>unsigned long</type></td>
+            <td><type>uint32_t</type></td>
+          </tr>
+          <tr>
+            <td><type>short</type></td>
+            <td><type>int16_t</type></td>
+          </tr>
+          <tr>
+            <td><type>int</type></td>
+            <td><type>int16_t</type></td>
+          </tr>
+          <tr>
+            <td><type>long</type></td>
+            <td><type>int32_t</type></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <para>The type aliases are treated exactly as if they were the aliased types. In effect
+        the compiler replaces each occurrence of a type alias with the aliased type before doing
+        any additional processing such as type checking.</para>
+
+      <para>The current implementation of Scalaness assumes that the underlying nesC compiler is
+        targeting a 16 bit machine. A future version of Scalaness may allow this assumption to
+        be configurable. In that case the mapping from the type aliases to the built in specific
+        sized types will vary depending on the configuration. Thus a type, such as
+          <type>int</type>, appearing in Mininess code can be written as-is into the pure nesC
+        program produced by the Scalaness compiler and still behave as expected. This also means
+        that type checking of a Mininess program might succeed under one configuration but fail
+        under another. This is appropriate, however, since errors due to non-portable code
+        should be caught by the compiler when feasible.</para>
+
+      <para>No other arithmetic types from nesC are supported. In particular no floating point
+        types are supported nor is the type <type>long long</type> from C99 supported. In
+        addition Mininess does not support signed or unsigned character types nor wide character
+        types. The types <type>int8_t</type>, <type>uint8_t</type>, or <type>uint16_t</type>
+        should be used instead. Any attempt to use an unsupported type will produce a compile
+        time error.</para>
+
+      <para>Promotions between the arithmetic types follow the general rules of C. In particular
+        the following table documents the promotions (implicit conversions) that are supported
+        in Mininess.</para>
+
+      <table>
+        <caption>Mininess Arithmetic Promotions</caption>
+        <tbody>
+          <tr>
+            <th>Type</th>
+            <th>Promoted Type</th>
+          </tr>
+          <tr>
+            <td><type>uint8_t</type></td>
+            <td><type>uint16_t</type></td>
+          </tr>
+          <tr>
+            <td><type>uint16_t</type></td>
+            <td><type>uint32_t</type></td>
+          </tr>
+          <tr>
+            <td><type>int8_t</type></td>
+            <td><type>int16_t</type></td>
+          </tr>
+          <tr>
+            <td><type>int16_t</type></td>
+            <td><type>int32_t</type></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <para>All promotions are value preserving. The promoted value is the same as the original
+        value. There are no promotions to or from the type <type>char</type>. There are no
+        implicit conversions between the signed and unsigned types. Explicit conversions (casts)
+        can be used in these cases.</para>
+    </section>
+
+    <section>
+      <title>Integer Literals</title>
+
+      <para>Mininess types integer literals based on the value of the literal. The rule is that
+        the first type in the sequence <type>int8_t</type>, <type>int16_t</type>,
+          <type>int32_t</type> that is able to hold the value is the type of the literal.
+        Because of automatic promotion small literals can be used to initialize values of a much
+        wider type.</para>
+
+      <programlisting>
+int32_t x = 0;    // '0' has type int8_t but is promoted.
+int8_t  y = 1000; // '1000' has type int16_t. Type mismatch.
+int8_t  z = -1;   // '-1' has type int8_t. The '-' is part of the literal.
+      </programlisting>
+
+      <para>In the declaration of <varname>z</varname> the negative sign is part of the literal
+        token and not a separate token. This is necessary so that the extreme negative value in
+        the type can be represented. For example if the negative sign was a separate token then
+        "-128" would have type <type>int16_t</type> because that would be the type of 128.
+        Instead "-128" has type <type>int8_t</type> as expected.</para>
+
+      <para>The suffix 'U' (or 'u') can be appended to an integer literal to force it to be
+        unsigned. In that case the first type in the sequence <type>uint8_t</type>,
+          <type>uint16_t</type>, <type>uint32_t</type> that is able to hold the value is the
+        type of the literal.</para>
+
+      <programlisting>
+uint32_t x = 0U;   // '0U' has type uint8_t but is promoted.
+uint32_t y = 0;    // '0' has type int8_t. Type mismatch.
+int32_t  z = 0U;   // '0U' has type uint8_t. Type mismatch.
+      </programlisting>
+
+      <para>Unlike ordinary C (or nesC) there is no 'L' (or 'l') suffix to indicate long integer
+        literals.</para>
+    </section>
+
+    <section>
+      <title>Type Qualifiers</title>
+      <para>In the current version of Mininess the type qualifiers <code>const</code> and
+          <code>volatile</code> are not supported. Any use of the type qualifiers will result in
+        a compile time error. It is likely that a future version of Mininess will support these
+        type qualifiers.</para>
+    </section>
+
+  </section>
+</chapter>
