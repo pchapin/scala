@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FILE    : main.tex
-% AUTHOR  : (C) Copyright 2012 by Peter C. Chapin
+% AUTHOR  : (C) Copyright 2013 by Peter C. Chapin
 % SUBJECT : Dissertation
 %
 % Based on the dissertation template here:
@@ -48,82 +48,59 @@
 \newcommand{\primaryspacing}{\oneandhalfspace}
 \primaryspacing
 
-% use includeonly to speed up preview generation, for example
-% \includeonly{chap4}
-
-
 % Now begins my thesis/dissertation defense information
-\defensedate{May 1, 2013}
+\defensedate{October 1, 2013}
 \dissertation                      %% or \thesis
 \doctorphilosophy                  %% or \doctorphilosophy or \masterarts
 \cs                                %% This is the only speciality defined.
 \gradyear{2013}                    %% The year in which the degree will be conferred
-\maygrad                           %% \maygrad or \octgrad or \marchgrad
+\octgrad                           %% \maygrad or \octgrad or \marchgrad
 \advisor{Christian Skalka, Ph.D.}  %% e.g. \advisor{Xindong Wu, Ph.D.}
 \readerone{Alan Ling, Ph.D.}
-% \readertwo{committee number 2's first and last name, his/her degree}
+\readertwo{Jill Jones, Ph.D.}      % I need a real person here.
 \chair{Jeffrey Frolik, Ph.D.}
 
-% Finally, we begin the document
+%%%%%%%%%%
+% Document
+%%%%%%%%%%
+
 \begin{document}
 
-%-----------------------front matter
 \title{Implementation of Type Safe Staged\\Programming for Embedded Systems}
 \author{Peter C. Chapin}
 \maketitle
-%
+
 % Committee Acceptance Form is page two
 \stepcounter{page}
 \makeacceptance
 \pagenumbering{roman}
 
-% Include the file abstract.tex which is just some text enclosed in the 'abstract' environment.
-% single space and 1 page limit.
 \include{abstract}
-\clearpage
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Include the dedication page if needed
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\addcontentsline{toc}{chapter}{Dedication}
 \include{dedication}
-\clearpage
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% This includes the 'acknowledgements.tex' file, which begins with
-% \chapter*{Acknowledgements} and doesn't have anything special at the end.
-% Required by UVM:
-
-%\doublespace  % (1) double space
-%\addcontentsline{toc}{chapter}{Acknowledgments} % (2)``Acknowledgements'' needs to be in the TOC
-%\include{acknowledgements}
+\include{acknowledgements}
 
 
 % Single space the lists, as recommended
 \singlespace
 
-% Create (automatically) the TOC. Everything below this point must appear in the TOC. However,
-% the Acknowledgements also need to appear in the TOC
 \tableofcontents
 \clearpage
 
-% Create (automatically) the LOT
 \addcontentsline{toc}{chapter}{\listtablename}
 \listoftables
 \clearpage
 
-% Create (automatically) the LOF
 \addcontentsline{toc}{chapter}{\listfigurename}
 \listoffigures
+\clearpage
 
 % A list of symbols can go here, if any. Handle it like the Acknowledgements.
 %\include{notation}
 
-% Switch back to double spacing
-\doublespace
+% Switch back to the primary spacing.
+\primaryspacing
 
 % Body of dissertation begins here.
-\clearpage
 \pagenumbering{arabic}
 
 \input{Introduction}
@@ -132,12 +109,12 @@
 \input{Mininess-Implementation}
 \input{Scalaness-Implementation}
 
-% Back matter begins here
+% Back matter begins here.
 \appendix
 
 % Include appendices here.
 %\include{nesT-Types}
-\clearpage
+%\clearpage
 
 % This is a workaround to make "References" appear with leader dots and the page number in the
 % TOC.
@@ -150,7 +127,7 @@
 \bibliography{../references-Meta,../references-WSN,../references-AccessControl,../references-Scala}
 
 % Switch back to the primary spacing.
-%\primaryspacing
+\primaryspacing
 
 % Don't forget to include the required Vita or CV.
 %\include{vita}
