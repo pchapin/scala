@@ -319,6 +319,9 @@ object TypeRules {
     def moduleEqual(
       modOne: Option[(Map[TypeVariable, Representation], Module)], modTwo: Option[(Map[TypeVariable, Representation], Module)]): Boolean = {
       
+        if (modOne == None && modTwo == None)
+          return true
+      
         if (modOne == None || modTwo == None)
           return false
           
