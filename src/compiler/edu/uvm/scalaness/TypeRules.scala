@@ -210,6 +210,19 @@ object TypeRules {
     for (i <- 0 until first.length) {
       if (!(secondKeys.contains(firstKeys(i))))
         returnList ::= first(i)
+      else {
+        val (tName, fType) = first(i) match {
+          case (tName, tType) => (tName, tType)
+          case _ => throw new Exception("Expected pair in removeDomain.")
+        }
+        val sType = second.toMap.get(tName) match {
+          case Some(tType) => tType
+          case _ => throw new Exception("Unable to find key " + tName + ".")
+        }
+        if (fType != sType) {
+          throw new Exception("Type mismatch when removing domain " + tName + ": " + fType + " " + sType)
+        }
+      }
     }
     returnList
   }  

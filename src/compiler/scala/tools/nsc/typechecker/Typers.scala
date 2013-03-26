@@ -1800,7 +1800,7 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
 
         val mininessModuleType = scalanessCheck(ClassDef(typedMods, cdef.name, tparams1, impl2))
         val nesTModuleType = mininessModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
-        if (annotatedNesTModuleType != nesTModuleType) {
+        if (!(edu.uvm.scalaness.TypeRules.moduleEqual(annotatedNesTModuleType,nesTModuleType))) {
           reporter.error(cdef.pos, s"""nesT module type mismatch
                                       |\tAnnotated = ${annotatedNesTModuleType.toString}
                                       |\tBody = ${nesTModuleType.toString}""".stripMargin)
