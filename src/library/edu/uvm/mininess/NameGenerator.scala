@@ -11,7 +11,7 @@ object NameGenerator {
 
   def get = {
     currentIndex = currentIndex + 1
-    "_sc__" + currentIndex
+    "_sc_" + currentIndex
   }
 
 }

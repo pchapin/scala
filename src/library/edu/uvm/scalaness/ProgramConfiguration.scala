@@ -58,7 +58,10 @@ class ProgramConfiguration(
   def display(outputFile: BufferedWriter) {
     outputFile.write("implementation {\n")
 
-    // Display the components line.
+    // Display the components line for handling array bounds check failures.
+    outputFile.write("    components BoundsCheckC;\n")
+
+    // Display the normal components line.
     outputFile.write("    components")
     var firstComponent = true
     for (currentComponent <- componentSet) {
@@ -69,9 +72,17 @@ class ProgramConfiguration(
       else
         outputFile.write(", " + currentComponent.name)
     }
-    outputFile.write(";\n")
+    outputFile.write(";\n\n")
 
-    // Display the wires.
+    // Display the wires to for handling array bounds check failures.
+    // TODO: Avoid processing any "external" component, don't just hard code names here!
+    for (currentComponent <- componentSet
+         if currentComponent.name != "LibraryIC" && currentComponent.name != "LibraryEC") {
+      outputFile.write("    " + currentComponent.name + ".boundsCheckFailed -> BoundsCheckC;\n")
+    }
+    outputFile.write("\n");
+
+    // Display the normal wires.
     for ((commandName, usingComponent, providingComponent) <- wireList) {
       outputFile.write("    ")
       outputFile.write(usingComponent.name + "." + commandName)

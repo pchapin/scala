@@ -4,7 +4,7 @@
 <issue-set xmlns="http://vortex.cis.vtc.edu/xml/IML_0.0"
   xmlns:xhtml="http://www.w3.org/1999/xhtml"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://vortex.cis.vtc.edu/xml/IML_0.0 IML.xsd">
+  xsi:schemaLocation="http://vortex.cis.vtc.edu/xml/IML_0.0 ../../../IML/IML.xsd">
 
   <issue>
     <summary>Create a method to pretty print Mininess types</summary>

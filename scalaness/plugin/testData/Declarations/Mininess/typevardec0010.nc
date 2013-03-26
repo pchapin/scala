@@ -1,0 +1,2 @@
+
+myType x, y, z;

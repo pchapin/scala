@@ -7,8 +7,8 @@ import java.io.Reader
  */
 object Lexer {
 
-  /** An exception raised if a if input does not correspond to what's expected
-   *  @param   rdr   the lexer form which the bad input is read
+  /** An exception raised if an input does not correspond to what's expected
+   *  @param   rdr   the lexer from which the bad input is read
    *  @param   msg   the error message
    */
   class MalformedInput(val rdr: Lexer, val msg: String) extends Exception("Malformed JSON input at "+rdr.tokenPos+": "+msg)
@@ -48,7 +48,7 @@ object Lexer {
   /** The '`(`' token */
   val LParen = new Delim('(')
 
-  /** The '`(`' token */
+  /** The '`)`' token */
   val RParen = new Delim(')')
 
   /** The '`{`' token */
@@ -278,7 +278,7 @@ class Lexer(rd: Reader) {
 
   /** The current token is a delimiter consisting of given character, reads next token,
    *  otherwise raises an error.
-   *  @param  c   the given delimiter character to compare current token with
+   *  @param  ch   the given delimiter character to compare current token with
    *  @throws MalformedInput  if the current token `token` is not a delimiter, or
    *                          consists of a character different from `c`.
    */

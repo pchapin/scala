@@ -7,7 +7,9 @@
 /src/library/library.properties
 
 # target directories for ant build
-/build/
+build
+classes
+scaladoc
 
 # eclipse stuff
 /src/eclipse/continuations-library/.cache
@@ -20,9 +22,10 @@
 # bak files produced by ./cleanup-commit
 *.bak
 
-# Artifacts of building the Scalaness sample programs.
+# Artifacts related to the Scalaness sample programs.
 scalaness/*/*.class
 scalaness/*/generated
 scalaness/SpartanRPC/.idea/workspace.xml
-scalaness/SpartanRPC/.idea/dictionaries
-scalaness/SpartanRPC/build
+
+# Artifacts related to the Scalaness plugin
+scalaness/plugin/.idea/workspace.xml

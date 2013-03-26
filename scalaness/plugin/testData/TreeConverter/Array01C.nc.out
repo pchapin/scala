@@ -1,0 +1,17 @@
+module Array01C  {
+}
+implementation {
+    int f  ( int index   ) 
+    {
+        int a  [10 ] ;
+        if( 1  >= 10  )
+            call restartNode (  );
+        int b   = a [1 ];
+        int x   = 2 ;
+        if( i  >= 10  )
+            call restartNode (  );
+        return a [i ];
+    }
+
+}
+

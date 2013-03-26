@@ -12,6 +12,7 @@ import scala.collection.mutable.ListBuffer
 
 abstract class Flatten extends InfoTransform {
   import global._
+  import treeInfo.isQualifierSafeToElide
 
   /** the following two members override abstract members in Transform */
   val phaseName: String = "flatten"
@@ -84,7 +85,7 @@ abstract class Flatten extends InfoTransform {
         val restp1 = apply(restp)
         if (restp1 eq restp) tp else copyMethodType(tp, params, restp1)
       case PolyType(tparams, restp) =>
-        val restp1 = apply(restp);
+        val restp1 = apply(restp)
         if (restp1 eq restp) tp else PolyType(tparams, restp1)
       case _ =>
         mapOver(tp)
@@ -116,8 +117,14 @@ abstract class Flatten extends InfoTransform {
         case ClassDef(_, _, _, _) if sym.isNestedClass =>
           liftedDefs(sym.enclosingTopLevelClass.owner) += tree
           EmptyTree
-        case Select(qual, name) if (sym.isStaticModule && !sym.owner.isPackageClass) =>
-          exitingFlatten(atPos(tree.pos)(gen.mkAttributedRef(sym)))
+        case Select(qual, name) if sym.isStaticModule && !sym.isTopLevel =>
+          exitingFlatten {
+            atPos(tree.pos) {
+              val ref = gen.mkAttributedRef(sym)
+              if (isQualifierSafeToElide(qual)) ref
+              else Block(List(qual), ref).setType(tree.tpe) // need to execute the qualifier but refer directly to the lifted module.
+            }
+          }
         case _ =>
           tree
       }

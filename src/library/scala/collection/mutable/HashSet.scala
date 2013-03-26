@@ -86,14 +86,14 @@ extends AbstractSet[A]
   }
 
   private def readObject(in: java.io.ObjectInputStream) {
-    init(in, x => x)
+    init(in, x => ())
   }
 
   /** Toggles whether a size map is used to track hash map statistics.
    */
   def useSizeMap(t: Boolean) = if (t) {
-    if (!isSizeMapDefined) sizeMapInitAndRebuild
-  } else sizeMapDisable
+    if (!isSizeMapDefined) sizeMapInitAndRebuild()
+  } else sizeMapDisable()
 
 }
 

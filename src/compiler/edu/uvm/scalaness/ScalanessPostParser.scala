@@ -9,6 +9,7 @@ package edu.uvm.scalaness
 import scala.tools.nsc._
 import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.transform.Transform
+import scala.tools.nsc.symtab.Flags
 import java.io.File
 import edu.uvm.mininess.MininessTypes
 
@@ -112,6 +113,30 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
 
 
   /**
+   * Compute the lowered version of the Mininess type.
+   * @param typeName The name of the Mininess type to lower.
+   * @param The name of the Scalaness representation of that type.
+   */
+  private def lowerType(typeName: String) = {
+    // TODO: Handle more complex types just the primitives.
+    val translation = Map(
+      "char"     -> "Char",
+      "int"      -> "Int16",    // Assume a 16 bit microcontroller.
+      "int8_t"   -> "Int8",
+      "int16_t"  -> "Int16",
+      "int32_t"  -> "Int32",
+      "uint8_t"  -> "UInt8",
+      "uint16_t" -> "UInt16",
+      "uint32_t" -> "UInt32")
+
+    translation.getOrElse(typeName, {
+      reporter.error(null, "type " + typeName + " not yet supported. Using Int16")
+      "Int16"
+    })
+  }
+
+
+  /**
    * Extracts the type and value parameters of a class representing a Mininess module.
    *
    * @param body A collection of AST roots that define the body of the class.
@@ -201,20 +226,41 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
           val (typeParameters, valueParameters) = extractTypeAndValueParameters(body)
           // println(s"typeParameters = $typeParameters, valueParameters = $valueParameters")
 
+          // Compute 'var someName: SomeType = null' for each type and value parameter.
+          // TODO: Be sure appropriate imports are available.
+//          val typeVars = for ( (typeName, typeType) <- typeParameters ) yield {
+//            println(s"typeName = $typeName; typeType = $typeType")
+//            treeBuilder.makePatDef(
+//              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
+//              Typed(Ident("sc_" + typeName), AppliedTypeTree(Ident("MetaType"), List(Ident(lowerType(typeType.toString))))),
+//              Literal(Constant("null")))
+//          }
+//          val valueVars = for ( (valueName, valueType) <- valueParameters) yield {
+//            treeBuilder.makePatDef(
+//              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
+//              Typed(Ident("sc_" + valueName), TypeTree(Ident(lowerType(valueType.toString)))),
+//              Literal(Constant("null")))
+//          }
+
           // Compute 'val abstractSyntax =
           //            Parser.reparse("ExampleC.i", List("firstType", "secondType"))'
-          //
-          // TODO: Make the synthesized val private.
           // TODO: Be sure appropriate imports are available.
           val typeNames = for ( (typeName, _) <- typeParameters ) yield Literal(Constant(typeName))
           val typeNameList =
             Apply(Ident("List"), typeNames.toList)
           val reparseInvocation =
             Apply(Select(Ident("Parser"), "reparse"), List(Literal(Constant(s"$reparseName")), typeNameList))
-          val abstractSyntaxVal = treeBuilder.makePatDef(Ident("abstractSyntax"), reparseInvocation)
+          val abstractSyntaxVal = treeBuilder.makePatDef(
+            Modifiers(Flags.PRIVATE),
+            Ident("abstractSyntax"),
+            reparseInvocation)
+
+          // Display the generated code if requested.
           val Some(displayGenerated) = scalanessSettings("displayGenerated")
           if (displayGenerated == "true") {
             println(s"Code generated into $MininessComponentName...")
+//            println(s"\t$typeVars")
+//            println(s"\t$valueVars")
             println(s"\t$abstractSyntaxVal")
           }
 
