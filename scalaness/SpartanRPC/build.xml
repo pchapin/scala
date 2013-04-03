@@ -3,8 +3,8 @@
 
   <!-- Set global properties for all builds. -->
   <property environment="env"/>
-  <!-- <property name="scala.home"  location="${env.SCALA_HOME}"/> -->
-  <property name="scala.home"  location="/home/peter/Projects/Scala/build/pack"/>
+  <!-- The SCALANESS_HOME environment variable should be the build/pack folder. -->
+  <property name="scala.home"  location="${env.SCALANESS_HOME}"/>
   <property name="library.dir" location="lib"/>
 
   <!-- Set properties for the build. -->

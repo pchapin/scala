@@ -28,10 +28,6 @@ Figure1
     This folder contains a live version of the sample used in Figure 1 of the nesT/Scalaness
     paper.
 
-IML
-    This folder contains the files defining Issue Markup Language along with a list of Scalaness
-    issues.
-
 plugin
     The plugin version of Scalaness. This version attempts to implement the Scalaness system as
     a Scala compiler plugin. This may be infeasible due to the nature of type system changes

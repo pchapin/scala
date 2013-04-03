@@ -5,7 +5,7 @@
       <configuration>
         <option name="compilerLibraryLevel" value="Global" />
         <option name="compilerLibraryName" value="scalaness-compiler" />
-        <option name="compilerOptions" value="-scalanessconfig /home/peter/Projects/Scala/scalaness/SpartanRPC/Scalaness.cfg" />
+        <option name="compilerOptions" value="-scalanessconfig /home/peter/Projects/Scalaness/scalaness/SpartanRPC/Scalaness.cfg" />
         <option name="languageLevel" value="Scala 2.11" />
         <option name="warnings" value="false" />
       </configuration>
@@ -16,7 +16,7 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
-      <excludeFolder url="file://$MODULE_DIR$/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/classes" />
       <excludeFolder url="file://$MODULE_DIR$/doc" />
       <excludeFolder url="file://$MODULE_DIR$/generated" />
