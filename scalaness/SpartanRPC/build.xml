@@ -138,7 +138,7 @@
   <!-- I don't want to try extracting documentation from invalid Scala files. -->
   <target name="scaladoc" depends="compile" description="Generate the Scaladoc" >
     <mkdir dir="${scaladoc.dir}"/>
-    <scaladoc addparams="-feature -cp ${library.dir}/antlr-3.4.jar"
+    <scaladoc addparams="-feature"
               srcdir="${main.sources.dir}"
               destdir="${scaladoc.dir}"
               deprecation="yes"
