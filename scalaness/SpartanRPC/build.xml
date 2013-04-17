@@ -23,11 +23,13 @@
     <property name="scala-compiler.jar" location="${scala.home}/lib/scala-compiler.jar"/>
     <property name="scala-reflect.jar" location="${scala.home}/lib/scala-reflect.jar"/>
     <property name="scala-actors.jar" location="${scala.home}/lib/scala-actors.jar"/>
+    <property name="antlr.jar" location="${scala.home}/lib/antlr-3.4.jar"/>
     <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
         <pathelement location="${scala-compiler.jar}"/>
         <pathelement location="${scala-reflect.jar}"/>
         <pathelement location="${scala-library.jar}"/>
+        <pathelement location="${antlr.jar}"/>
       </classpath>
     </taskdef>
 
@@ -71,7 +73,7 @@
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
       <pathelement location="${scala-actors.jar}"/>
-      <pathelement location="${library.dir}/antlr-3.4.jar"/>
+      <pathelement location="${antlr.jar}"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
     </path>
@@ -90,7 +92,7 @@
 
     <!-- Compile the Scala code from ${main.sources.dir} into ${main.classes.dir} -->
     <scalac deprecation="on"
-            addparams="-feature -g:vars -cp ${library.dir}/antlr-3.4.jar"
+            addparams="-feature -g:vars -nowarn"
             srcdir="${main.sources.dir}"
             destdir="${main.classes.dir}"
             classpathref="build.classpath">
@@ -108,7 +110,7 @@
 
     <!-- Compile the Scala code from ${test.sources.dir} into ${test.classes.dir} -->
     <scalac deprecation="on"
-            addparams="-feature -g:vars -cp ${library.dir}/antlr-3.4.jar"
+            addparams="-feature -g:vars -nowarn"
             srcdir="${test.sources.dir}"
             destdir="${test.classes.dir}"
             classpathref="build.test.classpath">
