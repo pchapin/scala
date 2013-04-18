@@ -4,24 +4,31 @@
 
 module BlinkServerC {
     provides command void setLeds( uint8_t value );
-    uses interface Leds;
+    uses command void led0On();
+    uses command void led1On();
+    uses command void led2On();
+    uses command void led0Off();
+    uses command void led1Off();
+    uses command void led2Off();
 }
 implementation {
 
     command void setLeds( uint8_t value ) {
 
-        /* if( value & 0x01U )
-            call Leds.led0On( );
+        if( value & 0x01U )
+            call led0On( );
         else 
-            call Leds.led0Off( );
+            call led0Off( );
+
         if( value & 0x02U )
-            call Leds.led1On( );
+            call led1On( );
         else
-            call Leds.led1Off( );
+            call led1Off( );
+
         if( value & 0x04U )
-            call Leds.led2On( );
+            call led2On( );
         else
-            call Leds.led2Off( ); */
+            call led2Off( );
     }
   
 }

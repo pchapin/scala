@@ -96,9 +96,9 @@ object Database {
 
         store.setKeyEntry(who, privateKey, password, chain)
 
-        println(who + " (private key   ) = " + privateKey.getS.toString(16))
-        println(who + " (public  key: X) = " + publicKey.getW.getAffineX.toString(16))
-        println(who + " (public  key: Y) = " + publicKey.getW.getAffineY.toString(16))
+        println(who + " (private key  ) = " + privateKey.getS.toString(16))
+        println(who + " (public  key X) = " + publicKey.getW.getAffineX.toString(16))
+        println(who + " (public  key Y) = " + publicKey.getW.getAffineY.toString(16))
 
         // Verify certificate
         // val cert = store.getCertificateChain(who)(0)

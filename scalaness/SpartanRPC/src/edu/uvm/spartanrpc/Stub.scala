@@ -11,7 +11,7 @@ import edu.uvm.scalaness.{ProgramComponentWrapper, NamedProgramComponent, Minine
 import java.io.File
 
 @ModuleType("""{}
-               <;>{ }""")
+               <;>{ ; }""")
 class Stub extends MininessComponent {
  
   /////////

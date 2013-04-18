@@ -5,14 +5,16 @@
 #include "CryptographicServices.h"
 #include "ECC.h"
 
-module ASRT0C {
-    provides interface AuthorizationServer;
-    uses {
-    	interface Encrypt; // For hardware AES.
-    }	
+module ASMACC {
+    // provides interface AuthorizationServer;
+    // uses {
+    //     interface Encrypt; // For hardware AES.
+    // }	
 }
 
 implementation {
+// Comment out this mess for now.
+#ifdef NEVER
     struct SessionKey session_key;  // The session key should be hard coded by Scalaness.
     uint8_t  aes_plaintext[16];
     uint8_t  aes_ciphertext[16];
@@ -45,7 +47,7 @@ implementation {
     	    memcpy( aes_plaintext, message_buffer, size - 4 );
     	    message = message_buffer;
     	    total_size = size;
-    	    if( call Encrypt.setKey( session_key.value ) == SUCCESS) {
+    	    if( call setKey( session_key.value ) == SUCCESS) {
     	        in_progress = TRUE;
     	        return SUCCESS;
     	    }
@@ -56,7 +58,7 @@ implementation {
     }
 
     
-    event void Encrypt.setKeyDone( uint8_t *key )
+    /* event */ command void setKeyDone( uint8_t *key )
     {
         if( key != session_key.value ) {
             // Something strange happened while loading the key.
@@ -67,14 +69,14 @@ implementation {
             // the implementation of the Encrypt interface that I'm using doesn't actually do
             // that in all cases. In that case in_progress will be stuck at TRUE forever.
             //
-            if( call Encrypt.putPlain( aes_plaintext, aes_ciphertext ) == FAIL ) {
+            if( call putPlain( aes_plaintext, aes_ciphertext ) == FAIL ) {
                 in_progress = FALSE;
             }
         }
     }
 
     
-    event void Encrypt.getCipher( uint8_t *plain, uint8_t *cipher )
+    /* event */ command void getCipher( uint8_t *plain, uint8_t *cipher )
     {
         int result;
         
@@ -84,10 +86,10 @@ implementation {
         result = memcmp( message + total_size - 4, cipher, 4 );
 
         // If want to change key, we need to call clrKey first.
-        call Encrypt.clrKey( session_key.value );
+        call clrKey( session_key.value );
         
         in_progress = FALSE;
-        signal AuthorizationServer.check_done( (result == 0) ? TRUE : FALSE );
+        /* signal */ AuthorizationServer.check_done( (result == 0) ? TRUE : FALSE );
     }
-
+#endif
 }

@@ -3,14 +3,14 @@
 //
 
 module BlinkClientC {
-    uses interface Leds;
+    uses command void led0Toggle();
 }
 implementation {
     int value = 0;
 
     void f( int increment )
     {
-      call Leds.led0Toggle( );
+      call led0Toggle( );
     }
 
 }
