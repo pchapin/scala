@@ -1,7 +1,0 @@
-
-TODO.txt
-========
-
-+ Currently it appears that ModuleType annotations on objects are not being checked. That is,
-  when the Mininess code has a different ModuleType than the annotations specify, there is no
-  error.

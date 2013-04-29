@@ -1,16 +1,16 @@
 
-SpartanRPC README.txt
-=====================
+SpartanRPC
+==========
 
 This folder contains a staged SpartanRPC sample. This program generates a simple "remote blink"
 application where a client periodically sends a count value to a server. The client and server
 are in different security domains and the server wishes to restrict access to its LED display
 service to only clients that meet an appropriate security policy.
 
-Unlike the Sprocket system described elsewhere, this program does all security processing up to
-session key negotiation in the first stage. It then specializes the node programs with the
-session keys so that only MAC computation and verification (using hardware acceleration) is done
-in the network.
+Unlike the Sprocket system described elsewhere, this program does all security processing
+through session key negotiation in the first stage. It then specializes the node programs with
+the session keys so that only MAC computation and verification (using hardware acceleration) is
+done in the network.
 
 The first stage program is intended to be run by both security domains A and B. In this
 implementation each copy of the program communicates with its counterpart to negotiate session
@@ -26,10 +26,10 @@ NOTES
 To turn on IntelliJ's ability to log raw compiler output first add the following to log.xml in
 IntelliJ's bin folder (where IntelliJ is installed):
 
-  <category name="#org.jetbrains.plugins.scala.compiler.ScalacOutputParser">
-    <priority value="DEBUG"/>
-    <appender-ref ref="FILE"/>
-  </category>
+    <category name="#org.jetbrains.plugins.scala.compiler.ScalacOutputParser">
+        <priority value="DEBUG"/>
+        <appender-ref ref="FILE"/>
+    </category>
 
 It should be added immediately above the <root> element (toward the bottom of the file).
 
