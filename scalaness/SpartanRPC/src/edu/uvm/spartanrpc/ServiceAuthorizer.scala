@@ -6,13 +6,13 @@
 //-----------------------------------------------------------------------
 package edu.uvm.spartanrpc
 
-import actors.Actor
+import akka.actor.Actor
 import java.net.{DatagramPacket, DatagramSocket}
 
 class ServiceAuthorizer(private val port: Int) extends Actor {
   private val listeningSocket = new DatagramSocket(port)
   
-  def act() {
+  def receive = { case _ =>
     val message = new Array[Byte](512)
     val packet = new DatagramPacket(message, message.length)
     

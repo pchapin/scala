@@ -22,7 +22,6 @@
     <property name="scala-library.jar" location="${scala.home}/lib/scala-library.jar"/>
     <property name="scala-compiler.jar" location="${scala.home}/lib/scala-compiler.jar"/>
     <property name="scala-reflect.jar" location="${scala.home}/lib/scala-reflect.jar"/>
-    <property name="scala-actors.jar" location="${scala.home}/lib/scala-actors.jar"/>
     <property name="antlr.jar" location="${scala.home}/lib/antlr-3.4.jar"/>
     <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
@@ -38,7 +37,8 @@
       <pathelement location="${scala-compiler.jar}"/>
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
-      <pathelement location="${scala-actors.jar}"/>
+      <pathelement location="${library.dir}/akka-actor_2.10-2.1.2.jar"/>
+      <pathelement location="${library.dir}/config-1.0.0.jar"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
     </path>
@@ -49,12 +49,13 @@
       <pathelement location="${scala-compiler.jar}"/>
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
-      <pathelement location="${scala-actors.jar}"/>
+      <pathelement location="${library.dir}/akka-actor_2.10-2.1.2.jar"/>
+      <pathelement location="${library.dir}/config-1.0.0.jar"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
 
       <pathelement location="${library.dir}/junit-4.8.2.jar"/>
-      <pathelement location="${library.dir}/scalatest-2.0.jar"/>
+      <pathelement location="${library.dir}/scalatest_2.10-1.9.1.jar"/>
       <pathelement location="${test.classes.dir}"/>
     </path>
 
@@ -63,17 +64,19 @@
       <pathelement location="${scala-compiler.jar}"/>
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
-      <pathelement location="${scala-actors.jar}"/>
+      <pathelement location="${library.dir}/akka-actor_2.10-2.1.2.jar"/>
+      <pathelement location="${library.dir}/config-1.0.0.jar"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
     </path>
 
     <!-- Classpath used during execution. -->
     <path id="run.classpath">
+      <pathelement location="${antlr.jar}"/>
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
-      <pathelement location="${scala-actors.jar}"/>
-      <pathelement location="${antlr.jar}"/>
+      <pathelement location="${library.dir}/akka-actor_2.10-2.1.2.jar"/>
+      <pathelement location="${library.dir}/config-1.0.0.jar"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
     </path>
@@ -147,6 +150,14 @@
               classpathref="scaladoc.classpath">
       <include name="**/*.scala"/>
     </scaladoc>
+  </target>
+
+  <target name="run" depends="distribution" description="Run the SpartanRPC sample">
+    <java classname="edu.uvm.spartanrpc.Main" fork="true">
+      <arg value="Alice"/>
+      <classpath refid="run.classpath"/>
+      <classpath path="${distribution.dir}/SpartanRPC.jar"/>
+    </java>
   </target>
 
   <!-- ======== -->

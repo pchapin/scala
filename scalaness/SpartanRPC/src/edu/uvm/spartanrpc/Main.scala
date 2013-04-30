@@ -6,6 +6,7 @@
 //-----------------------------------------------------------------------
 package edu.uvm.spartanrpc
 
+import akka.actor.{ActorSystem, Props}
 import edu.uvm.rt.CertificateStorageInMemory
 
 /**
@@ -22,16 +23,17 @@ object Main {
     if (args.length != 1)
       println("Owning entity name expected on the command line.")
     else {
-      MessageServer.start()
-      MessageServer ! "Welcome to BlinkBuilder!"
       val owningEntity = args(0)
       val certificateStore = new CertificateStorageInMemory
-      // val authorizer = new ServiceAuthorizer(9000)
-      // authorizer.start()
+
+      val system = ActorSystem("SpartanRPC")
+      val messageServer = system.actorOf(Props[MessageServer], "message server")
+      // val authorizer = system.actorOf(Props(new ServiceAuthorizer(9000)), "authorizer")
+      messageServer ! "Welcome to BlinkBuilder!"
       
       while (true) {
         Thread.sleep(10000)
-        MessageServer ! "Generating Blink..."
+        messageServer ! "Generating Blink..."
         // Generate blink application using current information.
         BlinkClient.image()
         BlinkServer.image()
