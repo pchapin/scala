@@ -2,8 +2,8 @@
 // SUMMARY: An AuthorizationServer that uses hardware MAC authorization with a session key.
 //
 
-#include "CryptographicServices.h"
-#include "ECC.h"
+// #include "CryptographicServices.h"
+// #include "ECC.h"
 
 module ASMACC {
     // provides interface AuthorizationServer;

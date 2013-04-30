@@ -67,26 +67,26 @@ class MininessTyper(
         val childType = checkMininessExpression(children(0), depth + 1) match {
           case Some(TypeVariable(t)) => promote(typeVars,t)
           case Some(childType) => childType
-          case _ => throw new TypeException("'case' expression must have a type")
+          case _ => throw new TypeException("Unable to find type for argument of node 'CASE'.")
         }
-        if (areSubtypes(childType, Int32)) {
+        if (areSubtypes(childType, Int32) || areSubtypes(childType, UInt32)) {
           val bodyType = checkMininessInclusion(children(1), depth + 1)
           Some(Okay)
         }
-        else throw new TypeException("'case' expression must be an integer")
-      } // Case condition just has to be subtype of Int16? Or more specific?
+        else throw new TypeException("(Node CASE) Unexpected Type: " + childType + ". Expected: <: Int32 or UInt32.")
+      }
 
       case ASTNode(MininessLexer.CHAR, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
       
       case ASTNode(MininessLexer.COMMAND, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.COMPOUND_STATEMENT, _, children, _, _) => {
         for (child <- children)
@@ -98,54 +98,54 @@ class MininessTyper(
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
       
       case ASTNode(MininessLexer.DECLARATION, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.DECLARATOR, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
-
+      }
+      
       case ASTNode(MininessLexer.DECLARATOR_ARRAY_MODIFIER, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
       
       case ASTNode(MininessLexer.DECLARATOR_LIST, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.DECLARATOR_PARAMETER_LIST_MODIFIER, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.DEFAULT, _, children, _, _) => {
         val childType = checkMininessInclusion(children(0), depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.ERROR_T, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
       
       case ASTNode(MininessLexer.EVENT, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.FILE, _, children, _, _) => {
         var moduleChild = -1
@@ -160,54 +160,54 @@ class MininessTyper(
                          else
                            Some(Okay)
         returnType
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.FOR, _, children, _, _) => {
         val firstChildType  = checkMininessInclusion(children(0), depth + 1)
         val secondChildType = checkMininessInclusion(children(1), depth + 1)
         val thirdChildType  = checkMininessInclusion(children(2), depth + 1)
         Some(Okay)
-      } // Check children, OKAY
+      }
 
       case ASTNode(MininessLexer.FOR_CONDITION, _, children, _, _) => {
         val childType = checkMininessExpression(children(0), depth + 1) match {
           case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
-          case _ => throw new TypeException("'for' condition must have a type")
+          case _ => throw new TypeException("Unable to find type for argument of node 'FOR_CONDITION'.")
         }
         if (areSubtypes(childType, Int32) || areSubtypes(childType, UInt32)) {
           Some(Okay)
         }
-        else throw new TypeException("'for' condition must be a signed or unsigned integer")
-      } // Check for subtype of Int, OKAY
+        else throw new TypeException("(Node FOR_CONDITION) Unexpected Type: " + childType + ". Expected: <: Int32 or UInt32.")
+      } 
 
       case ASTNode(MininessLexer.FOR_INITIALIZE, _, children, _, _) => {
         val childType = checkMininessExpression(children(0), depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      } 
 
       case ASTNode(MininessLexer.FOR_ITERATION, _, children, _, _) => {
         val childType = checkMininessExpression(children(0), depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.FUNCTION_DEFINITION, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.IDENTIFIER_PATH, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.IF, _, children, _, _) => {
         val conditionType = checkMininessExpression(children(0), depth + 1) match {
           case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(conditionType) => conditionType
-          case _ => throw new TypeException("'if' condition must have a type")
+          case _ => throw new TypeException("Unable to find type for argument of node 'IF'.")
         }
         if (areSubtypes(conditionType, Int32) || areSubtypes(conditionType, UInt32)) {
           val firstChildType = checkMininessInclusion(children(1), depth + 1)
@@ -216,57 +216,57 @@ class MininessTyper(
           }
           Some(Okay)
         }
-        else throw new TypeException("'if' condition must be a signed or unsigned integer")
+        else throw new TypeException("(Node IF) Unexpected Type: " + conditionType + ". Expected: <: Int32 or UInt32.")
       }
 
       case ASTNode(MininessLexer.IMPLEMENTATION, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      } 
 
       case ASTNode(MininessLexer.INIT_DECLARATOR, _, children, _, _) => {
         checkMininessInclusion(children(0), depth + 1)
         if (children.length > 1)
           checkMininessExpression(children(1), depth + 1)  // The initilizer is an expression.
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.INT, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      } 
 
       case ASTNode(MininessLexer.INT8_T, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      } 
 
       case ASTNode(MininessLexer.INT16_T, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      } 
 
       case ASTNode(MininessLexer.INT32_T, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.INTERFACE, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
       
       case ASTNode(MininessLexer.LINE_DIRECTIVE, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.MODULE, _, children, _, symList) => {
 
@@ -293,37 +293,37 @@ class MininessTyper(
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      } 
       
       case ASTNode(MininessLexer.PARAMETER, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      } 
 
       case ASTNode(MininessLexer.PARAMETER_LIST, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      } 
       
       case ASTNode(MininessLexer.POINTER_QUALIFIER, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      } 
       
       case ASTNode(MininessLexer.POSTFIX_EXPRESSION, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      } 
       
       case ASTNode(MininessLexer.PROVIDES, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      } 
 
       case ASTNode(MininessLexer.RAW_IDENTIFIER, ident, _, _, symList ) => {
          if (debugFlag) println(ident)
@@ -340,92 +340,92 @@ class MininessTyper(
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      } 
 
       case ASTNode(MininessLexer.STATEMENT, _, children, _, _) => {
         for (child <- children)
           checkMininessExpression(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      } 
       
       case ASTNode(MininessLexer.STRING_LITERAL, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      } 
 
       case ASTNode(MininessLexer.STRUCT, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
       
       case ASTNode(MininessLexer.SWITCH, _, children, _, _) => {
         val childType = checkMininessExpression(children(0), depth + 1) match {
           case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
-          case _ => throw new TypeException("'switch' condition must have a type")
+          case _ => throw new TypeException("Unable to find type for argument of node 'SWITCH'.")
         }
-        if (areSubtypes(childType, Int32)) {
+        if (areSubtypes(childType, Int32) || areSubtypes(childType, UInt32)) {
           val bodyType = checkMininessInclusion(children(1), depth + 1)
           Some(Okay)
         }
-        else throw new TypeException("'switch' condition must be an integer")
+        else throw new TypeException("(Node SWITCH) Unexpected Type: " + childType + ". Expected: <: Int32 or UInt32.")
       }
       
       case ASTNode(MininessLexer.TYPEDEF, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.UINT8_T, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      } 
 
       case ASTNode(MininessLexer.UINT16_T, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.UINT32_T, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.UNSIGNED, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.USES, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.VOID, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
         Some(Okay)
-      } // If children type check, then OKAY
+      }
 
       case ASTNode(MininessLexer.WHILE, _, children, _, _) => {
         val conditionType = checkMininessExpression(children(0), depth + 1) match {
           case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(conditionType) => conditionType
-          case _ => throw new TypeException("'while' condition must have a type")
+          case _ => throw new TypeException("Unable to find type for argument of node 'WHILE'.")
         }
         if (areSubtypes(conditionType, Int32) || areSubtypes(conditionType, UInt32)) {
           val childType = checkMininessInclusion(children(1), depth + 1)
           Some(Okay)
         }
-        else throw new TypeException("'while' condition must be a signed or unsigned integer")
+        else throw new TypeException("(Node WHILE) Unexpected Type: " + conditionType + ". Expected: <: Int32 or UInt32.")
       }
 
       case _ => {
@@ -505,12 +505,12 @@ class MininessTyper(
         val childType = checkMininessExpression(children(0), depth + 1) match {
           case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
-          case _ => throw new TypeException("Operand of '&' must have a type")
+          case _ => throw new TypeException("Unable to find type for argument of node 'ADDRESS_OF'.")
         }
-        if (isLeftValue(children(0)))
+        if (isLeftValue(children(0))) // Should this be childType? Or is the typeVariable an L-value?
           Some(Pointer(childType))
         else
-          throw new TypeException("Address Of must be performed on L-value")
+          throw new TypeException("(Node ADDRESS_OF) Unexpected Type: " + children(0) + ". Expected: L-Value.")
       }
 
       // TODO: The type returned by bitwise AND isn't always Int16 (UInt16).
@@ -522,7 +522,8 @@ class MininessTyper(
         else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
           Some(UInt16)
         }
-        else throw new TypeException("Operands of '&' must be integers")
+        else throw new TypeException("(Node AMP) Unexpected Types: " + firstChildType + 
+                                     " & " + secondChildType + ". Expected: <: Int32 or UInt32.")
       }
 
       case ASTNode(MininessLexer.AND, _, children, _, _) => {
@@ -533,21 +534,22 @@ class MininessTyper(
         else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
           Some(Int16)
         }
-        else throw new TypeException("Operands of '&&' must be integers")
+        else throw new TypeException("(Node AND) Unexpected Types: " + firstChildType + 
+                                     " & " + secondChildType + ". Expected: <: Int32 or UInt32.")
       }
 
       case ASTNode(MininessLexer.ARGUMENT_LIST, _, children, parent, _) => {
         val siblingType = getSiblingType(parent, depth)
         val (returnType, parameterList) = siblingType match {
           case Some(Function(rt, pl)) => (rt, pl)
-          case _ => throw new TypeException("Function type is required")
+          case _ => throw new TypeException("(Node ARGUMENT_LIST) Unexpected Type: " + siblingType + ". Expected: Function type.")
         }
 
         for (i <- 0 until children.length) {
           val childType = checkMininessExpression(children(i), depth + 1) match {
             case Some(TypeVariable(t)) => promote(typeVars, t)
             case Some(cType) => cType
-            case _ => throw new TypeException("Argument must have a type")
+            case _ => throw new TypeException("Unable to find type for argument of node 'ARGUMENT_LIST'.")
           }
           
           val parameterType = parameterList(i) match {
@@ -556,7 +558,7 @@ class MininessTyper(
           }
            
           if (!(areSubtypes(childType, parameterType)))
-            throw new TypeException(s"Argument type mismatch. Found: $childType, Expected: $parameterType")
+            throw new TypeException("(Node ARGUMENT_LIST) Unexpected Type: " + childType + ". Expected: " + parameterType + ".")
         } // Compares each argument type to the parameter being asked for by the function.
           // The argument should be subtype of parameter.
 
@@ -575,20 +577,20 @@ class MininessTyper(
           Some(firstChildType)
         else if (isArray && areSubtypes(secondChildType,UInt16))
           Some(firstChildType)
-        else throw new TypeException("Must increment an Array by a Integer value")
+        else throw new TypeException("(Node ARRAY_INC) Unexpected Type: " + secondChildType + ". Expected: <: Int16 or UInt16.")
       }
         
       case ASTNode(MininessLexer.ARRAY_ELEMENT_SELECTION, _, children, parent, _) => {
         val siblingType = getSiblingType(parent, depth)
         val arrayType = siblingType match {
           case Some(Array(aType, _)) => aType
-          case _ => throw new TypeException("'[]' can only be used with arrays")
+          case _ => throw new TypeException("(Node ARRAY_ELEMENT SELECTION) Unexpected Type: " + siblingType + 
+                                            ". Expected: Array type.")
         }
-        if (debugFlag) println("Array Type: " + arrayType)
         val childType = checkMininessExpression(children(0), depth + 1) match {
           case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
-          case _ => throw new TypeException("Array index must have a type")
+          case _ => throw new TypeException("Unable to find type for argument of node 'ARRAY_ELEMENT_SELECTION'.")
         }
         if (areSubtypes(childType,Int16)) {
           Some(arrayType)
@@ -596,14 +598,16 @@ class MininessTyper(
         else if (areSubtypes(childType,UInt16)) {
           Some(arrayType)
         }
-        else throw new TypeException("Array index must be Int16")
+        else throw new TypeException("(Node ARRAY_ELEMENT_SELECTION) Unexpected Type: " + childType + 
+                                     ". Expected: <: Int16 or UInt16.")
       }
 
       case ASTNode(MininessLexer.ARROW, _, children, parent, _) => {
-        val siblingType = getSiblingType(parent, depth) match {
+        val fullSiblingType = getSiblingType(parent, depth)
+        val siblingType = fullSiblingType match {
           case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(Pointer(siblingType)) => siblingType
-          case _ => throw new TypeException("'->' can only be used with pointers")
+          case _ => throw new TypeException("(Node ARROW) Unexpected Type: " + fullSiblingType + ". Expected: Pointer Type.")
         }
         val identifier = children(0).text // Member to be looked up
         try {
@@ -621,19 +625,19 @@ class MininessTyper(
           val leftType = checkMininessExpression(children(0), depth + 1) match {
             case Some(TypeVariable(t)) => promote(typeVars, t)
             case Some(leftType) => leftType
-            case _ => throw new TypeException("Left operand of '=' must have a type")
+            case _ => throw new TypeException("Unable to find type for left argument of node 'ASSIGN'.")
           }
           val rightType = checkMininessExpression(children(1), depth + 1) match {
             case Some(TypeVariable(t)) => promote(typeVars, t)
             case Some(rightType) => rightType
-            case _ => throw new TypeException("Right operand of '=' must have a type")
+            case _ => throw new TypeException("Unable to find type for right argument of node 'ASSIGN'.")
           }
           if (areSubtypes(rightType, leftType)) {
             Some(Okay)
           }
-          else throw new TypeException("Left and right operands of '=' must be like types")
+          else throw new TypeException("(Node ARGUMENT_LIST) Unexpected Type: " + rightType + ". Expected: " + leftType + ".")
         }
-        else throw new TypeException("Left operand of '=' must be an lvalue")
+        else throw new TypeException("(Node ASSIGN) Unexpected Type: " + children(0) + ". Expected: L-Value.")
       } // Checks that left side "storage" type is same as right side value type.
         // Updated for subtyping, but can subtype be assigned to supertype / vice-versa?
 
@@ -643,15 +647,18 @@ class MininessTyper(
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
-          else throw new TypeException("Right operand of '&=' must be a subtype of left operand")
+          else throw new TypeException("(Node BITANDASSIGN) Unexpected Type: " + secondChildType + 
+                                       ". Expected: " + firstChildType + ".")
         }
         else if (areSubtypes(firstChildType, UInt32)) {
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
-          else throw new TypeException("Right operand of '&=' must be a subtype of left operand")
+          else throw new TypeException("(Node BITANDASSIGN) Unexpected Type: " + secondChildType + 
+                                       ". Expected: " + firstChildType + ".")
         }
-        else throw new TypeException("Left operand must have numeric type")
+        else throw new TypeException("(Node BITANDASSIGN) Unexpected Type: " + firstChildType + 
+                                       ". Expected: <: Int32 or UInt32.")
       } // Right side must be a subtype of left side, so var type of left side doesn't change?
 
       // TODO: The type returned by bitwise complement isn't always Int16 (or UInt16).
@@ -659,7 +666,7 @@ class MininessTyper(
        val childType = checkMininessExpression(children(0), depth + 1) match {
           case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
-          case _ => throw new TypeException("Operand of '~' must have a type")
+          case _ => throw new TypeException("Unable to find type for argument of node 'BITCOMPLEMENT'.")
         }
        if (areSubtypes(childType, Int32)) {
          Some(Int16)
@@ -667,7 +674,7 @@ class MininessTyper(
        else if (areSubtypes(childType, UInt32)) {
          Some(UInt16)
        }
-       else throw new TypeException("Operand of '~' must have integer type")
+       else throw new TypeException("(Node BITCOMPLEMENT) Unexpected Type: " + childType + ". Expected: <: Int32 or UInt32.")
       }
 
       // TODO: The type returned by bitwise OR isn't always Int16 (UInt16).
@@ -679,7 +686,8 @@ class MininessTyper(
         else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
           Some(UInt16)
         }
-        else throw new TypeException("Operands of '|' must have integer type")
+        else throw new TypeException("(Node BITOR) Unexpected Types: " + firstChildType + 
+                                     " & " + secondChildType + ". Expected: <: Int32 or UInt32.")
       }
 
       case ASTNode(MininessLexer.BITORASSIGN, _, children, _, _) => {
@@ -688,15 +696,18 @@ class MininessTyper(
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
-          else throw new TypeException("Right operand of '|=' must be a subtype of left operand")
+          else throw new TypeException("(Node BITORASSIGN) Unexpected Type: " + secondChildType + 
+                                       ". Expected: " + firstChildType + ".")
         }
         else if (areSubtypes(firstChildType, UInt32)) {
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
-          else throw new TypeException("Right operand of '|=' must be a subtype of left operand")
+          else throw new TypeException("(Node BITORASSIGN) Unexpected Type: " + secondChildType + 
+                                       ". Expected: " + firstChildType + ".")
         }
-        else throw new TypeException("Left operand of '|=' must have numeric type")
+        else throw new TypeException("(Node BITORASSIGN) Unexpected Type: " + firstChildType + 
+                                       ". Expected: <: Int32 or UInt32.")
       } // Right side must be a subtype of left side, so var type of left side doesn't change?
 
       // TODO: The type returned by bitwise XOR isn't always Int16 (UInt16).
@@ -708,7 +719,8 @@ class MininessTyper(
         else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
           Some(UInt16)
         }
-        else throw new TypeException("Operands of '^' must have integer type")
+        else throw new TypeException("(Node BITXOR) Unexpected Types: " + firstChildType + 
+                                     " & " + secondChildType + ". Expected: <: Int32 or UInt32.")
       }
 
       case ASTNode(MininessLexer.BITXORASSIGN, _, children, _, _) => {
@@ -717,22 +729,25 @@ class MininessTyper(
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
-          else throw new TypeException("Right operand of '^=' must be a subtype of left operand")
+          else throw new TypeException("(Node BITXORASSIGN) Unexpected Type: " + secondChildType + 
+                                       ". Expected: " + firstChildType + ".")
         }
         else if (areSubtypes(firstChildType, UInt32)) {
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
-          else throw new TypeException("Right operand of '^=' must be a subtype of left operand")
+          else throw new TypeException("(Node BITXORASSIGN) Unexpected Type: " + firstChildType + 
+                                       ". Expected: <: Int32 or UInt32.")
         }
-        else throw new TypeException("Left operand of '^=' must have numeric type")
+        else throw new TypeException("(Node BITXORASSIGN) Unexpected Type: " + firstChildType + 
+                                       ". Expected: <: Int32 or UInt32.")
       } // Right side must be a subtype of left side, so var type of left side doesn't change?
 
       case ASTNode(MininessLexer.CAST, _, children, _, _) => {
         val childType = checkMininessExpression(children(0), depth + 1) match {
           case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
-          case _ => throw new TypeException("Cast child must have a type")
+          case _ => throw new TypeException("Unable to find type for argument of node 'CAST'.")
         }
         var castType = children(1).text match {
           case "struct" => Symbols.lookupStructVariable(node, children(1).children(0).text)
@@ -745,7 +760,7 @@ class MininessTyper(
 
         if (isCompatible(childType,castType,typeRelation))
           Some(castType)
-        else throw new TypeException("Incompatible Cast")
+        else throw new TypeException("(Node CAST) Incompatible cast: " + childType + " => " + castType + ".")
       }
       
       case ASTNode(MininessLexer.CHARACTER_LITERAL, ident, _, _, _) => {
@@ -780,7 +795,7 @@ class MininessTyper(
         val childType = checkMininessExpression(children(0), depth + 1)
         val returnType = childType match {
           case Some(Pointer(pType)) => Some(pType)
-          case _ => throw new TypeException("Operand of '*' must have pointer type")
+          case _ => throw new TypeException("(Node DEREFERENCE) Unexpected Type: " + childType + ". Expected: Pointer Type.")
         }
         returnType
       }
@@ -791,15 +806,18 @@ class MininessTyper(
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
-          else throw new TypeException("Right operand of '/=' must be a subtype of left operand")
+          else throw new TypeException("(Node DIVASSIGN) Unexpected Type: " + secondChildType + 
+                                       ". Expected: " + firstChildType + ".")
         }
         else if (areSubtypes(firstChildType, UInt32)) {
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
-          else throw new TypeException("Right operand of '/=' must be a subtype of left operand")
+          else throw new TypeException("(Node DIVASSIGN) Unexpected Type: " + secondChildType + 
+                                       ". Expected: " + firstChildType + ".")
         }
-        else throw new TypeException("Left operand of '/=' must have numeric type")
+        else throw new TypeException("(Node DIVASSIGN) Unexpected Type: " + firstChildType + 
+                                       ". Expected: " + " <: Int32 or UInt32.")
       } // Right side must be a subtype of left side, so var type of left side doesn't change?
 
       case ASTNode(MininessLexer.DIVIDE, _, children, _, _) => {
@@ -810,14 +828,15 @@ class MininessTyper(
         else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
-        else throw new TypeException("Operands of '/' must have integer type")
+        else throw new TypeException("(Node DIVIDE) Unexpected Types: " + firstChildType + 
+                                     " & " + secondChildType + ". Expected: <: Int32 or UInt32.")
       }
 
       case ASTNode(MininessLexer.DOT, _, children, parent, _) => {
         val siblingType = getSiblingType(parent, depth) match {
           case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(siblingType) => siblingType
-          case _ => throw new TypeException("Left operand of '.' must have a type")
+          case _ => throw new TypeException("Unable to find type for argument of node 'DOT'.")
         }
         val identifier = children(0).text // Member to be looked up
         try {
@@ -835,7 +854,8 @@ class MininessTyper(
         if (areSubtypes(firstChildType, secondChildType) ||
             areSubtypes(secondChildType, firstChildType))
           Some(Int16)
-        else throw new TypeException("Operands of '==' must have compatible types")
+        else throw new TypeException("(Node EQUAL) Unexpected Type: " + secondChildType + 
+                                       ". Expected: " + firstChildType + ".")
       } // This makes sure that the two arguments to the EQUAL operation are like types, but
         // should any type be included, or should it be restricted?
 
@@ -847,7 +867,8 @@ class MininessTyper(
         else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
           Some(Int16)
         }
-        else throw new TypeException("Operands of '>' must have integer type")
+        else throw new TypeException("(Node GREATER) Unexpected Types: " + firstChildType + 
+                                     " & " + secondChildType + ". Expected: <: Int32 or UInt32.")
       }
 
       case ASTNode(MininessLexer.GREATEREQUAL, _, children, _, _) => {
@@ -858,7 +879,8 @@ class MininessTyper(
         else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
           Some(Int16)
         }
-        else throw new TypeException("Operands of '>=' must have integer type")
+        else throw new TypeException("(Node GREATEREQUAL) Unexpected Types: " + firstChildType + 
+                                     " & " + secondChildType + ". Expected: <: Int32 or UInt32.")
       }
 
       case ASTNode(MininessLexer.LESS, _, children, _, _) => {
@@ -869,7 +891,8 @@ class MininessTyper(
         else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
           Some(Int16)
         }
-        else throw new TypeException("Operands of '<' must have integer type")
+        else throw new TypeException("(Node LESS) Unexpected Types: " + firstChildType + 
+                                     " & " + secondChildType + ". Expected: <: Int32 or UInt32.")
       }
 
       case ASTNode(MininessLexer.LESSEQUAL, _, children, _, _) => {
@@ -880,7 +903,8 @@ class MininessTyper(
         else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
           Some(Int16)
         }
-        else throw new TypeException("Operands of '<=' must have integer type")
+        else throw new TypeException("(Node LESSEQUAL) Unexpected Types: " + firstChildType + 
+                                     " & " + secondChildType + ". Expected: <: Int32 or UInt32.")
       }
 
       case ASTNode(MininessLexer.LSHIFT, _, children, _, _) => {
@@ -891,7 +915,8 @@ class MininessTyper(
         else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
-        else throw new TypeException("Operands of '<<' must have integer types")
+        else throw new TypeException("(Node LSHIFT) Unexpected Types: " + firstChildType + 
+                                     " & " + secondChildType + ". Expected: <: Int32 or UInt32.")
       }
 
       case ASTNode(MininessLexer.LSHIFTASSIGN, _, children, _, _) => {
@@ -900,26 +925,30 @@ class MininessTyper(
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
-          else throw new TypeException("Right operand of '<<=' must be a subtype of left operand")
+          else throw new TypeException("(Node LSHIFTASSIGN) Unexpected Type: " + secondChildType + 
+                                       ". Expected: " + firstChildType + ".")
         }
         else if (areSubtypes(firstChildType, UInt32)) {
           if (areSubtypes(secondChildType, firstChildType)) {
             Some(firstChildType)
           }
-          else throw new TypeException("Right operand of '<<=' must be a subtype of left operand")
+          else throw new TypeException("(Node LSHIFTASSIGN) Unexpected Type: " + secondChildType + 
+                                       ". Expected: " + firstChildType + ".")
         }
-        else throw new TypeException("Left operand of '<<=' must have numeric type")
+        else throw new TypeException("(Node LSHIFTASSIGN) Unexpected Type: " + firstChildType + 
+                                       ". Expected: " + " <: Int32 or UInt32.")
       } // Right side must be a subtype of left side, so var type of left side doesn't change?
 
       case ASTNode(MininessLexer.MINUS, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType,Int16) && areSubtypes(secondChildType,Int16)) {
+        if (areSubtypes(firstChildType,Int32) && areSubtypes(secondChildType,Int32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
-        else if (areSubtypes(firstChildType,UInt16) && areSubtypes(secondChildType,UInt16)) {
+        else if (areSubtypes(firstChildType,UInt32) && areSubtypes(secondChildType,UInt32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
-        else throw new TypeException("Operands of '-' must have integer type")
+        else throw new TypeException("(Node LSHIFT) Unexpected Types: " + firstChildType + 
+                                     " & " + secondChildType + ". Expected: <: Int32 or UInt32.")
       }
 
       case ASTNode(MininessLexer.MINUSASSIGN, _, children, _, _) => {
