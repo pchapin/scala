@@ -61,7 +61,7 @@ object Main {
     println("Use 'help' command for help")
     while (true) {
       print("RTAdmin => ")
-      line = readLine()
+      line = io.ReadStdin.readLine()
       val args = line.split("\\s+")
       if (commandMap.contains(args(0))) {
         commandMap(args(0))(args)

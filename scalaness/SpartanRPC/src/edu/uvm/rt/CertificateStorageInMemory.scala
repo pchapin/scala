@@ -7,21 +7,22 @@
 package edu.uvm.rt
 
 import java.security.interfaces.ECPublicKey
-import collection.mutable.Set
+import collection.mutable
 
 /**
- * Class that stores RT_0 credentials in memory. Unlike other possible implementations of the CredentialStorage trait,
+ * Class that stores RT_0 certificates in memory. Unlike other possible implementations of the CertificateStorage trait,
  * this class makes no use of disk files or external database systems.
  */
-class CredentialStorageInMemory extends CredentialStorage {
-  private val credentialSet = Set[Credential]()
+class CertificateStorageInMemory extends CertificateStorage {
+  private var linkedKeyStorage: KeyStorage = null
+  private val certificateSet = mutable.Set[Certificate]()
 
   private class ModelTuple(
     val targetKey : ECPublicKey,
     val targetRole: String,
     val memberKey : ECPublicKey)
 
-  private val modelSet = Set[ModelTuple]()
+  private val modelSet = mutable.Set[ModelTuple]()
   private var modelAccurate = true
 
   private def addTuple(newTuple: ModelTuple) = {
@@ -104,7 +105,7 @@ class CredentialStorageInMemory extends CredentialStorage {
     while (tupleAdded) {
       tupleAdded = false
 
-      for (currentCredential <- credentialSet) {
+      for (Certificate(currentCredential, _, _) <- certificateSet) {
         tupleAdded = (currentCredential match {
           case cred: CredentialMembership   => processMembership(cred)
           case cred: CredentialInclusion    => processInclusion(cred)
@@ -117,8 +118,20 @@ class CredentialStorageInMemory extends CredentialStorage {
   }
 
 
+  def foreach[U](f : Certificate => U) {
+    certificateSet.foreach(f)
+  }
+
+
+  def linkTo(keys: KeyStorage) {
+    linkedKeyStorage = keys
+  }
+
+
   def addCredential(incomingCredential: Credential) {
-    credentialSet.add(incomingCredential)
+    val rawCredential = toRawCredential(incomingCredential)
+    val signature = signCredential(rawCredential)
+    certificateSet.add(Certificate(incomingCredential, rawCredential, signature))
     modelAccurate = false
   }
 

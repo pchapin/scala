@@ -15,7 +15,7 @@ import java.security.interfaces.ECPublicKey
  *
  * Conceptually a KeyStorage is a bidirectional mapping between entity names and (public, private) key pairs. The entity
  * names have local significance only; they exist for the convenience of the application's user. Entity names are never
- * embedded in certificates. Formally entities are completely specified by their public keys.
+ * embedded in credentials. Formally entities are completely specified by their public keys.
  *
  * The private key is optional.
  */
@@ -23,16 +23,16 @@ trait KeyStorage extends Traversable[KeyAssociation] {
   import KeyStorage._
 
   /**
-   * Associates this key storage object with a particular credential storage object. This link is necessary because
-   * certain operations on the key storage will impact or need to synchronize with the linked credential storage. When
-   * the link is first established the credential storage is scanned and any keys mentioned in credentials there that
+   * Associates this key storage object with a particular certificate storage object. This link is necessary because
+   * certain operations on the key storage will impact or need to synchronize with the linked certificate storage. When
+   * the link is first established the certificate storage is scanned and any keys mentioned in certificates there that
    * are not already in the key storage are copied to key storage as well.
    *
    * It is permitted to change the link. No keys are removed from key storage by doing so.
    *
    * @param credentials The object to which we are linking.
    */
-  def linkTo(credentials: CredentialStorage)
+  def linkTo(credentials: CertificateStorage)
 
   /**
    * Creates a fresh public/private key pair and associates the given name to the new entity.
@@ -50,25 +50,29 @@ trait KeyStorage extends Traversable[KeyAssociation] {
   def addKey(key: ECPublicKey)
 
   /**
-   * Removes the key associated with the given name. The name is also removed. If there is a linked credential storage
-   * the removal is not allowed if some credential is using the specified key.
+   * Removes the key associated with the given name. The name is also removed. If there is a linked certificate storage
+   * the removal is not allowed if some certificate is using the specified key.
    *
    * @param name The name of the key to remove.
-   * @throws KeyInUseException if the name is associated with a key that is used by the linked credential storage.
+   * @throws KeyInUseException if the name is associated with a key that is used by the linked certificate storage.
    */
   def removeKey(name: String)
 
   /**
-   * Removes the specified key. Any name associated with the key is also removed. If there is a linked credential
-   * storage the removal is not allowed if some credential is using the specified key.
+   * Removes the specified key. Any name associated with the key is also removed. If there is a linked certificate
+   * storage the removal is not allowed if some certificate is using the specified key.
    *
    * @param key The key to remove.
-   * @throws KeyInUseException if the key is used by the linked credential storage.
+   * @throws KeyInUseException if the key is used by the linked certificate storage.
    */
   def removeKey(key: ECPublicKey)
 
 }
 
+
+/**
+ * The companion object holds exceptions used by the trait.
+ */
 object KeyStorage {
   class InvalidNameException(message: String) extends Exception(message)
   class KeyInUseException(message: String) extends Exception(message)

@@ -6,7 +6,7 @@
 //-----------------------------------------------------------------------
 package edu.uvm.spartanrpc
 
-import edu.uvm.rt.CredentialStorageInMemory
+import edu.uvm.rt.CertificateStorageInMemory
 
 /**
  * This is a demonstration program to illustrate the SpartanRPC Scalaness library. It generates a remote blink
@@ -25,7 +25,7 @@ object Main {
       MessageServer.start()
       MessageServer ! "Welcome to BlinkBuilder!"
       val owningEntity = args(0)
-      val credentialStore = new CredentialStorageInMemory
+      val certificateStore = new CertificateStorageInMemory
       // val authorizer = new ServiceAuthorizer(9000)
       // authorizer.start()
       
