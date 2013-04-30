@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // FILE    : CredentialStorage.scala
-// SUBJECT : Interface to classes that holds RT_0 credentials along with their minimum model.
-// AUTHOR  : (C) Copyright 2011 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+// SUBJECT : Interface to classes that hold RT_0 credentials along with their minimum model.
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
 package edu.uvm.rt
@@ -22,7 +22,7 @@ trait CredentialStorage {
    * credential is "immediately" visible in any following calls to authorize.
    *
    * @param incomingCredential The credential to add. If the credential is already present in this storage object there
-   *                           is no effect.
+   * is no effect.
    */
   def addCredential(incomingCredential: Credential)
 
