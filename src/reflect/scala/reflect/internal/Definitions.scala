@@ -6,6 +6,7 @@
 package scala.reflect
 package internal
 
+import scala.language.postfixOps
 import scala.annotation.{ switch, meta }
 import scala.collection.{ mutable, immutable }
 import Flags._
@@ -244,8 +245,8 @@ trait Definitions extends api.StandardDefinitions {
          (sym eq NoSymbol)
       || sym.isConstructor
       || sym.isPrivateLocal
-      || isUniversalMember(sym)
     )
+    def isUnimportableUnlessRenamed(sym: Symbol) = isUnimportable(sym) || isUniversalMember(sym)
     def isImportable(sym: Symbol) = !isUnimportable(sym)
 
     /** Is this type equivalent to Any, AnyVal, or AnyRef? */
@@ -281,7 +282,7 @@ trait Definitions extends api.StandardDefinitions {
     def Predef_AnyRef = AnyRefModule
 
     lazy val AnyValClass: ClassSymbol = (ScalaPackageClass.info member tpnme.AnyVal orElse {
-      val anyval    = enterNewClass(ScalaPackageClass, tpnme.AnyVal, List(AnyClass.tpe, NotNullClass.tpe), ABSTRACT)
+      val anyval    = enterNewClass(ScalaPackageClass, tpnme.AnyVal, AnyClass.tpe :: Nil, ABSTRACT)
       val av_constr = anyval.newClassConstructor(NoPosition)
       anyval.info.decls enter av_constr
       anyval
@@ -322,7 +323,9 @@ trait Definitions extends api.StandardDefinitions {
     lazy val ThrowableClass                 = getClassByName(sn.Throwable)
     lazy val UninitializedErrorClass        = requiredClass[UninitializedFieldError]
 
+    @deprecated("Same effect but more compact: `throw null`. Details in JVM spec, `athrow` instruction.", "2.11.0")
     lazy val NPEConstructor                = getMemberMethod(NullPointerExceptionClass, nme.CONSTRUCTOR) suchThat (_.paramss.flatten.isEmpty)
+
     lazy val UninitializedFieldConstructor = UninitializedErrorClass.primaryConstructor
 
     // fundamental reference classes
@@ -383,7 +386,6 @@ trait Definitions extends api.StandardDefinitions {
     lazy val StringAddClass             = requiredClass[scala.runtime.StringAdd]
     lazy val ArrowAssocClass            = getRequiredClass("scala.Predef.ArrowAssoc") // SI-5731
     lazy val StringAdd_+                = getMemberMethod(StringAddClass, nme.PLUS)
-    lazy val NotNullClass               = getRequiredClass("scala.NotNull")
     lazy val ScalaNumberClass           = requiredClass[scala.math.ScalaNumber]
     lazy val TraitSetterAnnotationClass = requiredClass[scala.runtime.TraitSetter]
     lazy val DelayedInitClass           = requiredClass[scala.DelayedInit]
@@ -404,6 +406,10 @@ trait Definitions extends api.StandardDefinitions {
     lazy val JavaRepeatedParamClass = specialPolyClass(tpnme.JAVA_REPEATED_PARAM_CLASS_NAME, COVARIANT)(tparam => arrayType(tparam.tpe))
     lazy val RepeatedParamClass     = specialPolyClass(tpnme.REPEATED_PARAM_CLASS_NAME, COVARIANT)(tparam => seqType(tparam.tpe))
 
+    def dropByName(tp: Type): Type = tp match {
+      case TypeRef(_, ByNameParamClass, arg :: Nil) => arg
+      case _                                        => tp
+    }
     def isByNameParamType(tp: Type)        = tp.typeSymbol == ByNameParamClass
     def isScalaRepeatedParamType(tp: Type) = tp.typeSymbol == RepeatedParamClass
     def isJavaRepeatedParamType(tp: Type)  = tp.typeSymbol == JavaRepeatedParamClass
@@ -974,7 +980,7 @@ trait Definitions extends api.StandardDefinitions {
       getMemberIfDefined(owner, name) orElse {
         if (phase.flatClasses && name.isTypeName && !owner.isPackageObjectOrClass) {
           val pkg = owner.owner
-          val flatname = nme.flattenedName(owner.name, name)
+          val flatname = tpnme.flattenedName(owner.name, name)
           getMember(pkg, flatname)
         }
         else fatalMissingSymbol(owner, name)

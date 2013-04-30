@@ -68,10 +68,10 @@ trait BasicBlocks {
           addBlock(scratchBlocks.head)
           scratchBlocks = scratchBlocks.tail
         }
-        /** Return a list of successors for 'b' that come from exception handlers
-         *  covering b's (non-exceptional) successors. These exception handlers
-         *  might not cover 'b' itself. This situation corresponds to an
-         *  exception being thrown as the first thing of one of b's successors.
+        /* Return a list of successors for 'b' that come from exception handlers
+         * covering b's (non-exceptional) successors. These exception handlers
+         * might not cover 'b' itself. This situation corresponds to an
+         * exception being thrown as the first thing of one of b's successors.
          */
         while (scratchHandlers ne Nil) {
           val handler = scratchHandlers.head
@@ -331,9 +331,9 @@ trait BasicBlocks {
       assert(!closed || ignore, this)
 
       if (ignore) {
-        if (settings.debug.value) {
-          /** Trying to pin down what it's likely to see after a block has been
-           *  put into ignore mode so we hear about it if there's a problem.
+        if (settings.debug) {
+          /* Trying to pin down what it's likely to see after a block has been
+           * put into ignore mode so we hear about it if there's a problem.
            */
           instr match {
             case JUMP(_) | RETURN(_) | THROW(_) | SCOPE_EXIT(_)               => // ok
@@ -405,11 +405,11 @@ trait BasicBlocks {
      * is discovered to be unreachable.
      */
     def killIf(cond: Boolean) {
-      if (!settings.YdisableUnreachablePrevention.value && cond) {
+      if (!settings.YdisableUnreachablePrevention && cond) {
         debuglog(s"Killing block $this")
         assert(instructionList.isEmpty, s"Killing a non empty block $this")
         // only checked under debug because fetching predecessor list is moderately expensive
-        if (settings.debug.value)
+        if (settings.debug)
           assert(predecessors.isEmpty, s"Killing block $this which is referred to from ${predecessors.mkString}")
 
         close()

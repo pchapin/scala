@@ -43,8 +43,6 @@ import scala.tools.nsc.util.InterruptReq
  */
 trait CompilerControl { self: Global =>
 
-  import syntaxAnalyzer.UnitParser
-
   type Response[T] = scala.tools.nsc.interactive.Response[T]
 
   /** The scheduler by which client and compiler communicate
@@ -118,7 +116,7 @@ trait CompilerControl { self: Global =>
       case ri: ReloadItem if ri.sources == sources => Some(ri)
       case _ => None
     }
-    superseeded.foreach(_.response.set())
+    superseeded.foreach(_.response.set(()))
     postWorkItem(new ReloadItem(sources, response))
   }
 

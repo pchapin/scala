@@ -11,23 +11,16 @@ import scala.language.postfixOps
 import scala.collection.mutable
 import scala.reflect.internal.util.Statistics
 import scala.reflect.internal.util.Position
-import scala.reflect.internal.util.NoPosition
 
 /** Optimize and analyze matches based on their TreeMaker-representation.
  *
  * The patmat translation doesn't rely on this, so it could be disabled in principle.
- *
- * TODO: split out match analysis
+ *  - well, not quite: the backend crashes if we emit duplicates in switches (e.g. SI-7290)
  */
+// TODO: split out match analysis
 trait MatchOptimization extends MatchTreeMaking with MatchAnalysis {
-  import PatternMatchingStats._
-  import global.{Tree, Type, Symbol, NoSymbol, CaseDef, atPos,
-    ConstantType, Literal, Constant, gen, EmptyTree,
-    Typed, treeInfo, nme, Ident,
-    Apply, If, Bind, lub, Alternative, deriveCaseDef, Match, MethodType, LabelDef, TypeTree, Throw}
-
+  import global._
   import global.definitions._
-
 
   ////
   trait CommonSubconditionElimination extends OptimizedCodegen with MatchApproximator {
@@ -160,7 +153,7 @@ trait MatchOptimization extends MatchTreeMaking with MatchAnalysis {
       def chainBefore(next: Tree)(casegen: Casegen): Tree = // assert(codegen eq optimizedCodegen)
         atPos(pos)(casegen.asInstanceOf[optimizedCodegen.OptimizedCasegen].flatMapCondStored(cond, storedCond, res, nextBinder, substitution(next).duplicate))
 
-      override def toString = "Memo"+(nextBinder.name, storedCond.name, cond, res, substitution)
+      override def toString = "Memo"+((nextBinder.name, storedCond.name, cond, res, substitution))
     }
 
     case class ReusingCondTreeMaker(sharedPrefix: List[Test], toReused: TreeMaker => TreeMaker) extends TreeMaker { import CODE._
@@ -199,7 +192,7 @@ trait MatchOptimization extends MatchTreeMaking with MatchAnalysis {
         // and in its confusion it emits illegal casts (diagnosed by Grzegorz: checkcast T ; invokevirtual S.m, where T not a subtype of S)
         casegen.ifThenElseZero(REF(lastReusedTreeMaker.storedCond), substitution(next).duplicate)
       }
-      override def toString = "R"+(lastReusedTreeMaker.storedCond.name, substitution)
+      override def toString = "R"+((lastReusedTreeMaker.storedCond.name, substitution))
     }
   }
 
@@ -442,7 +435,7 @@ trait MatchOptimization extends MatchTreeMaking with MatchAnalysis {
               case SwitchableTreeMaker(pattern) :: GuardAndBodyTreeMakers(guard, body) =>
                 Some(CaseDef(pattern, guard, body))
               // alternatives
-              case AlternativesTreeMaker(_, altss, _) :: GuardAndBodyTreeMakers(guard, body) if alternativesSupported =>
+              case AlternativesTreeMaker(_, altss, pos) :: GuardAndBodyTreeMakers(guard, body) if alternativesSupported =>
                 val switchableAlts = altss map {
                   case SwitchableTreeMaker(pattern) :: Nil =>
                     Some(pattern)
@@ -452,7 +445,17 @@ trait MatchOptimization extends MatchTreeMaking with MatchAnalysis {
 
                 // succeed if they were all switchable
                 sequence(switchableAlts) map { switchableAlts =>
-                  CaseDef(Alternative(switchableAlts), guard, body)
+                  def extractConst(t: Tree) = t match {
+                    case Literal(const) => const
+                    case _              => t
+                  }
+                  // SI-7290 Discard duplicate alternatives that would crash the backend
+                  val distinctAlts = distinctBy(switchableAlts)(extractConst)
+                  if (distinctAlts.size < switchableAlts.size) {
+                    val duplicated = switchableAlts.groupBy(extractConst).flatMap(_._2.drop(1).take(1)) // report the first duplicated
+                    global.currentUnit.warning(pos, s"Pattern contains duplicate alternatives: ${duplicated.mkString(", ")}")
+                  }
+                  CaseDef(Alternative(distinctAlts), guard, body)
                 }
               case _ =>
                 // debug.patmat("can't emit switch for "+ makers)

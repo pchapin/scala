@@ -81,7 +81,7 @@ abstract class Constructors extends Transform with ast.TreeDSL {
       val constrInfo: ConstrInfo = {
         stats find (_.symbol.isPrimaryConstructor) match {
           case Some(ddef @ DefDef(_, _, _, List(vparams), _, rhs @ Block(_, _))) =>
-        ConstrInfo(ddef, vparams map (_.symbol), rhs)
+            ConstrInfo(ddef, vparams map (_.symbol), rhs)
           case x =>
             // AnyVal constructor is OK
             assert(clazz eq AnyValClass, "no constructor in template: impl = " + impl)
@@ -94,8 +94,7 @@ abstract class Constructors extends Transform with ast.TreeDSL {
       val paramAccessors = clazz.constrParamAccessors
 
       // The constructor parameter corresponding to an accessor
-      def parameter(acc: Symbol): Symbol =
-        parameterNamed(nme.getterName(acc.originalName.toTermName))
+      def parameter(acc: Symbol): Symbol = parameterNamed(acc.unexpandedName.getterName)
 
       // The constructor parameter with given name. This means the parameter
       // has given name, or starts with given name, and continues with a `$` afterwards.
@@ -165,7 +164,8 @@ abstract class Constructors extends Transform with ast.TreeDSL {
         if (from.name != nme.OUTER ||
             from.tpe.typeSymbol.isPrimitiveValueClass) result
         else localTyper.typedPos(to.pos) {
-          IF (from OBJ_EQ NULL) THEN Throw(NewFromConstructor(NPEConstructor)) ELSE result
+          // `throw null` has the same effect as `throw new NullPointerException`, see JVM spec on instruction `athrow`
+          IF (from OBJ_EQ NULL) THEN Throw(gen.mkZero(ThrowableClass.tpe)) ELSE result
         }
       }
 
@@ -191,8 +191,7 @@ abstract class Constructors extends Transform with ast.TreeDSL {
         stat match {
           case ValDef(mods, name, _, _) if (mods hasFlag PRESUPER) =>
             // stat is the constructor-local definition of the field value
-            val fields = presupers filter (
-              vdef => nme.localToGetter(vdef.name) == name)
+            val fields = presupers filter (_.getterName == name)
             assert(fields.length == 1)
             val to = fields.head.symbol
             if (!to.tpe.isInstanceOf[ConstantType])
@@ -237,13 +236,15 @@ abstract class Constructors extends Transform with ast.TreeDSL {
           constrStatBuf += intoConstructor(impl.symbol, stat)
       }
 
-      // ----------- avoid making fields for symbols that are not accessed --------------
+      // ----------- avoid making parameter-accessor fields for symbols accessed only within the primary constructor --------------
 
       // A sorted set of symbols that are known to be accessed outside the primary constructor.
       val accessedSyms = new TreeSet[Symbol]((x, y) => x isLess y)
 
       // a list of outer accessor symbols and their bodies
       var outerAccessors: List[(Symbol, Tree)] = List()
+
+      val isDelayedInitSubclass = (clazz isSubClass DelayedInitClass)
 
       // Could symbol's definition be omitted, provided it is not accessed?
       // This is the case if the symbol is defined in the current class, and
@@ -252,12 +253,12 @@ abstract class Constructors extends Transform with ast.TreeDSL {
       def maybeOmittable(sym: Symbol) = sym.owner == clazz && (
         sym.isParamAccessor && sym.isPrivateLocal ||
         sym.isOuterAccessor && sym.owner.isEffectivelyFinal && !sym.isOverridingSymbol &&
-        !(clazz isSubClass DelayedInitClass)
+        !isDelayedInitSubclass
       )
 
       // Is symbol known to be accessed outside of the primary constructor,
       // or is it a symbol whose definition cannot be omitted anyway?
-      def mustbeKept(sym: Symbol) = !maybeOmittable(sym) || (accessedSyms contains sym)
+      def mustbeKept(sym: Symbol) = isDelayedInitSubclass || !maybeOmittable(sym) || (accessedSyms contains sym)
 
       // A traverser to set accessedSyms and outerAccessors
       val accessTraverser = new Traverser {
@@ -303,10 +304,10 @@ abstract class Constructors extends Transform with ast.TreeDSL {
         copyParam(acc, parameter(acc))
       }
 
-      /** Return a single list of statements, merging the generic class constructor with the
-       *  specialized stats. The original statements are retyped in the current class, and
-       *  assignments to generic fields that have a corresponding specialized assignment in
-       *  `specializedStats` are replaced by the specialized assignment.
+      /* Return a single list of statements, merging the generic class constructor with the
+       * specialized stats. The original statements are retyped in the current class, and
+       * assignments to generic fields that have a corresponding specialized assignment in
+       * `specializedStats` are replaced by the specialized assignment.
        */
       def mergeConstructors(genericClazz: Symbol, originalStats: List[Tree], specializedStats: List[Tree]): List[Tree] = {
         val specBuf = new ListBuffer[Tree]
@@ -314,17 +315,15 @@ abstract class Constructors extends Transform with ast.TreeDSL {
 
         def specializedAssignFor(sym: Symbol): Option[Tree] =
           specializedStats find {
-            case Assign(sel @ Select(This(_), _), rhs) =>
-              (    (sel.symbol hasFlag SPECIALIZED)
-                && (nme.unspecializedName(nme.localToGetter(sel.symbol.name.toTermName)) == nme.localToGetter(sym.name.toTermName))
-              )
+            case Assign(sel @ Select(This(_), _), _) =>
+              sel.symbol.isSpecialized && (nme.unspecializedName(sel.symbol.getterName) == sym.getterName)
             case _ => false
           }
 
-        /** Rewrite calls to ScalaRunTime.array_update to the proper apply method in scala.Array.
-         *  Erasure transforms Array.update to ScalaRunTime.update when the element type is a type
-         *  variable, but after specialization this is a concrete primitive type, so it would
-         *  be an error to pass it to array_update(.., .., Object).
+        /* Rewrite calls to ScalaRunTime.array_update to the proper apply method in scala.Array.
+         * Erasure transforms Array.update to ScalaRunTime.update when the element type is a type
+         * variable, but after specialization this is a concrete primitive type, so it would
+         * be an error to pass it to array_update(.., .., Object).
          */
         def rewriteArrayUpdate(tree: Tree): Tree = {
           val adapter = new Transformer {
@@ -373,22 +372,22 @@ abstract class Constructors extends Transform with ast.TreeDSL {
         res
       }
 
-      /** Add an 'if' around the statements coming after the super constructor. This
-       *  guard is necessary if the code uses specialized fields. A specialized field is
-       *  initialized in the subclass constructor, but the accessors are (already) overridden
-       *  and pointing to the (empty) fields. To fix this, a class with specialized fields
-       *  will not run its constructor statements if the instance is specialized. The specialized
-       *  subclass includes a copy of those constructor statements, and runs them. To flag that a class
-       *  has specialized fields, and their initialization should be deferred to the subclass, method
-       *  'specInstance$' is added in phase specialize.
+      /* Add an 'if' around the statements coming after the super constructor. This
+       * guard is necessary if the code uses specialized fields. A specialized field is
+       * initialized in the subclass constructor, but the accessors are (already) overridden
+       * and pointing to the (empty) fields. To fix this, a class with specialized fields
+       * will not run its constructor statements if the instance is specialized. The specialized
+       * subclass includes a copy of those constructor statements, and runs them. To flag that a class
+       * has specialized fields, and their initialization should be deferred to the subclass, method
+       * 'specInstance$' is added in phase specialize.
        */
       def guardSpecializedInitializer(stats: List[Tree]): List[Tree] = if (settings.nospecialization.value) stats else {
-        // split the statements in presuper and postsuper
-    //    var (prefix, postfix) = stats0.span(tree => !((tree.symbol ne null) && tree.symbol.isConstructor))
-      //  if (postfix.nonEmpty) {
-        //  prefix = prefix :+ postfix.head
-          //postfix = postfix.tail
-        //}
+        // // split the statements in presuper and postsuper
+        // var (prefix, postfix) = stats0.span(tree => !((tree.symbol ne null) && tree.symbol.isConstructor))
+        // if (postfix.nonEmpty) {
+        //   prefix = prefix :+ postfix.head
+        //   postfix = postfix.tail
+        // }
 
         if (usesSpecializedField && shouldGuard && stats.nonEmpty) {
           // save them for duplication in the specialized subclass
@@ -401,7 +400,7 @@ abstract class Constructors extends Transform with ast.TreeDSL {
                 CODE.NOT (
                  Apply(gen.mkAttributedRef(specializedFlag), List())),
                 List()),
-              Block(stats, Literal(Constant())),
+              Block(stats, Literal(Constant(()))),
               EmptyTree)
 
           List(localTyper.typed(tree))
@@ -418,79 +417,82 @@ abstract class Constructors extends Transform with ast.TreeDSL {
           }
         } else stats
       }
-/*
-      def isInitDef(stat: Tree) = stat match {
-        case dd: DefDef => dd.symbol == delayedInitMethod
-        case _ => false
+
+      /*
+       *  Translation scheme for DelayedInit
+       *  ----------------------------------
+       *
+       *  Before returning, transformClassTemplate() rewrites DelayedInit subclasses.
+       *  The list of statements that will end up in the primary constructor can be split into:
+       *
+       *    (a) up to and including the super-constructor call.
+       *        These statements can occur only in the (bytecode-level) primary constructor.
+       *
+       *    (b) remaining statements
+       *
+       *  The purpose of DelayedInit is leaving (b) out of the primary constructor and have their execution "delayed".
+       *
+       *  The rewriting to achieve "delayed initialization" involves:
+       *    (c) an additional, synthetic, public method encapsulating (b)
+       *    (d) an additional, synthetic closure whose argless apply() just invokes (c)
+       *    (e) after executing the statements in (a),
+       *        the primary constructor instantiates (d) and passes it as argument
+       *        to a `delayedInit()` invocation on the current instance.
+       *        In turn, `delayedInit()` is a method defined as abstract in the `DelayedInit` trait
+       *        so that it can be overridden (for an example see `scala.App`)
+       *
+       *  The following helper methods prepare Trees as part of this rewriting:
+       *
+       *    (f) `delayedEndpointDef()` prepares (c).
+       *        A transformer, `constrStatTransformer`, is used to re-locate statements (b) from template-level
+       *        to become statements in method (c). The main task here is re-formulating accesses to params
+       *        of the primary constructors (to recap, (c) has zero-params) in terms of param-accessor fields.
+       *        In a Delayed-Init subclass, each class-constructor gets a param-accessor field because `mustbeKept()` forces it.
+       *
+       *    (g) `delayedInitClosure()` prepares (d)
+       *
+       *    (h) `delayedInitCall()`    prepares the `delayedInit()` invocation referred to in (e)
+       *
+       *  Both (c) and (d) are added to the Template returned by `transformClassTemplate()`
+       *
+       *  A note of historic interest: Previously the rewriting for DelayedInit would include in the closure body
+       *  all of the delayed initialization sequence, which in turn required:
+       *    - reformulating "accesses-on-this" into "accesses-on-outer", and
+       *    - adding public getters and setters.
+       *
+       *  @param stats the statements in (b) above
+       *
+       *  @return the DefDef for (c) above
+       *
+       * */
+      def delayedEndpointDef(stats: List[Tree]): DefDef = {
+
+        val methodName = currentUnit.freshTermName("delayedEndpoint$" + clazz.fullNameAsName('$').toString + "$")
+        val methodSym  = clazz.newMethod(methodName, impl.pos, SYNTHETIC | FINAL)
+        methodSym setInfoAndEnter MethodType(Nil, UnitClass.tpe)
+
+        // changeOwner needed because the `stats` contained in the DefDef were owned by the template, not long ago.
+        val blk       = Block(stats, gen.mkZero(UnitClass.tpe)).changeOwner(impl.symbol -> methodSym)
+        val delayedDD = localTyper typed { DefDef(methodSym, Nil, blk) }
+
+        delayedDD.asInstanceOf[DefDef]
       }
-*/
 
-      /** Create a getter or a setter and enter into `clazz` scope
-       */
-      def addAccessor(sym: Symbol, name: TermName, flags: Long) = {
-        val m = clazz.newMethod(name, sym.pos, flags & ~(LOCAL | PRIVATE)) setPrivateWithin clazz
-        clazz.info.decls enter m
-      }
-
-      def addGetter(sym: Symbol): Symbol = {
-        val getr = addAccessor(
-          sym, nme.getterName(sym.name.toTermName), getterFlags(sym.flags))
-        getr setInfo MethodType(List(), sym.tpe)
-        defBuf += localTyper.typedPos(sym.pos)(DefDef(getr, Select(This(clazz), sym)))
-        getr
-      }
-
-      def addSetter(sym: Symbol): Symbol = {
-        sym setFlag MUTABLE
-        val setr = addAccessor(
-          sym, nme.getterToSetter(nme.getterName(sym.name.toTermName)), setterFlags(sym.flags))
-        setr setInfo MethodType(setr.newSyntheticValueParams(List(sym.tpe)), UnitClass.tpe)
-        defBuf += localTyper.typed {
-          //util.trace("adding setter def for "+setr) {
-          atPos(sym.pos) {
-            DefDef(setr, paramss =>
-              Assign(Select(This(clazz), sym), Ident(paramss.head.head)))
-          }//}
-        }
-        setr
-      }
-
-      def ensureAccessor(sym: Symbol)(acc: => Symbol) =
-        if (sym.owner == clazz && !sym.isMethod && sym.isPrivate) { // there's an access to a naked field of the enclosing class
-          val getr = acc
-          getr makeNotPrivate clazz
-          getr
-        } else {
-          if (sym.owner == clazz) sym makeNotPrivate clazz
-          NoSymbol
-        }
-
-      def ensureGetter(sym: Symbol): Symbol = ensureAccessor(sym) {
-        val getr = sym.getter(clazz)
-        if (getr != NoSymbol) getr else addGetter(sym)
-      }
-
-      def ensureSetter(sym: Symbol): Symbol = ensureAccessor(sym) {
-        var setr = sym.setter(clazz, hasExpandedName = false)
-        if (setr == NoSymbol) setr = sym.setter(clazz, hasExpandedName = true)
-        if (setr == NoSymbol) setr = addSetter(sym)
-        setr
-      }
-
-      def delayedInitClosure(stats: List[Tree]) =
-        localTyper.typed {
+      /* @see overview at `delayedEndpointDef()` of the translation scheme for DelayedInit */
+      def delayedInitClosure(delayedEndPointSym: MethodSymbol): ClassDef = {
+        val satelliteClass = localTyper.typed {
           atPos(impl.pos) {
             val closureClass   = clazz.newClass(nme.delayedInitArg.toTypeName, impl.pos, SYNTHETIC | FINAL)
             val closureParents = List(AbstractFunctionClass(0).tpe)
 
             closureClass setInfoAndEnter new ClassInfoType(closureParents, newScope, closureClass)
 
-            val outerField = (
+            val outerField: TermSymbol = (
               closureClass
                 newValue(nme.OUTER, impl.pos, PrivateLocal | PARAMACCESSOR)
                 setInfoAndEnter clazz.tpe
             )
-            val applyMethod = (
+            val applyMethod: MethodSymbol = (
               closureClass
                 newMethod(nme.apply, impl.pos, FINAL)
                 setInfoAndEnter MethodType(Nil, ObjectClass.tpe)
@@ -499,63 +501,37 @@ abstract class Constructors extends Transform with ast.TreeDSL {
             val closureClassTyper = localTyper.atOwner(closureClass)
             val applyMethodTyper  = closureClassTyper.atOwner(applyMethod)
 
-            val constrStatTransformer = new Transformer {
-              override def transform(tree: Tree): Tree = tree match {
-                case This(_) if tree.symbol == clazz =>
-                  applyMethodTyper.typed {
-                    atPos(tree.pos) {
-                      Select(This(closureClass), outerField)
-                    }
-                  }
-                case _ =>
-                  super.transform {
-                    tree match {
-                      case Select(qual, _) =>
-                        val getter = ensureGetter(tree.symbol)
-                        if (getter != NoSymbol)
-                          applyMethodTyper.typed {
-                            atPos(tree.pos) {
-                              Apply(Select(qual, getter), List())
-                            }
-                          }
-                        else tree
-                      case Assign(lhs @ Select(qual, _), rhs) =>
-                        val setter = ensureSetter(lhs.symbol)
-                        if (setter != NoSymbol)
-                          applyMethodTyper.typed {
-                            atPos(tree.pos) {
-                              Apply(Select(qual, setter), List(rhs))
-                            }
-                          }
-                        else tree
-                      case _ =>
-                        tree.changeOwner(impl.symbol -> applyMethod)
-                    }
-                  }
+            def applyMethodStat =
+              applyMethodTyper.typed {
+                atPos(impl.pos) {
+                  val receiver = Select(This(closureClass), outerField)
+                  Apply(Select(receiver, delayedEndPointSym), Nil)
+                }
               }
-            }
-
-            def applyMethodStats = constrStatTransformer.transformTrees(stats)
 
             val applyMethodDef = DefDef(
               sym = applyMethod,
               vparamss = ListOfNil,
-              rhs = Block(applyMethodStats, gen.mkAttributedRef(BoxedUnit_UNIT)))
+              rhs = Block(applyMethodStat, gen.mkAttributedRef(BoxedUnit_UNIT)))
 
             ClassDef(
               sym = closureClass,
               constrMods = Modifiers(0),
               vparamss = List(List(outerFieldDef)),
-              body = List(applyMethodDef),
+              body = applyMethodDef :: Nil,
               superPos = impl.pos)
           }
         }
 
+        satelliteClass.asInstanceOf[ClassDef]
+      }
+
+      /* @see overview at `delayedEndpointDef()` of the translation scheme for DelayedInit */
       def delayedInitCall(closure: Tree) = localTyper.typedPos(impl.pos) {
         gen.mkMethodCall(This(clazz), delayedInitMethod, Nil, List(New(closure.symbol.tpe, This(clazz))))
       }
 
-      /** Return a pair consisting of (all statements up to and including superclass and trait constr calls, rest) */
+      /* Return a pair consisting of (all statements up to and including superclass and trait constr calls, rest) */
       def splitAtSuper(stats: List[Tree]) = {
         def isConstr(tree: Tree) = (tree.symbol ne null) && tree.symbol.isConstructor
         val (pre, rest0) = stats span (!isConstr(_))
@@ -566,20 +542,25 @@ abstract class Constructors extends Transform with ast.TreeDSL {
       val (uptoSuperStats, remainingConstrStats0) = splitAtSuper(constrStatBuf.toList)
       var remainingConstrStats = remainingConstrStats0
 
-      /** XXX This is not corect: remainingConstrStats.nonEmpty excludes too much,
-       *  but excluding it includes too much.  The constructor sequence being mimicked
-       *  needs to be reproduced with total fidelity.
+      /* XXX This is not corect: remainingConstrStats.nonEmpty excludes too much,
+       * but excluding it includes too much.  The constructor sequence being mimicked
+       * needs to be reproduced with total fidelity.
        *
-       *  See test case files/run/bug4680.scala, the output of which is wrong in many
-       *  particulars.
+       * See test case files/run/bug4680.scala, the output of which is wrong in many
+       * particulars.
        */
-      val needsDelayedInit =
-        (clazz isSubClass DelayedInitClass) /*&& !(defBuf exists isInitDef)*/ && remainingConstrStats.nonEmpty
+      val needsDelayedInit = (isDelayedInitSubclass && remainingConstrStats.nonEmpty)
 
       if (needsDelayedInit) {
-        val dicl = new ConstructorTransformer(unit) transform delayedInitClosure(remainingConstrStats)
-        defBuf += dicl
-        remainingConstrStats = List(delayedInitCall(dicl))
+        val delayedHook: DefDef = delayedEndpointDef(remainingConstrStats)
+        defBuf += delayedHook
+        val hookCallerClass = {
+          // transform to make the closure-class' default constructor assign the the outer instance to its param-accessor field.
+          val drillDown = new ConstructorTransformer(unit)
+          drillDown transform delayedInitClosure(delayedHook.symbol.asInstanceOf[MethodSymbol])
+        }
+        defBuf += hookCallerClass
+        remainingConstrStats = delayedInitCall(hookCallerClass) :: Nil
       }
 
       // Assemble final constructor
@@ -601,12 +582,14 @@ abstract class Constructors extends Transform with ast.TreeDSL {
       deriveTemplate(impl)(_ => defBuf.toList filter (stat => mustbeKept(stat.symbol)))
     } // transformClassTemplate
 
-    override def transform(tree: Tree): Tree =
+    override def transform(tree: Tree): Tree = {
       tree match {
         case ClassDef(_,_,_,_) if !tree.symbol.isInterface && !isPrimitiveValueClass(tree.symbol) =>
           deriveClassDef(tree)(transformClassTemplate)
         case _ =>
           super.transform(tree)
       }
+    }
+
   } // ConstructorTransformer
 }

@@ -38,10 +38,7 @@ trait Infer extends Checkable {
    *  @param removeRepeated allows keeping repeated parameter (if there's one argument). Used in NamesDefaults.
    */
   def formalTypes(formals: List[Type], nargs: Int, removeByName: Boolean = true, removeRepeated: Boolean = true): List[Type] = {
-    val formals1 = if (removeByName) formals mapConserve {
-      case TypeRef(_, ByNameParamClass, List(arg)) => arg
-      case formal => formal
-    } else formals
+    val formals1 = if (removeByName) formals mapConserve dropByName else formals
     if (isVarArgTypes(formals1) && (removeRepeated || formals.length != nargs)) {
       val ft = formals1.last.dealiasWiden.typeArgs.head
       formals1.init ::: (for (i <- List.range(formals1.length - 1, nargs)) yield ft)
@@ -131,7 +128,7 @@ trait Infer extends Checkable {
         else if (optionArgs.nonEmpty)
           if (nbSubPats == 1) {
             val productArity = productArgs.size
-            if (productArity > 1 && settings.lint.value)
+            if (productArity > 1 && settings.lint)
               global.currentUnit.warning(pos, s"extractor pattern binds a single value to a Product${productArity} of type ${optionArgs.head}")
             optionArgs
           }
@@ -287,7 +284,11 @@ trait Infer extends Checkable {
       //   println("set error: "+tree);
       //   throw new Error()
       // }
-      def name        = newTermName("<error: " + tree.symbol + ">")
+      def name = {
+        val sym = tree.symbol
+        val nameStr = try sym.toString catch { case _: CyclicReference => sym.nameString }
+        newTermName(s"<error: $nameStr>")
+      }
       def errorClass  = if (context.reportErrors) context.owner.newErrorClass(name.toTypeName) else stdErrorClass
       def errorValue  = if (context.reportErrors) context.owner.newErrorValue(name) else stdErrorValue
       def errorSym    = if (tree.isType) errorClass else errorValue
@@ -304,17 +305,18 @@ trait Infer extends Checkable {
 
     def isPossiblyMissingArgs(found: Type, req: Type) = (
       false
-      /** However it is that this condition is expected to imply
-       *  "is possibly missing args", it is too weak.  It is
-       *  better to say nothing than to offer misleading guesses.
+      /* However it is that this condition is expected to imply
+       * "is possibly missing args", it is too weak.  It is
+       * better to say nothing than to offer misleading guesses.
 
-         (found.resultApprox ne found)
-      && isWeaklyCompatible(found.resultApprox, req)
+       * (found.resultApprox ne found) && isWeaklyCompatible(found.resultApprox, req)
       */
     )
 
-    def explainTypes(tp1: Type, tp2: Type) =
-      withDisambiguation(List(), tp1, tp2)(global.explainTypes(tp1, tp2))
+    def explainTypes(tp1: Type, tp2: Type) = {
+      if (context.reportErrors)
+        withDisambiguation(List(), tp1, tp2)(global.explainTypes(tp1, tp2))
+    }
 
     /* -- Tests & Checks---------------------------------------------------- */
 
@@ -337,7 +339,7 @@ trait Infer extends Checkable {
           sym1 = sym
 
         if (sym1 == NoSymbol) {
-          if (settings.debug.value) {
+          if (settings.debug) {
             Console.println(context)
             Console.println(tree)
             Console.println("" + pre + " " + sym.owner + " " + context.owner + " " + context.outer.enclClass.owner + " " + sym.owner.thisType + (pre =:= sym.owner.thisType))
@@ -377,7 +379,7 @@ trait Infer extends Checkable {
             try pre.memberType(sym1)
             catch {
               case ex: MalformedType =>
-                if (settings.debug.value) ex.printStackTrace
+                if (settings.debug) ex.printStackTrace
                 val sym2 = underlyingSymbol(sym1)
                 val itype = pre.memberType(sym2)
                 ErrorUtils.issueTypeError(
@@ -407,10 +409,9 @@ trait Infer extends Checkable {
      *  since that induces a tie between m(=>A) and m(=>A,B*) [SI-3761]
      */
     private def isCompatible(tp: Type, pt: Type): Boolean = {
-      def isCompatibleByName(tp: Type, pt: Type): Boolean = pt match {
-        case TypeRef(_, ByNameParamClass, List(res)) if !isByNameParamType(tp) => isCompatible(tp, res)
-        case _ => false
-      }
+      def isCompatibleByName(tp: Type, pt: Type): Boolean = (
+        isByNameParamType(pt) && !isByNameParamType(tp) && isCompatible(tp, dropByName(pt))
+      )
       val tp1 = normalize(tp)
       (tp1 weak_<:< pt) || isCoercible(tp1, pt) || isCompatibleByName(tp, pt)
     }
@@ -469,6 +470,7 @@ trait Infer extends Checkable {
       }
       existentialAbstraction(tparams.toList, tp1)
     }
+    def ensureFullyDefined(tp: Type): Type = if (isFullyDefined(tp)) tp else makeFullyDefined(tp)
 
     /** Return inferred type arguments of polymorphic expression, given
      *  its type parameters and result type and a prototype `pt`.
@@ -509,8 +511,8 @@ trait Infer extends Checkable {
     */
     def protoTypeArgs(tparams: List[Symbol], formals: List[Type], restpe: Type,
                       pt: Type): List[Type] = {
-      /** Map type variable to its instance, or, if `variance` is covariant/contravariant,
-       *  to its upper/lower bound */
+      /* Map type variable to its instance, or, if `variance` is covariant/contravariant,
+       * to its upper/lower bound */
       def instantiateToBound(tvar: TypeVar, variance: Variance): Type = {
         lazy val hiBounds = tvar.constr.hiBounds
         lazy val loBounds = tvar.constr.loBounds
@@ -909,19 +911,28 @@ trait Infer extends Checkable {
       }
 
     /**
-     * Todo: Try to make isApplicable always safe (i.e. not cause TypeErrors).
-     * The chance of TypeErrors should be reduced through context errors
+     * Are arguments of the given types applicable to `ftpe`? Type argument inference
+     * is tried twice: firstly with the given expected type, and secondly with `WildcardType`.
      */
+    // Todo: Try to make isApplicable always safe (i.e. not cause TypeErrors).
+    // The chance of TypeErrors should be reduced through context errors
     private[typechecker] def isApplicableSafe(undetparams: List[Symbol], ftpe: Type,
                                               argtpes0: List[Type], pt: Type): Boolean = {
-      val silentContext = context.makeSilent(reportAmbiguousErrors = false)
-      val typer0 = newTyper(silentContext)
-      val res1 = typer0.infer.isApplicable(undetparams, ftpe, argtpes0, pt)
-      if (pt != WildcardType && silentContext.hasErrors) {
-        silentContext.flushBuffer()
-        val res2 = typer0.infer.isApplicable(undetparams, ftpe, argtpes0, WildcardType)
-        if (silentContext.hasErrors) false else res2
-      } else res1
+      final case class Result(error: Boolean, applicable: Boolean)
+      def isApplicableWithExpectedType(pt0: Type): Result = {
+        val silentContext = context.makeSilent(reportAmbiguousErrors = false)
+        val applicable = newTyper(silentContext).infer.isApplicable(undetparams, ftpe, argtpes0, pt0)
+        Result(silentContext.hasErrors, applicable)
+      }
+      val canSecondTry = pt != WildcardType
+      val firstTry = isApplicableWithExpectedType(pt)
+      if (!firstTry.error || !canSecondTry)
+        firstTry.applicable
+      else {
+        val secondTry = isApplicableWithExpectedType(WildcardType)
+        // TODO `!secondTry.error &&` was faithfully replicated as part of the refactoring, but mayberedundant.
+        !secondTry.error && secondTry.applicable
+      }
     }
 
     /** Is type `ftpe1` strictly more specific than type `ftpe2`
@@ -1250,8 +1261,7 @@ trait Infer extends Checkable {
 
       debuglog("infer constr inst "+ tree +"/"+ undetparams +"/ pt= "+ pt +" pt0= "+ pt0 +" resTp: "+ resTp)
 
-      /** Compute type arguments for undetermined params
-       */
+      /* Compute type arguments for undetermined params */
       def inferFor(pt: Type): Option[List[Type]] = {
         val tvars   = undetparams map freshVar
         val resTpV  = resTp.instantiateTypeParams(undetparams, tvars)
@@ -1269,7 +1279,7 @@ trait Infer extends Checkable {
             // TODO: reinstate checkBounds, return params that fail to meet their bounds to undetparams
             Some(targs)
           } catch ifNoInstance { msg =>
-            debuglog("NO INST "+ (tvars, tvars map (_.constr)))
+            debuglog("NO INST "+ ((tvars, tvars map (_.constr))))
             NoConstructorInstanceError(tree, resTp, pt, msg)
             None
           }
@@ -1384,9 +1394,9 @@ trait Infer extends Checkable {
       def ptMatchesPattp = pt matchesPattern pattp.widen
       def pattpMatchesPt = pattp matchesPattern pt
 
-      /** If we can absolutely rule out a match we can fail early.
-       *  This is the case if the scrutinee has no unresolved type arguments
-       *  and is a "final type", meaning final + invariant in all type parameters.
+      /* If we can absolutely rule out a match we can fail early.
+       * This is the case if the scrutinee has no unresolved type arguments
+       * and is a "final type", meaning final + invariant in all type parameters.
        */
       if (pt.isFinalType && ptparams.isEmpty && !ptMatchesPattp) {
         IncompatibleScrutineeTypeError(tree0, pattp, pt)
@@ -1422,9 +1432,9 @@ trait Infer extends Checkable {
         }
         tvars foreach instantiateTypeVar
       }
-      /** If the scrutinee has free type parameters but the pattern does not,
-       *  we have to flip the arguments so the expected type is treated as more
-       *  general when calculating the intersection.  See run/bug2755.scala.
+      /* If the scrutinee has free type parameters but the pattern does not,
+       * we have to flip the arguments so the expected type is treated as more
+       * general when calculating the intersection.  See run/bug2755.scala.
        */
       if (tpparams.isEmpty && ptparams.nonEmpty) intersect(pattp, pt)
       else intersect(pt, pattp)
@@ -1531,16 +1541,6 @@ trait Infer extends Checkable {
         }
       }
 
-    @inline private def inSilentMode(context: Context)(expr: => Boolean): Boolean = {
-      val oldState = context.state
-      context.setBufferErrors()
-      val res = expr
-      val contextWithErrors = context.hasErrors
-      context.flushBuffer()
-      context.restoreState(oldState)
-      res && !contextWithErrors
-    }
-
     // Checks against the name of the parameter and also any @deprecatedName.
     private def paramMatchesName(param: Symbol, name: Name) =
       param.name == name || param.deprecatedParamName.exists(_ == name)
@@ -1609,7 +1609,7 @@ trait Infer extends Checkable {
             }
       def followType(sym: Symbol) = followApply(pre memberType sym)
       def bestForExpectedType(pt: Type, isLastTry: Boolean): Unit = {
-        val applicable0 = alts filter (alt => inSilentMode(context)(isApplicable(undetparams, followType(alt), argtpes, pt)))
+        val applicable0 = alts filter (alt => context inSilentMode (isApplicable(undetparams, followType(alt), argtpes, pt)))
         val applicable  = overloadsToConsiderBySpecificity(applicable0, argtpes, varargsStar)
         val ranked      = bestAlternatives(applicable)((sym1, sym2) =>
           isStrictlyMoreSpecific(followType(sym1), followType(sym2), sym1, sym2)
@@ -1619,8 +1619,8 @@ trait Infer extends Checkable {
           case best :: Nil               => tree setSymbol best setType (pre memberType best)           // success
           case Nil if pt eq WildcardType => NoBestMethodAlternativeError(tree, argtpes, pt, isLastTry)  // failed
           case Nil                       => bestForExpectedType(WildcardType, isLastTry)                // failed, but retry with WildcardType
-          }
-          }
+        }
+      }
       // This potentially makes up to four attempts: tryTwice may execute
       // with and without views enabled, and bestForExpectedType will try again
       // with pt = WildcardType if it fails with pt != WildcardType.
@@ -1636,7 +1636,7 @@ trait Infer extends Checkable {
      */
     def tryTwice(infer: Boolean => Unit): Unit = {
       if (context.implicitsEnabled) {
-        val saved = context.state
+        val savedContextMode = context.contextMode
         var fallback = false
         context.setBufferErrors()
         // We cache the current buffer because it is impossible to
@@ -1650,17 +1650,17 @@ trait Infer extends Checkable {
           context.withImplicitsDisabled(infer(false))
           if (context.hasErrors) {
             fallback = true
-            context.restoreState(saved)
+            context.contextMode = savedContextMode
             context.flushBuffer()
             infer(true)
           }
         } catch {
           case ex: CyclicReference  => throw ex
           case ex: TypeError        => // recoverable cyclic references
-            context.restoreState(saved)
+            context.contextMode = savedContextMode
             if (!fallback) infer(true) else ()
         } finally {
-          context.restoreState(saved)
+          context.contextMode = savedContextMode
           context.updateBuffer(errorsToRestore)
         }
       }

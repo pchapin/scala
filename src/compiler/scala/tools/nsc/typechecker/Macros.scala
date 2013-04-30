@@ -189,7 +189,7 @@ trait Macros extends scala.tools.reflect.FastTrack with Traces {
       val payload = pickledPayload.map{ case Assign(k, v) => (unpickleAtom(k), unpickleAtom(v)) }.toMap
 
       val pickleVersionFormat = payload("versionFormat").asInstanceOf[Int]
-      if (versionFormat != pickleVersionFormat) throw new Error("macro impl binding format mismatch: expected $versionFormat, actual $pickleVersionFormat")
+      if (versionFormat != pickleVersionFormat) throw new Error(s"macro impl binding format mismatch: expected $versionFormat, actual $pickleVersionFormat")
 
       val className = payload("className").asInstanceOf[String]
       val methodName = payload("methodName").asInstanceOf[String]
@@ -769,12 +769,12 @@ trait Macros extends scala.tools.reflect.FastTrack with Traces {
         if (macroDebugVerbose) println(s"typecheck #1 (against expectedTpe = $expectedTpe): $expanded")
         val expanded1 = typer.context.withImplicitsEnabled(typer.typed(expanded, mode, expectedTpe))
         if (expanded1.isErrorTyped) {
-          if (macroDebugVerbose) println(s"typecheck #1 has failed: ${typer.context.errBuffer}")
+          if (macroDebugVerbose) println(s"typecheck #1 has failed: ${typer.context.reportBuffer.errors}")
           expanded1
         } else {
           if (macroDebugVerbose) println(s"typecheck #2 (against pt = $pt): $expanded1")
           val expanded2 = typer.context.withImplicitsEnabled(super.onSuccess(expanded1))
-          if (macroDebugVerbose && expanded2.isErrorTyped) println(s"typecheck #2 has failed: ${typer.context.errBuffer}")
+          if (macroDebugVerbose && expanded2.isErrorTyped) println(s"typecheck #2 has failed: ${typer.context.reportBuffer.errors}")
           expanded2
         }
       }

@@ -174,10 +174,6 @@ private[internal] trait TypeMaps {
       case tv@TypeVar(_, constr) =>
         if (constr.instValid) this(constr.inst)
         else tv.applyArgs(mapOverArgs(tv.typeArgs, tv.params))  //@M !args.isEmpty implies !typeParams.isEmpty
-      case NotNullType(tp) =>
-        val tp1 = this(tp)
-        if (tp1 eq tp) tp
-        else NotNullType(tp1)
       case AnnotatedType(annots, atp, selfsym) =>
         val annots1 = mapOverAnnotations(annots)
         val atp1 = this(atp)
@@ -529,15 +525,39 @@ private[internal] trait TypeMaps {
       val TypeRef(_, rhsSym, rhsArgs) = rhs
       require(lhsSym.safeOwner == rhsSym, s"$lhsSym is not a type parameter of $rhsSym")
 
-      // Find the type parameter position; we'll use the corresponding argument
-      val argIndex = rhsSym.typeParams indexOf lhsSym
-
-      if (argIndex >= 0 && argIndex < rhsArgs.length)             // @M! don't just replace the whole thing, might be followed by type application
-        appliedType(rhsArgs(argIndex), lhsArgs mapConserve this)
-      else if (rhsSym.tpe_*.parents exists typeIsErroneous)        // don't be too zealous with the exceptions, see #2641
+      // Find the type parameter position; we'll use the corresponding argument.
+      // Why are we checking by name rather than by equality? Because for
+      // reasons which aren't yet fully clear, we can arrive here holding a type
+      // parameter whose owner is rhsSym, and which shares the name of an actual
+      // type parameter of rhsSym, but which is not among the type parameters of
+      // rhsSym. One can see examples of it at SI-4365.
+      val argIndex = rhsSym.typeParams indexWhere (lhsSym.name == _.name)
+      // don't be too zealous with the exceptions, see #2641
+      if (argIndex < 0 && rhs.parents.exists(typeIsErroneous))
         ErrorType
-      else
-        abort(s"something is wrong: cannot make sense of type application\n  $lhs\n  $rhs")
+      else {
+        // It's easy to get here when working on hardcore type machinery (not to
+        // mention when not doing so, see above) so let's provide a standout error.
+        def own_s(s: Symbol) = s.nameString + " in " + s.safeOwner.nameString
+        def explain =
+          sm"""|   sought  ${own_s(lhsSym)}
+               | classSym  ${own_s(rhsSym)}
+               |  tparams  ${rhsSym.typeParams map own_s mkString ", "}
+               |"""
+
+        if (argIndex < 0)
+          abort(s"Something is wrong: cannot find $lhs in applied type $rhs\n" + explain)
+        else {
+          val targ   = rhsArgs(argIndex)
+          // @M! don't just replace the whole thing, might be followed by type application
+          val result = appliedType(targ, lhsArgs mapConserve this)
+          def msg = s"Created $result, though could not find ${own_s(lhsSym)} among tparams of ${own_s(rhsSym)}"
+          if (!rhsSym.typeParams.contains(lhsSym))
+            devWarning(s"Inconsistent tparam/owner views: had to fall back on names\n$msg\n$explain")
+
+          result
+        }
+      }
     }
 
     // 0) @pre: `classParam` is a class type parameter
@@ -1037,7 +1057,7 @@ private[internal] trait TypeMaps {
           devWarning(s"$pre.$sym no longer exist at phase $phase")
           throw new MissingTypeControl // For build manager and presentation compiler purposes
         }
-        /** The two symbols have the same fully qualified name */
+        /* The two symbols have the same fully qualified name */
         def corresponds(sym1: Symbol, sym2: Symbol): Boolean =
           sym1.name == sym2.name && (sym1.isPackageClass || corresponds(sym1.owner, sym2.owner))
         if (!corresponds(sym.owner, rebind0.owner)) {
@@ -1135,7 +1155,6 @@ private[internal] trait TypeMaps {
       case TypeBounds(_, _) => mapOver(tp)
       case TypeVar(_, _) => mapOver(tp)
       case AnnotatedType(_,_,_) => mapOver(tp)
-      case NotNullType(_) => mapOver(tp)
       case ExistentialType(_, _) => mapOver(tp)
       case _ => tp
     }

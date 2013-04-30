@@ -21,7 +21,6 @@ abstract class Erasure extends AddInterfaces
   import global._
   import definitions._
   import CODE._
-  import treeInfo._
 
   val phaseName: String = "erasure"
 
@@ -67,8 +66,8 @@ abstract class Erasure extends AddInterfaces
     }
   }
 
-  override protected def verifyJavaErasure = settings.Xverify.value || settings.debug.value
-  def needsJavaSig(tp: Type) = !settings.Ynogenericsig.value && NeedsSigCollector.collect(tp)
+  override protected def verifyJavaErasure = settings.Xverify || settings.debug
+  def needsJavaSig(tp: Type) = !settings.Ynogenericsig && NeedsSigCollector.collect(tp)
 
   // only refer to type params that will actually make it into the sig, this excludes:
   // * higher-order type parameters
@@ -419,7 +418,7 @@ abstract class Erasure extends AddInterfaces
               |both have erased type ${exitingPostErasure(bridge.tpe)}""")
       }
       for (bc <- root.baseClasses) {
-        if (settings.debug.value)
+        if (settings.debug)
           exitingPostErasure(println(
             sm"""check bridge overrides in $bc
                 |${bc.info.nonPrivateDecl(bridge.name)}
@@ -559,11 +558,11 @@ abstract class Erasure extends AddInterfaces
           case x          =>
             assert(x != ArrayClass)
             tree match {
-              /** Can't always remove a Box(Unbox(x)) combination because the process of boxing x
-               *  may lead to throwing an exception.
+              /* Can't always remove a Box(Unbox(x)) combination because the process of boxing x
+               * may lead to throwing an exception.
                *
-               *  This is important for specialization: calls to the super constructor should not box/unbox specialized
-               *  fields (see TupleX). (ID)
+               * This is important for specialization: calls to the super constructor should not box/unbox specialized
+               * fields (see TupleX). (ID)
                */
               case Apply(boxFun, List(arg)) if isSafelyRemovableUnbox(tree, arg) =>
                 log(s"boxing an unbox: ${tree.symbol} -> ${arg.tpe}")
@@ -649,7 +648,7 @@ abstract class Erasure extends AddInterfaces
      *  @return     the adapted tree
      */
     private def adaptToType(tree: Tree, pt: Type): Tree = {
-      if (settings.debug.value && pt != WildcardType)
+      if (settings.debug && pt != WildcardType)
         log("adapting " + tree + ":" + tree.tpe + " : " +  tree.tpe.parents + " to " + pt)//debug
       if (tree.tpe <:< pt)
         tree
@@ -731,7 +730,7 @@ abstract class Erasure extends AddInterfaces
           else if (tree.symbol == Any_isInstanceOf)
             adaptMember(atPos(tree.pos)(Select(qual, Object_isInstanceOf)))
           else if (tree.symbol.owner == AnyClass)
-            adaptMember(atPos(tree.pos)(Select(qual, getMember(ObjectClass, name))))
+            adaptMember(atPos(tree.pos)(Select(qual, getMember(ObjectClass, tree.symbol.name))))
           else {
             var qual1 = typedQualifier(qual)
             if ((isPrimitiveValueType(qual1.tpe) && !isPrimitiveValueMember(tree.symbol)) ||

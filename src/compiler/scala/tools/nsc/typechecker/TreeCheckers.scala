@@ -69,7 +69,7 @@ abstract class TreeCheckers extends Analyzer {
       // new symbols
       if (newSyms.nonEmpty) {
         informFn(newSyms.size + " new symbols.")
-        val toPrint = if (settings.debug.value) sortedNewSyms mkString " " else ""
+        val toPrint = if (settings.debug) sortedNewSyms mkString " " else ""
 
         newSyms.clear()
         if (toPrint != "")
@@ -120,7 +120,7 @@ abstract class TreeCheckers extends Analyzer {
   def errorFn(msg: Any): Unit                = {hasError = true; println("[check: %s] %s".format(phase.prev, msg))}
   def errorFn(pos: Position, msg: Any): Unit = errorFn(posstr(pos) + ": " + msg)
   def informFn(msg: Any) {
-    if (settings.verbose.value || settings.debug.value)
+    if (settings.verbose || settings.debug)
       println("[check: %s] %s".format(phase.prev, msg))
   }
 
@@ -137,7 +137,7 @@ abstract class TreeCheckers extends Analyzer {
   }
 
   def checkTrees() {
-    if (settings.verbose.value)
+    if (settings.verbose)
       Console.println("[consistency check at the beginning of phase " + phase + "]")
 
     currentRun.units foreach (x => wrap(x)(check(x)))
@@ -221,7 +221,7 @@ abstract class TreeCheckers extends Analyzer {
                 case _: ConstantType  => ()
                 case _                =>
                   checkSym(tree)
-                  /** XXX: lots of syms show up here with accessed == NoSymbol. */
+                  /* XXX: lots of syms show up here with accessed == NoSymbol. */
                   if (accessed != NoSymbol) {
                     val agetter = accessed.getter(sym.owner)
                     val asetter = accessed.setter(sym.owner)
@@ -248,7 +248,7 @@ abstract class TreeCheckers extends Analyzer {
             else if (currentOwner.ownerChain takeWhile (_ != sym) exists (_ == NoSymbol))
               return fail("tree symbol "+sym+" does not point to enclosing class; tree = ")
 
-          /** XXX: temporary while Import nodes are arriving untyped. */
+          /* XXX: temporary while Import nodes are arriving untyped. */
           case Import(_, _) =>
             return
           case _ =>
@@ -283,7 +283,6 @@ abstract class TreeCheckers extends Analyzer {
 
       private def checkSymbolRefsRespectScope(tree: Tree) {
         def symbolOf(t: Tree): Symbol = Option(tree.symbol).getOrElse(NoSymbol)
-        def definedSymbolOf(t: Tree): Symbol = if (t.isDef) symbolOf(t) else NoSymbol
         val info = Option(symbolOf(tree).info).getOrElse(NoType)
         val referencedSymbols: List[Symbol] = {
           val directRef = tree match {

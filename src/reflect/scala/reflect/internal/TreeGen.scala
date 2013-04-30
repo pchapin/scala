@@ -277,7 +277,7 @@ abstract class TreeGen extends macros.TreeBuilder {
 
   /** Builds a tuple */
   def mkTuple(elems: List[Tree]): Tree =
-    if (elems.isEmpty) Literal(Constant())
+    if (elems.isEmpty) Literal(Constant(()))
     else Apply(
       Select(mkAttributedRef(TupleClass(elems.length).caseModule), nme.apply),
       elems)
@@ -297,5 +297,10 @@ abstract class TreeGen extends macros.TreeBuilder {
 
   def mkPackageDef(packageName: String, stats: List[Tree]): PackageDef = {
     PackageDef(mkUnattributedRef(newTermName(packageName)), stats)
+  }
+
+  def mkSeqApply(arg: Tree): Apply = {
+    val factory = Select(gen.mkAttributedRef(SeqModule), nme.apply)
+    Apply(factory, List(arg))
   }
 }
