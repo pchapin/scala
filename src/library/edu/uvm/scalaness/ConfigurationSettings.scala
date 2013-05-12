@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
 // FILE    : ConfigurationSettings.scala
 // SUBJECT : A facility to manage a program's configuration
-// AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //-----------------------------------------------------------------------
 package edu.uvm.scalaness
 
@@ -16,12 +16,16 @@ import java.io._
  * function. The validation function is used to both check a candidate setting and to normalize
  * the value of the setting into whatever form the application finds convenient.
  */
-class ConfigurationSettings(private val configurableItems: Map[String, String => String]) {
+class ConfigurationSettings(
+  private val configurableItems: Map[String, (ConfigurationSettings, String) => String]) {
+
   import ConfigurationSettings._
 
   /** Contains a map of (name, value) pairs. */
   private var settings = Map[String, String]()
 
+  /** Contains the path to the configuration file (with trailing separator). */
+  private[scalaness] var configurationPath = "." + File.separator
 
   /**
    * Provides default values for some (possibly all) configurable items.
@@ -92,6 +96,13 @@ class ConfigurationSettings(private val configurableItems: Map[String, String =>
     // TODO: If a name is found that is not among the set of allowed configurable items, it is
     // silently ignored.
 
+    // TODO: This logic won't handle "C:Scalaness.cfg" on Windows properly.
+    val breakPoint = fileName.lastIndexOf(File.separatorChar)
+    if (breakPoint != -1) {
+      // Copy the leading path (which might be relative or absolute)
+      configurationPath = fileName.substring(0, breakPoint + 1)
+    }
+
     var inputFile: BufferedReader = null
     try {
       inputFile = new BufferedReader(new FileReader(fileName))
@@ -157,7 +168,7 @@ class ConfigurationSettings(private val configurableItems: Map[String, String =>
    */
   def put(name: String, value: String) {
     if (configurableItems.contains(name))
-      settings += ( name -> configurableItems(name)(value) )
+      settings += ( name -> configurableItems(name)(this, value) )
     else
       throw new BadNameException("Unknown configuration item: " + name)
   }
@@ -184,11 +195,12 @@ object ConfigurationSettings {
   /**
    * Validates boolean settings. The strings "true" or "t" (case insensitive) are normalized to
    * "true." The strings "false" or "f" (case insensitive) are normalized to "false."
-   * 
+   *
+   * @param settings The settings object wishing to do the validation.
    * @param raw The string to validate.
    * @throws BadValidationException if the raw string is not in the form described above.
    */
-  def basicBooleanValidator(raw: String) = {
+  def basicBooleanValidator(settings: ConfigurationSettings, raw: String) = {
     val upperRaw = raw.toUpperCase()
     if      (upperRaw == "TRUE"  || upperRaw == "T") "true"
     else if (upperRaw == "FALSE" || upperRaw == "F") "false"
@@ -197,15 +209,16 @@ object ConfigurationSettings {
   }
 
   // TODO: Do some real validation here.
-  def basicIntegerValidator(raw: String) = raw
+  def basicIntegerValidator(settings: ConfigurationSettings, raw: String) = raw
 
   /*
    * Validates simple strings. Every string is considered valid.
-   * 
+   *
+   * @param settings The settings object wishing to do the validation.
    * @param raw The string to validate.
    * @throws BadValidationException if raw is a null reference.
    */
-  def basicStringValidator(raw: String) =
+  def basicStringValidator(settings: ConfigurationSettings, raw: String) =
     if (raw != null)
       raw
     else
@@ -217,11 +230,25 @@ object ConfigurationSettings {
    * readable, etc. In some applications it is not an error to configure the name of a non-
    * existent file. More powerful validators can be defined that do check these features if
    * desired.
+   *
+   * This method adjusts relative paths by prefixing them with the path to the configuration
+   * file itself. As a result, relative paths in the configuration file are taken to be
+   * relative to that file (and not relative to the invoking process).
+   *
+   * @param settings The settings object wishing to do the validation.
+   * @param raw The string to validate.
+   * @return The adjusted path.
    */
-  def basicPathValidator(raw: String) = {
+  def basicPathValidator(settings: ConfigurationSettings, raw: String) = {
     // TODO: Be sure each character is a valid file name character.
-    raw.map( ch =>
+    val canonicalPath = raw.map( ch =>
       if (ch == '/' || ch == '\\') File.separatorChar else ch
     )
+
+    // TODO: This doesn't handle Windows drive letters properly: "C:\..."
+    if (canonicalPath.length > 0 && canonicalPath.charAt(0) != File.separatorChar)
+      settings.configurationPath + canonicalPath
+    else
+      canonicalPath
   }
 }
