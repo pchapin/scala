@@ -22,6 +22,7 @@
     <property name="scala-library.jar" location="${scala.home}/lib/scala-library.jar"/>
     <property name="scala-compiler.jar" location="${scala.home}/lib/scala-compiler.jar"/>
     <property name="scala-reflect.jar" location="${scala.home}/lib/scala-reflect.jar"/>
+    <property name="scala-actors.jar" location="${scala.home}/lib/scala-actors.jar"/>
     <property name="antlr.jar" location="${scala.home}/lib/antlr-3.4.jar"/>
     <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
@@ -37,8 +38,7 @@
       <pathelement location="${scala-compiler.jar}"/>
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
-      <pathelement location="${library.dir}/akka-actor_2.10-2.1.2.jar"/>
-      <pathelement location="${library.dir}/config-1.0.0.jar"/>
+      <pathelement location="${scala-actors.jar}"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
     </path>
@@ -49,8 +49,7 @@
       <pathelement location="${scala-compiler.jar}"/>
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
-      <pathelement location="${library.dir}/akka-actor_2.10-2.1.2.jar"/>
-      <pathelement location="${library.dir}/config-1.0.0.jar"/>
+      <pathelement location="${scala-actors.jar}"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
 
@@ -64,8 +63,7 @@
       <pathelement location="${scala-compiler.jar}"/>
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
-      <pathelement location="${library.dir}/akka-actor_2.10-2.1.2.jar"/>
-      <pathelement location="${library.dir}/config-1.0.0.jar"/>
+      <pathelement location="${scala-actors.jar}"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
     </path>
@@ -75,8 +73,7 @@
       <pathelement location="${antlr.jar}"/>
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
-      <pathelement location="${library.dir}/akka-actor_2.10-2.1.2.jar"/>
-      <pathelement location="${library.dir}/config-1.0.0.jar"/>
+      <pathelement location="${scala-actors.jar}"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
     </path>
@@ -141,7 +138,7 @@
   <!-- I don't want to try extracting documentation from invalid Scala files. -->
   <target name="scaladoc" depends="compile" description="Generate the Scaladoc" >
     <mkdir dir="${scaladoc.dir}"/>
-    <scaladoc addparams="-feature"
+    <scaladoc addparams="-feature -nowarn"
               srcdir="${main.sources.dir}"
               destdir="${scaladoc.dir}"
               deprecation="yes"

@@ -6,7 +6,6 @@
 //-----------------------------------------------------------------------
 package edu.uvm.spartanrpc
 
-import akka.actor.{ActorSystem, Props}
 import edu.uvm.rt.CertificateStorageInMemory
 
 /**
@@ -26,14 +25,16 @@ object Main {
       val owningEntity = args(0)
       val certificateStore = new CertificateStorageInMemory
 
-      val system = ActorSystem("SpartanRPC")
-      val messageServer = system.actorOf(Props[MessageServer], "message server")
-      // val authorizer = system.actorOf(Props(new ServiceAuthorizer(9000)), "authorizer")
+      val messageServer = new MessageServer
+      val authorizer = new ServiceAuthorizer(9000)
+      messageServer.start()
+      authorizer.start()
       messageServer ! "Welcome to BlinkBuilder!"
       
       while (true) {
         Thread.sleep(10000)
         messageServer ! "Generating Blink..."
+
         // Generate blink application using current information.
         BlinkClient.image()
         BlinkServer.image()

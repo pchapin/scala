@@ -17,7 +17,7 @@
 
 <!-- FILE        : SpartanRPC.xml
      SUBJECT     : Master document for the SpartanRPC documentation set.
-     AUTHOR      : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
+     AUTHOR      : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 
 This is the documentation for the SpartanRPC demonstration program.. -->
 
@@ -35,7 +35,7 @@ This is the documentation for the SpartanRPC demonstration program.. -->
     </author>
     <authorinitials>pcc</authorinitials>
     <copyright>
-      <year>2012</year>
+      <year>2013</year>
       <holder>Peter C. Chapin</holder>
     </copyright>
     <legalnotice>
