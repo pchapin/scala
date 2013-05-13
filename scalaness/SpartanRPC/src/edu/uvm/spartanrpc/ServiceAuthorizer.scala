@@ -7,21 +7,33 @@
 package edu.uvm.spartanrpc
 
 import actors.Actor
-import java.net.{DatagramPacket, DatagramSocket}
+import java.io._
+import java.net.{DatagramPacket, DatagramSocket, SocketException}
+import edu.uvm.rt.CertificateStorageInMemory
 
-class ServiceAuthorizer(private val port: Int) extends Actor {
+class ServiceAuthorizer(messageServer: MessageServer, owningEntity: String, port: Int) extends Actor {
 
+  private val certificateStorage = new CertificateStorageInMemory
   private val listeningSocket = new DatagramSocket(port)
   
   def act() {
-    val message = new Array[Byte](512)
+    val message = new Array[Byte](1024)
     val packet = new DatagramPacket(message, message.length)
     
-    // TODO: The ServiceAuthorizer should accept some kind of poison pill message and terminate.
-    while (true) {
-      listeningSocket.receive(packet)
+    try {
+      while (true) {
+        listeningSocket.receive(packet)
+        val rawData = new ByteArrayInputStream(message, 0, packet.getLength)
+        val deserializer = new ObjectInputStream(rawData)
+        val authorizationMessage = deserializer.readObject().asInstanceOf[AuthorizationMessage]
+        messageServer ! "Received : " + authorizationMessage.requestRole + " from the network"
       
-      // TODO: Process authorization request from remote client.
+        // TODO: Process authorization request from remote client.
+      }
+    }
+    catch {
+      case _: SocketException =>
+        messageServer ! "Socket exception in ServiceAuthorizer; shutting down"
     }
   }
 

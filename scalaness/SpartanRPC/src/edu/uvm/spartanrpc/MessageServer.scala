@@ -11,11 +11,15 @@ import actors.Actor
 class MessageServer extends Actor {
 
   def act() {
-    while (true) {
+
+    var done = false
+    while (!done) {
       receive {
         case message: String => println(message)
+        case 'Die => done = true
       }
     }
+
   }
 
 }
