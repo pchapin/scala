@@ -152,7 +152,7 @@
   <target name="run1" depends="distribution" description="Run the SpartanRPC sample (1st)">
     <java classname="edu.uvm.spartanrpc.Main" fork="true">
       <arg value="Alice"/>
-      <arg value="server"/>
+      <arg value="SensorBox"/>
       <arg value="9000"/>
       <arg value="9001"/>
       <classpath refid="run.classpath"/>
@@ -163,7 +163,7 @@
   <target name="run2" depends="distribution" description="Run the SpartanRPC sample (2nd)">
     <java classname="edu.uvm.spartanrpc.Main" fork="true">
       <arg value="Bob"/>
-      <arg value="client"/>
+      <arg value="Harvester"/>
       <arg value="9001"/>
       <arg value="9000"/>
       <classpath refid="run.classpath"/>

@@ -65,12 +65,12 @@ object Main {
   def main(args: Array[String]) {
 
     object Mode extends Enumeration {
-      val Client = Value
-      val Server = Value
+      val Harvester = Value
+      val SensorBox = Value
     }
 
     if (args.length != 4) {
-      println("Usage: Main owning_entity_name \"client\"|\"server\" authorizer_port peer_port")
+      println("Usage: Main owning_entity_name \"Harvester\"|\"SensorBox\" authorizer_port peer_port")
       return
     }
 
@@ -78,9 +78,9 @@ object Main {
     // TODO: More comprehensive handling of the command line might be nice.
     val owningEntity   = args(0)
     val mode           = args(1) match {
-      case "client" => Mode.Client
-      case "server" => Mode.Server
-      case _        => println(s"Unknown mode: ${args(0)}, defaulting to 'client'"); Mode.Client
+      case "Harvester" => Mode.Harvester
+      case "SensorBox" => Mode.SensorBox
+      case _        => println(s"Unknown mode: ${args(0)}, defaulting to 'SensorBox'"); Mode.SensorBox
     }
     val authorizerPort = args(2).toInt
     val peerPort       = args(3).toInt
@@ -133,10 +133,10 @@ object Main {
           socket.close()
 
         case 4 =>
-          messageServer ! "Generating Blink..."
+          messageServer ! s"Generating ${if (mode == Mode.Harvester) "Harvester" else "SensorBox" } application..."
           mode match {
-            case Mode.Client => BlinkClient.image()
-            case Mode.Server => BlinkServer.image()
+            case Mode.Harvester => BlinkClient.image()
+            case Mode.SensorBox => BlinkServer.image()
           }
 
         case _ =>
