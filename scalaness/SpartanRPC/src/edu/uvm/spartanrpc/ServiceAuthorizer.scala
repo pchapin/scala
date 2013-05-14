@@ -11,9 +11,12 @@ import java.io._
 import java.net.{DatagramPacket, DatagramSocket, SocketException}
 import edu.uvm.rt.CertificateStorageInMemory
 
-class ServiceAuthorizer(messageServer: MessageServer, owningEntity: String, port: Int) extends Actor {
+class ServiceAuthorizer(
+  messageServer     : MessageServer,
+  owningEntity      : String,
+  certificateStorage: CertificateStorageInMemory,
+  port              : Int) extends Actor {
 
-  private val certificateStorage = new CertificateStorageInMemory
   private val listeningSocket = new DatagramSocket(port)
   
   def act() {

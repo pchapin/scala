@@ -20,7 +20,6 @@ import java.security.interfaces.ECPublicKey
  * The private key is optional.
  */
 trait KeyStorage extends Traversable[KeyAssociation] {
-  import KeyStorage._
 
   /**
    * Associates this key storage object with a particular certificate storage object. This link is necessary because
