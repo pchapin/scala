@@ -8,6 +8,11 @@
 #include "printf.h"
 
 module SensorBoxC {
+  // Unrolled from 'uses interface DisseminationValue<command_t> as Bcast'
+  uses command void set( const command_t *new_value );
+  uses command const command_t *get( );
+  provides command void changed( );
+
   uses {
     interface Boot;
     interface Timer<TMilli>;
@@ -20,7 +25,7 @@ module SensorBoxC {
     interface Packet as DataPacket;
     interface Send as DataSend;
     interface DisseminationValue<command_t> as Command;
-    interface DisseminationValue<command_t> as Bcast;
+    // interface DisseminationValue<command_t> as Bcast;
     interface Leds;
     interface Notify<button_state_t> as ButtonEvent;
     interface Read<uint16_t> as Temp;
@@ -198,7 +203,7 @@ module SensorBoxC {
     bcast.val = 0;
     bcast.mote_id = TOS_NODE_ID;
     bcast.nonce = 0;
-    call Bcast.set(&bcast);
+    call /* Bcast. */ set(&bcast);
     call Command.set(&comm);
   }
 
@@ -589,9 +594,10 @@ module SensorBoxC {
       }
   }
   
-  event void Bcast.changed()
+  // This was an event.
+  command void /* Bcast. */ changed()
   {
-    memcpy(&bcast, call Bcast.get(), sizeof(bcast));
+    memcpy(&bcast, call /* Bcast. */ get(), sizeof(bcast));
 
     if (bcast.mote_id == BCAST_ID)
       {
