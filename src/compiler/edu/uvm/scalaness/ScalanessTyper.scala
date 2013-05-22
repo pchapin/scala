@@ -216,19 +216,9 @@ trait ScalanessTyper {
   def runPreprocessor(fullName: String, preprocessedFullName: String) = {
     // TODO: Various aspects of preprocessing should be configurable.
     
-    // These are hard coded macros that are only interesting to TinyECC.
-    // Clearly these need to come from a configuration file to make the compiler more general.
-    val predefinedMacros = List(
-        "PLATFORM_TELOSB",
-        "SECP160K1"
-        // "BARRETT_REDUCTION",  // Barrett reduction.
-        // "HYBRID_MULT",        // Hybrid multiplication.
-        // "HYBRID_SQR",         // Hybrid square.
-        // "CURVE_OPT",          // Optimization for secg curve.
-        // "PROJECTIVE",         // Projective coordinates.
-        // "SLIDING_WIN",        // Sliding window method.
-        // "SHAMIR_TRICK"        // Shamir trick.
-        )
+    // These are hard coded macros.
+    // TODO: It should be possible to define additional macros in the configuration file.
+    val predefinedMacros = List("__MININESS__")
     
     // Prepare the preprocessor command line.
     val commandLine = new ArrayList[String]()
@@ -244,7 +234,7 @@ trait ScalanessTyper {
     //     }
     //   case None =>  // Do nothing.
     // }
-    commandLine.add("-I/opt/tinyos-2.1.2/apps/TinyECC-2.0")
+
     for (predefinedMacro <- predefinedMacros) {
       commandLine.add("-D" + predefinedMacro)
     }

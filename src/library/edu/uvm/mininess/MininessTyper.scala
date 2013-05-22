@@ -94,6 +94,12 @@ class MininessTyper(
         Some(Okay)
       }
 
+      case ASTNode(MininessLexer.CONST, _, children, _, _) => {
+        for (child <- children)
+          checkMininessInclusion(child, depth + 1)
+        Some(Okay)
+      }
+
       case ASTNode(MininessLexer.CONSTANT, _, children, _, _) => {
         for (child <- children)
           checkMininessInclusion(child, depth + 1)
@@ -881,6 +887,12 @@ class MininessTyper(
         }
         else throw new TypeException("(Node GREATEREQUAL) Unexpected Types: " + firstChildType + 
                                      " & " + secondChildType + ". Expected: <: Int32 or UInt32.")
+      }
+
+      case ASTNode(MininessLexer.INITIALIZER_LIST, _, children, _, _) => {
+        for (child <- children)
+          checkMininessExpression(child, depth + 1)
+        Some(Okay)
       }
 
       case ASTNode(MininessLexer.LESS, _, children, _, _) => {
