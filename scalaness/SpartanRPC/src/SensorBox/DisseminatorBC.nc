@@ -5,39 +5,31 @@
 //
 // -----------------------------------------------------------------------
 
-//#include "KappaMsg.h"
-
-// The structure of network commands
-typedef struct commandTAG {
-  uint8_t mote_id;    //the command destination node
-  uint8_t command_name; //name of the command
-  uint16_t val; //command parameter
-  uint8_t nonce; // nonce to ensure *re*issued commands are updates
-} command_t;
+#include "KappaMsg.h"
 
 module DisseminatorBC {
     // provides remote interface DisseminationUpdateB requires "N.control";
-    provides command void change( command_t new_value );       // Called by skeleton.
+    provides command void change( struct commandTAG new_value );       // Called by skeleton.
 
     // provides interface DisseminationValueB;
-    provides command void set( const command_t *new_value );
-    provides command const command_t *get( );
+    provides command void set( const struct commandTAG *new_value );
+    provides command const struct commandTAG *get( );
     uses command void changed( );
 
     // uses interface DisseminationUpdateB as NeighborUpdate;
-    uses command void change_neighbor( command_t new_value );  // Calls into stub.
+    uses command void change_neighbor( struct commandTAG new_value );  // Calls into stub.
 
     // Maybe not necessary with Scalaness. Let the Scalaness program take care of this.
     // provides interface ComponentManager;
 }
 implementation {
-    command_t current_value = { 0, 0, 0, 0 };
+    struct commandTAG current_value = { 0, 0, 0, 0 };
 
     // ----------------
     // Helper functions
     // ----------------
 
-    bool commands_equal( const command_t *left, const command_t *right )
+    bool commands_equal( const struct commandTAG *left, const struct commandTAG *right )
     {
         return ( left->mote_id      == right->mote_id      &&
                  left->command_name == right->command_name &&
@@ -49,7 +41,7 @@ implementation {
     // Commands
     // --------
     
-    command void change( command_t new_value )
+    command void change( struct commandTAG new_value )
     {
         if( !commands_equal( &current_value, &new_value ) ) {
             call change_neighbor( new_value );
@@ -59,13 +51,13 @@ implementation {
     }
 
 
-    command void set( const command_t *new_value )
+    command void set( const struct commandTAG *new_value )
     {
         current_value = *new_value;
     }
     
 
-    command const command_t *get( )
+    command const struct commandTAG *get( )
     {
         return &current_value;
     }
