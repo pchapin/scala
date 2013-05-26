@@ -29,7 +29,7 @@ implementation {
     // Helper functions
     // ----------------
 
-    bool commands_equal( const struct commandTAG *left, const struct commandTAG *right )
+    int commands_equal( const struct commandTAG *left, const struct commandTAG *right )
     {
         return ( left->mote_id      == right->mote_id      &&
                  left->command_name == right->command_name &&

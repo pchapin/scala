@@ -65,8 +65,6 @@ enum {
   TIME_NOW           = 0x44
 };
 
-#endif
-
 // Network packet structure.
 nx_struct kappa {
   nx_uint16_t reading;   // Channel reading.
@@ -81,6 +79,8 @@ nx_struct nettime {
   nx_uint32_t timestamp;
   nx_uint16_t updateID;
 };
+
+#endif
 
 // The structure of network commands
 struct commandTAG {
