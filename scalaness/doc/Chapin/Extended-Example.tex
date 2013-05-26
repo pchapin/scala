@@ -1,0 +1,106 @@
+\chapter{Extended Example}
+\label{chap:extended-example}
+
+One of the main goals of Scalaness is to improve the space and time efficiency of dynamic sensor
+network applications by off-loading as much of the computations as possible to a first stage
+program running on a powerful hub. To demonstrate the applicability of this approach, in this
+chapter I will describe two ways I added trust management based authorization to an existing
+``real world'' sensor network application.
+
+The first method does not use Scalaness but instead imposes all security related computations on
+the sensor nodes themselves---at considerable expense both in terms of execution time and memory
+consumption. The second method off-loads much of those computations to a Scalaness program that
+then specializes the nodes with the resulting session keys.
+
+\section{SnowCloud}
+
+My demonstration is based on the SnowCloud system \cite{XXX}, developed by (who?) to (do what?).
+\note{FIXME} That system consists of two node level applications. The first application, called
+SensorBox, runs on the sensor network itself, gathers data related to snow depth, and saves it
+in non-volatile storage on each node. The second application, called Harvester, runs on a
+specialized device that is hand carried into the field and collects sensor data from the
+network. The Harvester issues commands to the nodes as well as collects data from the nodes.
+
+\note{Describe the SnowCloud application in more detail. Moving on for now\ldots}
+
+\section{SpartanRPC/Sprocket}
+
+The first approach I used to add trust management authorization to sensor networks is the
+SpartanRPC/Sprocket system developed with Christian Skalka \cite{XXX}. In this section I
+describe SpartanRPC, its implementation in the Sprocket compiler, and report on the performance
+of the resulting node programs both in general terms and specifically for the SnowCloud
+application.
+
+\subsection{SpartanRPC}
+
+\textit{Describe SpartanRPC in the abstract}
+
+\subsection{Sprocket}
+
+\textit{Describe Sprocket}
+
+\subsection{Sprocket Performance}
+
+\textit{Describe Sprocket performance and SnowCloud integration}
+
+\section{Scalaness}
+
+To demonstrate the effectiveness of Scalaness, in this section I describe my reimplementation of
+SpartanRPC whereby the expensive cryptographic computations are done by a Scalaness program
+which then specializes stubs and skeletons with hard coded session keys. I also report on the
+performance of the resulting node programs and compare their performance to that obtained with
+Sprocket.
+
+\subsection{SnowStorm}
+
+I visualize a scenario where the administrative domain running the Harvester might be different
+from the administrative domain owning the sensor network. Each of these domains is its own
+$RT_0$ entity, called $H$ and $N$ respectively. $N$ defines the role \texttt{control}, the
+members of which are able to send commands to network nodes. Each node holds the following
+policy
+\begin{Verbatim}
+N.control <- H
+N.control <- N
+\end{Verbatim}
+
+It is necessary for $N$ to be made a member of $N.\textrm{control}$ so that commands can be
+forwarded from node to node during their dissemination. \note{Is there value in defining a more
+  interesting policy?}
+
+The Scalaness program, called SnowStorm, is able to generate both the Harvester and SensorBox
+applications. \autoref{fig:running-snowstorm} shows two instances of SnowStorm running, $S_H$
+and $S_N$, one by each administrative domain. $S_H$ is only interested in generating the
+Harvester application and $S_N$ is only interested in generating the SensorBox application.
+Conceptually the two domains might run completely independent Scalaness programs, but as a
+convenience during development and testing a single program was created to serve the needs of
+both domains.
+
+\begin{figure}[htbp]
+  \input{Figures/SnowStorm}
+  \centerline{\raise 1em\box\graph}
+  \caption{Running SnowStorm}
+  \label{fig:running-snowstorm}
+\end{figure}
+
+$S_H$ and $S_N$ are assumed to both have Internet access and run continuously. $H$ requests
+authorization from $N$ and, if successful, session keys are negotiated over the Internet.
+SnowStorm provides a menu that allows an interactive user to control its operation and trigger
+the generation of the node level programs.
+
+Each instance of SnowStorm holds the private key of its domain and maintains a database of
+public keys ($RT$ entities) and certificates ($RT$ policy). Users are able to issue new
+certificates under their domain's key.
+
+\subsection{SnowStorm Structure}
+
+\textit{Describe some of the interesting aspects of the SnowStorm implementation}
+
+\subsection{SnowStorm Performance}
+
+\textit{Describe the performance of the generated program, comparing it to Sprocket}
+
+
+%%% Local Variables: 
+%%% mode: LaTeX
+%%% TeX-master: "main"
+%%% End: 
