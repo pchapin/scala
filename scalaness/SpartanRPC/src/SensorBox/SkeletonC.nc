@@ -2,7 +2,10 @@
 // SUMMARY: The module that is specialized for each skeleton.
 //
 
+#include "KappaMsg.h"
+
 module SkeletonC {
+    uses command void change( struct commandTAG new_value );
 }
 implementation {
     int value = 0;

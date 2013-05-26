@@ -168,34 +168,39 @@ trait ScalanessTyper {
             if (vparamss.length > 1)
               reporter.error(null, "Mininess modules can't have multiple parameter lists")
 
-            val List(parameters) = vparamss
-            parameters foreach { parameter =>
-              val ValDef(mods, name, tpt, rhs) = parameter
-              // Examine the type of the module's parameter. In theory I should match against
-              // the AST of the type. However it's very difficult to figure out the proper
-              // structure because the compiler options for printing ASTs only print abbreviated
-              // ASTs. Thus I'm going to convert the type to its string representation and
-              // analyze the string. It's a hack, but when (if) the compiler internals are
-              // better documented this can be changed to do it the right way.
-              //
-              val typeName = tpt.toString()  // Or should this be tpt.tpe.toString()?
-              val leftSquareBracketIndex = typeName.indexOf('[')
-              if (leftSquareBracketIndex == -1) {
-                // The type is not parameterized. Try to lift it.
-                valueParameterDeclarations += (name.toString -> liftType(typeName))
-              }
-              else {
-                // It is parameterized. Verify that it's a MetaType.
-                val constructorName = typeName.substring(0, leftSquareBracketIndex)
-                if (constructorName != "edu.uvm.scalaness.MetaType") {
-                  reporter.error(null,
-                    "Type constructor " + constructorName + " is not allowed as a parameter type here")
+            vparamss match {
+              case List() => // No parameters at all. Just return two empty maps.
+              case List(parameters) =>
+                parameters foreach { parameter =>
+                  val ValDef(mods, name, tpt, rhs) = parameter
+                  // Examine the type of the module's parameter. In theory I should match
+                  // against the AST of the type. However it's very difficult to figure out the
+                  // proper structure because the compiler options for printing ASTs only print
+                  // abbreviated ASTs. Thus I'm going to convert the type to its string
+                  // representation and analyze the string. It's a hack, but when (if) the
+                  // compiler internals are better documented this can be changed to do it the
+                  // right way.
+                  //
+                  val typeName = tpt.toString()  // Or should this be tpt.tpe.toString()?
+                  val leftSquareBracketIndex = typeName.indexOf('[')
+                  if (leftSquareBracketIndex == -1) {
+                    // The type is not parameterized. Try to lift it.
+                    valueParameterDeclarations += (name.toString -> liftType(typeName))
+                  }
+                  else {
+                    // It is parameterized. Verify that it's a MetaType.
+                    val constructorName = typeName.substring(0, leftSquareBracketIndex)
+                    if (constructorName != "edu.uvm.scalaness.MetaType") {
+                      reporter.error(null,
+                        "Type constructor " + constructorName + " is not allowed as a parameter type here")
+                    }
+                    else {
+                      typeParameterDeclarations +=
+                      (name.toString ->
+                       liftType(typeName.substring(leftSquareBracketIndex + 1, typeName.length - 1)))
+                    }
+                  }
                 }
-                else {
-                  typeParameterDeclarations +=
-                    (name.toString -> liftType(typeName.substring(leftSquareBracketIndex + 1, typeName.length - 1)))
-                }
-              }
             }
           }
           
