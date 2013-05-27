@@ -70,8 +70,21 @@ trait MininessComponent {
   def external(fileName: String) = {
     // TODO: Improve behavior during exceptions.
     // TODO: The name of the output folder should be configurable.
-    // TODO: Is there a file copy method by chance? That would be better.
-    val input  = new BufferedInputStream(new FileInputStream(fileName))
+
+    val input = try {
+      // Try getting the file out of the file system.
+      new BufferedInputStream(new FileInputStream(fileName))
+    }
+    catch {
+      case ex: java.io.FileNotFoundException =>
+        // If that didn't work, try getting it out of the jar file.
+        val adjustedName1 =
+          if (fileName.charAt(0) == '.') fileName.substring(1) else fileName
+        val adjustedName2 =
+          if (adjustedName1.charAt(0) == '/') adjustedName1 else "/" + adjustedName1
+
+        new BufferedInputStream(getClass.getResourceAsStream(adjustedName2))
+    }
     val output = new BufferedOutputStream(new FileOutputStream("generated/" + fileName))
     var ch = 0
     while ({ ch = input.read(); ch != -1 }) output.write(ch)

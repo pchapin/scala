@@ -131,11 +131,13 @@
     <copy todir="${main.classes.dir}/Harvester">
       <fileset dir="${main.sources.dir}/Harvester">
         <include name="**/*.i"/>
+        <include name="**/*.nc"/>
       </fileset>
     </copy>
     <copy todir="${main.classes.dir}/SensorBox">
       <fileset dir="${main.sources.dir}/SensorBox">
         <include name="**/*.i"/>
+        <include name="**/*.nc"/>
       </fileset>
     </copy>
     <jar jarfile="${distribution.dir}/SpartanRPC.jar"
