@@ -98,10 +98,6 @@
             classpathref="build.classpath">
       <include name="**/*.scala"/>
     </scalac>
-
-    <!-- Don't forget to copy the other supporting files needed by the plugin. -->
-    <copy file="${main.sources.dir}/Makefile"
-          tofile="${main.classes.dir}/Makefile"/>
   </target>
 
 
@@ -130,6 +126,18 @@
 
   <target name="distribution" depends="compile" description="Generate the distribution" >
     <mkdir dir="${distribution.dir}"/>
+    <mkdir dir="${main.classes.dir}/Harvester"/>
+    <mkdir dir="${main.classes.dir}/SensorBox"/>
+    <copy todir="${main.classes.dir}/Harvester">
+      <fileset dir="${main.sources.dir}/Harvester">
+        <include name="**/*.i"/>
+      </fileset>
+    </copy>
+    <copy todir="${main.classes.dir}/SensorBox">
+      <fileset dir="${main.sources.dir}/SensorBox">
+        <include name="**/*.i"/>
+      </fileset>
+    </copy>
     <jar jarfile="${distribution.dir}/SpartanRPC.jar"
          basedir="${main.classes.dir}"/>
   </target>
