@@ -8,12 +8,14 @@
 #include "HarvesterConfig.h"
 
 module HarvesterC {
+  // Unrolled from 'uses interface DisseminationUpdate<command_t> as Bcast;
+  uses command void change( command_t *new_value );
   uses {
     interface Boot;
     interface Receive as DataReceive;
     interface SplitControl as RadioControl;
     interface DisseminationUpdate<command_t> as Command;
-    interface DisseminationUpdate<command_t> as Bcast;
+    // interface DisseminationUpdate<command_t> as Bcast;
     interface StdControl as DisseminationControl;
     interface Leds;
     interface Get<button_state_t> as ButtonPoll;
@@ -115,7 +117,7 @@ module HarvesterC {
     bcast.val = v;
     bcast.mote_id = BCAST_ID;
     bcast.nonce = make_nonce();
-    call Bcast.change(&bcast);
+    call /* Bcast. */ change(&bcast);
   }
 
   void send_comm(int n, int c, int v)

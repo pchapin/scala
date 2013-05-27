@@ -5,7 +5,7 @@
 #include "KappaMsg.h"
 
 module SkeletonC {
-    uses command void change( struct commandTAG new_value );
+    uses command void change( struct commandTAG *new_value );
 }
 implementation {
     int value = 0;

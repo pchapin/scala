@@ -4,7 +4,7 @@
 // AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
-package edu.uvm.spartanrpc
+package edu.uvm.spartanrpc.sensorbox
 
 import edu.uvm.scalaness.{ProgramComponentWrapper, MininessComponent, ModuleType, NamedProgramComponent, Parser}
 import edu.uvm.mininess.Declarations
@@ -14,16 +14,18 @@ import java.io.File
 @ModuleType("""{}
                <;>{ changed( ): Void,
                     change_neighbor(
-                      new_value: commandTAG { mote_id     : UInt8,
+                      new_value: PointerTo[
+                                 commandTAG { mote_id     : UInt8,
                                               command_name: UInt8,
                                               val         : UInt16,
-                                              nonce       : UInt8 } ): Void;
+                                              nonce       : UInt8 } ] ): Void;
 
                     change(
-                      new_value: commandTAG { mote_id     : UInt8,
+                      new_value: PointerTo[
+                                 commandTAG { mote_id     : UInt8,
                                               command_name: UInt8,
                                               val         : UInt16,
-                                              nonce       : UInt8 } ): Void,
+                                              nonce       : UInt8 } ] ): Void,
                     set(
                       new_value: PointerTo[
                                  commandTAG { mote_id     : UInt8,

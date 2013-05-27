@@ -9,7 +9,6 @@ package edu.uvm.spartanrpc
 import java.io._
 import java.net._
 import edu.uvm.rt._
-import edu.uvm.scalaness.ModuleType
 
 /**
  * This is a demonstration program to illustrate the SpartanRPC Scalaness library. It generates a remote blink
@@ -63,44 +62,6 @@ object Main {
   }
 
 
-  @ModuleType("""{}
-     <;>{ ;
-          change_neighbor(
-          new_value: commandTAG { mote_id     : UInt8,
-                                  command_name: UInt8,
-                                  val         : UInt16,
-                                  nonce       : UInt8 } ): Void }""")
-  def createStub = {
-    @ModuleType("""{}
-     <;>{ ;
-          change_neighbor(
-          new_value: commandTAG { mote_id     : UInt8,
-                                  command_name: UInt8,
-                                  val         : UInt16,
-                                  nonce       : UInt8 } ): Void }""")
-    val rawStub = new Stub
-    rawStub.instantiate
-  }
-
-
-  @ModuleType("""{}
-     <;>{ change(
-          new_value: commandTAG { mote_id     : UInt8,
-                                  command_name: UInt8,
-                                  val         : UInt16,
-                                  nonce       : UInt8 } ): Void; }""")
-  def createSkeleton = {
-    @ModuleType("""{}
-     <;>{ change(
-          new_value: commandTAG { mote_id     : UInt8,
-                                  command_name: UInt8,
-                                  val         : UInt16,
-                                  nonce       : UInt8 } ): Void; }""")
-    val rawSkeleton = new Skeleton
-    rawSkeleton.instantiate
-  }
-
-
   def main(args: Array[String]) {
 
     object Mode extends Enumeration {
@@ -139,7 +100,7 @@ object Main {
 
     // Main loop.
     var done = false
-    println("Welcome to BlinkBuilder!")
+    println("Welcome to SnowStorm!")
     while (!done) {
       println("")
       println("0) quit")
@@ -174,64 +135,8 @@ object Main {
         case 4 =>
           messageServer ! s"Generating ${if (mode == Mode.Harvester) "Harvester" else "SensorBox" } application..."
           mode match {
-            case Mode.Harvester => BlinkClient.image()
-            case Mode.SensorBox =>
-              @ModuleType("""{}
-               <;>{ changed( ): Void,
-                    change_neighbor(
-                      new_value: commandTAG { mote_id     : UInt8,
-                                              command_name: UInt8,
-                                              val         : UInt16,
-                                              nonce       : UInt8 } ): Void;
-
-                    change(
-                      new_value: commandTAG { mote_id     : UInt8,
-                                              command_name: UInt8,
-                                              val         : UInt16,
-                                              nonce       : UInt8 } ): Void,
-                    set(
-                      new_value: PointerTo[
-                                 commandTAG { mote_id     : UInt8,
-                                              command_name: UInt8,
-                                              val         : UInt16,
-                                              nonce       : UInt8 } ] ): Void,
-                    get( )     : PointerTo[
-                                 commandTAG { mote_id     : UInt8,
-                                              command_name: UInt8,
-                                              val         : UInt16,
-                                              nonce       : UInt8 } ] }""")
-              val rawDisseminator = new DisseminatorBC
-
-              @ModuleType("""{}
-               <;>{ changed( ): Void,
-                    change_neighbor(
-                      new_value: commandTAG { mote_id     : UInt8,
-                                              command_name: UInt8,
-                                              val         : UInt16,
-                                              nonce       : UInt8 } ): Void;
-
-                    change(
-                      new_value: commandTAG { mote_id     : UInt8,
-                                              command_name: UInt8,
-                                              val         : UInt16,
-                                              nonce       : UInt8 } ): Void,
-                    set(
-                      new_value: PointerTo[
-                                 commandTAG { mote_id     : UInt8,
-                                              command_name: UInt8,
-                                              val         : UInt16,
-                                              nonce       : UInt8 } ] ): Void,
-                    get( )     : PointerTo[
-                                 commandTAG { mote_id     : UInt8,
-                                              command_name: UInt8,
-                                              val         : UInt16,
-                                              nonce       : UInt8 } ] }""")
-              val disseminator = rawDisseminator.instantiate
-
-              @ModuleType("""{}<;>{ ; }""")
-              val composedComponents = ApplicationIC +> createSkeleton +> disseminator +> createStub +> ApplicationEC
-
-              composedComponents.image()
+            case Mode.Harvester => harvester.Generator.generate()
+            case Mode.SensorBox => sensorbox.Generator.generate()
           }
 
         case _ =>
