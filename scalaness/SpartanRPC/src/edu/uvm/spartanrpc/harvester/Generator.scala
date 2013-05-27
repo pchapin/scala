@@ -27,7 +27,7 @@ object Generator {
                                   command_name: UInt8,
                                   val         : UInt16,
                                   nonce       : UInt8 } ] ): Void }""")
-    val rawStub = new Stub
+    val rawStub = new ANMStub
     rawStub.instantiate
   }
 
