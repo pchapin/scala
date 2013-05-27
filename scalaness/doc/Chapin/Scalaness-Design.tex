@@ -90,14 +90,14 @@ in the generated Mininess code.
 For example, consider the following Scalaness code:
 
 \singlespace
-\begin{Verbatim}
+\begin{lstlisting}[language=scalaness]
 class Header
  (val nodeID      : nodeIDType,
   val componentID : UInt8 ) extends NesCType
 
 class TimeStampedHeader
  (val timeStamp   : UInt16) extends Header
-\end{Verbatim}
+\end{lstlisting}
 \primaryspacing
 
 Here \texttt{nodeIDType} is a previously defined liftable class type. Consequently both of these

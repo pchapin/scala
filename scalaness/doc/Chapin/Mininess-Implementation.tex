@@ -26,7 +26,7 @@ component these shim modules are themselves generic.
 \singlespace
 \begin{fpfig}[tbhp]{Shim Modules}{figure-shim-modules}
 {
-\begin{Verbatim}[fontsize=\small]
+\begin{lstlisting}[language=nesC]
 module Sclnss_U1 {
   provides interface U;
   uses     command void Uc(int);
@@ -52,7 +52,7 @@ implementation {
   command void Pc(int i)
     { call P.Pc(i); }
 }
-\end{Verbatim}
+\end{lstlisting}
 }
 \end{fpfig}
 \primaryspacing
@@ -67,7 +67,7 @@ Scalaness.
 \singlespace
 \begin{fpfig}[tbhp]{Configuration Wrapping Library Component}{figure-library-configuration}
 {
-\begin{Verbatim}[fontsize=\small]
+\begin{lstlisting}[language=nesC]
 configuration Sclnss_LibraryC {
   uses     command void Uc(int);
   provides command void Ue(int);
@@ -85,7 +85,7 @@ implementation {
   Sclnss_U1.Uc -> Uc;
   Ue -> Sclnss_U1.Ue;
 }
-\end{Verbatim}
+\end{lstlisting}
 }
 \end{fpfig}
 \primaryspacing
@@ -129,7 +129,7 @@ To illustrate the way these casts are implemented in Mininess programs consider 
 the following two structure definitions.
 
 \singlespace
-\begin{Verbatim}
+\begin{lstlisting}[language=nesC]
 struct UserInfo {
     char name[25];
     int  age;
@@ -140,7 +140,7 @@ struct UserToken {
     int id;
     int hash;
 };
-\end{Verbatim}
+\end{lstlisting}
 \primaryspacing
 
 The developer may wish to allow an object of type \texttt{UserInfo} to be explicitly cast into
@@ -149,13 +149,13 @@ rewrites each cast expression into an explicit call of an appropriately named co
 command. These conversion commands exist in an interface \texttt{DoCast}. For example
 
 \singlespace
-\begin{Verbatim}
+\begin{lstlisting}[language=nesC]
 token = (struct UserToken)user;
 
 // ... rewritten to ...
 
 token = (call DoCast.UserInfo_UserToken(user));
-\end{Verbatim}
+\end{lstlisting}
 \primaryspacing
 
 The developer is required to provide the \texttt{DoCast} interface and a component
@@ -184,22 +184,22 @@ important considering in a language with side effects. Also the dynamic size of 
 each array operation $d_i$ is declared and initialized appropriately. For example
 
 \singlespace
-\begin{Verbatim}
+\begin{lstlisting}[language=nesC]
 ... (a |> e) ...
-\end{Verbatim}
+\end{lstlisting}
 \primaryspacing
 
 Is rewritten without regard to any possible optimizations as:
 
 \singlespace
-\begin{Verbatim}
+\begin{lstlisting}[language=nesC]
 {
   int __e_1 = e;
   int __d_1 = __d_0 - __e_1;
 
   ... ((a) + __e_1) ...
 }
-\end{Verbatim}
+\end{lstlisting}
 \primaryspacing
 
 Here \texttt{\_\_d\_0} is the dynamic size associated with the array expression \texttt{a}. In
@@ -211,21 +211,21 @@ $e_i$ is declared and initialized, as before. A run time check is inserted to en
 the value of $e_i$ is inside the dynamic size of $a_i$. For example
 
 \singlespace
-\begin{Verbatim}
+\begin{lstlisting}[language=nesC]
 ... a[n] ...
-\end{Verbatim}
+\end{lstlisting}
 \primaryspacing
 
 Is rewritten without regard to any possible optimizations as
 
 \singlespace
-\begin{Verbatim}
+\begin{lstlisting}[language=nesC]
 {
   int __e_1 = n;
   if (__e_1 >= __d_0) error( );
   ... a[__e_1] ...
 }
-\end{Verbatim}
+\end{lstlisting}
 \primaryspacing
 
 As before \texttt{\_\_d\_0} is the dynamic size associated with the array expression \texttt{a}.
@@ -237,28 +237,28 @@ encountered during a depth first left to right traversal of the Mininess abstrac
 For example a statement such as
 
 \singlespace
-\begin{Verbatim}
+\begin{lstlisting}[language=nesC]
 x = ((a |> e1) |> e2)[b[i]];
-\end{Verbatim}
+\end{lstlisting}
 \primaryspacing
 
 Is first rewritten as:
 
 \singlespace
-\begin{Verbatim}
+\begin{lstlisting}[language=nesC]
 {
   int __e_1 = e1;
   int __d_1 = __d_0 - __e_1;
   x = (((a) + __e_1) |> e2)[b[i]];
 }
-\end{Verbatim}
+\end{lstlisting}
 \primaryspacing
 
 The resulting statement still contains three array operations. The second stage of rewriting
 yields
 
 \singlespace
-\begin{Verbatim}
+\begin{lstlisting}[language=nesC]
 {
   int __e_1 = e1;
   int __d_1 = __d_0 - __e_1;
@@ -268,13 +268,13 @@ yields
     x = ( ((a) + __e_1) + __e_2 )[b[i]];
   }
 }
-\end{Verbatim}
+\end{lstlisting}
 \primaryspacing
 
 The inner indexing operation is then rewritten
 
 \singlespace
-\begin{Verbatim}
+\begin{lstlisting}[language=nesC]
 {
   int __e_1 = e1;
   int __d_1 = __d_0 - __e_1;
@@ -288,13 +288,13 @@ The inner indexing operation is then rewritten
     }
   }
 }
-\end{Verbatim}
+\end{lstlisting}
 \primaryspacing
 
 Finally, the outer indexing operation is rewritten
 
 \singlespace
-\begin{Verbatim}
+\begin{lstlisting}[language=nesC]
 {
   int __e_1 = e1;
   int __d_1 = __d_0 - __e_1;
@@ -312,7 +312,7 @@ Finally, the outer indexing operation is rewritten
     }
   }
 }
-\end{Verbatim}
+\end{lstlisting}
 \primaryspacing
 
 % Notice that declarations can't be enclosed in the block without changing the scope of the
