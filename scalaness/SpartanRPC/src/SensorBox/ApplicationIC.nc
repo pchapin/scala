@@ -11,6 +11,6 @@ configuration ApplicationIC {
 implementation {
     components SensorBoxC;
 
-    SensorBoxC.set -> set;
-    SensorBoxC.get -> get;
+    SensorBoxC.set = set;
+    SensorBoxC.get = get;
 }

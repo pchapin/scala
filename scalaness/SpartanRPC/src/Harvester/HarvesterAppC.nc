@@ -10,6 +10,7 @@
 configuration HarvesterAppC {
 
 } implementation {
+  components AppC.nc                   // Merges Scalaness generated code.
   components PrintfC, SerialStartC;    // Required for new Printf semantics.
   components HarvesterC as App, MainC;
   App.Boot -> MainC;
