@@ -10,5 +10,5 @@ configuration ApplicationIC {
 implementation {
     components HarvesterC;
 
-    HarvesterC.set -> change;
+    HarvesterC.change = change;
 }
