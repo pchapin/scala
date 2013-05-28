@@ -17,16 +17,6 @@ import java.security.interfaces.ECPublicKey
 trait CertificateStorage extends Traversable[Certificate] {
 
   /**
-   * Associates this certificate storage object with a particular key storage object. This link is necessary because
-   * certain operations on the certificate storage will impact or need to synchronize with the linked key storage. When
-   * the link is first established the certificate storage is scanned and any keys mentioned in certificates there that
-   * are not already in the key storage are copied to key storage as well.
-   *
-   * @param keys The key storage object to associate with this certificate storage object.
-   */
-  def linkTo(keys: KeyStorage)
-
-  /**
    * Add a credential to the certificate storage. It is unspecified if the minimum model is computed or updated
    * immediately or if that computation is deferred until authorize is called. In any case the effect of adding this
    * credential is "immediately" visible in any following calls to authorize.
@@ -65,8 +55,38 @@ trait CertificateStorage extends Traversable[Certificate] {
    * @return The binary formatted version of the credential.
    */
   protected def toRawCredential(credential: Credential) : Array[Byte] = {
-    // TODO: Implement me!
-    Array(0.toByte)
+  
+    val rawBinary = credential match {
+      case CredentialMembership(
+             definingKey,
+             targetRole,
+             memberKey) => RTCertificateCreator.createMembershipCertificate(definingKey, targetRole, memberKey)
+      
+      case CredentialInclusion(
+             definingKey,
+             targetRole,
+             sourceKey,
+             sourceRole) => RTCertificateCreator.createInclusionCertificate(definingKey, targetRole, sourceKey, sourceRole)
+      
+      case CredentialLinked(
+             definingKey,
+             targetRole,
+             indirectKey,
+             indirectRole,
+             sourceRole) => RTCertificateCreator.createLinkedCertificate(definingKey, targetRole, indirectKey, indirectRole, sourceRole)
+      
+      case CredentialIntersection(
+             definingKey,
+             targetRole,
+             sourceKey1,
+             sourceRole1,
+             sourceKey2,
+             sourceRole2) => RTCertificateCreator.createIntersectionCertificate(definingKey, targetRole, sourceKey1, sourceRole1, sourceKey2, sourceRole2)
+             
+      case _ => throw new Exception("Unable to match Credential Type in method toRawCredential.")
+    }
+  
+    rawBinary
   }
 
   /**

@@ -23,18 +23,6 @@ trait KeyStorage extends Traversable[KeyAssociation] {
   import KeyStorage._
 
   /**
-   * Associates this key storage object with a particular certificate storage object. This link is necessary because
-   * certain operations on the key storage will impact or need to synchronize with the linked certificate storage. When
-   * the link is first established the certificate storage is scanned and any keys mentioned in certificates there that
-   * are not already in the key storage are copied to key storage as well.
-   *
-   * It is permitted to change the link. No keys are removed from key storage by doing so.
-   *
-   * @param credentials The object to which we are linking.
-   */
-  def linkTo(credentials: CertificateStorage)
-
-  /**
    * Creates a fresh public/private key pair and associates the given name to the new entity.
    *
    * @param name The name to use for the freshly created entity.

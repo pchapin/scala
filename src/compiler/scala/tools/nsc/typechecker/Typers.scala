@@ -1934,7 +1934,7 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
         //                               |\tAnnotated = ${annotatedNesTModuleType.toString}
         //                               |\tBody = ${nesTModuleType.toString}""".stripMargin)
         // } 
-
+        
         clazz.tpe.typeOfThis.nesTModuleType = annotatedNesTModuleType
       } 
       treeCopy.ModuleDef(mdef, typedMods, mdef.name, impl2) setType NoType
@@ -3313,9 +3313,10 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
                         if (!isNesTComponent(qual.tpe) && (qual.tpe.nesTModuleType == None))
                           None
                         else {
-                          // debugMessage("image")
-                          if (qual.tpe.nesTModuleType == None)
+                          if (qual.tpe.nesTModuleType == None) {
+                            debugMessage("image")
                             throw new Exception("Module type required for image")
+                          }
                           qual.tpe.nesTModuleType map
                             { edu.uvm.scalaness.TypeRules.typeImage(_) }
                         }
