@@ -123,26 +123,33 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         }
         sink.print("\n")
 
-      case MininessLexer.STRUCT =>
-        sink.print(t.text)
-        sink.print(" ")
-        currentChild = 0
-        if (t.children(currentChild).tokenType != MininessLexer.DECLARATION) {
-          rewrite(t.children(currentChild))
+      case MininessLexer.DECLARATOR =>
+        if (declaratorNestingLevels.peek() != 0) sink.print("(")
+        value = declaratorNestingLevels.pop()
+        declaratorNestingLevels.push(value + 1)
+        for (child <- t.children) {
+          rewrite(child)
           sink.print(" ")
-          currentChild += 1
         }
-        if (currentChild < t.children.length) {
-          sink.print("{\n")
-          indentationLevel += 1
-          while (currentChild < t.children.length) {
-            rewrite(t.children(currentChild))
-            currentChild += 1
-          }
-          indentationLevel -= 1
-          indent()
-          sink.print("} ")
+        value = declaratorNestingLevels.pop()
+        declaratorNestingLevels.push(value - 1)
+        if (declaratorNestingLevels.peek() != 0) sink.print(")")
+
+      case MininessLexer.DECLARATOR_ARRAY_MODIFIER =>
+        sink.print("[")
+        if (t.children.length != 0) rewrite(t.children(0))
+        sink.print("]")
+
+      case MininessLexer.DECLARATOR_LIST =>
+        for (i <- 0 until t.children.length) {
+          if (i != 0) sink.print(", ")
+          rewrite(t.children(i))
         }
+
+      case MininessLexer.DECLARATOR_PARAMETER_LIST_MODIFIER =>
+        sink.print("( ")
+        rewrite(t.children(0))
+        sink.print(" )")
 
       case MininessLexer.ENUM =>
         sink.print("enum ")
@@ -171,75 +178,6 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
           rewrite(t.children(1))
         }
 
-      case MininessLexer.DECLARATOR_LIST =>
-        for (i <- 0 until t.children.length) {
-          if (i != 0) sink.print(", ")
-          rewrite(t.children(i))
-        }
-
-      case MininessLexer.INIT_DECLARATOR =>
-        rewrite(t.children(0))
-        if (t.children.length > 1) {
-          sink.print(" = ")
-          for (i <- 1 until t.children.length) {
-            rewrite(t.children(i))
-          }
-        }
-
-      case MininessLexer.DECLARATOR =>
-        if (declaratorNestingLevels.peek() != 0) sink.print("(")
-        value = declaratorNestingLevels.pop()
-        declaratorNestingLevels.push(value + 1)
-        for (child <- t.children) {
-          rewrite(child)
-          sink.print(" ")
-        }
-        value = declaratorNestingLevels.pop()
-        declaratorNestingLevels.push(value - 1)
-        if (declaratorNestingLevels.peek() != 0) sink.print(")")
-
-      case MininessLexer.IDENTIFIER_PATH =>
-        for (i <- 0 until t.children.length) {
-            if (i != 0) sink.print(".")
-            rewrite(t.children(i))
-        }
-
-      case MininessLexer.INITIALIZER_LIST =>
-        sink.print("{ ")
-        for (i <- 0 until t.children.length) {
-          if (i != 0) sink.print(", ")
-          rewrite(t.children(i))
-        }
-        sink.print(" }")
-
-      case MininessLexer.POINTER_QUALIFIER =>
-        sink.print("*")
-        t.children.foreach(rewrite)
-
-      case MininessLexer.DECLARATOR_ARRAY_MODIFIER =>
-        sink.print("[")
-        if (t.children.length != 0) rewrite(t.children(0))
-        sink.print("]")
-
-      case MininessLexer.DECLARATOR_PARAMETER_LIST_MODIFIER =>
-        sink.print("( ")
-        rewrite(t.children(0))
-        sink.print(" )")
-
-      case MininessLexer.PARAMETER_LIST =>
-        declaratorNestingLevels.push(0)
-        for (i <- 0 until t.children.length) {
-            if (i != 0) sink.print(", ")
-            rewrite(t.children(i))
-        }
-        declaratorNestingLevels.pop()
-
-      case MininessLexer.PARAMETER =>
-        for (child <- t.children) {
-          rewrite(child)
-          if (child.tokenType == MininessLexer.RAW_IDENTIFIER) sink.print(" ")
-        }
-
       case MininessLexer.FUNCTION_DEFINITION =>
         for (child <- t.children) {
           if (child.tokenType == MininessLexer.COMPOUND_STATEMENT) {
@@ -252,22 +190,70 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
           }
         }
 
+      case MininessLexer.IDENTIFIER_PATH =>
+        for (i <- 0 until t.children.length) {
+            if (i != 0) sink.print(".")
+            rewrite(t.children(i))
+        }
+
+      case MininessLexer.INIT_DECLARATOR =>
+        rewrite(t.children(0))
+        if (t.children.length > 1) {
+          sink.print(" = ")
+          for (i <- 1 until t.children.length) {
+            rewrite(t.children(i))
+          }
+        }
+
+      case MininessLexer.INITIALIZER_LIST =>
+        sink.print("{ ")
+        for (i <- 0 until t.children.length) {
+          if (i != 0) sink.print(", ")
+          rewrite(t.children(i))
+        }
+        sink.print(" }")
+
+      case MininessLexer.PARAMETER =>
+        for (child <- t.children) {
+          rewrite(child)
+          if (child.tokenType == MininessLexer.RAW_IDENTIFIER) sink.print(" ")
+        }
+
+      case MininessLexer.PARAMETER_LIST =>
+        declaratorNestingLevels.push(0)
+        for (i <- 0 until t.children.length) {
+            if (i != 0) sink.print(", ")
+            rewrite(t.children(i))
+        }
+        declaratorNestingLevels.pop()
+
+      case MininessLexer.POINTER_QUALIFIER =>
+        sink.print("*")
+        t.children.foreach(rewrite)
+
+      case MininessLexer.STRUCT =>
+        sink.print(t.text)
+        sink.print(" ")
+        currentChild = 0
+        if (t.children(currentChild).tokenType != MininessLexer.DECLARATION) {
+          rewrite(t.children(currentChild))
+          sink.print(" ")
+          currentChild += 1
+        }
+        if (currentChild < t.children.length) {
+          sink.print("{\n")
+          indentationLevel += 1
+          while (currentChild < t.children.length) {
+            rewrite(t.children(currentChild))
+            currentChild += 1
+          }
+          indentationLevel -= 1
+          indent()
+          sink.print("} ")
+        }
+
       // Statements
       // ----------
-
-      // Expression statements are handled here.
-      case MininessLexer.STATEMENT =>
-        indent()
-        enableExpressionParentheses = false
-        if (t.children.length == 1) rewrite(t.children(0))
-        enableExpressionParentheses = true
-        sink.print(";\n")
-
-      case MininessLexer.COMPOUND_STATEMENT =>
-        // Outdent the braces.
-        indentationLevel -= 1; indent(); sink.print("{\n"); indentationLevel += 1
-        t.children.foreach(rewrite)
-        indentationLevel -= 1; indent(); sink.print("}\n"); indentationLevel += 1
 
       case MininessLexer.CASE =>
         // Outdent the case label.
@@ -279,11 +265,45 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         indentationLevel += 1
         rewrite(t.children(1))
 
+      case MininessLexer.COMPOUND_STATEMENT =>
+        // Outdent the braces.
+        indentationLevel -= 1; indent(); sink.print("{\n"); indentationLevel += 1
+        t.children.foreach(rewrite)
+        indentationLevel -= 1; indent(); sink.print("}\n"); indentationLevel += 1
+
       // This handles 'default' in switch statements, but not in declarations.
       case MininessLexer.DEFAULT =>
         // Outdent the default label.
         indentationLevel -= 1; indent(); sink.print("default:\n"); indentationLevel += 1
         rewrite(t.children(0))
+
+      case MininessLexer.FOR =>
+        indent()
+        sink.print("for( ")
+        // The loop header.
+        for (i <- 0 until 3) {
+          if (i != 0) sink.print("; ")
+          rewrite(t.children(i))
+        }
+        sink.print(" )\n")
+        indentationLevel += 1
+        rewrite(t.children(3))  // The controlled statement.
+        indentationLevel -= 1
+
+      case MininessLexer.FOR_CONDITION =>
+        enableExpressionParentheses = false
+        if (t.children.length == 1) rewrite(t.children(0))
+        enableExpressionParentheses = true
+
+      case MininessLexer.FOR_INITIALIZE =>
+        enableExpressionParentheses = false
+        if (t.children.length == 1) rewrite(t.children(0))
+        enableExpressionParentheses = true
+
+      case MininessLexer.FOR_ITERATION =>
+        enableExpressionParentheses = false
+        if (t.children.length == 1) rewrite(t.children(0))
+        enableExpressionParentheses = true
 
       case MininessLexer.IF =>
         indent()
@@ -302,6 +322,20 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
           rewrite(t.children(2))
           indentationLevel -= 1
         }
+
+      case MininessLexer.RETURN =>
+        indent()
+        sink.print("return ")
+        if (t.children.length == 1) rewrite(t.children(0))
+        sink.print(";\n")
+
+      // Expression statements are handled here.
+      case MininessLexer.STATEMENT =>
+        indent()
+        enableExpressionParentheses = false
+        if (t.children.length == 1) rewrite(t.children(0))
+        enableExpressionParentheses = true
+        sink.print(";\n")
 
       case MininessLexer.SWITCH =>
         indent()
@@ -324,40 +358,6 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         indentationLevel += 1
         rewrite(t.children(1))
         indentationLevel -= 1
-
-      case MininessLexer.FOR =>
-        indent()
-        sink.print("for( ")
-        // The loop header.
-        for (i <- 0 until 3) {
-          if (i != 0) sink.print("; ")
-          rewrite(t.children(i))
-        }
-        sink.print(" )\n")
-        indentationLevel += 1
-        rewrite(t.children(3))  // The controlled statement.
-        indentationLevel -= 1
-
-      case MininessLexer.FOR_INITIALIZE =>
-        enableExpressionParentheses = false
-        if (t.children.length == 1) rewrite(t.children(0))
-        enableExpressionParentheses = true
-
-      case MininessLexer.FOR_CONDITION =>
-        enableExpressionParentheses = false
-        if (t.children.length == 1) rewrite(t.children(0))
-        enableExpressionParentheses = true
-
-      case MininessLexer.FOR_ITERATION =>
-        enableExpressionParentheses = false
-        if (t.children.length == 1) rewrite(t.children(0))
-        enableExpressionParentheses = true
-
-      case MininessLexer.RETURN =>
-        indent()
-        sink.print("return ")
-        if (t.children.length == 1) rewrite(t.children(0))
-        sink.print(";\n")
 
       // Expressions
       // -----------
@@ -403,8 +403,10 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         enableExpressionParentheses = oldExpressionParentheses
         if (enableExpressionParentheses) sink.print(" )")
 
-      case MininessLexer.POSTFIX_EXPRESSION =>
-        t.children.foreach(rewrite)
+      case MininessLexer.ADDRESS_OF =>
+        sink.print("( &")
+        rewrite(t.children(0))
+        sink.print(" )")
 
       case MininessLexer.ARGUMENT_LIST =>
         sink.print("( ")
@@ -419,42 +421,13 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         rewrite(t.children(0))
         sink.print("]")
 
-      case MininessLexer.DOT =>
-        sink.print(".")
-        rewrite(t.children(0))
-
       case MininessLexer.ARROW =>
         sink.print("->")
         rewrite(t.children(0))
 
-      case MininessLexer.PLUSPLUS =>
-        sink.print("++")
-
-      case MininessLexer.MINUSMINUS =>
-        sink.print("--")
-
-      case MininessLexer.PRE_INCREMENT =>
-        sink.print("++")
+      case MininessLexer.BITCOMPLEMENT =>
+        sink.print("~")
         rewrite(t.children(0))
-
-      case MininessLexer.PRE_DECREMENT =>
-        sink.print("--")
-        rewrite(t.children(0))
-
-      case MininessLexer.UNARY_PLUS =>
-        sink.print("+")
-        rewrite(t.children(0))
-
-      case MininessLexer.UNARY_MINUS =>
-        sink.print("-")
-        rewrite(t.children(0))
-
-      // Perhaps the AST does not need to distinguish between these cases.
-      case MininessLexer.SIZEOF_TYPE |
-           MininessLexer.SIZEOF_EXPRESSION =>
-        sink.print("sizeof( ")
-        t.children.foreach(rewrite)
-        sink.print(" )")
 
       case MininessLexer.CAST =>
         sink.print("(")
@@ -465,19 +438,51 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         rewrite(t.children(0))
         sink.print(" )")
 
-      case MininessLexer.BITCOMPLEMENT =>
-        sink.print("~")
-        rewrite(t.children(0))
-
-      case MininessLexer.NOT =>
-        sink.print("!")
-        rewrite(t.children(0))
-
       // The AST distinguishes this use of '*' from multiplication. How nice.
       case MininessLexer.DEREFERENCE =>
         sink.print("( *")
         rewrite(t.children(0))
         sink.print(" )")
+
+      case MininessLexer.DOT =>
+        sink.print(".")
+        rewrite(t.children(0))
+
+      case MininessLexer.MINUSMINUS =>
+        sink.print("--")
+
+      case MininessLexer.NOT =>
+        sink.print("!")
+        rewrite(t.children(0))
+
+      case MininessLexer.PLUSPLUS =>
+        sink.print("++")
+
+      case MininessLexer.POSTFIX_EXPRESSION =>
+        t.children.foreach(rewrite)
+
+      case MininessLexer.PRE_DECREMENT =>
+        sink.print("--")
+        rewrite(t.children(0))
+
+      case MininessLexer.PRE_INCREMENT =>
+        sink.print("++")
+        rewrite(t.children(0))
+
+      // Perhaps the AST does not need to distinguish between these cases.
+      case MininessLexer.SIZEOF_TYPE |
+           MininessLexer.SIZEOF_EXPRESSION =>
+        sink.print("sizeof( ")
+        t.children.foreach(rewrite)
+        sink.print(" )")
+
+      case MininessLexer.UNARY_MINUS =>
+        sink.print("-")
+        rewrite(t.children(0))
+
+      case MininessLexer.UNARY_PLUS =>
+        sink.print("+")
+        rewrite(t.children(0))
 
       // Large Scale Structure
       // ---------------------
@@ -504,6 +509,15 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
           suppressRewriting = false
         }
 
+      case MininessLexer.IMPLEMENTATION =>
+        sink.print("implementation {\n")
+        indentationLevel += 1
+        for (child <- t.children) {
+          if (!suppressRewriting || child.tokenType == MininessLexer.LINE_DIRECTIVE)
+            rewrite(child)
+        }
+        indentationLevel -= 1
+        sink.print("}\n")
 
       case MininessLexer.INTERFACE =>
         // This is correct for 'interface' as it appears in specifications.
@@ -517,6 +531,15 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         rewrite(t.children(0))  // Name of the module.
         rewrite(t.children(1))  // Specification.
         if (t.children.length == 3) rewrite(t.children(2))  // Implementation.
+
+      case MininessLexer.PROVIDES =>
+        indent()
+        sink.print("provides {\n")
+        indentationLevel += 1
+        t.children.foreach(rewrite)
+        indentationLevel -= 1
+        indent()
+        sink.print("}\n")
 
       case MininessLexer.SPECIFICATION =>
         sink.print(" {\n")
@@ -532,25 +555,6 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         t.children.foreach(rewrite)
         indentationLevel -= 1
         indent()
-        sink.print("}\n")
-
-      case MininessLexer.PROVIDES =>
-        indent()
-        sink.print("provides {\n")
-        indentationLevel += 1
-        t.children.foreach(rewrite)
-        indentationLevel -= 1
-        indent()
-        sink.print("}\n")
-
-      case MininessLexer.IMPLEMENTATION =>
-        sink.print("implementation {\n")
-        indentationLevel += 1
-        for (child <- t.children) {
-          if (!suppressRewriting || child.tokenType == MininessLexer.LINE_DIRECTIVE)
-            rewrite(child)
-        }
-        indentationLevel -= 1
         sink.print("}\n")
 
       // The NULL token is used as a placeholder to allow multiple nodes to replace a single

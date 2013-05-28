@@ -134,7 +134,16 @@ object TreeConverter {
       case ASTNode(PARAMETER, text, children, parent, symbolTable) =>
         for (child <- children if child.tokenType == DECLARATOR) {
           val ASTNode(_, _, declaratorComponents, _, _) = child
-          val declaredIdentifier = declaratorComponents(0).children(0)
+
+          // The value identifierIndex indicates which child of DECLARATOR is the identifier.
+          // The simple logic below handles simple declarations and declarations like 'int *p'.
+          // However it should be extended to handle multiple pointer qualifiers and also the
+          // use of const in cases like 'int *const p[]' (for example).
+          //
+          // TODO: Generalize the calculation of identifierIndex.
+          val identifierIndex =
+            if (declaratorComponents(0).tokenType != POINTER_QUALIFIER) 0 else 1
+          val declaredIdentifier = declaratorComponents(identifierIndex).children(0)
           if (declaratorComponents.length > 1) {
             declaratorComponents(1) match {
               case ASTNode(DECLARATOR_ARRAY_MODIFIER, _, _, _, _) =>
