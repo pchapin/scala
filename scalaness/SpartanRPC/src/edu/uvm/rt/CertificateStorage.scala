@@ -6,7 +6,8 @@
 //-----------------------------------------------------------------------
 package edu.uvm.rt
 
-import java.security.interfaces.ECPublicKey
+import java.security.interfaces.{ECPublicKey, ECPrivateKey}
+
 
 /**
  * Describes the interface to all RT_0 certificate storage objects. Objects that implement this trait can be used to
@@ -94,9 +95,9 @@ trait CertificateStorage extends Traversable[Certificate] {
    * @param rawCredential The binary formatted credential to sign.
    * @return The signature.
    */
-  protected def signCredential(rawCredential: Array[Byte]) : Array[Byte] = {
-    // TODO: Implement me!
-    Array(0.toByte)
+  protected def signCredential(rawCredential: Array[Byte], kStorage: KeyStorage) : Array[Byte] = {
+    val privateKey = edu.uvm.rtadmin.Database.lookupPrivateKey("name") // No idea what name should be calling this and where this method should be
+    RTCertificateCreator.createSignature(rawCredential, privateKey)
   }
 }
 

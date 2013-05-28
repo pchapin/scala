@@ -53,6 +53,8 @@ trait KeyStorage extends Traversable[KeyAssociation] {
    * @throws KeyInUseException if the key is used by the linked certificate storage.
    */
   def removeKey(key: ECPublicKey)
+  
+  
 
 }
 

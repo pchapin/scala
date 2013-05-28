@@ -130,7 +130,7 @@ class CertificateStorageInMemory extends CertificateStorage {
 
   def addCredential(incomingCredential: Credential) {
     val rawCredential = toRawCredential(incomingCredential)
-    val signature = signCredential(rawCredential)
+    val signature = signCredential(rawCredential, linkedKeyStorage)
     certificateSet.add(Certificate(incomingCredential, rawCredential, signature))
     modelAccurate = false
   }
