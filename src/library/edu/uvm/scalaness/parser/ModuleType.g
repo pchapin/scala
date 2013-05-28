@@ -162,7 +162,8 @@ function_declaration
 // We forbid returning arrays in the syntax.
 return_type
     :    generalized_type_name
-    |    POINTER_TO '[' return_type ']' -> ^(POINTER_TO return_type);
+    |    POINTER_TO '[' return_type ']' -> ^(POINTER_TO return_type)
+    |    structure_type;
 
 // TODO: Arrays of arrays are allowed but there is currently no place to specify array size.
 type_specifier

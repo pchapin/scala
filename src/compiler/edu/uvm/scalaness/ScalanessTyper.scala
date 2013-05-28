@@ -168,34 +168,39 @@ trait ScalanessTyper {
             if (vparamss.length > 1)
               reporter.error(null, "Mininess modules can't have multiple parameter lists")
 
-            val List(parameters) = vparamss
-            parameters foreach { parameter =>
-              val ValDef(mods, name, tpt, rhs) = parameter
-              // Examine the type of the module's parameter. In theory I should match against
-              // the AST of the type. However it's very difficult to figure out the proper
-              // structure because the compiler options for printing ASTs only print abbreviated
-              // ASTs. Thus I'm going to convert the type to its string representation and
-              // analyze the string. It's a hack, but when (if) the compiler internals are
-              // better documented this can be changed to do it the right way.
-              //
-              val typeName = tpt.toString()  // Or should this be tpt.tpe.toString()?
-              val leftSquareBracketIndex = typeName.indexOf('[')
-              if (leftSquareBracketIndex == -1) {
-                // The type is not parameterized. Try to lift it.
-                valueParameterDeclarations += (name.toString -> liftType(typeName))
-              }
-              else {
-                // It is parameterized. Verify that it's a MetaType.
-                val constructorName = typeName.substring(0, leftSquareBracketIndex)
-                if (constructorName != "edu.uvm.scalaness.MetaType") {
-                  reporter.error(null,
-                    "Type constructor " + constructorName + " is not allowed as a parameter type here")
+            vparamss match {
+              case List() => // No parameters at all. Just return two empty maps.
+              case List(parameters) =>
+                parameters foreach { parameter =>
+                  val ValDef(mods, name, tpt, rhs) = parameter
+                  // Examine the type of the module's parameter. In theory I should match
+                  // against the AST of the type. However it's very difficult to figure out the
+                  // proper structure because the compiler options for printing ASTs only print
+                  // abbreviated ASTs. Thus I'm going to convert the type to its string
+                  // representation and analyze the string. It's a hack, but when (if) the
+                  // compiler internals are better documented this can be changed to do it the
+                  // right way.
+                  //
+                  val typeName = tpt.toString()  // Or should this be tpt.tpe.toString()?
+                  val leftSquareBracketIndex = typeName.indexOf('[')
+                  if (leftSquareBracketIndex == -1) {
+                    // The type is not parameterized. Try to lift it.
+                    valueParameterDeclarations += (name.toString -> liftType(typeName))
+                  }
+                  else {
+                    // It is parameterized. Verify that it's a MetaType.
+                    val constructorName = typeName.substring(0, leftSquareBracketIndex)
+                    if (constructorName != "edu.uvm.scalaness.MetaType") {
+                      reporter.error(null,
+                        "Type constructor " + constructorName + " is not allowed as a parameter type here")
+                    }
+                    else {
+                      typeParameterDeclarations +=
+                      (name.toString ->
+                       liftType(typeName.substring(leftSquareBracketIndex + 1, typeName.length - 1)))
+                    }
+                  }
                 }
-                else {
-                  typeParameterDeclarations +=
-                    (name.toString -> liftType(typeName.substring(leftSquareBracketIndex + 1, typeName.length - 1)))
-                }
-              }
             }
           }
           
@@ -216,19 +221,9 @@ trait ScalanessTyper {
   def runPreprocessor(fullName: String, preprocessedFullName: String) = {
     // TODO: Various aspects of preprocessing should be configurable.
     
-    // These are hard coded macros that are only interesting to TinyECC.
-    // Clearly these need to come from a configuration file to make the compiler more general.
-    val predefinedMacros = List(
-        "PLATFORM_TELOSB",
-        "SECP160K1"
-        // "BARRETT_REDUCTION",  // Barrett reduction.
-        // "HYBRID_MULT",        // Hybrid multiplication.
-        // "HYBRID_SQR",         // Hybrid square.
-        // "CURVE_OPT",          // Optimization for secg curve.
-        // "PROJECTIVE",         // Projective coordinates.
-        // "SLIDING_WIN",        // Sliding window method.
-        // "SHAMIR_TRICK"        // Shamir trick.
-        )
+    // These are hard coded macros.
+    // TODO: It should be possible to define additional macros in the configuration file.
+    val predefinedMacros = List("__MININESS__")
     
     // Prepare the preprocessor command line.
     val commandLine = new ArrayList[String]()
@@ -244,7 +239,7 @@ trait ScalanessTyper {
     //     }
     //   case None =>  // Do nothing.
     // }
-    commandLine.add("-I/opt/tinyos-2.1.2/apps/TinyECC-2.0")
+
     for (predefinedMacro <- predefinedMacros) {
       commandLine.add("-D" + predefinedMacro)
     }

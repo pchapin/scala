@@ -1,0 +1,5 @@
+*.tex
+viewer.dvi
+viewer.log
+viewer.ps
+viewer.pdf

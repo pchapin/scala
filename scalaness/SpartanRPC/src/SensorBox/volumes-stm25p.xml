@@ -1,0 +1,4 @@
+<volume_table>
+  <volume name="SNOWLOG_CONFIG" size="131072"/>
+  <volume name="SNOWLOG" size="393216"/>
+</volume_table>

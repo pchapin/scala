@@ -1,0 +1,21 @@
+.PS
+
+box width 0.7 "Cert/Key" "Storage"
+line <- 0.25
+SH: box "$S_H$"
+line <-> 1.25 "authorization" "key negotiation"
+SN: box "$S_N$"
+line -> 0.25
+box width 0.7 "Cert/Key" "Storage"
+
+move to SH.s
+down
+arrow
+box "Harvester"
+
+move to SN.s
+down
+arrow
+box "SensorBox"
+
+.PE

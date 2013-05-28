@@ -6,12 +6,20 @@
 //-----------------------------------------------------------------------
 package edu.uvm.spartanrpc
 
-import akka.actor.Actor
+import actors.Actor
 
 class MessageServer extends Actor {
 
-  def receive = {
-    case message: String => println(message)
+  def act() {
+
+    var done = false
+    while (!done) {
+      receive {
+        case message: String => println(message)
+        case 'Die => done = true
+      }
+    }
+
   }
 
 }

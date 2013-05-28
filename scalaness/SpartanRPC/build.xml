@@ -22,6 +22,7 @@
     <property name="scala-library.jar" location="${scala.home}/lib/scala-library.jar"/>
     <property name="scala-compiler.jar" location="${scala.home}/lib/scala-compiler.jar"/>
     <property name="scala-reflect.jar" location="${scala.home}/lib/scala-reflect.jar"/>
+    <property name="scala-actors.jar" location="${scala.home}/lib/scala-actors.jar"/>
     <property name="antlr.jar" location="${scala.home}/lib/antlr-3.4.jar"/>
     <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
@@ -37,8 +38,7 @@
       <pathelement location="${scala-compiler.jar}"/>
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
-      <pathelement location="${library.dir}/akka-actor_2.10-2.1.2.jar"/>
-      <pathelement location="${library.dir}/config-1.0.0.jar"/>
+      <pathelement location="${scala-actors.jar}"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
     </path>
@@ -49,8 +49,7 @@
       <pathelement location="${scala-compiler.jar}"/>
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
-      <pathelement location="${library.dir}/akka-actor_2.10-2.1.2.jar"/>
-      <pathelement location="${library.dir}/config-1.0.0.jar"/>
+      <pathelement location="${scala-actors.jar}"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
 
@@ -64,8 +63,7 @@
       <pathelement location="${scala-compiler.jar}"/>
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
-      <pathelement location="${library.dir}/akka-actor_2.10-2.1.2.jar"/>
-      <pathelement location="${library.dir}/config-1.0.0.jar"/>
+      <pathelement location="${scala-actors.jar}"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
     </path>
@@ -75,8 +73,7 @@
       <pathelement location="${antlr.jar}"/>
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
-      <pathelement location="${library.dir}/akka-actor_2.10-2.1.2.jar"/>
-      <pathelement location="${library.dir}/config-1.0.0.jar"/>
+      <pathelement location="${scala-actors.jar}"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
     </path>
@@ -101,10 +98,6 @@
             classpathref="build.classpath">
       <include name="**/*.scala"/>
     </scalac>
-
-    <!-- Don't forget to copy the other supporting files needed by the plugin. -->
-    <copy file="${main.sources.dir}/Makefile"
-          tofile="${main.classes.dir}/Makefile"/>
   </target>
 
 
@@ -133,6 +126,20 @@
 
   <target name="distribution" depends="compile" description="Generate the distribution" >
     <mkdir dir="${distribution.dir}"/>
+    <mkdir dir="${main.classes.dir}/Harvester"/>
+    <mkdir dir="${main.classes.dir}/SensorBox"/>
+    <copy todir="${main.classes.dir}/Harvester">
+      <fileset dir="${main.sources.dir}/Harvester">
+        <include name="**/*.i"/>
+        <include name="**/*.nc"/>
+      </fileset>
+    </copy>
+    <copy todir="${main.classes.dir}/SensorBox">
+      <fileset dir="${main.sources.dir}/SensorBox">
+        <include name="**/*.i"/>
+        <include name="**/*.nc"/>
+      </fileset>
+    </copy>
     <jar jarfile="${distribution.dir}/SpartanRPC.jar"
          basedir="${main.classes.dir}"/>
   </target>
@@ -141,7 +148,7 @@
   <!-- I don't want to try extracting documentation from invalid Scala files. -->
   <target name="scaladoc" depends="compile" description="Generate the Scaladoc" >
     <mkdir dir="${scaladoc.dir}"/>
-    <scaladoc addparams="-feature"
+    <scaladoc addparams="-feature -nowarn"
               srcdir="${main.sources.dir}"
               destdir="${scaladoc.dir}"
               deprecation="yes"
@@ -152,9 +159,23 @@
     </scaladoc>
   </target>
 
-  <target name="run" depends="distribution" description="Run the SpartanRPC sample">
+  <target name="run1" depends="distribution" description="Run the SpartanRPC sample (1st)">
     <java classname="edu.uvm.spartanrpc.Main" fork="true">
       <arg value="Alice"/>
+      <arg value="SensorBox"/>
+      <arg value="9000"/>
+      <arg value="9001"/>
+      <classpath refid="run.classpath"/>
+      <classpath path="${distribution.dir}/SpartanRPC.jar"/>
+    </java>
+  </target>
+
+  <target name="run2" depends="distribution" description="Run the SpartanRPC sample (2nd)">
+    <java classname="edu.uvm.spartanrpc.Main" fork="true">
+      <arg value="Bob"/>
+      <arg value="Harvester"/>
+      <arg value="9001"/>
+      <arg value="9000"/>
       <classpath refid="run.classpath"/>
       <classpath path="${distribution.dir}/SpartanRPC.jar"/>
     </java>

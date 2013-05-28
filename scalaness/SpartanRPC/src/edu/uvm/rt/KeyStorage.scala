@@ -20,7 +20,6 @@ import java.security.interfaces.ECPublicKey
  * The private key is optional.
  */
 trait KeyStorage extends Traversable[KeyAssociation] {
-  import KeyStorage._
 
   /**
    * Creates a fresh public/private key pair and associates the given name to the new entity.

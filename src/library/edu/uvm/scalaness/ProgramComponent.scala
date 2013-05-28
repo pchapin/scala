@@ -204,29 +204,30 @@ class ProgramComponent(
    * Images the configuration. At compile time, special type checking is done. At run time
    * the generated program is written to disk. Note that the location of the top level
    * configuration is fixed here. The library can't use image() directly because otherwise
-   * the Scalaness compiler complains about missing nesT module types. Thus internally
-   * this method is used instead.
+   * the Scalaness compiler complains about missing nesT module types when compiling the
+   * library itself. Thus internally this method is used instead.
    */
   def makeImage() {
     val outputFolder = new File(targetFolder)
 
-    // Copy the Makefile.
-    val MakefileReader =
-      new BufferedReader(new InputStreamReader(new FileInputStream("Makefile")))
-    val MakefileWriter =
-      new BufferedWriter(new FileWriter(new File(outputFolder, "Makefile")))
-    var line: String = null
-    while ({ line = MakefileReader.readLine(); line != null }) {
-      MakefileWriter.write(line + "\n")
-    }
-    MakefileReader.close()
-    MakefileWriter.close()
+    // // Copy the Makefile.
+    // val MakefileReader =
+    //   new BufferedReader(new InputStreamReader(new FileInputStream("Makefile")))
+    // val MakefileWriter =
+    //   new BufferedWriter(new FileWriter(new File(outputFolder, "Makefile")))
+    // var line: String = null
+    // while ({ line = MakefileReader.readLine(); line != null }) {
+    //   MakefileWriter.write(line + "\n")
+    // }
+    // MakefileReader.close()
+    // MakefileWriter.close()
 
     // Generate the top level configuration.
     display(outputFolder)
 
     // Generate the various components of the program.
     for (component <- this) {
+      println("Imaging " + component.name)
       component.display(outputFolder)
     }
   }

@@ -1,0 +1,4 @@
+<volume_table>
+  <volume name="SILO_CONFIG" size="131072"/>
+  <volume name="SILO" size="393216"/>
+</volume_table>

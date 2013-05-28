@@ -1,25 +1,46 @@
 \chapter{Scalaness Implementation}
-\label{chap:scalaness-implementation}
+\label{chapter-scalaness-implementation}
 
-Scalaness is implemented as a Scala compiler plugin for Scala version 2.9. At the time work on
-Scalaness started the only other option was to modify the compiler directly. The plugin option
-was considered more desirable because both implementing and using a plugin is easier than
-working with a modified compiler.
+\lstset{language=scalaness}
+\lstMakeShortInline!
 
-Unfortunately the current Scala compiler plugin architecture imposes a number of restrictions on
-what can be accomplished in a plugin. Those restrictions require the Scalaness implementation to
-make some compromises as compared with an ideal system. I discuss this in more detail in the
-following sections.
+Scalaness is implemented as a modified Scala compiler based on the development Scala compiler on
+GitHub \cite{XXX}. I note that the Scala compiler has a plugin architecture and so it is
+reasonable to wonder if Scalaness could be implemented as a plugin. In fact the plugin option
+has the advantages of being easier to use and potentially easier to manage during development.
 
-Scala 2.10 provides an extensive reflection API and experimental support for expression macros.
-These facilities allow one to do AST transformations on Scala programs using ordinary (macro)
-Scala code. Macros are described by the Scala community as a kind of ``lightweight'' plugin
-mechanism. Unfortunately at the time of this writing type macros are not available so it is not
-yet possible to write a macro that outputs a class definition. However, in the future when type
-macros become available it might be possible to implement some or all of Scalaness as a macro
-library.
+However, early experience attempting to implement Scalaness as a compiler plugin met with
+difficulties. The main problem was with extending the typing rules of Scala. The plugin approach
+seemed to require me to, essentially, reimplement Scala typing inside the plugin. This was
+because plugins can only gain control either before Scala typing has occurred or after it has
+completed. Thus the implementation of the nesT typing rules couldn't easily benefit from the
+logic in the existing type checker. In contrast building Scalaness as a modified compiler
+allowed me to ``piggyback'' on the existing type checker and get proper handling of most typing
+cases ``for free.''
+
+Yet in order to facilitate keeping Scalaness synchronized with future developments of the main
+Scala compiler I made every attempt to implement Scalaness in the least invasive way possible.
+Much of the logic, including the nesT typing rules themselves are implemented in separate
+packages away from the main body of the standard compiler codebase. The places where it was
+necessary to insert Scalaness specific code into, for example, the existing type checker, have
+been kept to a minimum.
+
+One consequence of this philosophy is that radical changes to Scala syntax were not seriously
+considered. I didn't want to modify \emph{both} the parser and the type checker if I could avoid
+it. Fortunately Scala has a general mechanism for adding arbitrary information to declarations,
+namely \newterm{annotations}. Thus I used Scala annotations to express nesT module types as
+strings using a syntax of my choosing.
+
+My work is based on Scala 2.10. This version of Scala also provides an extensive reflection API
+and experimental support for expression macros. These facilities allow one to do AST
+transformations on Scala programs using ordinary (macro) Scala code. Macros are described by the
+Scala community as a kind of ``lightweight'' plugin mechanism. Unfortunately at the time of this
+writing type macros are not available so it is not yet possible to write a macro that outputs a
+class definition. However, in the future when type macros become available it might be possible
+to implement some or all of Scalaness as a macro library.
 
 \section{Scala Compiler Organization}
+\label{section-scala-compiler-organization}
 
 The Scala compiler is organized as a number of phases that rewrite the input in successive steps
 lowering it to the target's machine code (JVM bytecode). The precise phases used can be listed
@@ -36,40 +57,26 @@ typer
 \end{Verbatim}
 \primaryspacing
 
-The Scalaness plugin injects two new phases into this chain. The \texttt{scalanesstyper} phase
-runs after the normal Scala type checking phase (\texttt{typer}). It is in this phase where the
-additional type rules of Scalaness are checked and where the Mininess inclusions are type
-checked.
-
-In addition the Scalaness plugin injects a \texttt{scalanesspostparser} phase that runs
-immediately after the \texttt{parser} phase and before the normal Scala type checking phase.
-This phase is responsible for replacing type values with placeholders that will be acceptable to
-the Scala type checker. The placeholders are then processed fully by the following
-\texttt{scalanesstyper} phase.
-
-One important restriction with the Scala compiler plugin architecture is that plugins are not
-able to inject a phase before the parser. Thus any extensions to the Scala language that are
-implemented as plugins can not change the raw syntax of Scala programs. Plugins are, however,
-able to assign meaning to syntactic structures that are normally semantically invalid.
-
-Another significant restriction is that the three phaes \texttt{namer}, \texttt{packageobjects},
-and \texttt{typer} are indivisible. Plugins are not able to inject any new phases between them.
-This means that the \texttt{scalanesspostparser} phase has minimal support when deciding which
-entities need to be replaced with placeholders.
-
+The bulk of the modifications made by Scalaness are in the typer phase. There hooks where added
+at critical points that call into Scalaness specific code in package !uvm.edu.scalaness!. In
+addition a new phase was added between the parser and namer phases. This new phase,
+\texttt{scalanesspostparser}, is responsible for augmenting certain Scalaness constructs with
+their necessary runtime support. This is done by inserting new material in the AST produced by
+the parser. In principle that material could have been manually written by the programmer but
+instead is automatically generated as a convenience. It is this postparser phase that could
+potentially be eliminated by type macros when they become available.
 
 \section{Component Definition}
+\label{section-component-definition}
 
-Scalaness allows the first stage programmer to manipulate blocks of second stage code written in
-a minimal dialect of nesC called \textit{Mininess}. Modules in Mininess can be parameterized by
-types and values and instantiated multiple times. These properties are closely modeled by Scala
-classes. Thus the representation of a Mininess module in Scalaness is by way of a class that
-extends a special marker trait.
+Modules in Mininess can be parameterized by types and values and instantiated multiple times.
+These properties are closely modeled by Scala classes. Thus the representation of a Mininess
+module in Scalaness is by way of a class that extends a special marker trait.
 
 One might be tempted to allow a syntax such as
 
 \singlespace
-\begin{lstlisting}
+\begin{lstlisting}[language=scalaness]
 class SendC[Adt <: UInt, MessageT <: AbstractMessage[Adt]]
   (self: Adt) extends NesCCompont {
 
@@ -95,7 +102,7 @@ literal) and impose additional typing rules on those contents. However, this app
 rather ungainly programming style:
 
 \singlespace
-\begin{lstlisting}
+\begin{lstlisting}[language=scalaness]
 class SendC[Adt <: UInt, MessageT <: AbstractMessage[Adt]]
   (self: Adt) {
 
@@ -113,7 +120,7 @@ Instead my implementation uses a string literal to name an external file contain
 inclusion.
 
 \singlespace
-\begin{lstlisting}
+\begin{lstlisting}[language=scalaness]
 class SendC[Adt <: UInt, MessageT <: AbstractMessage[Adt]]
   (self: Adt) {
 
@@ -149,27 +156,27 @@ example. Below is the Scalaness runtime representation of three Mininess compone
 instance of class NamedProgramComponent.
 
 \singlespace
-\begin{lstlisting}
-    val A = new NamedProgramComponent(
-      name            = "A",
-      typeParameters  = Set(),
-      valueParameters = Set(),
-      imports         = Set("c1", "c2"),
-      exports         = Set())
+\begin{lstlisting}[language=scalaness]
+val A = new NamedProgramComponent(
+  name            = "A",
+  typeParameters  = Set(),
+  valueParameters = Set(),
+  imports         = Set("c1", "c2"),
+  exports         = Set())
 
-    val B = new NamedProgramComponent(
-      name            = "B",
-      typeParameters  = Set(),
-      valueParameters = Set(),
-      imports         = Set(),
-      exports         = Set("c1"))
+val B = new NamedProgramComponent(
+  name            = "B",
+  typeParameters  = Set(),
+  valueParameters = Set(),
+  imports         = Set(),
+  exports         = Set("c1"))
 
-    val C = new NamedProgramComponent(
-      name            = "C",
-      typeParameters  = Set(),
-      valueParameters = Set(),
-      imports         = Set("c1"),
-      exports         = Set("c2"))
+val C = new NamedProgramComponent(
+  name            = "C",
+  typeParameters  = Set(),
+  valueParameters = Set(),
+  imports         = Set("c1"),
+  exports         = Set("c2"))
 \end{lstlisting}
 \primaryspacing
 
@@ -179,10 +186,14 @@ example A uses commands c1 and c2, B provides command c1, etc.
 These components can be composed as follows:
 
 \singlespace
-\begin{lstlisting}
-    val composedComponent1 = A.toProgramComponent + B.toProgramComponent
-    val composedComponent2 = composedComponent1 + C.toProgramComponent
-    composedComponent2.display(outputFile)
+\begin{lstlisting}[language=scalaness]
+val composedComponent1 =
+  A.toProgramComponent + B.toProgramComponent
+
+val composedComponent2 =
+  composedComponent1 + C.toProgramComponent
+
+composedComponent2.display(outputFile)
 \end{lstlisting}
 \primaryspacing
 
@@ -200,7 +211,7 @@ component composition.
 In the example above the material that is written to the outputFile is:
 
 \singlespace
-\begin{Verbatim}
+\begin{lstlisting}[language=nesC]
 configuration AppC {
     provides c1;
     provides c2;
@@ -211,7 +222,7 @@ implementation {
     A.c2 -> C.c2;
     C.c1 -> B.c1;
 }
-\end{Verbatim}
+\end{lstlisting}
 \primaryspacing
 
 There are two kinds of components: those with names and those that are anonymous. Anonymous
@@ -225,7 +236,7 @@ it.
 The types used to represent imports and exports are as shown below.
 
 \singlespace
-\begin{lstlisting}
+\begin{lstlisting}[language=scalaness]
 type ImportsType =
   Map[String, List[NamedProgramComponent]]
 
@@ -252,7 +263,7 @@ configuration describes the embedded components and the nesC wiring used to conn
 ProgramComponents are immutable instances from the following class
 
 \singlespace
-\begin{lstlisting}
+\begin{lstlisting}[language=scalaness]
 class ProgramComponent(
   private val typeParameters: Set[String],
   private val termParameters: Set[String],
@@ -270,7 +281,7 @@ This is because Scalaness allows types to be treated as first class values and s
 is necessary to introduce a generic class that wraps a representation of a nesC type
 
 \singlespace
-\begin{lstlisting}
+\begin{lstlisting}[language=scalaness]
 class MetaType[+Tau <: LiftableTypes.NesCType]
   (val wrappedType: NesCTypes.TypeRepresentation)
     extends LiftableTypes.NesCType
@@ -286,7 +297,7 @@ of the system.
 A module such as
 
 \singlespace
-\begin{lstlisting}
+\begin{lstlisting}[language=scalaness]
 class BlinkC[A <: Int32](period: A) extends NesCComponent {
   "BlinkC.nc"
 }
@@ -296,7 +307,7 @@ class BlinkC[A <: Int32](period: A) extends NesCComponent {
 Is modified by the Scalaness plugin to hold some additional fields and methods
 
 \singlespace
-\begin{lstlisting}
+\begin{lstlisting}[language=scalaness]
 class BlinkC[A <: Int32](period: A) extends NesCComponent {
   /////////
   // Code generated by the Scalaness compiler.
@@ -324,7 +335,7 @@ Notice that at the Scala level the type parameter must be some type that extends
 Scalaness programmer might provide a variable of type \inlinecode{MetaType[Int32]}. For example
 
 \singlespace
-\begin{lstlisting}
+\begin{lstlisting}[language=scalaness]
 val desiredType: MetaType[Int32] = ...
 val blinkModule = new BlinkC[desiredType](new Int8(100))
 \end{lstlisting}
@@ -335,7 +346,7 @@ a val as a type argument. Thus expressions involving component instantation are 
 the post-parser phases into
 
 \singlespace
-\begin{lstlisting}
+\begin{lstlisting}[language=scalaness]
 val blinkModule = {
   val temp = new BlinkC[Int32](new Int8(100))
   temp.AType = desiredType
@@ -346,6 +357,8 @@ val blinkModule = {
 
 Unfortunately this rewritting is difficult because of the minimal amount of information
 available to the plugin immediately after parsing.
+
+\lstDeleteShortInline!
 
 %%% Local Variables: 
 %%% mode: LaTeX
