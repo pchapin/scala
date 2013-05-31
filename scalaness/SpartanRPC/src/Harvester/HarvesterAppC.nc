@@ -10,7 +10,7 @@
 configuration HarvesterAppC {
 
 } implementation {
-  components AppC.nc                   // Merges Scalaness generated code.
+  components AppC;                     // Merges Scalaness generated code.
   components PrintfC, SerialStartC;    // Required for new Printf semantics.
   components HarvesterC as App, MainC;
   App.Boot -> MainC;
@@ -31,8 +31,8 @@ configuration HarvesterAppC {
   components new DisseminatorC(command_t, DIS_KEY) as SyncChan;
   App.Command -> SyncChan.DisseminationUpdate;
   
-  components new DisseminatorC(command_t, BCAST_DIS_KEY) as BcastChan;
-  App.Bcast -> BcastChan.DisseminationUpdate;
+  // components new DisseminatorC(command_t, BCAST_DIS_KEY) as BcastChan;
+  // App.Bcast -> BcastChan.DisseminationUpdate;
   
   components ActiveMessageC;
   App.RadioControl -> ActiveMessageC;

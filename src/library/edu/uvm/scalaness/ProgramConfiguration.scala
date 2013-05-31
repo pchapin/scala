@@ -76,8 +76,13 @@ class ProgramConfiguration(
 
     // Display the wires to for handling array bounds check failures.
     // TODO: Avoid processing any "external" component, don't just hard code names here!
+    def isExternal(name: String) = {
+      val externalNames = List("LibraryIC", "LibraryEC", "ApplicationIC", "ApplicationEC")
+      externalNames exists { name == _ }
+    }
+
     for (currentComponent <- componentSet
-         if currentComponent.name != "LibraryIC" && currentComponent.name != "LibraryEC") {
+         if !isExternal(currentComponent.name)) {
       outputFile.write("    " + currentComponent.name + ".boundsCheckFailed -> BoundsCheckC;\n")
     }
     outputFile.write("\n");

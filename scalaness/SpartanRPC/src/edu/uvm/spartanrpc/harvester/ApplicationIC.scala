@@ -27,7 +27,7 @@ object ApplicationIC extends MininessComponent {
       enclosingObject = this,
       typeParameters  = Set(),           // TODO: Obtain from class MetaType parameters.
       valueParameters = Set(),           // TODO: Obtain from class value parameters.
-      imports         = Set("set", "get"),
+      imports         = Set("change"),
       exports         = Set(),
       abstractSyntax  = null), "generated" + File.separator + "Harvester")
     

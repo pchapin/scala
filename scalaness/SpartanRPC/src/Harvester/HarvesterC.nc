@@ -10,6 +10,10 @@
 module HarvesterC {
   // Unrolled from 'uses interface DisseminationUpdate<command_t> as Bcast;
   uses command void change( command_t *new_value );
+
+  // Needed to satisfy a "dangling" command in DisseminatorBC.
+  provides command void changed( );
+
   uses {
     interface Boot;
     interface Receive as DataReceive;
@@ -46,6 +50,12 @@ module HarvesterC {
   task void clear_bcast();
   task void print_data();
   task void print_termsig();
+
+  // Called when we change a broadcast command. Just ignore this.
+  command void changed( )
+  {
+    return;
+  }
 
   // START QUEUE LIB FUNCTIONS
   void init(queue_t* q)

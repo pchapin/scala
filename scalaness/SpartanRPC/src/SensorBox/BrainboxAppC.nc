@@ -13,7 +13,7 @@
 
 configuration BrainboxAppC {
 } implementation {
-  components AppC.nc                  // Merges Scalaness generated code.
+  components AppC;                    // Merges Scalaness generated code.
   components PrintfC, SerialStartC;   // Required for new Printf semantics.
 
   components SensorBoxC as App, MainC;
@@ -46,10 +46,6 @@ configuration BrainboxAppC {
 
   // components new DisseminatorC(command_t, BCAST_DIS_KEY) as BcastChan;
   // App.Bcast -> BcastChan.DisseminationValue;
-  components DisseminatorBC;
-  App.set -> DisseminatorBC;
-  App.get -> DisseminatorBC;
-  DisseminatorBC.changed -> App;
 
   components LedsC;
   App.Leds -> LedsC;
