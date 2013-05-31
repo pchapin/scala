@@ -1,5 +1,5 @@
-<project name="SpartanRPC" default="distribution" basedir=".">
-    <description>Ant build control file for SpartanRPC</description>
+<project name="SnowStorm" default="distribution" basedir=".">
+    <description>Ant build control file for SnowStorm</description>
 
   <!-- Set global properties for all builds. -->
   <property environment="env"/>
@@ -87,7 +87,7 @@
   <!-- SPARTANRPC -->
   <!-- ========== -->
 
-  <target name="compile" depends="init" description="Compile the SpartanRPC sample" >
+  <target name="compile" depends="init" description="Compile the SnowStorm sample" >
     <mkdir dir="${main.classes.dir}"/>
 
     <!-- Compile the Scala code from ${main.sources.dir} into ${main.classes.dir} -->
@@ -116,7 +116,7 @@
 
 
   <!-- There is a JUnit task. Should I be using it? This seems to do the job. -->
-  <target name="test" depends="test.compile" description="SpartanRPC Unit Tests">
+  <target name="test" depends="test.compile" description="SnowStorm Unit Tests">
     <java classname="org.junit.runner.JUnitCore" fork="true">
       <arg value="edu.uvm.spartanrpc.MainTest"/>
       <classpath refid="build.test.classpath"/>
@@ -140,7 +140,7 @@
         <include name="**/*.nc"/>
       </fileset>
     </copy>
-    <jar jarfile="${distribution.dir}/SpartanRPC.jar"
+    <jar jarfile="${distribution.dir}/SnowStorm.jar"
          basedir="${main.classes.dir}"/>
   </target>
 
@@ -153,31 +153,31 @@
               destdir="${scaladoc.dir}"
               deprecation="yes"
               unchecked="yes"
-              doctitle="SpartanRPC Internal Documentation"
+              doctitle="SnowStorm Internal Documentation"
               classpathref="scaladoc.classpath">
       <include name="**/*.scala"/>
     </scaladoc>
   </target>
 
-  <target name="run1" depends="distribution" description="Run the SpartanRPC sample (1st)">
+  <target name="run1" depends="distribution" description="Run the SnowStorm sample (1st)">
     <java classname="edu.uvm.spartanrpc.Main" fork="true">
       <arg value="Alice"/>
       <arg value="SensorBox"/>
       <arg value="9000"/>
       <arg value="9001"/>
       <classpath refid="run.classpath"/>
-      <classpath path="${distribution.dir}/SpartanRPC.jar"/>
+      <classpath path="${distribution.dir}/SnowStorm.jar"/>
     </java>
   </target>
 
-  <target name="run2" depends="distribution" description="Run the SpartanRPC sample (2nd)">
+  <target name="run2" depends="distribution" description="Run the SnowStorm sample (2nd)">
     <java classname="edu.uvm.spartanrpc.Main" fork="true">
       <arg value="Bob"/>
       <arg value="Harvester"/>
       <arg value="9001"/>
       <arg value="9000"/>
       <classpath refid="run.classpath"/>
-      <classpath path="${distribution.dir}/SpartanRPC.jar"/>
+      <classpath path="${distribution.dir}/SnowStorm.jar"/>
     </java>
   </target>
 

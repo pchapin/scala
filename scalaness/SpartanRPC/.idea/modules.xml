@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SpartanRPC.iml" filepath="$PROJECT_DIR$/SpartanRPC.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SnowStorm.iml" filepath="$PROJECT_DIR$/SnowStorm.iml" />
     </modules>
   </component>
 </project>

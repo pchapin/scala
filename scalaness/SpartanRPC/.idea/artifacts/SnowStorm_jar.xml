@@ -1,11 +1,11 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="SpartanRPC:jar">
+  <artifact type="jar" name="SnowStorm:jar">
     <output-path>$PROJECT_DIR$/build/artifacts</output-path>
-    <root id="archive" name="SpartanRPC.jar">
+    <root id="archive" name="SnowStorm.jar">
       <element id="directory" name="META-INF">
         <element id="file-copy" path="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" />
       </element>
-      <element id="module-output" name="SpartanRPC" />
+      <element id="module-output" name="SnowStorm" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../build/pack/lib/scala-actors.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../build/pack/lib/scala-library.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../build/pack/lib/scala-reflect.jar" path-in-jar="/" />
