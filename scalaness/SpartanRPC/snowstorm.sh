@@ -7,4 +7,4 @@ RTADMIN_CLASSPATH=$SCALANESS_HOME/lib/scala-actors.jar:$RTADMIN_CLASSPATH
 RTADMIN_CLASSPATH=$SCALANESS_HOME/../../scalaness/SpartanRPC/bin/SnowStorm.jar:$RTADMIN_CLASSPATH
 RTADMIN_CLASSPATH=$SCALANESS_HOME/../../scalaness/SpartanRPC/lib/bcprov-jdk16-145.jar:$RTADMIN_CLASSPATH
 
-java -cp $RTADMIN_CLASSPATH edu.uvm.spartanrpc.Main $*
+java -cp $RTADMIN_CLASSPATH edu.uvm.snowstorm.Main $*

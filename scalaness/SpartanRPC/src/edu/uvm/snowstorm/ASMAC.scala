@@ -7,7 +7,7 @@
 // happening the amount of code here will shrink dramatically and the definition of this object can probably be made
 // local to the scope where it is used.
 //-----------------------------------------------------------------------
-package edu.uvm.spartanrpc
+package edu.uvm.snowstorm
 
 import edu.uvm.scalaness.{ProgramComponentWrapper, MininessComponent, ModuleType, NamedProgramComponent, Parser}
 import edu.uvm.mininess.Declarations

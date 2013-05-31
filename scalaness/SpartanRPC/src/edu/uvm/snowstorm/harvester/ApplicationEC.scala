@@ -4,7 +4,7 @@
 // AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
-package edu.uvm.spartanrpc.sensorbox
+package edu.uvm.snowstorm.harvester
 
 import edu.uvm.scalaness.{ProgramComponentWrapper, MininessComponent, ModuleType, NamedProgramComponent, Parser}
 import edu.uvm.mininess.Declarations
@@ -26,7 +26,7 @@ object ApplicationEC extends MininessComponent {
       valueParameters = Set(),            // TODO: Obtain from class value parameters.
       imports         = Set(),
       exports         = Set("changed"),
-      abstractSyntax  = null), "generated" + File.separator + "SensorBox")
+      abstractSyntax  = null), "generated" + File.separator + "Harvester")
     
   def getTypeMap  = Map()
   def getValueMap = Map()
@@ -34,5 +34,5 @@ object ApplicationEC extends MininessComponent {
   // END of Scalaness generated code.
   //////// 
 
-  external("SensorBox/ApplicationEC.nc")
+  external("Harvester/ApplicationEC.nc")
 }

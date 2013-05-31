@@ -4,7 +4,7 @@
 // AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
-package edu.uvm.spartanrpc.sensorbox
+package edu.uvm.snowstorm.sensorbox
 
 import edu.uvm.mininess.Declarations
 import edu.uvm.scalaness.{ProgramComponentWrapper, NamedProgramComponent, MininessComponent, ModuleType, Parser}

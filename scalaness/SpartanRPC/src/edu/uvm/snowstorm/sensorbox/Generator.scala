@@ -1,10 +1,10 @@
 //-----------------------------------------------------------------------
 // FILE    : Generator.scala
-// SUBJECT : An object that coordinates the generation of the Harvester application.
+// SUBJECT : An object that coordinates the generation of the SensorBox application.
 // AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
-package edu.uvm.spartanrpc.harvester
+package edu.uvm.snowstorm.sensorbox
 
 import edu.uvm.scalaness.ModuleType
 
@@ -29,6 +29,26 @@ object Generator {
                                   nonce       : UInt8 } ] ): Void }""")
     val rawStub = new ANMStub
     rawStub.instantiate
+  }
+
+
+  @ModuleType("""{}
+     <;>{ change(
+          new_value: PointerTo[
+                     commandTAG { mote_id     : UInt8,
+                                  command_name: UInt8,
+                                  val         : UInt16,
+                                  nonce       : UInt8 } ] ): Void; }""")
+  private def createSkeleton = {
+    @ModuleType("""{}
+     <;>{ change(
+          new_value: PointerTo[
+                     commandTAG { mote_id     : UInt8,
+                                  command_name: UInt8,
+                                  val         : UInt16,
+                                  nonce       : UInt8 } ] ): Void; }""")
+    val rawSkeleton = new ANMSkeleton
+    rawSkeleton.instantiate
   }
 
 
@@ -91,7 +111,7 @@ object Generator {
 
     @ModuleType("""{}<;>{ ; }""")
     val composedComponents =
-      ApplicationIC +> disseminator +> createStub +> ApplicationEC
+      ApplicationIC +> createSkeleton +> disseminator +> createStub +> ApplicationEC
 
     composedComponents.image()
   }
