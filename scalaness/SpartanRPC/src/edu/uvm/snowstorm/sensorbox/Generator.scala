@@ -11,22 +11,22 @@ import edu.uvm.scalaness.ModuleType
 object Generator {
 
   @ModuleType("""{}
-     <;>{ ;
+     <;>{ send(buffer: Array[UInt8]): Void;
           change_neighbor(
-          new_value: PointerTo[
-                     commandTAG { mote_id     : UInt8,
-                                  command_name: UInt8,
-                                  val         : UInt16,
-                                  nonce       : UInt8 } ] ): Void }""")
+            new_value: PointerTo[
+                       commandTAG { mote_id     : UInt8,
+                                    command_name: UInt8,
+                                    val         : UInt16,
+                                    nonce       : UInt8 } ] ): Void }""")
   private def createStub = {
     @ModuleType("""{}
-     <;>{ ;
+     <;>{ send(buffer: Array[UInt8]): Void;
           change_neighbor(
-          new_value: PointerTo[
-                     commandTAG { mote_id     : UInt8,
-                                  command_name: UInt8,
-                                  val         : UInt16,
-                                  nonce       : UInt8 } ] ): Void }""")
+            new_value: PointerTo[
+                       commandTAG { mote_id     : UInt8,
+                                    command_name: UInt8,
+                                    val         : UInt16,
+                                    nonce       : UInt8 } ] ): Void }""")
     val rawStub = new ANMStub
     rawStub.instantiate
   }
@@ -34,19 +34,21 @@ object Generator {
 
   @ModuleType("""{}
      <;>{ change(
-          new_value: PointerTo[
-                     commandTAG { mote_id     : UInt8,
-                                  command_name: UInt8,
-                                  val         : UInt16,
-                                  nonce       : UInt8 } ] ): Void; }""")
+            new_value: PointerTo[
+                       commandTAG { mote_id     : UInt8,
+                                    command_name: UInt8,
+                                    val         : UInt16,
+                                    nonce       : UInt8 } ] ): Void;
+          receive(buffer: Array[UInt8]): Void }""")
   private def createSkeleton = {
     @ModuleType("""{}
      <;>{ change(
-          new_value: PointerTo[
-                     commandTAG { mote_id     : UInt8,
-                                  command_name: UInt8,
-                                  val         : UInt16,
-                                  nonce       : UInt8 } ] ): Void; }""")
+            new_value: PointerTo[
+                       commandTAG { mote_id     : UInt8,
+                                    command_name: UInt8,
+                                    val         : UInt16,
+                                    nonce       : UInt8 } ] ): Void;
+          receive(buffer: Array[UInt8]): Void }""")
     val rawSkeleton = new ANMSkeleton
     rawSkeleton.instantiate
   }

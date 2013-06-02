@@ -96,27 +96,48 @@ object MininessTypes {
    * Returns the least upper bound between two integer types
    */
   def leastUpperBound(left: Representation, right: Representation) = {
+    val message = s"Incompatible Types: $left, $right"
     if (left == right) left
     else {
       left match {
       
         case Int8 => right match {
-          case Int16 | Int32 => right
-          case _ => throw new MininessTypeException("Incompatible Types")
+          case Int16 => Int16
+          case Int32 => Int32
+          case _ => throw new MininessTypeException(message)
         }
         
         case Int16 => right match {
-          case Int8 => Int16
+          case Int8  => Int16
           case Int32 => Int32
-          case _ => throw new MininessTypeException("Incompatible Types")
+          case _ => throw new MininessTypeException(message)
         }
         
         case Int32 => right match {
-          case Int8 | Int16 => Int32
-          case _ => throw new MininessTypeException("Incompatible Types")
+          case Int8  => Int32
+          case Int16 => Int32
+          case _ => throw new MininessTypeException(message)
         }
         
-        case _ => throw new MininessTypeException("Incompatible Types")
+        case UInt8 => right match {
+          case UInt16 => UInt16
+          case UInt32 => UInt32
+          case _ => throw new MininessTypeException(message)
+        }
+        
+        case UInt16 => right match {
+          case UInt8  => UInt16
+          case UInt32 => UInt32
+          case _ => throw new MininessTypeException(message)
+        }
+        
+        case UInt32 => right match {
+          case UInt8  => UInt32
+          case UInt16 => UInt32
+          case _ => throw new MininessTypeException(message)
+        }
+        
+        case _ => throw new MininessTypeException(message)
       }
     }
   }
@@ -127,7 +148,6 @@ object MininessTypes {
   def areSubtypes(left: Representation, right: Representation) = {
 
     if (left == right || right == Top) true
-    
     else {
       
       left match {

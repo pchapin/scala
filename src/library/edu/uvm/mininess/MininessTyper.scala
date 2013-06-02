@@ -778,24 +778,38 @@ class MininessTyper(
         val constantValue = convertInteger(ident)
         val (hasU, hasL) = (hasUSuffix(ident), hasLSuffix(ident))
         if (debugFlag) println(s"$ident, hasU = $hasU, hasL = $hasL")
-        
-        if (constantValue < 256)
+
+        if (constantValue < 128)
           (hasU, hasL) match {
-            case (false, false) => Some(Int8)
-            case (false, true ) => Some(Int32)
-            case (true,  false) => Some(UInt8)
-            case (true,  true ) => Some(UInt32)
+            case (false, false) => Some(Int8  )
+            case (false, true ) => Some(Int32 )
+            case (true , false) => Some(UInt8 )
+            case (true , true ) => Some(UInt32)
+          }
+        else if (constantValue < 256)
+          (hasU, hasL) match {
+            case (false, false) => Some(Int16 )
+            case (false, true ) => Some(Int32 )
+            case (true , false) => Some(UInt8 )
+            case (true , true ) => Some(UInt32)
+          }
+        else if (constantValue < 32768)
+          (hasU, hasL) match {
+            case (false, false) => Some(Int16 )
+            case (false, true ) => Some(Int32 )
+            case (true , false) => Some(UInt16)
+            case (true , true ) => Some(UInt32)
           }
         else if (constantValue < 65536)
           (hasU, hasL) match {
-            case (false, false) => Some(Int16)
-            case (false, true ) => Some(Int32)
-            case (true,  false) => Some(UInt16)
-            case (true,  true ) => Some(UInt32)
+            case (false, false) => Some(Int32 )
+            case (false, true ) => Some(Int32 )
+            case (true , false) => Some(UInt16)
+            case (true , true ) => Some(UInt32)
           }
         else
           if (hasU) Some(UInt32) else Some(Int32)
-      } // Returns correct subtype depending on size of constant. Handles suffixes semi-ok.
+      }
 
       case ASTNode(MininessLexer.DEREFERENCE, _, children, _, _ ) => {
         val childType = checkMininessExpression(children(0), depth + 1)
@@ -919,37 +933,32 @@ class MininessTyper(
                                      " & " + secondChildType + ". Expected: <: Int32 or UInt32.")
       }
 
+      // Shift count always a subtype of Int32.
       case ASTNode(MininessLexer.LSHIFT, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
-          Some(leastUpperBound(firstChildType, secondChildType))
+          Some(firstChildType)
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
-          Some(leastUpperBound(firstChildType, secondChildType))
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, Int32)) {
+          Some(firstChildType)
         }
         else throw new TypeException("(Node LSHIFT) Unexpected Types: " + firstChildType + 
-                                     " & " + secondChildType + ". Expected: <: Int32 or UInt32.")
+                                     " & " + secondChildType + ". Expected left operand: <: Int32 or UInt32, right operand: <: Int32.")
       }
 
+      // Shift count always a subtype of Int32.
       case ASTNode(MininessLexer.LSHIFTASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        if (areSubtypes(firstChildType, Int32) || areSubtypes(firstChildType, UInt32)) {
+          if (areSubtypes(secondChildType, Int32)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node LSHIFTASSIGN) Unexpected Type: " + secondChildType + 
-                                       ". Expected: " + firstChildType + ".")
-        }
-        else if (areSubtypes(firstChildType, UInt32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
-            Some(firstChildType)
-          }
-          else throw new TypeException("(Node LSHIFTASSIGN) Unexpected Type: " + secondChildType + 
-                                       ". Expected: " + firstChildType + ".")
+                                       ". Expected: Int32.")
         }
         else throw new TypeException("(Node LSHIFTASSIGN) Unexpected Type: " + firstChildType + 
                                        ". Expected: " + " <: Int32 or UInt32.")
-      } // Right side must be a subtype of left side, so var type of left side doesn't change?
+      }
 
       case ASTNode(MininessLexer.MINUS, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
@@ -1174,37 +1183,32 @@ class MininessTyper(
          Some(Symbols.lookupVariable(node, ident))
       }
 
+      // Shift count always a subtype of Int32.
       case ASTNode(MininessLexer.RSHIFT, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
         if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
-          Some(leastUpperBound(firstChildType, secondChildType))
+          Some(firstChildType)
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
-          Some(leastUpperBound(firstChildType, secondChildType))
+        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, Int32)) {
+          Some(firstChildType)
         }
         else throw new TypeException("(Node RSHIFT) Unexpected Types: " + firstChildType + 
-                                     " & " + secondChildType + ". Expected: <: Int32 or UInt32.")
+                                     " & " + secondChildType + ". Expected left operand: <: Int32 or UInt32, right operand: <: Int32.")
       }
 
+      // Shift count always a subtype of Int32.
       case ASTNode(MininessLexer.RSHIFTASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        if (areSubtypes(firstChildType, Int32) || areSubtypes(firstChildType, UInt32)) {
+          if (areSubtypes(secondChildType, Int32)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node RSHIFTASSIGN) Unexpected Type: " + secondChildType + 
-                                       ". Expected: " + firstChildType + ".")
-        }
-        else if (areSubtypes(firstChildType, UInt32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
-            Some(firstChildType)
-          }
-          else throw new TypeException("(Node RSHIFTASSIGN) Unexpected Type: " + secondChildType + 
-                                       ". Expected: " + firstChildType + ".")
+                                       ". Expected: <: Int32.")
         }
         else throw new TypeException("(Node RSHIFTASSIGN) Unexpected Type: " + firstChildType + 
                                        ". Expected: " + " <: Int32 or UInt32.")
-      } // Right side must be a subtype of left side, so var type of left side doesn't change?
+      }
 
       case ASTNode(MininessLexer.POSTFIX_EXPRESSION, _, children, _, _) => {
         var primaryChild = 0

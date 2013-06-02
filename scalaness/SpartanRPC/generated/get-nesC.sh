@@ -17,6 +17,7 @@ HARVESTER='BoundsCheckC.nc
   KappaMsg.h
   Makefile
   queue.c
+  SendShimC.nc
   volumes-stm25p.xml'
 
 SENSORBOX='BoundsCheckC.nc
@@ -26,6 +27,7 @@ SENSORBOX='BoundsCheckC.nc
   GroundboxAppC.nc
   KappaMsg.h
   Makefile
+  SendShimC.nc
   SensorBoxC.nc
   SensorConfig.h
   UVMS1087ParC.nc

@@ -3,6 +3,11 @@
 // SUBJECT : Class that represents a SprocketRT skeleton.
 // AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
+// The strange name of this class is a hack to work around a build issue. This class must be compiled before its use
+// or else the compiler doesn't "see" the nesT module type annotation. In that case the compiler produces error messages
+// about nesT module type mismatches, etc. Ant apparently builds files in alphabetical order so by using a name here
+// that starts with 'A' the issue is avoided.
+//
 //-----------------------------------------------------------------------
 package edu.uvm.snowstorm.sensorbox
 
@@ -16,7 +21,8 @@ import java.io.File
                    commandTAG { mote_id     : UInt8,
                                 command_name: UInt8,
                                 val         : UInt16,
-                                nonce       : UInt8 } ] ): Void; }""")
+                                nonce       : UInt8 } ] ): Void;
+      receive(buffer: Array[UInt8]): Void}""")
 class ANMSkeleton extends MininessComponent {
   
   /////////
