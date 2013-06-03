@@ -134,7 +134,7 @@ class KeyStorageInDisk(fileName : String) {  // extends KeyStorage {
       val currAssoc = currTriple.getTriple()
       
       currAssoc match {
-        case (thisName, _, _) => foundTriple = currTriple
+        case (Some(thisName), _, _) => foundTriple = currTriple
         case _ => 
       }
       
@@ -167,7 +167,7 @@ class KeyStorageInDisk(fileName : String) {  // extends KeyStorage {
       val currAssoc = currTriple.getTriple()
       
       currAssoc match {
-        case (name, _, _) => println("Entry Removed")
+        case (Some(name), _, _) => println("Entry Removed")
         case _ => output.writeObject(currTriple)
       }
       
