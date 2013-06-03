@@ -125,6 +125,8 @@ object TypeRules {
       currTau
     }
    
+    println("listT1 = " + listT1 + "; tau1List = " + tau1List.toList)
+    println("listT2 = " + listT2 + "; tau2List = " + tau2List.toList)
     if (!(seriesSubType(listT1,tau1List.toList) && seriesSubType(listT2, tau2List.toList)))
       throw new Exception("type and value parameters require subtype relation")
     

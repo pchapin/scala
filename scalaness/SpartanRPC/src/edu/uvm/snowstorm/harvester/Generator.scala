@@ -12,7 +12,7 @@ import edu.uvm.scalaness.LiftableTypes.UInt8
 object Generator {
 
   @ModuleType("""{}
-     <; key: Array[UInt8] >
+     <;>
      { send(buffer: Array[UInt8]): Void;
        change_neighbor(
          new_value: PointerTo[
