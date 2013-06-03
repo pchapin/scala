@@ -32,8 +32,9 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
 
   def newTransformer(unit: CompilationUnit) = new PostParserTransformer
 
-  // The methods surrounded by '=' are currently duplicated in ScalanessTyper.scala.
-  // They should be factored out.
+  // The methods surrounded by '=' are currently (nearly) duplicated in ScalanessTyper.scala.
+  // They should be factored out if possible. However, the methods are not identical so some
+  // sort of parameterization of them might be necessary to handle the differences.
   //=============================================================================================
 
   /*
@@ -71,72 +72,6 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
 
 
   /**
-   * Compute the lifted version of the given Scalaness type.
-   * @param typeName The Scalaness type to lift as a string.
-   * @return The Mininess representation of that type.
-   */
-  private def liftType(typeName: String) = {
-    // TODO: Report errors with proper source position information.
-    import MininessTypes._
-
-    def liftBaseType(baseTypeName: String) = {
-      // TODO: Handle more complex types just the primitives.
-      val translation = Map(
-        "Top"    -> Top,
-        "Char"   -> Char,
-        "Int8"   -> Int8,
-        "Int16"  -> Int16,
-        "Int32"  -> Int32,
-        "UInt8"  -> UInt8,
-        "UInt16" -> UInt16,
-        "UInt32" -> UInt32)
-
-      translation.getOrElse(baseTypeName, {
-        reporter.error(null, "Liftable type " + baseTypeName + " not yet supported. Using Int32")
-        Int32
-      })
-    }
-
-    val lastDotIndex = typeName.lastIndexOf('.')
-    lastDotIndex match {
-      case -1 => liftBaseType(typeName)
-      case  _ =>
-        if (typeName.substring(0, lastDotIndex) != "edu.uvm.scalaness.LiftableTypes") {
-          reporter.error(null, "Type " + typeName + " is not liftable. Using Int32")
-          Int32
-        }
-        else {
-          liftBaseType(typeName.substring(lastDotIndex + 1))
-        }
-    }
-  }
-
-
-  /**
-   * Compute the lowered version of the Mininess type.
-   * @param typeName The name of the Mininess type to lower.
-   * @param The name of the Scalaness representation of that type.
-   */
-  private def lowerType(typeName: String) = {
-    // TODO: Handle more complex types just the primitives.
-    val translation = Map(
-      "char"     -> "Char",
-      "int"      -> "Int16",    // Assume a 16 bit microcontroller.
-      "int8_t"   -> "Int8",
-      "int16_t"  -> "Int16",
-      "int32_t"  -> "Int32",
-      "uint8_t"  -> "UInt8",
-      "uint16_t" -> "UInt16",
-      "uint32_t" -> "UInt32")
-
-    translation.getOrElse(typeName, {
-      reporter.error(null, "type " + typeName + " not yet supported. Using Int16")
-      "Int16"
-    })
-  }
-
-
-  /**
    * Extracts the type and value parameters of a class representing a Mininess module.
    *
    * @param body A collection of AST roots that define the body of the class.
@@ -161,36 +96,38 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
               case List(parameters) =>
                 parameters foreach { parameter =>
                   val ValDef(mods, name, tpt, rhs) = parameter
-                  // Examine the type of the module's parameter. In theory I should match
-                  // against the AST of the type. However it's very difficult to figure out the
-                  // proper structure because the compiler options for printing ASTs only print
-                  // "abbreviated" ASTs that aren't actually useful to me. Thus I'm going to
-                  // convert the type to its string representation and analyze the string. It's
-                  // a hack, but when (if) the compiler internals are better documented this can
-                  // be changed to do it the right way.
+                  // Examine the type of the module's parameter. I should be matching against
+                  // the AST of the type. However it's very difficult to figure out the proper
+                  // structure because the compiler options for printing ASTs only print
+                  // "abbreviated" ASTs. Thus I'm going to convert the type to its string
+                  // representation and analyze the string.
                   //
                   val typeName = tpt.toString()  // Or should this be tpt.tpe.toString()?
                   val leftSquareBracketIndex = typeName.indexOf('[')
                   if (leftSquareBracketIndex == -1) {
                     // The type is not parameterized. Try to lift it.
                     valueParameterDeclarations +=
-                    (name.toString -> liftType(typeName))
+                      (name.toString -> Lifter.liftType(reporter, typeName))
                   }
                   else {
-                    // It is parameterized. Verify that it's a MetaType. This is a little dicey
-                    // because at this point the normal namer and typer phases have not yet run.
-                    // Thus type names have not been put into a canonical form yet. The code
-                    // below works for typical cases.
+                    // It is parameterized. This is a little dicey because at this point the
+                    // normal namer and typer phases have not yet run. Thus type names have not
+                    // been put into a canonical form yet. The code below works for typical
+                    // cases.
                     //
                     val constructorName = typeName.substring(0, leftSquareBracketIndex)
-                    if (constructorName != "MetaType") {
-                      reporter.error(null,
-                        "Type constructor " + constructorName + " is not allowed as a parameter type here")
+                    if (constructorName == "Array") {
+                      valueParameterDeclarations +=
+                        (name.toString -> Lifter.liftType(reporter, typeName))
+                    }
+                    else if (constructorName == "MetaType") {
+                      typeParameterDeclarations +=
+                        (name.toString ->
+                         Lifter.liftType(reporter, typeName.substring(leftSquareBracketIndex + 1, typeName.length - 1)))
                     }
                     else {
-                      typeParameterDeclarations +=
-                      (name.toString ->
-                       liftType(typeName.substring(leftSquareBracketIndex + 1, typeName.length - 1)))
+                      reporter.error(null,
+                        "Type constructor " + constructorName + " is not allowed as a parameter type here")
                     }
                   }
                 }
@@ -236,13 +173,13 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
 //            println(s"typeName = $typeName; typeType = $typeType")
 //            treeBuilder.makePatDef(
 //              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
-//              Typed(Ident("sc_" + typeName), AppliedTypeTree(Ident("MetaType"), List(Ident(lowerType(typeType.toString))))),
+//              Typed(Ident("sc_" + typeName), AppliedTypeTree(Ident("MetaType"), List(Ident(Lifter.lowerType(reporter, typeType.toString))))),
 //              Literal(Constant("null")))
 //          }
 //          val valueVars = for ( (valueName, valueType) <- valueParameters) yield {
 //            treeBuilder.makePatDef(
 //              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
-//              Typed(Ident("sc_" + valueName), TypeTree(Ident(lowerType(valueType.toString)))),
+//              Typed(Ident("sc_" + valueName), TypeTree(Ident(Lifter.lowerType(reporter, valueType.toString)))),
 //              Literal(Constant("null")))
 //          }
 

@@ -66,25 +66,6 @@ trait ScalanessTyper {
      
   
   /**
-   * Parses the Mininess inclusion stored in the specified file.
-   * 
-   * @param fullName The name of the file to parse.
-   * @param typeVars A collection of top level type variable names to use during parsing.
-   * @return The AST of the parse.
-   * @throws java.io.IOException if the file can't be found or read, or an ANTLR exception if
-   * the parse fails.
-   */
-  private def parseMininessInclusion(fullName: String, typeVars: Iterable[String]) = {
-    val MininessReader = new BufferedReader(new FileReader(fullName))
-    try {
-      val abstractSyntax = mininess.parser.parseMininessInclusion(MininessReader, typeVars)
-      abstractSyntax
-    }
-    finally MininessReader.close()
-  }
-      
-        
-  /**
    * Reads the raw text of the Mininess inclusion.
    * 
    * @param fullName The name of the Mininess inclusion to read.
@@ -105,49 +86,24 @@ trait ScalanessTyper {
 
 
   /**
-   * Compute the lifted version of the given Scalaness type.
+   * Parses the Mininess inclusion stored in the specified file.
    * 
-   * @param typeName The Scalaness type to lift as a string.
-   * @return The Mininess representation of that type.
+   * @param fullName The name of the file to parse.
+   * @param typeVars A collection of top level type variable names to use during parsing.
+   * @return The AST of the parse.
+   * @throws java.io.IOException if the file can't be found or read, or an ANTLR exception if
+   * the parse fails.
    */
-  private def liftType(typeName: String) = {
-    // TODO: Report errors with proper source position information.
-    import MininessTypes._
-
-    def liftBaseType(baseTypeName: String) = {
-      // TODO: Handle more complex types just the primitives.
-      val translation = Map(
-        "Top"    -> Top,
-        "Char"   -> Char,
-        "Int8"   -> Int8,
-        "Int16"  -> Int16,
-        "Int32"  -> Int32,
-        "UInt8"  -> UInt8,
-        "UInt16" -> UInt16,
-        "UInt32" -> UInt32,
-        "ErrorT" -> ErrorT)
-
-        translation.getOrElse(baseTypeName, {
-          reporter.error(null, "Liftable type " + baseTypeName + " not yet supported. Using Int32")
-          Int32
-        })
+  private def parseMininessInclusion(fullName: String, typeVars: Iterable[String]) = {
+    val MininessReader = new BufferedReader(new FileReader(fullName))
+    try {
+      val abstractSyntax = mininess.parser.parseMininessInclusion(MininessReader, typeVars)
+      abstractSyntax
     }
-
-    val lastDotIndex = typeName.lastIndexOf('.')
-    lastDotIndex match {
-      case -1 => liftBaseType(typeName)
-      case  _ =>
-        if (typeName.substring(0, lastDotIndex) != "edu.uvm.scalaness.LiftableTypes") {
-          reporter.error(null, "Type " + typeName + " is not liftable. Using Int32")
-          Int32
-        }
-        else {
-          liftBaseType(typeName.substring(lastDotIndex + 1))
-        }
-    }
+    finally MininessReader.close()
   }
-
-
+      
+        
   /**
    * Extracts the type and value parameters of a class representing a Mininess module.
    *
@@ -173,31 +129,34 @@ trait ScalanessTyper {
               case List(parameters) =>
                 parameters foreach { parameter =>
                   val ValDef(mods, name, tpt, rhs) = parameter
-                  // Examine the type of the module's parameter. In theory I should match
-                  // against the AST of the type. However it's very difficult to figure out the
-                  // proper structure because the compiler options for printing ASTs only print
+                  // Examine the type of the module's parameter. I should be matching against
+                  // the AST of the type. However it's very difficult to figure out the proper
+                  // structure because the compiler options for printing ASTs only print
                   // abbreviated ASTs. Thus I'm going to convert the type to its string
-                  // representation and analyze the string. It's a hack, but when (if) the
-                  // compiler internals are better documented this can be changed to do it the
-                  // right way.
+                  // representation and analyze the string.
                   //
                   val typeName = tpt.toString()  // Or should this be tpt.tpe.toString()?
                   val leftSquareBracketIndex = typeName.indexOf('[')
                   if (leftSquareBracketIndex == -1) {
                     // The type is not parameterized. Try to lift it.
-                    valueParameterDeclarations += (name.toString -> liftType(typeName))
+                    valueParameterDeclarations +=
+                      (name.toString -> Lifter.liftType(reporter, typeName))
                   }
                   else {
-                    // It is parameterized. Verify that it's a MetaType.
+                    // It is parameterized.
                     val constructorName = typeName.substring(0, leftSquareBracketIndex)
-                    if (constructorName != "edu.uvm.scalaness.MetaType") {
-                      reporter.error(null,
-                        "Type constructor " + constructorName + " is not allowed as a parameter type here")
+                    if (constructorName == "Array") {
+                      valueParameterDeclarations +=
+                        (name.toString -> Lifter.liftType(reporter, typeName))
+                    }
+                    else if (constructorName == "edu.uvm.scalaness.MetaType") {
+                      typeParameterDeclarations +=
+                        (name.toString ->
+                         Lifter.liftType(reporter, typeName.substring(leftSquareBracketIndex + 1, typeName.length - 1)))
                     }
                     else {
-                      typeParameterDeclarations +=
-                      (name.toString ->
-                       liftType(typeName.substring(leftSquareBracketIndex + 1, typeName.length - 1)))
+                      reporter.error(null,
+                        "Type constructor " + constructorName + " is not allowed as a parameter type here")
                     }
                   }
                 }
