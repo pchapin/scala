@@ -27,6 +27,7 @@ SENSORBOX='BoundsCheckC.nc
   GroundboxAppC.nc
   KappaMsg.h
   Makefile
+  ReceiveShimC.nc
   SendShimC.nc
   SensorBoxC.nc
   SensorConfig.h

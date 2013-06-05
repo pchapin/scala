@@ -493,16 +493,40 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
             rewrite(child)
         }
 
-      // This is a simple hack. Emit a #include for line directives that reference header files.
-      // If #includes were nested this will cause spurious #include directives to be emitted
-      // here. However, that should not cause any problems for the back end nesC compiler. Note
-      // that the AST for material in a header file should not be rewritten. However, when a line
-      // directive for the main .nc file is encountered, rewriting should be turned on again.
+      // This is a simple hack. Emit a #include for line directives that reference header files,
+      // but only if rewriting is not currently suppressed. Once we pass over a line directive
+      // that references a header file, further rewriting is turned off... until we encounter a
+      // line directive that references the main .nc file again.
       //
       case MininessLexer.LINE_DIRECTIVE =>
         val fileNameWithQuotes = t.children(0).text
         if (fileNameWithQuotes.endsWith(".h\"") || fileNameWithQuotes.endsWith(".h>")) {
-          sink.print("#include " + fileNameWithQuotes + "\n")
+          if (!suppressRewriting) {
+
+            // Remove any leading path from the file name. This is necessary because cpp tends
+            // to expand header paths when it writes the *.i files. However since the generated
+            // program is typically in a different place than the original source this expansion
+            // yields invalid paths in many cases. For example the path "./src/Client/global.h"
+            // reflects the location where cpp was run. Compiling the program in a folder like
+            // "./generated/Client/global.h" will fail even if the header global.h is in that
+            // folder. The approach here is really hackish.
+            //
+            // TODO: Pass a prefix path into this class that specifies what should be removed.
+            val startQuote =
+              if (fileNameWithQuotes.charAt(fileNameWithQuotes.length - 1) == '\"')
+                "\""
+              else
+                "<"
+
+            val lastSlashIndex = fileNameWithQuotes.lastIndexOf('/')
+            val simpleFileName =
+              if (lastSlashIndex == -1)
+                fileNameWithQuotes
+              else
+                startQuote + fileNameWithQuotes.substring(lastSlashIndex + 1)
+
+            sink.print("#include " + simpleFileName + "\n")
+          }
           suppressRewriting = true
         }
         else {

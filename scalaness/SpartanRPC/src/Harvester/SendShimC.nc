@@ -1,6 +1,7 @@
 
 module SendShimC {
     provides command void send( const uint8_t buffer[], uint16_t size );
+    uses interface Boot;
     uses interface SplitControl as AMControl;
     uses interface Packet;
     uses interface AMSend;
@@ -10,7 +11,7 @@ implementation {
     bool busy = FALSE;
 
     
-    command void send( const uint8_t buffer[], uint8_t size )
+    command void send( const uint8_t buffer[], uint16_t size )
     {
         uint8_t *packet;
         
