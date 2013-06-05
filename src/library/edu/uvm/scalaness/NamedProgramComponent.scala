@@ -41,6 +41,13 @@ class NamedProgramComponent(
   /**
    * Outputs the NamedProgramComponent to a file. This method serializes the AST of the
    * component back to ordinary nesC source code.
+   *
+   * The specialization of primitive values is done by way of substitution (each occurrence of
+   * the identifier is replaced with its value). This is necessary so array declarations
+   * dimensioned by the value will work. The specialization of array values is done by declaring
+   * a global array initialized to the value.
+   *
+   * The specialization of structure values is not yet supported.
    * 
    * @param outputFolder The folder into which this named component should be generated.
    */
@@ -68,12 +75,14 @@ class NamedProgramComponent(
     val outputFile = new PrintStream(new File(outputFolder, name + ".nc"))
     try {
       val valueList = enclosingObject.getValueMap.toList
-      val valueSpecializedAST =
-        doSpecialization(valueList, abstractSyntax, Specialize.editor _)
+      val primitiveSpecializedAST =
+        doSpecialization(valueList, abstractSyntax, Specialize.substitutionEditor _)
+      val arraySpecializedAST =
+        doSpecialization(valueList, primitiveSpecializedAST, Specialize.arrayEditor _)
       val typeList = enclosingObject.getTypeMap.toList map
         { item => (item._1, item._2.wrappedType) }
       val fullySpecializedAST =
-        doSpecialization(typeList, valueSpecializedAST, Specialize.editor _)
+        doSpecialization(typeList, arraySpecializedAST, Specialize.substitutionEditor _)
 
       // Do the necessary transformations on array bounds and casts.
       // TODO: Is this really the right place for this?

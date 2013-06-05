@@ -14,18 +14,21 @@ import edu.uvm.mininess.parser.MininessLexer
 object Specialize {
   
   /**
-   * Replace occurrences of an identifier with its value.
+   * Replace occurrences of an identifier with its value. This editor does a simple in-place
+   * substitution. Values of array type are ignored (the given node is returned at once). The
+   * specialization of arrays can't be done by way of a simple substitution.
    * 
    * @param node The root of the AST over which to make the replacement.
    * @param identifier The identifier to replace.
    * @param value The value to use in place of the identifier.
    */
-  def editor[A](
+  def substitutionEditor[A](
     node      : ASTNode,
     identifier: String,
     value     : A): ASTNode = {
     
-    // TODO: The editor should respect scopes but it currently does not.
+    // TODO: The substitution editor should respect scopes but it currently does not.
+    // TODO: If 'A' is an array type, just return at once with node (no substitution).
 
     def isNumeric(value: A) = {
       val textRepresentation = value.toString
@@ -46,7 +49,7 @@ object Specialize {
         
       // Recursively process all other node types.
       case ASTNode(token, text, children, parent, symbolTable) =>
-        val newChildren = children map { child => editor(child, identifier, value) }
+        val newChildren = children map { child => substitutionEditor(child, identifier, value) }
         val newNode = ASTNode(token, text, newChildren, parent, symbolTable)
         for (child <- newChildren) {
           child.parent = Some(newNode)
@@ -57,4 +60,20 @@ object Specialize {
     }
   }
 
+  /**
+   * For values with Array type, this editor adds a global declaration of the array to the AST.
+   * No other changes are done. For values with some other type, the given node is returned at
+   * once.
+   * 
+   * @param node The root of the AST over which to make the replacement.
+   * @param identifier The identifier that will name the array.
+   * @param value The value to use in the array's initialization.
+   */
+  def arrayEditor[A](
+    node      : ASTNode,
+    identifier: String,
+    value     : A): ASTNode = {
+
+    node
+  }
 }
