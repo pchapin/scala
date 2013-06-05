@@ -8,6 +8,8 @@ package edu.uvm.snowstorm
 
 import java.io._
 import java.net._
+import java.security.Security
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import edu.uvm.rt._
 
 /**
@@ -32,6 +34,16 @@ object Main {
 
       command.toInt match {
         case 0 => done = true
+
+        case 1 =>
+          println("Key Database")
+          println("------------")
+          keys.printEntries()
+
+        case 4 =>
+          print("Name: ")
+          val name = io.ReadStdin.readLine()
+          keys.generateEntity(name)
 
         case _ =>
           println(s"Invalid or unimplemented command: '$command'")
@@ -73,6 +85,8 @@ object Main {
       println("Usage: Main owning_entity_name \"Harvester\"|\"SensorBox\" authorizer_port peer_port")
       return
     }
+
+    Security.addProvider(new BouncyCastleProvider)
 
     // Extract useful items from the command line.
     // TODO: More comprehensive handling of the command line might be nice.

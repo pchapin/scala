@@ -75,6 +75,10 @@ trait KeyStorage /* extends Traversable[KeyAssociation] */ {
    */
   def lookupEntryByName(thisName: String): KeyAssociation
 
+  /**
+   * Displays the keys in this KeyStorage on standard output.
+   */
+  def printEntries()
 }
 
 
