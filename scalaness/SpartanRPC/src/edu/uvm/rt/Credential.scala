@@ -8,25 +8,36 @@ package edu.uvm.rt
 
 import java.security.interfaces.ECPublicKey
 
-class Credential
+abstract sealed class Credential {
+  def getIssuer: ECPublicKey
+}
 
 case class CredentialMembership(
   definingKey: ECPublicKey,
   targetRole : String,
-  memberKey  : ECPublicKey) extends Credential
+  memberKey  : ECPublicKey) extends Credential {
+
+  def getIssuer = definingKey
+}
 
 case class CredentialInclusion(
   definingKey: ECPublicKey,
   targetRole : String,
   sourceKey  : ECPublicKey,
-  sourceRole : String) extends Credential
+  sourceRole : String) extends Credential {
+
+  def getIssuer = definingKey
+}
 
 case class CredentialLinked(
   definingKey : ECPublicKey,
   targetRole  : String,
   indirectKey : ECPublicKey,
   indirectRole: String,
-  sourceRole  : String) extends Credential
+  sourceRole  : String) extends Credential {
+
+  def getIssuer = definingKey
+}
 
 case class CredentialIntersection(
   definingKey: ECPublicKey,
@@ -34,4 +45,7 @@ case class CredentialIntersection(
   sourceKey1 : ECPublicKey,
   sourceRole1: String,
   sourceKey2 : ECPublicKey,
-  sourceRole2: String) extends Credential
+  sourceRole2: String) extends Credential {
+
+  def getIssuer = definingKey
+}

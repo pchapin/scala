@@ -9,12 +9,12 @@ package edu.uvm.snowstorm
 import actors.Actor
 import java.io._
 import java.net.{DatagramPacket, DatagramSocket, SocketException}
-import edu.uvm.rt.CertificateStorageInMemory
+import edu.uvm.rt.CertificateStorage
 
 class ServiceAuthorizer(
   messageServer     : MessageServer,
   owningEntity      : String,
-  certificateStorage: CertificateStorageInMemory,
+  certificateStorage: CertificateStorage,
   port              : Int) extends Actor {
 
   private val listeningSocket = new DatagramSocket(port)

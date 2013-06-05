@@ -8,24 +8,16 @@
 package edu.uvm.rt
 
 import java.io._
-import java.util._
-import java.math.BigInteger
-import java.security.{KeyPair, KeyPairGenerator, KeyStore, SecureRandom}
-import java.security.cert.{Certificate, CertificateFactory, X509Certificate}
+import java.security.{KeyPair, KeyPairGenerator, SecureRandom}
 import java.security.interfaces.{ECPrivateKey, ECPublicKey}
-import java.util.Date
-import org.bouncycastle.jce.{ECNamedCurveTable, X509Principal}
+import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.spec.ECParameterSpec
-import org.bouncycastle.x509.X509V3CertificateGenerator
-import collection.mutable
 
 
-class KeyStorageInDisk(fileName : String) {  // extends KeyStorage {
+class KeyStorageInDisk(fileName : String) extends KeyStorage {
 
   def generateEntity(name: String) {
-  
     try {
-
       val ecSpec: ECParameterSpec = ECNamedCurveTable.getParameterSpec("secp160k1")
       val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
       generator.initialize(ecSpec, new SecureRandom())
@@ -50,7 +42,6 @@ class KeyStorageInDisk(fileName : String) {  // extends KeyStorage {
       finally {
         output.close()
       }
-
     }
     catch {
       case e: FileNotFoundException => println("Unable to open file.")
@@ -91,7 +82,59 @@ class KeyStorageInDisk(fileName : String) {  // extends KeyStorage {
     
   }
   
-  def lookupEntryByKey(thisKey : ECPublicKey) : KeyTriple =  {
+  def lookupEntryByPublicKey(thisKey : ECPublicKey) : KeyAssociation =  {
+    val file   = new FileInputStream(fileName)
+    val buffer = new BufferedInputStream(file)
+    val input  = new ObjectInputStream(buffer)
+    
+    var foundTriple : KeyTriple = null
+    var currentObject : Object = null
+    
+    while ( {currentObject = input.readObject(); currentObject != null} ) {
+      val currTriple = currentObject match {
+        case co : KeyTriple => co
+        case _ => throw new Exception(s"Unexpected content found in $fileName")
+      }
+      val currAssoc = currTriple.association
+      
+      currAssoc match {
+        case (_, `thisKey`, _) => foundTriple = currTriple
+        case _ => 
+      }
+    }
+
+    input.close()
+    foundTriple.association
+  }
+
+
+  def lookupEntryByPrivateKey(thisKey : ECPrivateKey) : KeyAssociation =  {
+    val file   = new FileInputStream(fileName)
+    val buffer = new BufferedInputStream(file)
+    val input  = new ObjectInputStream(buffer)
+
+    var foundTriple : KeyTriple = null
+    var currentObject : Object = null
+
+    while ( {currentObject = input.readObject(); currentObject != null} ) {
+      val currTriple = currentObject match {
+        case co : KeyTriple => co
+        case _ => throw new Exception(s"Unexpected content found in $fileName")
+      }
+      val currAssoc = currTriple.association
+
+      currAssoc match {
+        case (_, _, Some(`thisKey`)) => foundTriple = currTriple
+        case _ =>
+      }
+    }
+
+    input.close()
+    foundTriple.association
+  }
+
+
+  def lookupEntryByName(thisName : String) : KeyAssociation =  {
     val file = new FileInputStream(fileName)
     val buffer = new BufferedInputStream(file)
     val input = new ObjectInputStream(buffer)
@@ -99,51 +142,23 @@ class KeyStorageInDisk(fileName : String) {  // extends KeyStorage {
     var foundTriple : KeyTriple = null
     var currentObject : Object = null
     
-    while ((currentObject = (input.readObject()))  != null) {
+    while ( {currentObject = input.readObject(); currentObject != null} ) {
       val currTriple = currentObject match {
         case co : KeyTriple => co
-        case _ => throw new Exception("Expected Key Triple")
+        case _ => throw new Exception(s"Unexpected content found in $fileName")
       }
-      val currAssoc = currTriple.getTriple();
+      val currAssoc = currTriple.association
       
       currAssoc match {
-        case (_, thisKey, _) => foundTriple = currTriple
+        case (Some(`thisName`), _, _) => foundTriple = currTriple
         case _ => 
       }
-      
     }
+
     input.close()
-    
-    foundTriple
-    
+    foundTriple.association
   }
-  
-  def lookupEntryByName(thisName : String) : KeyTriple =  {
-    val file = new FileInputStream(fileName)
-    val buffer = new BufferedInputStream(file)
-    val input = new ObjectInputStream(buffer)
-    
-    var foundTriple : KeyTriple = null
-    var currentObject : Object = null
-    
-    while ((currentObject = (input.readObject()))  != null) {
-      val currTriple = currentObject match {
-        case co : KeyTriple => co
-        case _ => throw new Exception("Expected Key Triple")
-      }
-      val currAssoc = currTriple.getTriple()
-      
-      currAssoc match {
-        case (Some(thisName), _, _) => foundTriple = currTriple
-        case _ => 
-      }
-      
-    }
-    input.close()
-    
-    foundTriple
-    
-  }
+
   
   def removeKey(name: String) {
     val inputFile = new File(fileName)
@@ -159,18 +174,17 @@ class KeyStorageInDisk(fileName : String) {  // extends KeyStorage {
     
     var currentObject : Object = null
     
-    while ((currentObject = (input.readObject()))  != null) {
+    while ( {currentObject = input.readObject(); currentObject != null} ) {
       val currTriple = currentObject match {
         case co : KeyTriple => co
-        case _ => throw new Exception("Expected Key Triple")
+        case _ => throw new Exception(s"Unexpected content found in $fileName")
       }
-      val currAssoc = currTriple.getTriple()
+      val currAssoc = currTriple.association
       
       currAssoc match {
-        case (Some(name), _, _) => println("Entry Removed")
+        case (Some(`name`), _, _) => println("Entry Removed")
         case _ => output.writeObject(currTriple)
       }
-      
     }
     
     output.close()
@@ -195,15 +209,15 @@ class KeyStorageInDisk(fileName : String) {  // extends KeyStorage {
     
     var currentObject : Object = null
     
-    while ((currentObject = (input.readObject()))  != null) {
+    while ( {currentObject = input.readObject(); currentObject != null} ) {
       val currTriple = currentObject match {
         case co : KeyTriple => co
-        case _ => throw new Exception("Expected Key Triple")
+        case _ => throw new Exception(s"Unexpected content found in $fileName")
       }
-      val currAssoc = currTriple.getTriple()
+      val currAssoc = currTriple.association
       
       currAssoc match {
-        case (_, key, _) => println("Entry Removed")
+        case (_, `key`, _) => println("Entry Removed")
         case _ => output.writeObject(currTriple)
       }
       
@@ -225,20 +239,14 @@ class KeyStorageInDisk(fileName : String) {  // extends KeyStorage {
     
     var currentObject : Object = null
     
-    while ((currentObject = (input.readObject()))  != null) {
+    while ( {currentObject = input.readObject(); currentObject != null} ) {
       val currTriple = currentObject match {
         case co : KeyTriple => co
-        case _ => throw new Exception("Expected Key Triple")
+        case _ => throw new Exception(s"Unexpected content found in $fileName")
       }
-      
       println(currTriple)
-      
     }
     input.close()
-    
   }
-  
-  
-
 
 }

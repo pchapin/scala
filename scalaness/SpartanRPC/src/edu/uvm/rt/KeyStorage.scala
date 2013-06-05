@@ -6,7 +6,7 @@
 //-----------------------------------------------------------------------
 package edu.uvm.rt
 
-import java.security.interfaces.ECPublicKey
+import java.security.interfaces.{ECPrivateKey, ECPublicKey}
 
 /**
  * Describes the interface to all key storage objects. Such objects provide methods for managing a database of public
@@ -19,7 +19,7 @@ import java.security.interfaces.ECPublicKey
  *
  * The private key is optional.
  */
-trait KeyStorage extends Traversable[KeyAssociation] {
+trait KeyStorage /* extends Traversable[KeyAssociation] */ {
 
   /**
    * Creates a fresh public/private key pair and associates the given name to the new entity.
@@ -53,8 +53,27 @@ trait KeyStorage extends Traversable[KeyAssociation] {
    * @throws KeyInUseException if the key is used by the linked certificate storage.
    */
   def removeKey(key: ECPublicKey)
-  
-  
+
+  /**
+   * Looks up a key association based on the public key.
+   * @param thisKey The public key for the search.
+   * @return The corresponding key association or null if no association exists.
+   */
+  def lookupEntryByPublicKey(thisKey: ECPublicKey): KeyAssociation
+
+  /**
+   * Looks up a key association based on the private key.
+   * @param thisKey The private key for the search.
+   * @return The corresponding key association or null if no association exists.
+   */
+  def lookupEntryByPrivateKey(thisKey: ECPrivateKey): KeyAssociation
+
+  /**
+   * Looks up a key association based on the entity name key.
+   * @param thisName The entity name for the search.
+   * @return The corresponding key association or null if no association exists.
+   */
+  def lookupEntryByName(thisName: String): KeyAssociation
 
 }
 

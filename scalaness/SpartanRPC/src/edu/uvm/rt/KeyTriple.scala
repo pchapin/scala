@@ -7,13 +7,8 @@
 
 package edu.uvm.rt
 
-import java.security.interfaces.{ECPublicKey, ECPrivateKey}
-
-class KeyTriple(triple: KeyAssociation) extends Serializable{
-
-  def getTriple(): KeyAssociation = {
-    triple
-  }
-  
-  
-}
+/**
+ * Wraps a key association in a serializable class.
+ * @param association The wrapped association.
+ */
+case class KeyTriple(association: KeyAssociation) extends Serializable

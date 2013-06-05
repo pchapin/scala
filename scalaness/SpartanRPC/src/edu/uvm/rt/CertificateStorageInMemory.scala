@@ -6,155 +6,20 @@
 //-----------------------------------------------------------------------
 package edu.uvm.rt
 
-import java.security.interfaces.ECPublicKey
-import collection.mutable
-
 /**
  * Class that stores RT_0 certificates in memory. Unlike other possible implementations of the CertificateStorage trait,
  * this class makes no use of disk files or external database systems.
  */
-class CertificateStorageInMemory extends CertificateStorage {
-  private var linkedKeyStorage: KeyStorage = null
-  private val certificateSet = mutable.Set[Certificate]()
-
-  private class ModelTuple(
-    val targetKey : ECPublicKey,
-    val targetRole: String,
-    val memberKey : ECPublicKey)
-
-  private val modelSet = mutable.Set[ModelTuple]()
-  private var modelAccurate = true
-
-  private def addTuple(newTuple: ModelTuple) = {
-    if (modelSet.contains(newTuple)) false
-    else {
-      modelSet.add(newTuple)
-      true
-    }
-  }
-
-
-  private def computeMinimumModel() {
-
-    def processMembership(cred: CredentialMembership) = {
-      val CredentialMembership(definingKey, targetRole, memberKey) = cred
-      val newTuple = new ModelTuple(definingKey, targetRole, memberKey)
-      addTuple(newTuple)
-    }
-
-    def processInclusion(cred: CredentialInclusion) = {
-      val CredentialInclusion(definingKey, targetRole, sourceKey, sourceRole) = cred
-      var tupleAdded = false
-      for (currentTuple <- modelSet) {
-        if (currentTuple.targetKey  == sourceKey &&
-            currentTuple.targetRole == sourceRole) {
-          
-          val newTuple = new ModelTuple(definingKey, targetRole, currentTuple.memberKey)
-          tupleAdded = addTuple(newTuple) || tupleAdded
-        }
-      }
-      tupleAdded
-    }
-
-    def processLinked(cred: CredentialLinked) = {
-      val CredentialLinked(
-        definingKey, targetRole, indirectKey, indirectRole, sourceRole) = cred
-      var tupleAdded = false
-
-      for (outerCurrentTuple <- modelSet) {
-        if (outerCurrentTuple.targetKey  == indirectKey &&
-            outerCurrentTuple.targetRole == indirectRole) {
-
-          for (innerCurrentTuple <- modelSet) {
-            if (innerCurrentTuple.targetKey  == outerCurrentTuple.memberKey &&
-                innerCurrentTuple.targetRole == sourceRole) {
-
-              val newTuple = new ModelTuple(definingKey, targetRole, innerCurrentTuple.memberKey)
-              tupleAdded = addTuple(newTuple) || tupleAdded
-            }
-          }
-        }
-      }
-      tupleAdded
-    }
-
-    def processIntersection(cred: CredentialIntersection) = {
-      val CredentialIntersection(
-        definingKey, targetRole, sourceKey1, sourceRole1, sourceKey2, sourceRole2) = cred
-      var tupleAdded = false
-
-      for (outerCurrentTuple <- modelSet) {
-        if (outerCurrentTuple.targetKey  == sourceKey1 &&
-            outerCurrentTuple.targetRole == sourceRole1) {
-
-          for (innerCurrentTuple <- modelSet) {
-            if (innerCurrentTuple.targetKey  == sourceKey2 &&
-                innerCurrentTuple.targetRole == sourceRole2 &&
-                innerCurrentTuple.memberKey  == outerCurrentTuple.memberKey) {
-
-              val newTuple = new ModelTuple(definingKey, targetRole, outerCurrentTuple.memberKey)
-              tupleAdded = addTuple(newTuple) || tupleAdded
-            }
-          }
-        }
-      }
-      tupleAdded
-    }
-
-    var tupleAdded = true
-    while (tupleAdded) {
-      tupleAdded = false
-
-      for (Certificate(currentCredential, _, _) <- certificateSet) {
-        tupleAdded = (currentCredential match {
-          case cred: CredentialMembership   => processMembership(cred)
-          case cred: CredentialInclusion    => processInclusion(cred)
-          case cred: CredentialLinked       => processLinked(cred)
-          case cred: CredentialIntersection => processIntersection(cred)
-        }) || tupleAdded
-      }
-    }
-    modelAccurate = true
-  }
-
-
-  def foreach[U](f : Certificate => U) {
-    certificateSet.foreach(f)
-  }
-
-
-  def linkTo(keys: KeyStorage) {
-    linkedKeyStorage = keys
-  }
-
+class CertificateStorageInMemory(kStorage: KeyStorage) extends CertificateStorage {
 
   def addCredential(incomingCredential: Credential) {
     val rawCredential = toRawCredential(incomingCredential)
-    val signature = signCredential(rawCredential, linkedKeyStorage)
+    val issuer = incomingCredential.getIssuer
+    val (_, _, Some(privateKey)) = kStorage.lookupEntryByPublicKey(issuer)
+    val signature = signCredential(rawCredential, privateKey)
     certificateSet.add(Certificate(incomingCredential, rawCredential, signature))
     modelAccurate = false
   }
 
-
-  def authorize(
-    governingKey : ECPublicKey,
-    governingRole: String,
-    queryKey     : ECPublicKey) = {
-
-    // Dump and recalculate the minimum model if necessary.
-    if (!modelAccurate) {
-      modelSet.clear()
-      computeMinimumModel()
-    }
-
-    // Search the model for the right tuple. Is this simple O(n) search fast enough?
-    var result = false
-    for (currentTuple <- modelSet) {
-      if (currentTuple.targetKey  == governingKey  &&
-          currentTuple.targetRole == governingRole &&
-          currentTuple.memberKey  == queryKey) result = true
-    }
-    result
-  }
 
 }
