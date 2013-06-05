@@ -35,7 +35,8 @@ object Parser {
         // If that didn't work, try getting it out of the jar file.
         val adjustedName =
           if (mininessFileName.charAt(0) == '.') mininessFileName.substring(1) else mininessFileName
-        new BufferedReader(new InputStreamReader(getClass.getResourceAsStream(adjustedName)))
+        val remappedName = adjustedName.map(ch => if (ch == '\\') '/' else ch)
+        new BufferedReader(new InputStreamReader(getClass.getResourceAsStream(remappedName)))
     }
     
     // TODO: Use two different parsing methods in the compiler and in the runtime system.

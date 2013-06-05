@@ -125,8 +125,6 @@ object TypeRules {
       currTau
     }
    
-    println("listT1 = " + listT1 + "; tau1List = " + tau1List.toList)
-    println("listT2 = " + listT2 + "; tau2List = " + tau2List.toList)
     if (!(seriesSubType(listT1,tau1List.toList) && seriesSubType(listT2, tau2List.toList)))
       throw new Exception("type and value parameters require subtype relation")
     
@@ -301,11 +299,20 @@ object TypeRules {
         var liftedTypes = List[Representation]()
         var metaTypeUBs = List[Representation]()
         for (i <- 0 until formals.length) {
-          val myNewType = formals(i).toString
+          var isArray = false
+          var myNewType = formals(i).toString
+          if (myNewType.charAt(0) == 'A') {
+            isArray = true
+            myNewType = myNewType.drop(6)
+            myNewType = myNewType.dropRight(1)
+          }
           val fullLiftType = myNewType.drop(18)
           if (fullLiftType.charAt(0) == 'L') {
             val liftedType = edu.uvm.scalaness.TypeRules.liftTypeString(fullLiftType)
-            liftedTypes ::= liftedType
+            if (isArray) 
+              liftedTypes ::= Array(liftedType, "")
+            else
+              liftedTypes ::= liftedType
           }
           else if (fullLiftType.charAt(0) == 'M' && fullLiftType.charAt(1) == 'e') {
             var fullMetaType = fullLiftType.drop(27)

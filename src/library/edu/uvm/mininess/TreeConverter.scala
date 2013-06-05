@@ -310,6 +310,11 @@ object TreeConverter {
           case _           => throw new Exception("Unable to locate parent node")
         }
         
+        val spnParentNode = statementParentNode.parent match {
+          case Some(pNode) => pNode
+          case _           => throw new Exception("Unable to locate parent node")
+        }
+        
         val ifNode =
           ASTNode(IF, "if", List(), Some(statementParentNode), symbolTable)
         val LENode =
@@ -368,7 +373,9 @@ object TreeConverter {
           }
         }
         newNode2.children = List(sizeNode)
-
+        
+        // Come back to this ---
+        // val cmpdStatementNode = 
         val statementNode =
           ASTNode(STATEMENT, "STATEMENT", List(), Some(ifNode), symbolTable)
         val statementPFENode =
@@ -383,10 +390,34 @@ object TreeConverter {
           ASTNode(ARGUMENT_LIST, "ARGUMENT_LIST", List(), Some(statementPFENode), symbolTable)
         statementPFENode.children = List(callNode, functionNode, argListNode)
         ifNode.children = List(LENode, statementNode)
-        val newSecondHalf = ifNode::secondHalf
-        val finalSecondHalf = decNode::newSecondHalf
-        val newChildren = firstHalf:::finalSecondHalf
+        
+        val compoundStatementNode =
+          ASTNode(COMPOUND_STATEMENT, "COMPOUND_STATEMENT", List(decNode, ifNode, arrayStatementNode), Some(statementParentNode), symbolTable)
+        arrayStatementNode.parent = Some(compoundStatementNode)
+        
+        // val newSecondHalf = ifNode::secondHalf
+        // val finalSecondHalf = decNode::newSecondHalf
+        // val newChildren = firstHalf:::finalSecondHalf
+        val newSecondHalf = compoundStatementNode::secondHalf
+        val newChildren = firstHalf:::newSecondHalf
+        
         statementParentNode.children = newChildren
+        
+        /*
+        // Wraps all of the parent of all of the new stuff in a compound statement
+        // If this is weird.. maybe its better to instead wrap ifNode, decNode, and the statementNode in a compound statement, and have this..
+        val compoundStatementNode = 
+          ASTNode(COMPOUND_STATEMENT, "COMPOUND_STATEMENT", List(statementParentNode), Some(spnParentNode), symbolTable)
+        val spnParentChildren = spnParentNode.children
+        val newSpnParentchildren = for (i <- 0 until spnParentChildren.length) yield {
+          if (spnParentChildren(i) == statementParentNode)
+            compoundStatementNode
+          else
+            spnParentChildren(i)
+        }
+        
+        spnParentNode.children = newSpnParentChildren
+        */
         root
       }
 
@@ -479,7 +510,7 @@ object TreeConverter {
       val firstList = for (i <- 0 until nodeIdent) yield {
         siblingList(i)
       }
-      val secondList = for (i <- nodeIdent until siblingList.length) yield {
+      val secondList = for (i <- (nodeIdent + 1) until siblingList.length) yield {
         siblingList(i)
       }
       (firstList.toList,secondList.toList)

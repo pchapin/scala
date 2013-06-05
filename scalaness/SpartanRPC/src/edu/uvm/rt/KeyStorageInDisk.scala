@@ -217,6 +217,27 @@ class KeyStorageInDisk(fileName : String) {  // extends KeyStorage {
     
   }
   
+  def printEntries() {
+  
+    val file = new FileInputStream(fileName)
+    val buffer = new BufferedInputStream(file)
+    val input = new ObjectInputStream(buffer)
+    
+    var currentObject : Object = null
+    
+    while ((currentObject = (input.readObject()))  != null) {
+      val currTriple = currentObject match {
+        case co : KeyTriple => co
+        case _ => throw new Exception("Expected Key Triple")
+      }
+      
+      println(currTriple)
+      
+    }
+    input.close()
+    
+  }
+  
   
 
 

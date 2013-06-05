@@ -182,4 +182,62 @@ class CertificateStorageInDisk(kStorage: KeyStorage, fileName: String) extends C
     }
     modelAccurate = true
   }
+  
+  def printEntries() {
+  
+    val file = new FileInputStream(fileName)
+    val buffer = new BufferedInputStream(file)
+    val input = new ObjectInputStream(buffer)
+    
+    var currentObject : Object = null
+    
+    while ((currentObject = (input.readObject()))  != null) {
+      val currCertificate = currentObject match {
+        case co : Certificate => co
+        case _ => throw new Exception("Expected Key Triple")
+      }
+      
+      println(currCertificate)
+      
+    }
+    input.close()
+    
+  }
+  
+  def removeCertificate(cred: Credential) {
+    val inputFile = new File(fileName)
+    val outputFile = new File("tempFile.txt")
+  
+    val iFile = new FileInputStream(inputFile)
+    val iBuffer = new BufferedInputStream(iFile)
+    val input = new ObjectInputStream(iBuffer)
+    
+    val oFile = new FileOutputStream(outputFile)
+    val oBuffer = new BufferedOutputStream(oFile)
+    val output = new ObjectOutputStream(oBuffer)
+    
+    var currentObject : Object = null
+    
+    while ((currentObject = (input.readObject()))  != null) {
+      val currCertificate = currentObject match {
+        case co : Certificate => co
+        case _ => throw new Exception("Expected Key Triple")
+      }
+      
+      currCertificate match {
+        case Certificate(cred, _, _) => println("Certificate Removed")
+        case _ => output.writeObject(currCertificate)
+      }
+      
+    }
+    
+    output.close()
+    input.close()
+    
+    modelAccurate = false
+    
+    if (!(outputFile.renameTo(inputFile)))
+      println("Unable to rename file.")
+    
+  }
 }
