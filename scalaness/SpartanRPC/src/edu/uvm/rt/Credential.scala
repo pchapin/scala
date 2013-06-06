@@ -30,14 +30,13 @@ case class CredentialMembership(
 
   def toRawCredential = {
     var targetOffset = 0
-    val rawBinary = new Array[Byte](82)
+    val rawBinary = new Array[Byte](81 + targetRole.length)
 
     rawBinary(targetOffset) = 1.toByte    // Certificate form identifier.
     targetOffset += 1
     targetOffset += Credential.installPublicKey(rawBinary, targetOffset, definingKey)
-    rawBinary(targetOffset) = targetRole.toByte
-    targetOffset += 1
-    targetOffset += Credential.installPublicKey(rawBinary, targetOffset, memberKey)
+    targetOffset += Credential.installString   (rawBinary, targetOffset, targetRole )
+    targetOffset += Credential.installPublicKey(rawBinary, targetOffset, memberKey  )
 
     rawBinary
   }
@@ -53,16 +52,14 @@ case class CredentialInclusion(
 
   def toRawCredential = {
     var targetOffset = 0
-    val rawBinary = new Array[Byte](83)
+    val rawBinary = new Array[Byte](81 + targetRole.length + sourceRole.length)
 
     rawBinary(targetOffset) = 2.toByte    // Certificate form identifier.
     targetOffset += 1
     targetOffset += Credential.installPublicKey(rawBinary, targetOffset, definingKey)
-    rawBinary(targetOffset) = targetRole.toByte
-    targetOffset += 1
-    targetOffset += Credential.installPublicKey(rawBinary, targetOffset, sourceKey)
-    rawBinary(targetOffset) = sourceRole.toByte
-    targetOffset += 1
+    targetOffset += Credential.installString   (rawBinary, targetOffset, targetRole )
+    targetOffset += Credential.installPublicKey(rawBinary, targetOffset, sourceKey  )
+    targetOffset += Credential.installString   (rawBinary, targetOffset, sourceRole )
 
     rawBinary
   }
@@ -79,17 +76,15 @@ case class CredentialLinked(
 
   def toRawCredential = {
     var targetOffset = 0
-    val rawBinary = new Array[Byte](84)
+    val rawBinary = new Array[Byte](81 + targetRole.length + indirectRole.length + sourceRole.length)
 
     rawBinary(targetOffset) = 3.toByte    // Certificate form identifier.
     targetOffset += 1
-    targetOffset += Credential.installPublicKey(rawBinary, targetOffset, definingKey)
-    rawBinary(targetOffset) = targetRole.toByte
-    targetOffset += 1
-    targetOffset += Credential.installPublicKey(rawBinary, targetOffset, indirectKey)
-    rawBinary(targetOffset + 0) = indirectRole.toByte
-    rawBinary(targetOffset + 1) = sourceRole.toByte
-    targetOffset += 2
+    targetOffset += Credential.installPublicKey(rawBinary, targetOffset, definingKey )
+    targetOffset += Credential.installString   (rawBinary, targetOffset, targetRole  )
+    targetOffset += Credential.installPublicKey(rawBinary, targetOffset, indirectKey )
+    targetOffset += Credential.installString   (rawBinary, targetOffset, indirectRole)
+    targetOffset += Credential.installString   (rawBinary, targetOffset, sourceRole  )
 
     rawBinary
   }
@@ -107,19 +102,16 @@ case class CredentialIntersection(
 
   def toRawCredential = {
     var targetOffset = 0
-    val rawBinary = new Array[Byte](124)
+    val rawBinary = new Array[Byte](121 + targetRole.length + sourceRole1.length + sourceRole2.length)
 
     rawBinary(targetOffset) = 4.toByte    // Certificate form identifier.
     targetOffset += 1
     targetOffset += Credential.installPublicKey(rawBinary, targetOffset, definingKey)
-    rawBinary(targetOffset) = targetRole.toByte
-    targetOffset += 1
-    targetOffset += Credential.installPublicKey(rawBinary, targetOffset, sourceKey1)
-    rawBinary(targetOffset) = sourceRole1.toByte
-    targetOffset += 1
-    targetOffset += Credential.installPublicKey(rawBinary, targetOffset, sourceKey2)
-    rawBinary(targetOffset) = sourceRole2.toByte
-    targetOffset += 1
+    targetOffset += Credential.installString   (rawBinary, targetOffset, targetRole )
+    targetOffset += Credential.installPublicKey(rawBinary, targetOffset, sourceKey1 )
+    targetOffset += Credential.installString   (rawBinary, targetOffset, sourceRole1)
+    targetOffset += Credential.installPublicKey(rawBinary, targetOffset, sourceKey2 )
+    targetOffset += Credential.installString   (rawBinary, targetOffset, sourceRole2)
 
     rawBinary
   }
@@ -156,21 +148,48 @@ object Credential {
    * @param rawBinary The array into which the key bytes are to be placed.
    * @param targetOffset The location in the array where the first key byte is placed.
    * @param key The public key to install in the array. Only 160 bit keys are supported.
+   * @return A count of the number of bytes installed into the array.
    */
   private[rt] def installPublicKey(
     rawBinary   : Array[Byte],
     targetOffset: Int,
     key         : ECPublicKey) = {
 
-    copyInto(target   = rawBinary,
+    copyInto(
+      target   = rawBinary,
       atOffset = targetOffset,
       from     = normalizeKeyValue(key.getW.getAffineX.toByteArray))
 
-    copyInto(target   = rawBinary,
+    copyInto(
+      target   = rawBinary,
       atOffset = targetOffset + 20,
       from     = normalizeKeyValue(key.getW.getAffineY.toByteArray))
 
     40
+  }
+
+
+  /**
+   * Installs a string into the raw array. The string is installed in UTF-8 format.
+   *
+   * @param rawBinary The array into which the string is to be placed.
+   * @param targetOffset The location in the array where the first byte of the encoded string is placed.
+   * @param text The string to install in the array.
+   * @return A count of the number of bytes installed into the array.
+   */
+  private[rt] def installString(
+    rawBinary   : Array[Byte],
+    targetOffset: Int,
+    text        : String) = {
+
+    // TODO: The number of bytes returned will be wrong if there are non-ASCII characters in the string.
+
+    copyInto(
+      target   = rawBinary,
+      atOffset = targetOffset,
+      from     = text.getBytes("UTF-8"))
+
+    text.length
   }
 
 
