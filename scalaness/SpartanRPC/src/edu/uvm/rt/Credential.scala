@@ -8,7 +8,7 @@ package edu.uvm.rt
 
 import java.security.interfaces.ECPublicKey
 
-abstract sealed class Credential {
+sealed abstract class Credential {
   def getIssuer: ECPublicKey
 }
 

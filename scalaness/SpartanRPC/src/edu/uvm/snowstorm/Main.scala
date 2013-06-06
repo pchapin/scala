@@ -38,7 +38,9 @@ object Main {
         case 1 =>
           println("Key Database")
           println("------------")
-          keys.printEntries()
+          for (key <- keys) {
+            println(key)
+          }
 
         case 4 =>
           print("Name: ")
@@ -66,6 +68,17 @@ object Main {
 
       command.toInt match {
         case 0 => done = true
+
+        case 1 =>
+          println("Policy Database")
+          println("---------------")
+          for (certificate <- certificates) {
+            val Certificate(credential, _, _) = certificate
+            println(credential)
+          }
+
+        case 2 =>
+
 
         case _ =>
           println(s"Invalid or unimplemented command: '$command'")

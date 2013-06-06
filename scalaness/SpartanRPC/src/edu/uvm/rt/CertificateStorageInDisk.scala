@@ -8,114 +8,58 @@
 package edu.uvm.rt
 
 import java.io._
-import java.security.interfaces.ECPublicKey
 import collection.mutable
 
 class CertificateStorageInDisk(kStorage: KeyStorage, fileName: String) extends CertificateStorage {
 
-  readIntoMemory()
-
-  def addCredential(incomingCredential: Credential) {
-    val rawCredential = toRawCredential(incomingCredential)
-    val issuer = incomingCredential.getIssuer
-    val (_, _, Some(privateKey)) = kStorage.lookupEntryByPublicKey(issuer)
-    val signature = signCredential(rawCredential, privateKey)
-    val newCertificate = Certificate(incomingCredential, rawCredential, signature)
-    certificateSet.add(newCertificate)
-    modelAccurate = false
-    
-    val file = new FileOutputStream(fileName)
-    val buffer = new BufferedOutputStream(file)
-    val output = new ObjectOutputStream(buffer)
-    
-    try {
-      output.writeObject(newCertificate)
-    }
-    finally {
-      output.close()
-    }
-  }
+  protected var certificateSet = readIntoMemory()
 
   /**
-   *  Deserializes the Disk file and reads the certificate set into memory 
+   *  Reads the disk file and loads the certificate data into memory
    */
-  private def readIntoMemory() {
+  private def readIntoMemory() = {
+    var certificateSet = mutable.Set[Certificate]()
     try {
-      val file = new FileInputStream(fileName)
-      val buffer = new BufferedInputStream(file)
-      val input = new ObjectInputStream(buffer)
-    
-      var currentObject: Object = null
-    
-      while ( {currentObject = input.readObject(); currentObject != null} ) {
-        val currCertificate = currentObject match {
-          case co : Certificate => co
-          case _ => throw new Exception("Expected Certificate")
+      val input = new ObjectInputStream(new BufferedInputStream(new FileInputStream(fileName)))
+      val size = input.readInt()
+
+      for (i <- 1 to size) {
+        val currentObject = input.readObject()
+        val currentCertificate = currentObject match {
+          case co: Certificate => co
+          case _ => throw new Exception(s"Unexpected content found in certificate file $fileName")
         }
-       certificateSet.add(currCertificate)
+        certificateSet += currentCertificate
       }
       input.close()
     }
     catch {
       case ex: FileNotFoundException => // Do nothing. A missing certificate file is not an error.
     }
-  }  
-  
-
-  def printEntries() {
-    val file = new FileInputStream(fileName)
-    val buffer = new BufferedInputStream(file)
-    val input = new ObjectInputStream(buffer)
-    
-    var currentObject : Object = null
-    
-    while ( {currentObject = input.readObject(); currentObject != null} ) {
-      val currCertificate = currentObject match {
-        case co : Certificate => co
-        case _ => throw new Exception(s"Unexpected content found in $fileName")
-      }
-      
-      println(currCertificate)
-    }
-    input.close()
+    certificateSet
   }
 
-  
-  def removeCertificate(cred: Credential) {
-    val inputFile = new File(fileName)
-    val outputFile = new File("tempFile.txt")
-  
-    val iFile = new FileInputStream(inputFile)
-    val iBuffer = new BufferedInputStream(iFile)
-    val input = new ObjectInputStream(iBuffer)
-    
-    val oFile = new FileOutputStream(outputFile)
-    val oBuffer = new BufferedOutputStream(oFile)
-    val output = new ObjectOutputStream(oBuffer)
-    
-    var currentObject : Object = null
-    
-    while ( {currentObject = input.readObject(); currentObject != null} ) {
-      val currCertificate = currentObject match {
-        case co : Certificate => co
-        case _ => throw new Exception(s"Unexpected content found in $fileName")
-      }
-      
-      currCertificate match {
-        case Certificate(`cred`, _, _) => println("Certificate Removed")
-        case _ => output.writeObject(currCertificate)
-      }
-      
+
+  private def writeOntoDisk() {
+    // TODO: Deal with exceptions more gracefully?
+    val output = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(fileName)))
+    output.writeInt(certificateSet.size)
+    for (certificate <- certificateSet) {
+      output.writeObject(certificate)
     }
-    
     output.close()
-    input.close()
-    
+  }
+
+
+  def addCredential(incomingCredential: Credential) {
+    val rawCredential = toRawCredential(incomingCredential)
+    val issuer = incomingCredential.getIssuer
+    val Some(Tuple3(_, _, Some(privateKey))) = kStorage.lookupEntryByPublicKey(issuer)
+    val signature = signCredential(rawCredential, privateKey)
+    val newCertificate = Certificate(incomingCredential, rawCredential, signature)
+    certificateSet.add(newCertificate)
     modelAccurate = false
-    
-    if (!(outputFile.renameTo(inputFile)))
-      println("Unable to rename file.")
-    
+    writeOntoDisk()
   }
 
 }

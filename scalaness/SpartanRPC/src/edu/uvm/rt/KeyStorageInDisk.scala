@@ -10,243 +10,138 @@ package edu.uvm.rt
 import java.io._
 import java.security.{KeyPair, KeyPairGenerator, SecureRandom}
 import java.security.interfaces.{ECPrivateKey, ECPublicKey}
+import collection.mutable
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.spec.ECParameterSpec
 
 
-class KeyStorageInDisk(fileName : String) extends KeyStorage {
+class KeyStorageInDisk(fileName: String) extends KeyStorage {
 
-  def generateEntity(name: String) {
+  private var keySet = readIntoMemory()
+
+  def foreach[U](f: KeyAssociation => U) {
+    keySet.foreach(f)
+  }
+
+  /**
+   *  Reads the disk file and loads the key data into memory
+   */
+  private def readIntoMemory() = {
+    var keySet = mutable.Set[KeyAssociation]()
     try {
-      val ecSpec: ECParameterSpec = ECNamedCurveTable.getParameterSpec("secp160k1")
-      val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
-      generator.initialize(ecSpec, new SecureRandom())
+      val input = new ObjectInputStream(new BufferedInputStream(new FileInputStream(fileName)))
+      val size = input.readInt()
 
-      //Generate ECC key pair
-      val pair: KeyPair = generator.generateKeyPair()
-
-      //get and convert
-      val publicKey: ECPublicKey = pair.getPublic.asInstanceOf[ECPublicKey]
-      val privateKey: ECPrivateKey = pair.getPrivate.asInstanceOf[ECPrivateKey]
-
-      val newAssociation : KeyAssociation = (Some(name), publicKey, Some(privateKey))
-      val keyTriple = new KeyTriple(newAssociation)
-      
-      val file = new FileOutputStream(fileName)
-      val buffer = new BufferedOutputStream(file)
-      val output = new ObjectOutputStream(buffer)
-      
-      try {
-        output.writeObject(keyTriple)
+      for (i <- 1 to size) {
+        val currentObject = input.readObject()
+        val currentAssociation = currentObject match {
+          case co: KeyAssociation => co
+          case _ => throw new Exception(s"Unexpected content found in key file $fileName")
+        }
+        keySet += currentAssociation
       }
-      finally {
-        output.close()
-      }
+      input.close()
     }
     catch {
-      case e: FileNotFoundException => println("Unable to open file.")
+      case ex: FileNotFoundException => // Do nothing. A missing key file is not an error.
     }
+    keySet
   }
+
+
+  private def writeOntoDisk() {
+    // TODO: Deal with exceptions more gracefully?
+    val output = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(fileName)))
+    output.writeInt(keySet.size)
+    for (association <- keySet) {
+      output.writeObject(association)
+    }
+    output.close()
+  }
+
+
+  def generateEntity(name: String) {
+    val ecSpec: ECParameterSpec = ECNamedCurveTable.getParameterSpec("secp160k1")
+    val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
+    generator.initialize(ecSpec, new SecureRandom())
+
+    // Generate ECC key pair.
+    val pair: KeyPair = generator.generateKeyPair()
+
+    // Get and convert.
+    val publicKey: ECPublicKey = pair.getPublic.asInstanceOf[ECPublicKey]
+    val privateKey: ECPrivateKey = pair.getPrivate.asInstanceOf[ECPrivateKey]
+
+    val newAssociation: KeyAssociation = (Some(name), publicKey, Some(privateKey))
+    keySet += newAssociation
+    writeOntoDisk()
+  }
+
   
   def addKey(key: ECPublicKey) {
-    val newAssociation : KeyAssociation = (None, key, None)
-    val keyTriple = new KeyTriple(newAssociation)
-    
-    val file = new FileOutputStream(fileName)
-    val buffer = new BufferedOutputStream(file)
-    val output = new ObjectOutputStream(buffer)
-    
-    try {
-      output.writeObject(keyTriple)
-    }
-    finally {
-      output.close()
-    }
-    
+    // TODO: Only add the key if it doesn't already exist.
+    keySet += Tuple3(None, key, None)
+    writeOntoDisk()
   }
-  
+
+
   def addNamedKey(name: String, key: ECPublicKey) {
-    val newAssociation : KeyAssociation = (Some(name), key, None)
-    val keyTriple = new KeyTriple(newAssociation)
-    
-    val file = new FileOutputStream(fileName)
-    val buffer = new BufferedOutputStream(file)
-    val output = new ObjectOutputStream(buffer)
-    
-    try {
-      output.writeObject(keyTriple)
-    }
-    finally {
-      output.close()
-    }
-    
+    // TODO: Only add the key if it doesn't already exist.
+    keySet += Tuple3(Some(name), key, None)
+    writeOntoDisk()
   }
   
-  def lookupEntryByPublicKey(thisKey : ECPublicKey) : KeyAssociation =  {
-    val file   = new FileInputStream(fileName)
-    val buffer = new BufferedInputStream(file)
-    val input  = new ObjectInputStream(buffer)
-    
-    var foundTriple : KeyTriple = null
-    var currentObject : Object = null
-    
-    while ( {currentObject = input.readObject(); currentObject != null} ) {
-      val currTriple = currentObject match {
-        case co : KeyTriple => co
-        case _ => throw new Exception(s"Unexpected content found in $fileName")
-      }
-      val currAssoc = currTriple.association
-      
-      currAssoc match {
-        case (_, `thisKey`, _) => foundTriple = currTriple
-        case _ => 
-      }
+  def lookupEntryByPublicKey(thisKey : ECPublicKey) = {
+    val matchingAssociations = keySet filter { association =>
+      val (_, key, _) = association
+      key == thisKey
     }
-
-    input.close()
-    foundTriple.association
+    if (matchingAssociations.size < 1) None else Some(matchingAssociations.toSeq(0))
   }
 
 
-  def lookupEntryByPrivateKey(thisKey : ECPrivateKey) : KeyAssociation =  {
-    val file   = new FileInputStream(fileName)
-    val buffer = new BufferedInputStream(file)
-    val input  = new ObjectInputStream(buffer)
-
-    var foundTriple : KeyTriple = null
-    var currentObject : Object = null
-
-    while ( {currentObject = input.readObject(); currentObject != null} ) {
-      val currTriple = currentObject match {
-        case co : KeyTriple => co
-        case _ => throw new Exception(s"Unexpected content found in $fileName")
-      }
-      val currAssoc = currTriple.association
-
-      currAssoc match {
-        case (_, _, Some(`thisKey`)) => foundTriple = currTriple
-        case _ =>
+  def lookupEntryByPrivateKey(thisKey : ECPrivateKey) = {
+    val matchingAssociations = keySet filter { association =>
+      val (_, _, maybeKey) = association
+      maybeKey match {
+        case None => false
+        case Some(key) => key == thisKey
       }
     }
-
-    input.close()
-    foundTriple.association
+    if (matchingAssociations.size < 1) None else Some(matchingAssociations.toSeq(0))
   }
 
 
-  def lookupEntryByName(thisName : String) : KeyAssociation =  {
-    val file = new FileInputStream(fileName)
-    val buffer = new BufferedInputStream(file)
-    val input = new ObjectInputStream(buffer)
-    
-    var foundTriple : KeyTriple = null
-    var currentObject : Object = null
-    
-    while ( {currentObject = input.readObject(); currentObject != null} ) {
-      val currTriple = currentObject match {
-        case co : KeyTriple => co
-        case _ => throw new Exception(s"Unexpected content found in $fileName")
-      }
-      val currAssoc = currTriple.association
-      
-      currAssoc match {
-        case (Some(`thisName`), _, _) => foundTriple = currTriple
-        case _ => 
+  def lookupEntryByName(thisName : String) = {
+    val matchingAssociations = keySet filter { association =>
+      val (maybeName, _, _) = association
+      maybeName match {
+        case None => false
+        case Some(name) => name == thisName
       }
     }
-
-    input.close()
-    foundTriple.association
+    if (matchingAssociations.size < 1) None else Some(matchingAssociations.toSeq(0))
   }
 
   
-  def removeKey(name: String) {
-    val inputFile = new File(fileName)
-    val outputFile = new File("tempFile.txt")
-  
-    val iFile = new FileInputStream(inputFile)
-    val iBuffer = new BufferedInputStream(iFile)
-    val input = new ObjectInputStream(iBuffer)
-    
-    val oFile = new FileOutputStream(outputFile)
-    val oBuffer = new BufferedOutputStream(oFile)
-    val output = new ObjectOutputStream(oBuffer)
-    
-    var currentObject : Object = null
-    
-    while ( {currentObject = input.readObject(); currentObject != null} ) {
-      val currTriple = currentObject match {
-        case co : KeyTriple => co
-        case _ => throw new Exception(s"Unexpected content found in $fileName")
-      }
-      val currAssoc = currTriple.association
-      
-      currAssoc match {
-        case (Some(`name`), _, _) => println("Entry Removed")
-        case _ => output.writeObject(currTriple)
+  def removeKey(thisName: String) {
+    keySet = keySet filter { association =>
+      val (maybeName, _, _) = association
+      maybeName match {
+        case None => true
+        case Some(name) => name != thisName
       }
     }
-    
-    output.close()
-    input.close()
-    
-    if (!(outputFile.renameTo(inputFile)))
-      println("Unable to rename file.")
-    
+    writeOntoDisk()
   }
-  
-  def removeKey(key: ECPublicKey) {
-    val inputFile = new File(fileName)
-    val outputFile = new File("tempFile.txt")
-  
-    val iFile = new FileInputStream(inputFile)
-    val iBuffer = new BufferedInputStream(iFile)
-    val input = new ObjectInputStream(iBuffer)
-    
-    val oFile = new FileOutputStream(outputFile)
-    val oBuffer = new BufferedOutputStream(oFile)
-    val output = new ObjectOutputStream(oBuffer)
-    
-    var currentObject : Object = null
-    
-    while ( {currentObject = input.readObject(); currentObject != null} ) {
-      val currTriple = currentObject match {
-        case co : KeyTriple => co
-        case _ => throw new Exception(s"Unexpected content found in $fileName")
-      }
-      val currAssoc = currTriple.association
-      
-      currAssoc match {
-        case (_, `key`, _) => println("Entry Removed")
-        case _ => output.writeObject(currTriple)
-      }
-      
+
+
+  def removeKey(thisKey: ECPublicKey) {
+    keySet = keySet filter { association =>
+      val (_, key, _) = association
+      key != thisKey
     }
-    
-    output.close()
-    input.close()
-    
-    if (!(outputFile.renameTo(inputFile)))
-      println("Unable to rename file.")
-    
-  }
-  
-  def printEntries() {
-  
-    val file = new FileInputStream(fileName)
-    val buffer = new BufferedInputStream(file)
-    val input = new ObjectInputStream(buffer)
-    
-    var currentObject : Object = null
-    
-    while ( {currentObject = input.readObject(); currentObject != null} ) {
-      val currTriple = currentObject match {
-        case co : KeyTriple => co
-        case _ => throw new Exception(s"Unexpected content found in $fileName")
-      }
-      println(currTriple)
-    }
-    input.close()
+    writeOntoDisk()
   }
 
 }

@@ -19,7 +19,7 @@ import java.security.interfaces.{ECPrivateKey, ECPublicKey}
  *
  * The private key is optional.
  */
-trait KeyStorage /* extends Traversable[KeyAssociation] */ {
+trait KeyStorage extends Traversable[KeyAssociation] {
 
   /**
    * Creates a fresh public/private key pair and associates the given name to the new entity.
@@ -40,45 +40,40 @@ trait KeyStorage /* extends Traversable[KeyAssociation] */ {
    * Removes the key associated with the given name. The name is also removed. If there is a linked certificate storage
    * the removal is not allowed if some certificate is using the specified key.
    *
-   * @param name The name of the key to remove.
+   * @param thisName The name of the key to remove.
    * @throws KeyInUseException if the name is associated with a key that is used by the linked certificate storage.
    */
-  def removeKey(name: String)
+  def removeKey(thisName: String)
 
   /**
    * Removes the specified key. Any name associated with the key is also removed. If there is a linked certificate
    * storage the removal is not allowed if some certificate is using the specified key.
    *
-   * @param key The key to remove.
+   * @param thisKey The key to remove.
    * @throws KeyInUseException if the key is used by the linked certificate storage.
    */
-  def removeKey(key: ECPublicKey)
+  def removeKey(thisKey: ECPublicKey)
 
   /**
    * Looks up a key association based on the public key.
    * @param thisKey The public key for the search.
    * @return The corresponding key association or null if no association exists.
    */
-  def lookupEntryByPublicKey(thisKey: ECPublicKey): KeyAssociation
+  def lookupEntryByPublicKey(thisKey: ECPublicKey): Option[KeyAssociation]
 
   /**
    * Looks up a key association based on the private key.
    * @param thisKey The private key for the search.
    * @return The corresponding key association or null if no association exists.
    */
-  def lookupEntryByPrivateKey(thisKey: ECPrivateKey): KeyAssociation
+  def lookupEntryByPrivateKey(thisKey: ECPrivateKey): Option[KeyAssociation]
 
   /**
    * Looks up a key association based on the entity name key.
    * @param thisName The entity name for the search.
    * @return The corresponding key association or null if no association exists.
    */
-  def lookupEntryByName(thisName: String): KeyAssociation
-
-  /**
-   * Displays the keys in this KeyStorage on standard output.
-   */
-  def printEntries()
+  def lookupEntryByName(thisName: String): Option[KeyAssociation]
 }
 
 

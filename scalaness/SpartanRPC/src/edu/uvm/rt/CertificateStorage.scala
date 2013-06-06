@@ -32,6 +32,12 @@ trait CertificateStorage extends Traversable[Certificate] {
    */
   def addCredential(incomingCredential: Credential)
 
+  // /**
+  //  * Removes a certificate from this certificate storage based on the full credential.
+  //  *
+  //  * @param credential The credential of the certificate to remove.
+  //  */
+  // def removeCertificate(credential: Credential)
 
   def foreach[U](f : Certificate => U) {
     certificateSet.foreach(f)
@@ -42,41 +48,29 @@ trait CertificateStorage extends Traversable[Certificate] {
 
   /**
    * Converts a credential in abstract form into raw binary data.
+   *
    * @param credential The credential to convert.
    * @return The binary formatted version of the credential.
    */
-  protected def toRawCredential(credential: Credential) : Array[Byte] = {
+  protected def toRawCredential(credential: Credential): Array[Byte] = {
   
     val rawBinary = credential match {
-      case CredentialMembership(
-             definingKey,
-             targetRole,
-             memberKey) => RTCertificateCreator.createMembershipCertificate(definingKey, targetRole, memberKey)
+      case CredentialMembership(definingKey, targetRole, memberKey) =>
+        RTCertificateCreator.createMembershipCertificate(
+          definingKey, targetRole, memberKey)
       
-      case CredentialInclusion(
-             definingKey,
-             targetRole,
-             sourceKey,
-             sourceRole) => RTCertificateCreator.createInclusionCertificate(definingKey, targetRole, sourceKey, sourceRole)
+      case CredentialInclusion(definingKey, targetRole, sourceKey, sourceRole) =>
+        RTCertificateCreator.createInclusionCertificate(
+          definingKey, targetRole, sourceKey, sourceRole)
       
-      case CredentialLinked(
-             definingKey,
-             targetRole,
-             indirectKey,
-             indirectRole,
-             sourceRole) => RTCertificateCreator.createLinkedCertificate(definingKey, targetRole, indirectKey, indirectRole, sourceRole)
+      case CredentialLinked(definingKey, targetRole, indirectKey, indirectRole, sourceRole) =>
+        RTCertificateCreator.createLinkedCertificate(
+          definingKey, targetRole, indirectKey, indirectRole, sourceRole)
       
-      case CredentialIntersection(
-             definingKey,
-             targetRole,
-             sourceKey1,
-             sourceRole1,
-             sourceKey2,
-             sourceRole2) => RTCertificateCreator.createIntersectionCertificate(definingKey, targetRole, sourceKey1, sourceRole1, sourceKey2, sourceRole2)
-             
-      case _ => throw new Exception("Unable to match Credential Type in method toRawCredential.")
+      case CredentialIntersection(definingKey, targetRole, sourceKey1, sourceRole1, sourceKey2, sourceRole2) =>
+        RTCertificateCreator.createIntersectionCertificate(
+          definingKey, targetRole, sourceKey1, sourceRole1, sourceKey2, sourceRole2)
     }
-  
     rawBinary
   }
 
@@ -93,7 +87,7 @@ trait CertificateStorage extends Traversable[Certificate] {
   // Methods and supporting material for computing authorization
   // -----------------------------------------------------------
 
-  protected val certificateSet = mutable.Set[Certificate]()
+  protected var certificateSet: mutable.Set[Certificate]
 
   private class ModelTuple(
     val targetKey : ECPublicKey,
@@ -103,16 +97,22 @@ trait CertificateStorage extends Traversable[Certificate] {
   private   val modelSet = mutable.Set[ModelTuple]()
   protected var modelAccurate = true
 
-  private def addTuple(newTuple: ModelTuple) = {
-    if (modelSet.contains(newTuple)) false
-    else {
-      modelSet.add(newTuple)
-      true
-    }
-  }
-
-
+  /**
+   * Computes the minimum model implied by the current certificate set. The result is put into the model set. This
+   * method incrementally updates the model. Existing tuples are not removed. After this method returns modelAccurate
+   * is set to true. Setting modelAccurate to false will cause authorize() to rebuild the entire model from scratch.
+   *
+   * This method changes the mutable modelSet and modelAccurate field as a side effect.
+   */
   private def computeMinimumModel() {
+
+    def addTuple(newTuple: ModelTuple) = {
+      if (modelSet.contains(newTuple)) false
+      else {
+        modelSet.add(newTuple)
+        true
+      }
+    }
 
     def processMembership(cred: CredentialMembership) = {
       val CredentialMembership(definingKey, targetRole, memberKey) = cred
@@ -220,8 +220,8 @@ trait CertificateStorage extends Traversable[Certificate] {
     var result = false
     for (currentTuple <- modelSet) {
       if (currentTuple.targetKey  == governingKey  &&
-        currentTuple.targetRole == governingRole &&
-        currentTuple.memberKey  == queryKey) result = true
+          currentTuple.targetRole == governingRole &&
+          currentTuple.memberKey  == queryKey) result = true
     }
     result
   }

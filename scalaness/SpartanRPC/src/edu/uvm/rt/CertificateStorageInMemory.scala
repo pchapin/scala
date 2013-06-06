@@ -15,7 +15,7 @@ class CertificateStorageInMemory(kStorage: KeyStorage) extends CertificateStorag
   def addCredential(incomingCredential: Credential) {
     val rawCredential = toRawCredential(incomingCredential)
     val issuer = incomingCredential.getIssuer
-    val (_, _, Some(privateKey)) = kStorage.lookupEntryByPublicKey(issuer)
+    val Some(Tuple3(_, _, Some(privateKey))) = kStorage.lookupEntryByPublicKey(issuer)
     val signature = signCredential(rawCredential, privateKey)
     certificateSet.add(Certificate(incomingCredential, rawCredential, signature))
     modelAccurate = false
