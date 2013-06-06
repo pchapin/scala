@@ -43,47 +43,6 @@ trait CertificateStorage extends Traversable[Certificate] {
     certificateSet.foreach(f)
   }
 
-  // Helper methods used by subclasses
-  // ---------------------------------
-
-  /**
-   * Converts a credential in abstract form into raw binary data.
-   *
-   * @param credential The credential to convert.
-   * @return The binary formatted version of the credential.
-   */
-  protected def toRawCredential(credential: Credential): Array[Byte] = {
-  
-    val rawBinary = credential match {
-      case CredentialMembership(definingKey, targetRole, memberKey) =>
-        RTCertificateCreator.createMembershipCertificate(
-          definingKey, targetRole, memberKey)
-      
-      case CredentialInclusion(definingKey, targetRole, sourceKey, sourceRole) =>
-        RTCertificateCreator.createInclusionCertificate(
-          definingKey, targetRole, sourceKey, sourceRole)
-      
-      case CredentialLinked(definingKey, targetRole, indirectKey, indirectRole, sourceRole) =>
-        RTCertificateCreator.createLinkedCertificate(
-          definingKey, targetRole, indirectKey, indirectRole, sourceRole)
-      
-      case CredentialIntersection(definingKey, targetRole, sourceKey1, sourceRole1, sourceKey2, sourceRole2) =>
-        RTCertificateCreator.createIntersectionCertificate(
-          definingKey, targetRole, sourceKey1, sourceRole1, sourceKey2, sourceRole2)
-    }
-    rawBinary
-  }
-
-  /**
-   * Computes the ECDSA signature of a given credential in raw binary form.
-   * @param rawCredential The binary formatted credential to sign.
-   * @return The signature.
-   */
-  protected def signCredential(rawCredential: Array[Byte], privateKey: ECPrivateKey) : Array[Byte] = {
-    RTCertificateCreator.createSignature(rawCredential, privateKey)
-  }
-
-
   // Methods and supporting material for computing authorization
   // -----------------------------------------------------------
 
@@ -183,7 +142,7 @@ trait CertificateStorage extends Traversable[Certificate] {
     while (tupleAdded) {
       tupleAdded = false
 
-      for (Certificate(currentCredential, _, _) <- certificateSet) {
+      for (Certificate(currentCredential, _) <- certificateSet) {
         tupleAdded = (currentCredential match {
           case cred: CredentialMembership   => processMembership(cred)
           case cred: CredentialInclusion    => processInclusion(cred)

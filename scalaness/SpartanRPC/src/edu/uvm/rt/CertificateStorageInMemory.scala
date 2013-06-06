@@ -17,11 +17,10 @@ class CertificateStorageInMemory(kStorage: KeyStorage) extends CertificateStorag
   protected var certificateSet = mutable.Set[Certificate]()
 
   def addCredential(incomingCredential: Credential) {
-    val rawCredential = toRawCredential(incomingCredential)
     val issuer = incomingCredential.getIssuer
-    val Some(Tuple3(_, _, Some(privateKey))) = kStorage.lookupEntryByPublicKey(issuer)
-    val signature = signCredential(rawCredential, privateKey)
-    certificateSet.add(Certificate(incomingCredential, rawCredential, signature))
+    val Some(KeyAssociation(_, _, Some(privateKey))) = kStorage.lookupEntryByPublicKey(issuer)
+    val signature = Certificate.createSignature(incomingCredential.toRawCredential, privateKey)
+    certificateSet.add(Certificate(incomingCredential, signature))
     modelAccurate = false
   }
 

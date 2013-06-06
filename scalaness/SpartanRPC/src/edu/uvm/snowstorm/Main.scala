@@ -54,7 +54,7 @@ object Main {
   }
 
 
-  private def managePolicy(certificates: CertificateStorage) {
+  private def managePolicy(keyStorage: KeyStorage, certificates: CertificateStorage) {
     // Main loop
     var done = false
     while (!done) {
@@ -73,11 +73,16 @@ object Main {
           println("Policy Database")
           println("---------------")
           for (certificate <- certificates) {
-            val Certificate(credential, _, _) = certificate
+            val Certificate(credential, _) = certificate
             println(credential)
           }
 
         case 2 =>
+          print("Credential: ")
+          val credentialString = io.ReadStdin.readLine()
+          val parser = new RTCredentialParser
+          val credential = parser.parseCredential(credentialString).toCredential(keyStorage)
+          certificates.addCredential(credential)
 
 
         case _ =>
@@ -143,7 +148,7 @@ object Main {
           manageKeys(keyStorage)
 
         case 2 =>
-          managePolicy(certificateStorage)
+          managePolicy(keyStorage, certificateStorage)
 
         case 3 =>
           val authorizationMessage = new AuthorizationMessage(null, "Hello, World")

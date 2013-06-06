@@ -52,11 +52,10 @@ class CertificateStorageOnDisk(kStorage: KeyStorage, fileName: String) extends C
 
 
   def addCredential(incomingCredential: Credential) {
-    val rawCredential = toRawCredential(incomingCredential)
     val issuer = incomingCredential.getIssuer
-    val Some(Tuple3(_, _, Some(privateKey))) = kStorage.lookupEntryByPublicKey(issuer)
-    val signature = signCredential(rawCredential, privateKey)
-    val newCertificate = Certificate(incomingCredential, rawCredential, signature)
+    val Some(KeyAssociation(_, _, Some(privateKey))) = kStorage.lookupEntryByPublicKey(issuer)
+    val signature = Certificate.createSignature(incomingCredential.toRawCredential, privateKey)
+    val newCertificate = Certificate(incomingCredential, signature)
     certificateSet.add(newCertificate)
     modelAccurate = false
     writeOntoDisk()

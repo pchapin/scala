@@ -72,7 +72,7 @@ class KeyStorageOnDisk(fileName: String) extends KeyStorage {
     val publicKey: ECPublicKey = pair.getPublic.asInstanceOf[ECPublicKey]
     val privateKey: ECPrivateKey = pair.getPrivate.asInstanceOf[ECPrivateKey]
 
-    val newAssociation: KeyAssociation = (Some(name), publicKey, Some(privateKey))
+    val newAssociation: KeyAssociation = KeyAssociation(Some(name), publicKey, Some(privateKey))
     keySet += newAssociation
     writeOntoDisk()
   }
@@ -80,20 +80,20 @@ class KeyStorageOnDisk(fileName: String) extends KeyStorage {
   
   def addKey(key: ECPublicKey) {
     // TODO: Only add the key if it doesn't already exist.
-    keySet += Tuple3(None, key, None)
+    keySet += KeyAssociation(None, key, None)
     writeOntoDisk()
   }
 
 
   def addNamedKey(name: String, key: ECPublicKey) {
     // TODO: Only add the key if it doesn't already exist.
-    keySet += Tuple3(Some(name), key, None)
+    keySet += KeyAssociation(Some(name), key, None)
     writeOntoDisk()
   }
   
   def lookupEntryByPublicKey(thisKey : ECPublicKey) = {
     val matchingAssociations = keySet filter { association =>
-      val (_, key, _) = association
+      val KeyAssociation(_, key, _) = association
       key == thisKey
     }
     if (matchingAssociations.size < 1) None else Some(matchingAssociations.toSeq(0))
@@ -102,7 +102,7 @@ class KeyStorageOnDisk(fileName: String) extends KeyStorage {
 
   def lookupEntryByPrivateKey(thisKey : ECPrivateKey) = {
     val matchingAssociations = keySet filter { association =>
-      val (_, _, maybeKey) = association
+      val KeyAssociation(_, _, maybeKey) = association
       maybeKey match {
         case None => false
         case Some(key) => key == thisKey
@@ -114,7 +114,7 @@ class KeyStorageOnDisk(fileName: String) extends KeyStorage {
 
   def lookupEntryByName(thisName : String) = {
     val matchingAssociations = keySet filter { association =>
-      val (maybeName, _, _) = association
+      val KeyAssociation(maybeName, _, _) = association
       maybeName match {
         case None => false
         case Some(name) => name == thisName
@@ -126,7 +126,7 @@ class KeyStorageOnDisk(fileName: String) extends KeyStorage {
   
   def removeKey(thisName: String) {
     keySet = keySet filter { association =>
-      val (maybeName, _, _) = association
+      val KeyAssociation(maybeName, _, _) = association
       maybeName match {
         case None => true
         case Some(name) => name != thisName
@@ -138,7 +138,7 @@ class KeyStorageOnDisk(fileName: String) extends KeyStorage {
 
   def removeKey(thisKey: ECPublicKey) {
     keySet = keySet filter { association =>
-      val (_, key, _) = association
+      val KeyAssociation(_, key, _) = association
       key != thisKey
     }
     writeOntoDisk()
