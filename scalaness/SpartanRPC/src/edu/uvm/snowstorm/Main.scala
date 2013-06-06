@@ -113,8 +113,8 @@ object Main {
     val peerPort       = args(3).toInt
 
     // Create the storage objects.
-    val keyStorage = new KeyStorageInDisk("keys.dat")
-    val certificateStorage = new CertificateStorageInDisk(keyStorage, "certificates.dat")
+    val keyStorage = new KeyStorageOnDisk("keys.dat")
+    val certificateStorage = new CertificateStorageOnDisk(keyStorage, "certificates.dat")
 
     // Create the supporting actors/threads.
     val messageServer = new MessageServer

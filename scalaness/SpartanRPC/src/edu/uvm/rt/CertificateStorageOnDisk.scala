@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
-// FILE    : CertificateStorageInDisk.scala
+// FILE    : CertificateStorageOnDisk.scala
 // SUBJECT : Holds credentials on disk space.
-// AUTHOR  : (C) Copyright 2011 by Peter C. Chapin <PChapin@vtc.vsc.edu> & Michael P. Watson <mpwatson@uvm.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu> & Michael P. Watson <mpwatson@uvm.edu>
 //
 //-----------------------------------------------------------------------
 
@@ -10,7 +10,7 @@ package edu.uvm.rt
 import java.io._
 import collection.mutable
 
-class CertificateStorageInDisk(kStorage: KeyStorage, fileName: String) extends CertificateStorage {
+class CertificateStorageOnDisk(kStorage: KeyStorage, fileName: String) extends CertificateStorage {
 
   protected var certificateSet = readIntoMemory()
 

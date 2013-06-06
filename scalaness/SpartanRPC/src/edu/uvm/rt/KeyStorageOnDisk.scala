@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------
-// FILE    : KeyStorageInDisk.scala
+// FILE    : KeyStorageOnDisk.scala
 // SUBJECT : Holds keys on disk space.
-// AUTHOR  : (C) Copyright 2011 by Peter C. Chapin <PChapin@vtc.vsc.edu> & Michael P. Watson <mpwatson@uvm.edu>
+// AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu> & Michael P. Watson <mpwatson@uvm.edu>
 //
 //-----------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.spec.ECParameterSpec
 
 
-class KeyStorageInDisk(fileName: String) extends KeyStorage {
+class KeyStorageOnDisk(fileName: String) extends KeyStorage {
 
   private var keySet = readIntoMemory()
 
