@@ -48,9 +48,9 @@ plugin
 SendReceive
     This folder contains a sample that uses the Active Message radio stack.
 
-SpartanRPC
-    This folder contains a re-implementation of SpartanRPC (Sprocket) using Scalaness (a work in
-    progress).
+SnowStorm
+    This folder contains an implementation of the SnowStorm sample using Scalaness (compare with
+    the version using Sprocket).
 
 src
     This folder contains the source of scalaness.jar, the runtime components of Scalaness that
@@ -64,7 +64,7 @@ To run the samples start by building the Scalaness compiler using the normal Sca
 build instructions. Next run ant on the build script in this folder to build scalaness.jar into
 the bin folder.
 
-In all of the sample folders, except the SpartanRPC sample, you will find a single source file
+In all of the sample folders, except the SnowStorm sample, you will find a single source file
 named Main.scala. Compile this file using the Scalaness compiler in the usual way. For example
 
      scalac -cp ../bin/scalaness.jar -nowarn Main.scala
