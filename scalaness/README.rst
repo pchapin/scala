@@ -3,16 +3,25 @@ Scalaness README
 ================
 
 This folder contains the Scalaness sample programs, documentation, and other materials. The
-Scalaness source code is part of the compiler code base. Look for the packages
+Scalaness source code is in three parts. The part used *only* by the compiler is in the compiler
+code base (in src/compiler) and becomes part of scala-compiler.jar. The part used by both the
+compiler and by Scalaness programs is in the library code base (in src/library) and becomes part
+of scala-library.jar. The part used *only* by Scalaness programs is in the src folder here and
+becomes the scalaness.jar file. That jar must be added to the classpath used when compiling and
+running Scalaness programs.
+
+In all cases look for the packages
 
 - edu.uvm.mininess
 - edu.uvm.scalaness
 
-in the src/library and src/compiler folders for most of the code related to Scalaness. Some
-important parts of the system (type checking) are integrated into the existing Scala compiler
-code base.
+for most of the code related to Scalaness. Some important parts of the system (type checking)
+are integrated into the existing Scala compiler code base.
 
 The contents of this folder are as follows
+
+bin
+   This folder is where scalaness.jar is placed. It is created when the jar is built.
 
 Blink
     This folder contains a trivial staged "blink" sample. It makes no use of the radio.
@@ -20,6 +29,9 @@ Blink
 Checksum
     This folder contains a sample that specializes a module that computes checksums. It makes no
     use of the radio.
+
+classes
+    This folder contains the class files created when scalaness.jar is built.
 
 doc
     The Scalaness documentation set in DocBook format.
@@ -40,19 +52,26 @@ SpartanRPC
     This folder contains a re-implementation of SpartanRPC (Sprocket) using Scalaness (a work in
     progress).
 
+src
+    This folder contains the source of scalaness.jar, the runtime components of Scalaness that
+    are used by only Scalaness programs. See src/library and src/compiler in the main code base
+    for additional Scalaness related material.
+
 www
     This folder contains the Scalaness web site.
 
-To run the samples you must first build the Scalaness compiler using the normal Scala compiler
-build instructions. In all of the sample folders, except the SpartanRPC sample, you will find a
-single source file named Main.scala. Compile this file using the Scalaness compiler in the usual
-way. For example
+To run the samples start by building the Scalaness compiler using the normal Scala compiler
+build instructions. Next run ant on the build script in this folder to build scalaness.jar into
+the bin folder.
 
-     scalac -nowarn Main.scala
+In all of the sample folders, except the SpartanRPC sample, you will find a single source file
+named Main.scala. Compile this file using the Scalaness compiler in the usual way. For example
+
+     scalac -cp ../bin/scalaness.jar -nowarn Main.scala
 
 Execute the program using a command such as
 
-     scala Main <arguments>
+     scala -cp .:../bin/scalaness.jar Main <arguments>
 
 Where "arguments" are the command line arguments expected by the sample (each sample is
 different). The result of executing a Scalaness program is a residual nesC program in a

@@ -1,0 +1,145 @@
+<project name="Scalaness" default="distribution" basedir=".">
+    <description>Ant build control file for the Scalaness jar</description>
+
+  <!-- Set global properties for all builds. -->
+  <property environment="env"/>
+  <!-- The SCALANESS_HOME environment variable should be the build/pack folder. -->
+  <property name="scala.home"  location="${env.SCALANESS_HOME}"/>
+
+  <!-- Set properties for the build. -->
+  <property name="main.sources.dir" location="src"/>
+  <property name="test.sources.dir" location="test"/>
+  <property name="classes.dir"      location="classes"/>
+  <property name="main.classes.dir" location="${classes.dir}/main"/>
+  <property name="test.classes.dir" location="${classes.dir}/test"/>
+  <property name="distribution.dir" location="bin"/>
+  <property name="scaladoc.dir"     location="doc/scaladoc"/>
+
+  <target name="init">
+    <!-- Get the Scala related tasks. -->
+    <property name="scala-library.jar" location="${scala.home}/lib/scala-library.jar"/>
+    <property name="scala-compiler.jar" location="${scala.home}/lib/scala-compiler.jar"/>
+    <property name="scala-reflect.jar" location="${scala.home}/lib/scala-reflect.jar"/>
+    <property name="antlr.jar" location="${scala.home}/lib/antlr-3.4.jar"/>
+    <taskdef resource="scala/tools/ant/antlib.xml">
+      <classpath>
+        <pathelement location="${scala-compiler.jar}"/>
+        <pathelement location="${scala-reflect.jar}"/>
+        <pathelement location="${scala-library.jar}"/>
+        <pathelement location="${antlr.jar}"/>
+      </classpath>
+    </taskdef>
+
+    <!-- Classpath used during compilation. -->
+    <path id="build.classpath">
+      <pathelement location="${antlr.jar}"/>
+      <pathelement location="${scala-compiler.jar}"/>
+      <pathelement location="${scala-reflect.jar}"/>
+      <pathelement location="${scala-library.jar}"/>
+      <pathelement location="${main.classes.dir}"/>
+    </path>
+
+    <!-- Classpath used during tests compilation. -->
+    <!-- Is there is a nice way to get this to refer to the compilation classpath above? -->
+    <path id="build.test.classpath">
+      <pathelement location="${antlr.jar}"/>
+      <pathelement location="${scala-compiler.jar}"/>
+      <pathelement location="${scala-reflect.jar}"/>
+      <pathelement location="${scala-library.jar}"/>
+      <pathelement location="${main.classes.dir}"/>
+
+      <pathelement location="${test.classes.dir}"/>
+    </path>
+
+    <!-- Classpath used during scaladoc build. -->
+    <path id="scaladoc.classpath">
+      <pathelement location="${antlr.jar}"/>
+      <pathelement location="${scala-compiler.jar}"/>
+      <pathelement location="${scala-reflect.jar}"/>
+      <pathelement location="${scala-library.jar}"/>
+      <pathelement location="${main.classes.dir}"/>
+    </path>
+
+    <!-- Create the time stamp -->
+    <tstamp/>
+  </target>
+
+
+  <!-- ================= -->
+  <!-- Scalaness Support -->
+  <!-- ================= -->
+
+  <target name="compile" depends="init" description="Compile the Scalaness support code" >
+    <mkdir dir="${main.classes.dir}"/>
+
+    <!-- Compile the Scala code from ${main.sources.dir} into ${main.classes.dir} -->
+    <scalac deprecation="on"
+            addparams="-feature -g:vars"
+            srcdir="${main.sources.dir}"
+            destdir="${main.classes.dir}"
+            classpathref="build.classpath">
+      <include name="**/*.scala"/>
+    </scalac>
+  </target>
+
+
+  <target name="test.compile" depends="compile" description="Compile the test program" >
+    <mkdir dir="${test.classes.dir}"/>
+
+    <!-- Compile the Scala code from ${test.sources.dir} into ${test.classes.dir} -->
+    <scalac deprecation="on"
+            addparams="-feature -g:vars"
+            srcdir="${test.sources.dir}"
+            destdir="${test.classes.dir}"
+            classpathref="build.test.classpath">
+      <include name="**/*.scala"/>
+    </scalac>
+  </target>
+
+
+  <!-- There is a JUnit task. Should I be using it? This seems to do the job. -->
+  <target name="test" depends="test.compile" description="Scalaness Support Unit Tests">
+    <java classname="org.junit.runner.JUnitCore" fork="true">
+      <arg value="edu.uvm.spartanrpc.MainTest"/>
+      <classpath refid="build.test.classpath"/>
+    </java>
+  </target>
+
+
+  <target name="distribution" depends="compile" description="Generate the distribution" >
+    <mkdir dir="${distribution.dir}"/>
+    <jar jarfile="${distribution.dir}/scalaness.jar"
+         basedir="${main.classes.dir}"/>
+  </target>
+
+
+  <!-- I don't want to try extracting documentation from invalid Scala files. -->
+  <target name="scaladoc" depends="compile" description="Generate the Scaladoc" >
+    <mkdir dir="${scaladoc.dir}"/>
+    <scaladoc addparams="-feature"
+              srcdir="${main.sources.dir}"
+              destdir="${scaladoc.dir}"
+              deprecation="yes"
+              unchecked="yes"
+              doctitle="Scalaness Support Internal Documentation"
+              classpathref="scaladoc.classpath">
+      <include name="**/*.scala"/>
+    </scaladoc>
+  </target>
+
+  <!-- ======== -->
+  <!-- CLEAN UP -->
+  <!-- ======== -->
+
+  <target name="clean" description="Clean up">
+    <delete dir="${classes.dir}"/>
+    <delete dir="${scaladoc.dir}"/>
+    <delete dir="${distribution.dir}"/>
+  </target>
+
+  <!-- Add things to this if more components are added above. -->
+  <target name="all.clean"
+          depends="clean"
+          description="Clean up all project components"/>
+
+</project>

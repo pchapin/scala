@@ -7,7 +7,7 @@
 package edu.uvm.scalaness
 
 import java.io.{File, PrintStream}
-import edu.uvm.mininess.{ASTNode, Symbols, SyntaxViewer, TreeConverter}
+import edu.uvm.mininess.{ASTNode, Symbols, SyntaxViewer, TreeTransformer}
 
 /**
  * Immutable class to represent a named program component during first stage execution. These

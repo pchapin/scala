@@ -182,9 +182,77 @@ object TreeTransformer {
    * @return A new AST with all the checks added.
    */
   def addArrayBoundsChecks(root: ASTNode): ASTNode = {
+
+    def getStatementNode(node: ASTNode): ASTNode = {
+      val parentNode = node.parent match {
+        case Some(pNode) => pNode
+        case _           => throw new Exception("Unable to locate parent node")
+      }
+      
+      val statementNode = node match {
+        case ASTNode(DECLARATION,_,_,_,_) => node
+        case ASTNode(STATEMENT,_,_,_,_)   => node
+        case ASTNode(RETURN,_,_,_,_)      => node
+        case ASTNode(_,_,_,_,_)                         => getStatementNode(parentNode)
+        case _ => throw new Exception("Unable to locate parent node")
+      }
+      statementNode
+    }
+    
+    // Test to see how returning a pair works, we need to pass it an ASTNode, grab the parent,
+    // and use its ID to split the children up. We just have to be careful to make sure that we
+    // split at right spot, just checking for "declaration" doesn't guarantee the right one, it
+    // has to be exact. This may take some thought to find a way to make sure it is the exact
+    // child.
+    //
+    def getTwoNumbers(node: ASTNode): (List[ASTNode], List[ASTNode]) ={
+      val parentNode = node.parent match {
+        case Some(pNode) => pNode
+        case _           => throw new Exception("Unable to locate parent node")
+      }
+      val myText = node.text
+      node.text = "FLAG"
+      val siblingList = parentNode.children
+      var nodeIdent = -1
+      for (i <- 0 until siblingList.length) {
+        if (siblingList(i).text == "FLAG")
+          nodeIdent = i
+      }
+      node.text = myText
+      val firstList = for (i <- 0 until nodeIdent) yield {
+        siblingList(i)
+      }
+      val secondList = for (i <- (nodeIdent + 1) until siblingList.length) yield {
+        siblingList(i)
+      }
+      (firstList.toList,secondList.toList)
+    }
+
+    def getStructMemberType(
+      structType: MininessTypes.Representation,
+      memberName: String): MininessTypes.Representation = {
+
+      var returnType = structType
+      var found = false
+      val memberList = structType match {
+        case MininessTypes.Structure(_, mList) => mList
+        case _ => throw new Exception("Expected structure type.")
+      }
+      for (i <- 0 until memberList.size) {
+        memberList(i) match {
+          case (memberName, mType) => {
+            returnType = mType
+            found = true
+          }
+          case _ => 
+        }
+      }
+      if (found) returnType else throw new Exception("Unable to locate struct member.")
+    }
+
     // if (root.parent == None) dumpAST(root)
     root match {
-      case ASTNode(ARRAY_ELEMENT_SELECTION, text, children, parent, symbolTable) => {
+      case ASTNode(ARRAY_ELEMENT_SELECTION, text, children, parent, symbolTable) =>
         val parentNode = parent match {
           case Some(pNode) => pNode
           case None => root // Should throw an error
@@ -330,7 +398,6 @@ object TreeTransformer {
         spnParentNode.children = newSpnParentChildren
         */
         root
-      }
 
       // It is necessary to add "uses command void boundsCheckFailed()" to the specification.
       case ASTNode(SPECIFICATION, text, children, parent, symbolTable) =>
@@ -369,7 +436,7 @@ object TreeTransformer {
         root
       
       // All other token types are handled here.
-      case ASTNode(tokenType, text, children, parent, symbolTable) => {
+      case ASTNode(tokenType, text, children, parent, symbolTable) =>
         val newChildren = children map addArrayBoundsChecks
         val newNode = ASTNode(tokenType, text, newChildren, parent, symbolTable)
         for (child <- newChildren) {
@@ -378,76 +445,6 @@ object TreeTransformer {
         newNode.line = root.line
         newNode.positionInLine = root.positionInLine
         newNode
-      }
-    }
-    
-    private def getStatementNode(node: ASTNode): ASTNode = {
-    
-      val parentNode = node.parent match {
-        case Some(pNode) => pNode
-        case _           => throw new Exception("Unable to locate parent node")
-      }
-      
-      val statementNode = node match {
-        case ASTNode(DECLARATION,_,_,_,_) => node
-        case ASTNode(STATEMENT,_,_,_,_)   => node
-        case ASTNode(RETURN,_,_,_,_)      => node
-        case ASTNode(_,_,_,_,_)                         => getStatementNode(parentNode)
-        case _ => throw new Exception("Unable to locate parent node")
-      }
-      statementNode
-    }
-    
-    // Test to see how returning a pair works, we need to pass it an ASTNode, grab the parent,
-    // and use its ID to split the children up. We just have to be careful to make sure that we
-    // split at right spot, just checking for "declaration" doesn't guarantee the right one, it
-    // has to be exact. This may take some thought to find a way to make sure it is the exact
-    // child.
-    //
-    private def getTwoNumbers(node: ASTNode): (List[ASTNode], List[ASTNode]) ={
-      val parentNode = node.parent match {
-        case Some(pNode) => pNode
-        case _           => throw new Exception("Unable to locate parent node")
-      }
-      val myText = node.text
-      node.text = "FLAG"
-      val siblingList = parentNode.children
-      var nodeIdent = -1
-      for (i <- 0 until siblingList.length) {
-        if (siblingList(i).text == "FLAG")
-          nodeIdent = i
-      }
-      node.text = myText
-      val firstList = for (i <- 0 until nodeIdent) yield {
-        siblingList(i)
-      }
-      val secondList = for (i <- (nodeIdent + 1) until siblingList.length) yield {
-        siblingList(i)
-      }
-      (firstList.toList,secondList.toList)
-    }
-
-    
-    private def getStructMemberType(
-      structType: MininessTypes.Representation,
-      memberName: String): MininessTypes.Representation = {
-
-      var returnType = structType
-      var found = false
-      val memberList = structType match {
-        case MininessTypes.Structure(_, mList) => mList
-        case _ => throw new Exception("Expected structure type.")
-      }
-      for (i <- 0 until memberList.size) {
-        memberList(i) match {
-          case (memberName, mType) => {
-            returnType = mType
-            found = true
-          }
-          case _ => 
-        }
-      }
-      if (found) returnType else throw new Exception("Unable to locate struct member.")
     }
     root
   }
