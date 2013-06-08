@@ -27,6 +27,7 @@
     <orderEntry type="library" name="bcprov-jdk16-145" level="project" />
     <orderEntry type="library" name="junit-4.8.2" level="project" />
     <orderEntry type="library" name="scalaness-library" level="application" />
+    <orderEntry type="library" name="scalaness-support" level="project" />
     <orderEntry type="library" name="scalatest_2.10-1.9.1" level="project" />
   </component>
 </module>

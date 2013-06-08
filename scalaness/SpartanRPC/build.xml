@@ -23,6 +23,7 @@
     <property name="scala-compiler.jar" location="${scala.home}/lib/scala-compiler.jar"/>
     <property name="scala-reflect.jar" location="${scala.home}/lib/scala-reflect.jar"/>
     <property name="scala-actors.jar" location="${scala.home}/lib/scala-actors.jar"/>
+    <property name="scalaness.jar" location="../bin/scalaness.jar"/>
     <property name="antlr.jar" location="${scala.home}/lib/antlr-3.4.jar"/>
     <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
@@ -39,6 +40,7 @@
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
       <pathelement location="${scala-actors.jar}"/>
+      <pathelement location="${scalaness.jar}"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
     </path>
@@ -50,6 +52,7 @@
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
       <pathelement location="${scala-actors.jar}"/>
+      <pathelement location="${scalaness.jar}"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
 
@@ -64,6 +67,7 @@
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
       <pathelement location="${scala-actors.jar}"/>
+      <pathelement location="${scalaness.jar}"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
     </path>
@@ -74,6 +78,7 @@
       <pathelement location="${scala-reflect.jar}"/>
       <pathelement location="${scala-library.jar}"/>
       <pathelement location="${scala-actors.jar}"/>
+      <pathelement location="${scalaness.jar}"/>
       <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
       <pathelement location="${main.classes.dir}"/>
     </path>

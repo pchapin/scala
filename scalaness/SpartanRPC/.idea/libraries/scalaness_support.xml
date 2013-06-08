@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="scalaness-support">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../bin/scalaness.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
