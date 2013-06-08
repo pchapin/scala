@@ -87,9 +87,9 @@ class NamedProgramComponent(
       // Do the necessary transformations on array bounds and casts.
       // TODO: Is this really the right place for this?
       Symbols.decorateAST(fullySpecializedAST)
-      TreeConverter.rewriteArrayParameters(fullySpecializedAST)
-      val transformedAST1 = TreeConverter.addArrayBoundsChecks(fullySpecializedAST)
-      val transformedAST2 = TreeConverter.replaceCastOperations(transformedAST1)
+      TreeTransformer.rewriteArrayParameters(fullySpecializedAST)
+      val transformedAST1 = TreeTransformer.addArrayBoundsChecks(fullySpecializedAST)
+      val transformedAST2 = TreeTransformer.replaceCastOperations(transformedAST1)
       val viewer = new SyntaxViewer(outputFile, transformedAST2)
       viewer.rewrite()
     }
