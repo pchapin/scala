@@ -23,7 +23,7 @@ trait CertificateStorage extends Traversable[Certificate] {
    * immediately or if that computation is deferred until authorize is called. In any case the effect of adding this
    * credential is "immediately" visible in any following calls to authorize.
    *
-   * The credential is immediately signed by the current entity and stored in the generated certificate.
+   * The credential is immediately signed by the issuer (private key must be available).
    *
    * @param incomingCredential The credential to add. If the credential is already present in this storage object there
    * is no effect.
@@ -31,6 +31,20 @@ trait CertificateStorage extends Traversable[Certificate] {
    * current entity does not have a private key in the linked key storage.
    */
   def addCredential(incomingCredential: Credential)
+
+  /**
+   * Add a certificate to the certificate storage. It is unspecified if the minimum model is computed or updated
+   * immediately or if that computation is deferred until authorize is called. In any case the effect of adding this
+   * certificate is "immediately" visible in any following calls to authorize.
+   *
+   * The signature on the certificate is checked. If it is invalid, the certificate is not added.
+   *
+   * @param incomingCertificate The certificate to add. If the certificate is already present in this storage object
+   * there is no effect.
+   * @throws MissingPrivateKeyException if there is no current entity, if there is no linked key storage, or if the
+   * current entity does not have a private key in the linked key storage.
+   */
+  def addCertificate(incomingCertificate: Certificate)
 
   // /**
   //  * Removes a certificate from this certificate storage based on the full credential.

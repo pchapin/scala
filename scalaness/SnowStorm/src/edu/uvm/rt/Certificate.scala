@@ -36,16 +36,17 @@ object Certificate {
    * @return The signature for the message. The message itself is not returned.
    */
   def createSignature(message: Array[Byte], privateKey: ECPrivateKey): Array[Byte] = {
-    val ECDSASignature = Signature.getInstance("ECDSA", "BC")
-    ECDSASignature.initSign(privateKey)
+    val ECDSASigner = Signature.getInstance("ECDSA", "BC")
+    ECDSASigner.initSign(privateKey)
 
-    // The call to update() processes the data that is passed in. Nothing is output until the call to sign().
-    ECDSASignature.update(message)
+    // Pass the message to sign.
+    ECDSASigner.update(message)
 
     // Return the resulting signature.
-    val signature = ECDSASignature.sign()
+    ECDSASigner.sign()
 
-    normalizeSignatureValue(signature)
+    // We probably don't need to normalize the signatures to a "special low overhead form" in this case.
+    // normalizeSignatureValue(signature)
   }
 
 
@@ -56,25 +57,20 @@ object Certificate {
    * special low overhead signatures created by createSignature.
    *
    * @param message The message to verify.
-   * @param signature The signature associated with the message.
    * @param publicKey The public key corresponding to the private key used to make the signature.
+   * @param signature The signature associated with the message.
    *
    * @throws Exception if the signature failed to verify, otherwise return normally.
    */
-  def verifySignature(message: Array[Byte], signature: Array[Byte], publicKey: ECPublicKey) {
+  def verifySignature(message: Array[Byte], publicKey: ECPublicKey, signature: Array[Byte]) = {
     val ECDSAVerifier = Signature.getInstance("ECDSA","BC")
     ECDSAVerifier.initVerify(publicKey)
 
     // Pass the message to be verified.
-    ECDSAVerifier.update(message, 0, message.length)
+    ECDSAVerifier.update(message)
 
-    // Pass the signature.
-    val verified = ECDSAVerifier.verify(signature)
-
-    if (!verified) {
-      throw new Exception("Failure Signature was not verified")
-    }
-    println("Test Successful!")
+    // Do the verification.
+    ECDSAVerifier.verify(signature)
   }
 
 
