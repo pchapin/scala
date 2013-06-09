@@ -40,6 +40,10 @@ Figure1
     This folder contains a live version of the sample used in Figure 1 of the nesT/Scalaness
     paper.
 
+notes
+    This folder contains some notes and sample programs that proved useful during the
+    development of Scalaness and/or the Scalaness samples.
+
 plugin
     The plugin version of Scalaness. This version attempts to implement the Scalaness system as
     a Scala compiler plugin. This may be infeasible due to the nature of type system changes
