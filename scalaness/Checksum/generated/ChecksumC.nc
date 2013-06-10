@@ -13,10 +13,12 @@ implementation {
         int16_t i  ;
         for( i  = 0 ; i  < (int16_t )( 8  ); ++i  )
         {
+        {
             int _sc_2   = i ;
             if( _sc_2  >= _sc_data_SIZE  )
                 call boundsCheckFailed (  );
             sum  += data [_sc_2 ];
+        }
         }
         return sum ;
     }

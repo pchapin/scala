@@ -271,7 +271,7 @@ object TreeConverter {
    * @return A new AST with all the checks added.
    */
   def addArrayBoundsChecks(root: ASTNode): ASTNode = {
-    // if (root.parent == None) dumpAST(root)
+    if (root.parent == None) dumpAST(root)
     root match {
       case ASTNode(ARRAY_ELEMENT_SELECTION, text, children, parent, symbolTable) => {
         val parentNode = parent match {
@@ -295,6 +295,7 @@ object TreeConverter {
           case MininessTypes.Array(_, aSize) => aSize
           case _ => throw new Exception("Unable to locate array size")
         }
+        println("located size")
         val isConstant =
           try { val test = arraySize.toInt; true } catch { case e: Exception => false }
         
@@ -395,29 +396,11 @@ object TreeConverter {
           ASTNode(COMPOUND_STATEMENT, "COMPOUND_STATEMENT", List(decNode, ifNode, arrayStatementNode), Some(statementParentNode), symbolTable)
         arrayStatementNode.parent = Some(compoundStatementNode)
         
-        // val newSecondHalf = ifNode::secondHalf
-        // val finalSecondHalf = decNode::newSecondHalf
-        // val newChildren = firstHalf:::finalSecondHalf
         val newSecondHalf = compoundStatementNode::secondHalf
         val newChildren = firstHalf:::newSecondHalf
         
         statementParentNode.children = newChildren
-        
-        /*
-        // Wraps all of the parent of all of the new stuff in a compound statement
-        // If this is weird.. maybe its better to instead wrap ifNode, decNode, and the statementNode in a compound statement, and have this..
-        val compoundStatementNode = 
-          ASTNode(COMPOUND_STATEMENT, "COMPOUND_STATEMENT", List(statementParentNode), Some(spnParentNode), symbolTable)
-        val spnParentChildren = spnParentNode.children
-        val newSpnParentchildren = for (i <- 0 until spnParentChildren.length) yield {
-          if (spnParentChildren(i) == statementParentNode)
-            compoundStatementNode
-          else
-            spnParentChildren(i)
-        }
-        
-        spnParentNode.children = newSpnParentChildren
-        */
+       
         root
       }
 

@@ -28,10 +28,12 @@ implementation {
         uint8_t  checksum  ;
         for( i  = 0U ; i  < 8 ; ++i  )
         {
+        {
             int _sc_1   = i ;
             if( _sc_1  >= 8  )
                 call boundsCheckFailed (  );
             raw [_sc_1 ] = ( i  & 0x00FF  );
+        }
         }
         checksum  = call compute_checksum ( raw , 8  );
     }
