@@ -37,6 +37,13 @@ trait KeyStorage extends Traversable[KeyAssociation] {
   def addKey(key: ECPublicKey)
 
   /**
+   * Adds a new key association to this key storage object. If the key already exists in the object there is no effect.
+   *
+   * @param association The key association to add.
+   */
+  def addKey(association: KeyAssociation)
+
+  /**
    * Removes the key associated with the given name. The name is also removed. If there is a linked certificate storage
    * the removal is not allowed if some certificate is using the specified key.
    *

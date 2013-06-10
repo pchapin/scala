@@ -36,41 +36,70 @@ object Main {
     var done = false
     while (!done) {
       println("")
-      println("0) return to main menu")
-      println("1) generate public/private key pair")
-      println("2) show keys")
-      println("3) add (entity, key) association")
-      println("4) remove (entity, key) association")
-      println("5) get keys from peer")
+      println("0) Return to main menu")
+      println("1) Generate public/private key pair")
+      println("2) Show keys")
+      println("3) Add (entity, key) association")
+      println("4) Remove (entity, key) association")
+      println("5) Get keys from peer")
+      println("6) Name key")
       print("=> ")
       val command = io.ReadStdin.readLine()
 
-      command.toInt match {
-        case 0 => done = true
+      try {
+        command.toInt match {
+          case 0 => done = true
 
-        case 1 =>
-          print("Name: ")
-          val name = io.ReadStdin.readLine()
-          keys.generateEntity(name)
+          case 1 =>
+            print("Name: ")
+            val name = io.ReadStdin.readLine()
+            keys.generateEntity(name)
 
-        case 2 =>
-          println("Key Database")
-          println("------------")
-          for (key <- keys) {
-            println(key)
-          }
+          case 2 =>
+            println("Key Database")
+            var keyIndex = 1
+            println("------------")
+            for (key <- keys) {
+              print(s"#$keyIndex: ")
+              println(key)
+              keyIndex = keyIndex + 1
+            }
 
-        case 4 =>
-          print("Name: ")
-          val name = io.ReadStdin.readLine()
-          keys.removeKey(name)
+          case 4 =>
+            print("Name: ")
+            val name = io.ReadStdin.readLine()
+            keys.removeKey(name)
 
-        case 5 =>
-          sendRequest(new KeyRequestMessage, peerPort)
-          println("Key request message sent asynchronously")
+          case 5 =>
+            sendRequest(new KeyRequestMessage, peerPort)
+            println("Key request message sent asynchronously")
 
-        case _ =>
-          println(s"Invalid or unimplemented command: '$command'")
+          case 6 =>
+            print("Key #: ")
+            val number = io.ReadStdin.readLine().toInt
+            print("Name: ")
+            val name = io.ReadStdin.readLine()
+
+            var oldKey: KeyAssociation = null
+            var keyIndex = 1
+            for (key <- keys) {
+              if (keyIndex == number) {
+                oldKey = key
+              }
+              keyIndex = keyIndex + 1
+            }
+            val KeyAssociation(_, oldPublicKey, oldPrivateKey) = oldKey
+            keys.removeKey(oldPublicKey)
+            keys.addKey(KeyAssociation(Some(name), oldPublicKey, oldPrivateKey))
+
+
+          case _ =>
+            println(s"Invalid or unimplemented command: '$command'")
+        }
+      }
+      catch {
+        case _: NumberFormatException =>
+          println("Bad input")
       }
     }
   }
@@ -81,38 +110,44 @@ object Main {
     var done = false
     while (!done) {
       println("")
-      println("0) return to main menu")
-      println("1) show policy")
-      println("2) add credential")
-      println("3) remove credential")
-      println("4) get certificates from peer")
+      println("0) Return to main menu")
+      println("1) Show policy")
+      println("2) Add credential")
+      println("3) Remove credential")
+      println("4) Get certificates from peer")
       print("=> ")
       val command = io.ReadStdin.readLine()
 
-      command.toInt match {
-        case 0 => done = true
+      try {
+        command.toInt match {
+          case 0 => done = true
 
-        case 1 =>
-          println("Policy Database")
-          println("---------------")
-          for (certificate <- certificates) {
-            val Certificate(credential, _) = certificate
-            println(credential)
-          }
+          case 1 =>
+            println("Policy Database")
+            println("---------------")
+            for (certificate <- certificates) {
+              val Certificate(credential, _) = certificate
+              println(credential)
+            }
 
-        case 2 =>
-          print("Credential: ")
-          val credentialString = io.ReadStdin.readLine()
-          val parser = new RTCredentialParser
-          val credential = parser.parseCredential(credentialString).toCredential(keyStorage)
-          certificates.addCredential(credential)
+          case 2 =>
+            print("Credential: ")
+            val credentialString = io.ReadStdin.readLine()
+            val parser = new RTCredentialParser
+            val credential = parser.parseCredential(credentialString).toCredential(keyStorage)
+            certificates.addCredential(credential)
 
-        case 4 =>
-          sendRequest(new CertificateRequestMessage, peerPort)
-          println("Certificate request message sent asynchronously")
+          case 4 =>
+            sendRequest(new CertificateRequestMessage, peerPort)
+            println("Certificate request message sent asynchronously")
 
-        case _ =>
-          println(s"Invalid or unimplemented command: '$command'")
+          case _ =>
+            println(s"Invalid or unimplemented command: '$command'")
+        }
+      }
+      catch {
+        case _: NumberFormatException =>
+          println("Bad input")
       }
     }
   }
@@ -160,34 +195,45 @@ object Main {
     println("Welcome to SnowStorm!")
     while (!done) {
       println("")
-      println("0) quit")
-      println("1) manage keys")
-      println("2) manage policy")
-      println("3) send to peer")
-      println("4) generate")
+      println("0) Quit")
+      println("1) Manage keys")
+      println("2) Manage policy")
+      println("3) Request authorization")
+      println("4) Generate")
       print("=> ")
       val command = io.ReadStdin.readLine()
 
-      command.toInt match {
-        case 0 => done = true
+      try {
+        command.toInt match {
+          case 0 => done = true
 
-        case 1 =>
-          manageKeys(keyStorage, peerPort)
+          case 1 =>
+            manageKeys(keyStorage, peerPort)
 
-        case 2 =>
-          managePolicy(keyStorage, certificateStorage, peerPort)
+          case 2 =>
+            managePolicy(keyStorage, certificateStorage, peerPort)
 
-        case 3 =>
+          case 3 =>
+            print("Role name: ")
+            val roleName = io.ReadStdin.readLine()
+            val Some(KeyAssociation(_, myPublicKey, _)) = keyStorage.lookupEntryByName(owningEntity)
+            sendRequest(AuthorizationQueryMessage(myPublicKey, roleName), peerPort)
+            println("Authorization query message sent asynchronously")
 
-        case 4 =>
-          messageServer ! s"Generating ${if (mode == Mode.Harvester) "Harvester" else "SensorBox" } application..."
-          mode match {
-            case Mode.Harvester => harvester.Generator.generate()
-            case Mode.SensorBox => sensorbox.Generator.generate()
-          }
+          case 4 =>
+            messageServer ! s"Generating ${if (mode == Mode.Harvester) "Harvester" else "SensorBox" } application..."
+            mode match {
+              case Mode.Harvester => harvester.Generator.generate(authorizer)
+              case Mode.SensorBox => sensorbox.Generator.generate(authorizer)
+            }
 
-        case _ =>
-          println(s"Invalid or unimplemented command: '$command'")
+          case _ =>
+            println(s"Invalid or unimplemented command: '$command'")
+        }
+      }
+      catch {
+        case _: NumberFormatException =>
+          println("Bad input")
       }
     }
 

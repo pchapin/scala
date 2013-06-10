@@ -3,8 +3,10 @@
     <words>
       <w>asmac</w>
       <w>authorizer</w>
+      <w>diffie</w>
       <w>disseminator</w>
       <w>ecdsa</w>
+      <w>hasher</w>
       <w>scalaness</w>
       <w>sclns</w>
       <w>tuples</w>

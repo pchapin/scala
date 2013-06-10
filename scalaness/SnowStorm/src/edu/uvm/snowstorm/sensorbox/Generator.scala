@@ -7,6 +7,7 @@
 package edu.uvm.snowstorm.sensorbox
 
 import edu.uvm.scalaness.ModuleType
+import edu.uvm.snowstorm.ServiceAuthorizer
 
 object Generator {
 
@@ -18,7 +19,7 @@ object Generator {
                                     command_name: UInt8,
                                     val         : UInt16,
                                     nonce       : UInt8 } ] ): Void }""")
-  private def createStub = {
+  private def createStub(authorizer: ServiceAuthorizer) = {
     @ModuleType("""{}
      <;>{ send(buffer: Array[UInt8]): Void;
           change_neighbor(
@@ -40,7 +41,7 @@ object Generator {
                                     val         : UInt16,
                                     nonce       : UInt8 } ] ): Void;
           receive(buffer: Array[UInt8]): Void }""")
-  private def createSkeleton = {
+  private def createSkeleton(authorizer: ServiceAuthorizer) = {
     @ModuleType("""{}
      <;>{ change(
             new_value: PointerTo[
@@ -54,7 +55,7 @@ object Generator {
   }
 
 
-  def generate() {
+  def generate(authorizer: ServiceAuthorizer) {
     @ModuleType("""{}
                <;>{ changed( ): Void,
                     change_neighbor(
@@ -113,7 +114,7 @@ object Generator {
 
     @ModuleType("""{}<;>{ ; }""")
     val composedComponents =
-      ApplicationIC +> createSkeleton +> disseminator +> createStub +> ApplicationEC
+      ApplicationIC +> createSkeleton(authorizer) +> disseminator +> createStub(authorizer) +> ApplicationEC
 
     composedComponents.image()
   }
