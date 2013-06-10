@@ -42,6 +42,7 @@ object Main {
       println("3) add (entity, key) association")
       println("4) remove (entity, key) association")
       println("5) get keys from peer")
+      println("6) name key")
       print("=> ")
       val command = io.ReadStdin.readLine()
 
@@ -55,9 +56,12 @@ object Main {
 
         case 2 =>
           println("Key Database")
+          var keyIndex = 1
           println("------------")
           for (key <- keys) {
+            print(s"#$keyIndex: ")
             println(key)
+            keyIndex = keyIndex + 1
           }
 
         case 4 =>
@@ -68,6 +72,25 @@ object Main {
         case 5 =>
           sendRequest(new KeyRequestMessage, peerPort)
           println("Key request message sent asynchronously")
+
+        case 6 =>
+          print("Key #: ")
+          val number = io.ReadStdin.readLine().toInt
+          print("Name: ")
+          val name = io.ReadStdin.readLine()
+
+          var oldKey: KeyAssociation = null
+          var keyIndex = 1
+          for (key <- keys) {
+            if (keyIndex == number) {
+              oldKey = key
+            }
+            keyIndex = keyIndex + 1
+          }
+          val KeyAssociation(_, oldPublicKey, oldPrivateKey) = oldKey
+          keys.removeKey(oldPublicKey)
+          keys.addKey(KeyAssociation(Some(name), oldPublicKey, oldPrivateKey))
+
 
         case _ =>
           println(s"Invalid or unimplemented command: '$command'")

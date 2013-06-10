@@ -85,6 +85,13 @@ class KeyStorageOnDisk(fileName: String) extends KeyStorage {
   }
 
 
+  def addKey(association: KeyAssociation) {
+    // TODO: Only add the key if it doesn't already exist.
+    keySet += association
+    writeOntoDisk()
+  }
+
+
   def addNamedKey(name: String, key: ECPublicKey) {
     // TODO: Only add the key if it doesn't already exist.
     keySet += KeyAssociation(Some(name), key, None)
