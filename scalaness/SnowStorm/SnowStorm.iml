@@ -5,7 +5,7 @@
       <configuration>
         <option name="compilerLibraryLevel" value="Global" />
         <option name="compilerLibraryName" value="scalaness-compiler" />
-        <option name="compilerOptions" value="-scalanessconfig /home/peter/Projects/Scalaness/scalaness/SpartanRPC/Scalaness.cfg" />
+        <option name="compilerOptions" value="-scalanessconfig /home/peter/Projects/Scala/scalaness/SnowStorm/Scalaness.cfg" />
         <option name="languageLevel" value="Scala 2.11" />
         <option name="uncheckedWarnings" value="true" />
       </configuration>
@@ -27,6 +27,7 @@
     <orderEntry type="library" name="bcprov-jdk16-145" level="project" />
     <orderEntry type="library" name="junit-4.8.2" level="project" />
     <orderEntry type="library" name="scalaness-library" level="application" />
+    <orderEntry type="library" name="scalaness-support" level="project" />
     <orderEntry type="library" name="scalatest_2.10-1.9.1" level="project" />
   </component>
 </module>

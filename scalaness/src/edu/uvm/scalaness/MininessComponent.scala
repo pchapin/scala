@@ -7,6 +7,7 @@
 package edu.uvm.scalaness
 
 import java.io.{BufferedInputStream, BufferedOutputStream, FileInputStream, FileOutputStream}
+import language.implicitConversions
 
 /**
  * Marker trait so that Scala types that are intended to represent nesC components are indicated

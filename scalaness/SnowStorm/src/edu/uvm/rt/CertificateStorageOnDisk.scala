@@ -52,8 +52,8 @@ class CertificateStorageOnDisk(kStorage: KeyStorage, fileName: String) extends C
 
 
   def addCredential(incomingCredential: Credential) {
-    val issuer = incomingCredential.getIssuer
-    val Some(KeyAssociation(_, _, Some(privateKey))) = kStorage.lookupEntryByPublicKey(issuer)
+    val issuerKey = incomingCredential.getIssuer
+    val Some(KeyAssociation(_, _, Some(privateKey))) = kStorage.lookupEntryByPublicKey(issuerKey)
     val signature = Certificate.createSignature(incomingCredential.toRawCredential, privateKey)
     val newCertificate = Certificate(incomingCredential, signature)
     certificateSet.add(newCertificate)
@@ -61,4 +61,15 @@ class CertificateStorageOnDisk(kStorage: KeyStorage, fileName: String) extends C
     writeOntoDisk()
   }
 
+
+  def addCertificate(incomingCertificate: Certificate) {
+    val issuerKey = incomingCertificate.credential.getIssuer
+    if (Certificate.verifySignature(
+      incomingCertificate.credential.toRawCredential, issuerKey, incomingCertificate.signature)) {
+
+      certificateSet.add(incomingCertificate)
+      modelAccurate = false
+      writeOntoDisk()
+    }
+  }
 }

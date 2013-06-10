@@ -19,16 +19,29 @@ import edu.uvm.rt._
  */
 object Main {
 
-  private def manageKeys(keys: KeyStorage) {
+  private def sendRequest(request: NetworkMessage, peerPort: Int) {
+    val outgoingStream = new ByteArrayOutputStream()
+    val serializer = new ObjectOutputStream(outgoingStream)
+    serializer.writeObject(request)
+    val outgoingData = outgoingStream.toByteArray
+    val localHost = InetAddress.getLocalHost
+    val packet = new DatagramPacket(outgoingData, outgoingData.length, localHost, peerPort)
+    val socket = new DatagramSocket()
+    socket.send(packet)
+    socket.close()
+  }
+
+  private def manageKeys(keys: KeyStorage, peerPort: Int) {
     // Main loop
     var done = false
     while (!done) {
       println("")
       println("0) return to main menu")
-      println("1) show keys")
-      println("2) add (entity, key) association")
-      println("3) remove (entity, key) association")
-      println("4) generate public/private key pair")
+      println("1) generate public/private key pair")
+      println("2) show keys")
+      println("3) add (entity, key) association")
+      println("4) remove (entity, key) association")
+      println("5) get keys from peer")
       print("=> ")
       val command = io.ReadStdin.readLine()
 
@@ -36,6 +49,11 @@ object Main {
         case 0 => done = true
 
         case 1 =>
+          print("Name: ")
+          val name = io.ReadStdin.readLine()
+          keys.generateEntity(name)
+
+        case 2 =>
           println("Key Database")
           println("------------")
           for (key <- keys) {
@@ -45,7 +63,11 @@ object Main {
         case 4 =>
           print("Name: ")
           val name = io.ReadStdin.readLine()
-          keys.generateEntity(name)
+          keys.removeKey(name)
+
+        case 5 =>
+          sendRequest(new KeyRequestMessage, peerPort)
+          println("Key request message sent asynchronously")
 
         case _ =>
           println(s"Invalid or unimplemented command: '$command'")
@@ -54,7 +76,7 @@ object Main {
   }
 
 
-  private def managePolicy(keyStorage: KeyStorage, certificates: CertificateStorage) {
+  private def managePolicy(keyStorage: KeyStorage, certificates: CertificateStorage, peerPort: Int) {
     // Main loop
     var done = false
     while (!done) {
@@ -63,6 +85,7 @@ object Main {
       println("1) show policy")
       println("2) add credential")
       println("3) remove credential")
+      println("4) get certificates from peer")
       print("=> ")
       val command = io.ReadStdin.readLine()
 
@@ -84,6 +107,9 @@ object Main {
           val credential = parser.parseCredential(credentialString).toCredential(keyStorage)
           certificates.addCredential(credential)
 
+        case 4 =>
+          sendRequest(new CertificateRequestMessage, peerPort)
+          println("Certificate request message sent asynchronously")
 
         case _ =>
           println(s"Invalid or unimplemented command: '$command'")
@@ -99,8 +125,8 @@ object Main {
       val SensorBox = Value
     }
 
-    if (args.length != 4) {
-      println("Usage: Main owning_entity_name \"Harvester\"|\"SensorBox\" authorizer_port peer_port")
+    if (args.length != 3) {
+      println("Usage: Main owning_entity authorizer_port peer_port")
       return
     }
 
@@ -108,24 +134,25 @@ object Main {
 
     // Extract useful items from the command line.
     // TODO: More comprehensive handling of the command line might be nice.
-    val owningEntity   = args(0)
-    val mode           = args(1) match {
-      case "Harvester" => Mode.Harvester
-      case "SensorBox" => Mode.SensorBox
-      case _        => println(s"Unknown mode: ${args(0)}, defaulting to 'SensorBox'"); Mode.SensorBox
+    val owningEntity = args(0)
+    val mode = args(0) match {
+      case "H" => Mode.Harvester
+      case "S" => Mode.SensorBox
+      case _   => println(s"Unknown mode: ${args(0)}, defaulting to 'SensorBox'"); Mode.SensorBox
     }
-    val authorizerPort = args(2).toInt
-    val peerPort       = args(3).toInt
+    val authorizerPort = args(1).toInt
+    val peerPort       = args(2).toInt
 
     // Create the storage objects.
-    val keyStorage = new KeyStorageOnDisk("keys.dat")
-    val certificateStorage = new CertificateStorageOnDisk(keyStorage, "certificates.dat")
+    val keyStorage = new KeyStorageOnDisk(s"keys-$owningEntity.dat")
+    val certificateStorage = new CertificateStorageOnDisk(keyStorage, s"certificates-$owningEntity.dat")
 
     // Create the supporting actors/threads.
     val messageServer = new MessageServer
     messageServer.start()
 
-    val authorizer = new ServiceAuthorizer(messageServer, owningEntity, certificateStorage, authorizerPort)
+    val authorizer = new ServiceAuthorizer(
+      messageServer, owningEntity, keyStorage, certificateStorage, authorizerPort, peerPort)
     authorizer.start()
 
     // Main loop.
@@ -145,22 +172,12 @@ object Main {
         case 0 => done = true
 
         case 1 =>
-          manageKeys(keyStorage)
+          manageKeys(keyStorage, peerPort)
 
         case 2 =>
-          managePolicy(keyStorage, certificateStorage)
+          managePolicy(keyStorage, certificateStorage, peerPort)
 
         case 3 =>
-          val authorizationMessage = new AuthorizationMessage(null, "Hello, World")
-          val rawData = new ByteArrayOutputStream()
-          val serializer = new ObjectOutputStream(rawData)
-          serializer.writeObject(authorizationMessage)
-          val rawBytes = rawData.toByteArray
-          val localHost = InetAddress.getLocalHost
-          val packet = new DatagramPacket(rawBytes, rawBytes.length, localHost, peerPort)
-          val socket = new DatagramSocket()
-          socket.send(packet)
-          socket.close()
 
         case 4 =>
           messageServer ! s"Generating ${if (mode == Mode.Harvester) "Harvester" else "SensorBox" } application..."

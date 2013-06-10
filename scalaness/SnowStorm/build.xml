@@ -1,0 +1,204 @@
+<project name="SnowStorm" default="distribution" basedir=".">
+    <description>Ant build control file for SnowStorm</description>
+
+  <!-- Set global properties for all builds. -->
+  <property environment="env"/>
+  <!-- The SCALANESS_HOME environment variable should be the build/pack folder. -->
+  <property name="scala.home"  location="${env.SCALANESS_HOME}"/>
+  <property name="library.dir" location="lib"/>
+
+  <!-- Set properties for the build. -->
+  <property name="main.sources.dir" location="src"/>
+  <property name="test.sources.dir" location="test"/>
+  <property name="configuration"    location="Scalaness.cfg"/>
+  <property name="classes.dir"      location="classes"/>
+  <property name="main.classes.dir" location="${classes.dir}/main"/>
+  <property name="test.classes.dir" location="${classes.dir}/test"/>
+  <property name="distribution.dir" location="bin"/>
+  <property name="scaladoc.dir"     location="doc/scaladoc"/>
+
+  <target name="init">
+    <!-- Get the Scala related tasks. -->
+    <property name="scala-library.jar" location="${scala.home}/lib/scala-library.jar"/>
+    <property name="scala-compiler.jar" location="${scala.home}/lib/scala-compiler.jar"/>
+    <property name="scala-reflect.jar" location="${scala.home}/lib/scala-reflect.jar"/>
+    <property name="scala-actors.jar" location="${scala.home}/lib/scala-actors.jar"/>
+    <property name="scalaness.jar" location="../bin/scalaness.jar"/>
+    <property name="antlr.jar" location="${scala.home}/lib/antlr-3.4.jar"/>
+    <taskdef resource="scala/tools/ant/antlib.xml">
+      <classpath>
+        <pathelement location="${scala-compiler.jar}"/>
+        <pathelement location="${scala-reflect.jar}"/>
+        <pathelement location="${scala-library.jar}"/>
+        <pathelement location="${antlr.jar}"/>
+      </classpath>
+    </taskdef>
+
+    <!-- Classpath used during compilation. -->
+    <path id="build.classpath">
+      <pathelement location="${scala-compiler.jar}"/>
+      <pathelement location="${scala-reflect.jar}"/>
+      <pathelement location="${scala-library.jar}"/>
+      <pathelement location="${scala-actors.jar}"/>
+      <pathelement location="${scalaness.jar}"/>
+      <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
+      <pathelement location="${main.classes.dir}"/>
+    </path>
+
+    <!-- Classpath used during tests compilation. -->
+    <!-- Is there is a nice way to get this to refer to the compilation classpath above? -->
+    <path id="build.test.classpath">
+      <pathelement location="${scala-compiler.jar}"/>
+      <pathelement location="${scala-reflect.jar}"/>
+      <pathelement location="${scala-library.jar}"/>
+      <pathelement location="${scala-actors.jar}"/>
+      <pathelement location="${scalaness.jar}"/>
+      <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
+      <pathelement location="${main.classes.dir}"/>
+
+      <pathelement location="${library.dir}/junit-4.8.2.jar"/>
+      <pathelement location="${library.dir}/scalatest_2.10-1.9.1.jar"/>
+      <pathelement location="${test.classes.dir}"/>
+    </path>
+
+    <!-- Classpath used during scaladoc build. -->
+    <path id="scaladoc.classpath">
+      <pathelement location="${scala-compiler.jar}"/>
+      <pathelement location="${scala-reflect.jar}"/>
+      <pathelement location="${scala-library.jar}"/>
+      <pathelement location="${scala-actors.jar}"/>
+      <pathelement location="${scalaness.jar}"/>
+      <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
+      <pathelement location="${main.classes.dir}"/>
+    </path>
+
+    <!-- Classpath used during execution. -->
+    <path id="run.classpath">
+      <pathelement location="${antlr.jar}"/>
+      <pathelement location="${scala-reflect.jar}"/>
+      <pathelement location="${scala-library.jar}"/>
+      <pathelement location="${scala-actors.jar}"/>
+      <pathelement location="${scalaness.jar}"/>
+      <pathelement location="${library.dir}/bcprov-jdk16-145.jar"/>
+      <pathelement location="${main.classes.dir}"/>
+    </path>
+
+    <!-- Create the time stamp -->
+    <tstamp/>
+  </target>
+
+
+  <!-- ========== -->
+  <!-- SPARTANRPC -->
+  <!-- ========== -->
+
+  <target name="compile" depends="init" description="Compile the SnowStorm sample" >
+    <mkdir dir="${main.classes.dir}"/>
+
+    <!-- Compile the Scala code from ${main.sources.dir} into ${main.classes.dir} -->
+    <scalac deprecation="on"
+            addparams="-feature -g:vars -nowarn"
+            srcdir="${main.sources.dir}"
+            destdir="${main.classes.dir}"
+            classpathref="build.classpath">
+      <include name="**/*.scala"/>
+    </scalac>
+  </target>
+
+
+  <target name="test.compile" depends="compile" description="Compile the test program" >
+    <mkdir dir="${test.classes.dir}"/>
+
+    <!-- Compile the Scala code from ${test.sources.dir} into ${test.classes.dir} -->
+    <scalac deprecation="on"
+            addparams="-feature -g:vars -nowarn"
+            srcdir="${test.sources.dir}"
+            destdir="${test.classes.dir}"
+            classpathref="build.test.classpath">
+      <include name="**/*.scala"/>
+    </scalac>
+  </target>
+
+
+  <!-- There is a JUnit task. Should I be using it? This seems to do the job. -->
+  <target name="test" depends="test.compile" description="SnowStorm Unit Tests">
+    <java classname="org.junit.runner.JUnitCore" fork="true">
+      <arg value="edu.uvm.spartanrpc.MainTest"/>
+      <classpath refid="build.test.classpath"/>
+    </java>
+  </target>
+
+
+  <target name="distribution" depends="compile" description="Generate the distribution" >
+    <mkdir dir="${distribution.dir}"/>
+    <mkdir dir="${main.classes.dir}/Harvester"/>
+    <mkdir dir="${main.classes.dir}/SensorBox"/>
+    <copy todir="${main.classes.dir}/Harvester">
+      <fileset dir="${main.sources.dir}/Harvester">
+        <include name="**/*.i"/>
+        <include name="**/*.nc"/>
+      </fileset>
+    </copy>
+    <copy todir="${main.classes.dir}/SensorBox">
+      <fileset dir="${main.sources.dir}/SensorBox">
+        <include name="**/*.i"/>
+        <include name="**/*.nc"/>
+      </fileset>
+    </copy>
+    <jar jarfile="${distribution.dir}/SnowStorm.jar"
+         basedir="${main.classes.dir}"/>
+  </target>
+
+
+  <!-- I don't want to try extracting documentation from invalid Scala files. -->
+  <target name="scaladoc" depends="compile" description="Generate the Scaladoc" >
+    <mkdir dir="${scaladoc.dir}"/>
+    <scaladoc addparams="-feature -nowarn"
+              srcdir="${main.sources.dir}"
+              destdir="${scaladoc.dir}"
+              deprecation="yes"
+              unchecked="yes"
+              doctitle="SnowStorm Internal Documentation"
+              classpathref="scaladoc.classpath">
+      <include name="**/*.scala"/>
+    </scaladoc>
+  </target>
+
+  <target name="run1" depends="distribution" description="Run the SnowStorm sample (1st)">
+    <java classname="edu.uvm.spartanrpc.Main" fork="true">
+      <arg value="Alice"/>
+      <arg value="SensorBox"/>
+      <arg value="9000"/>
+      <arg value="9001"/>
+      <classpath refid="run.classpath"/>
+      <classpath path="${distribution.dir}/SnowStorm.jar"/>
+    </java>
+  </target>
+
+  <target name="run2" depends="distribution" description="Run the SnowStorm sample (2nd)">
+    <java classname="edu.uvm.spartanrpc.Main" fork="true">
+      <arg value="Bob"/>
+      <arg value="Harvester"/>
+      <arg value="9001"/>
+      <arg value="9000"/>
+      <classpath refid="run.classpath"/>
+      <classpath path="${distribution.dir}/SnowStorm.jar"/>
+    </java>
+  </target>
+
+  <!-- ======== -->
+  <!-- CLEAN UP -->
+  <!-- ======== -->
+
+  <target name="clean" description="Clean up">
+    <delete dir="${classes.dir}"/>
+    <delete dir="${scaladoc.dir}"/>
+    <delete dir="${distribution.dir}"/>
+  </target>
+
+  <!-- Add things to this if more components are added above. -->
+  <target name="all.clean"
+          depends="clean"
+          description="Clean up all project components"/>
+
+</project>
