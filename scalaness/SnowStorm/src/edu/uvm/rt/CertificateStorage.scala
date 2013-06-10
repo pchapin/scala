@@ -62,10 +62,20 @@ trait CertificateStorage extends Traversable[Certificate] {
 
   protected var certificateSet: mutable.Set[Certificate]
 
-  private class ModelTuple(
+  private final class ModelTuple(
     val targetKey : ECPublicKey,
     val targetRole: String,
-    val memberKey : ECPublicKey)
+    val memberKey : ECPublicKey) {
+
+    override def equals(other: Any) = {
+      other match {
+        case rhs: ModelTuple => targetKey == rhs.targetKey && targetRole == rhs.targetRole && memberKey == rhs.memberKey
+        case _ => false
+      }
+    }
+
+    override def hashCode = targetKey.hashCode + targetRole.hashCode + memberKey.hashCode
+  }
 
   private   val modelSet = mutable.Set[ModelTuple]()
   protected var modelAccurate = true

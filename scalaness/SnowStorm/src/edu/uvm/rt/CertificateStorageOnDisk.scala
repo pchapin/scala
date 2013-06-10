@@ -30,6 +30,7 @@ class CertificateStorageOnDisk(kStorage: KeyStorage, fileName: String) extends C
           case _ => throw new Exception(s"Unexpected content found in certificate file $fileName")
         }
         certificateSet += currentCertificate
+        modelAccurate = false
       }
       input.close()
     }

@@ -7,7 +7,7 @@
 package edu.uvm.snowstorm.harvester
 
 import edu.uvm.scalaness.ModuleType
-import edu.uvm.scalaness.LiftableTypes.UInt8
+import edu.uvm.snowstorm.ServiceAuthorizer
 
 object Generator {
 
@@ -20,7 +20,7 @@ object Generator {
                                  command_name: UInt8,
                                  val         : UInt16,
                                  nonce       : UInt8 } ] ): Void }""")
-  private def createStub = {
+  private def createStub(authorizer: ServiceAuthorizer) = {
     @ModuleType("""{}
      <; key: Array[UInt8] >
      { send(buffer: Array[UInt8]): Void;
@@ -31,12 +31,11 @@ object Generator {
                                  val         : UInt16,
                                  nonce       : UInt8 } ] ): Void }""")
     val rawStub = new ANMStub
-    val key = Array(UInt8(0), UInt8(1), UInt8(2))
-    rawStub.instantiate(key)
+    rawStub.instantiate(authorizer.sessionKey)
   }
 
 
-  def generate() {
+  def generate(authorizer: ServiceAuthorizer) {
     @ModuleType("""{}
                <;>{ changed( ): Void,
                     change_neighbor(
@@ -95,7 +94,7 @@ object Generator {
 
     @ModuleType("""{}<;>{ ; }""")
     val composedComponents =
-      ApplicationIC +> disseminator +> createStub +> ApplicationEC
+      ApplicationIC +> disseminator +> createStub(authorizer) +> ApplicationEC
 
     composedComponents.image()
   }

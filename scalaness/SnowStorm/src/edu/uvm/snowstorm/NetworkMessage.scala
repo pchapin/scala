@@ -40,3 +40,21 @@ class CertificateRequestMessage extends NetworkMessage
  * @param certificates All certificates known to the sender.
  */
 case class CertificateReplyMessage(certificates: List[Certificate]) extends NetworkMessage
+
+
+/**
+ * Used when requesting access to a role.
+ *
+ * @param queryKey The key that wishes access.
+ * @param roleName The role to be accessed. The governing key is assumed to be the owning entity of the peer.
+ */
+case class AuthorizationQueryMessage(queryKey: ECPublicKey, roleName: String) extends NetworkMessage
+
+
+/**
+ * Response to an authorization request.
+ *
+ * @param authorized A flag to indicate if access is granted or not.
+ * @param governingKey The public key of the owning entity of the peer.
+ */
+case class AuthorizationReplyMessage(authorized: Boolean, governingKey: ECPublicKey) extends NetworkMessage
