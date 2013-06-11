@@ -56,7 +56,7 @@ implementation {
         int i;
 
         for( i = 0; i < 6; ++i ) {
-            send_buffer[i] = value_buffer[i];
+            send_buffer[i] = plain_buffer[i];
         }
         for( i = 0; i < 4; ++i ) {
              send_buffer[6 + i] = cipher_text[i];
