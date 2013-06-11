@@ -12,46 +12,70 @@ import edu.uvm.snowstorm.ServiceAuthorizer
 object Generator {
 
   @ModuleType("""{}
-     <;>{ send(buffer: Array[UInt8]): Void;
-          change_neighbor(
-            new_value: PointerTo[
-                       commandTAG { mote_id     : UInt8,
-                                    command_name: UInt8,
-                                    val         : UInt16,
-                                    nonce       : UInt8 } ] ): Void }""")
+     <; key: Array[UInt8]>
+     { send     (buffer    : Array[UInt8]): Void,
+       set_key  (aes_key   : Array[UInt8]): Int16,
+       put_plain(plain_text: Array[UInt8]): Int16;
+
+       change_neighbor(
+         new_value: PointerTo[
+                    commandTAG { mote_id     : UInt8,
+                                 command_name: UInt8,
+                                 val         : UInt16,
+                                 nonce       : UInt8 } ] ): Void,
+       set_key_done( ): Void,
+       get_cipher(cipher_text: Array[UInt8]): Void }""")
   private def createStub(authorizer: ServiceAuthorizer) = {
     @ModuleType("""{}
-     <;>{ send(buffer: Array[UInt8]): Void;
-          change_neighbor(
-            new_value: PointerTo[
-                       commandTAG { mote_id     : UInt8,
-                                    command_name: UInt8,
-                                    val         : UInt16,
-                                    nonce       : UInt8 } ] ): Void }""")
+       <; key: Array[UInt8]>
+       { send     (buffer    : Array[UInt8]): Void,
+         set_key  (aes_key   : Array[UInt8]): Int16,
+         put_plain(plain_text: Array[UInt8]): Int16;
+
+         change_neighbor(
+           new_value: PointerTo[
+                      commandTAG { mote_id     : UInt8,
+                                   command_name: UInt8,
+                                   val         : UInt16,
+                                   nonce       : UInt8 } ] ): Void,
+         set_key_done( ): Void,
+         get_cipher(cipher_text: Array[UInt8]): Void }""")
     val rawStub = new ANMStub
-    rawStub.instantiate
+    rawStub.instantiate(authorizer.sessionKey)
   }
 
 
   @ModuleType("""{}
-     <;>{ change(
-            new_value: PointerTo[
-                       commandTAG { mote_id     : UInt8,
-                                    command_name: UInt8,
-                                    val         : UInt16,
-                                    nonce       : UInt8 } ] ): Void;
-          receive(buffer: Array[UInt8]): Void }""")
+     <; key: Array[UInt8]>
+     { set_key  (aes_key   : Array[UInt8]): Int16,
+       put_plain(plain_text: Array[UInt8]): Int16,
+       change(
+         new_value: PointerTo[
+                    commandTAG { mote_id     : UInt8,
+                                 command_name: UInt8,
+                                 val         : UInt16,
+                                 nonce       : UInt8 } ] ): Void;
+
+       receive(buffer: Array[UInt8]): Void,
+       set_key_done( ): Void,
+       get_cipher(cipher_text: Array[UInt8]): Void }""")
   private def createSkeleton(authorizer: ServiceAuthorizer) = {
     @ModuleType("""{}
-     <;>{ change(
-            new_value: PointerTo[
-                       commandTAG { mote_id     : UInt8,
-                                    command_name: UInt8,
-                                    val         : UInt16,
-                                    nonce       : UInt8 } ] ): Void;
-          receive(buffer: Array[UInt8]): Void }""")
+       <; key: Array[UInt8]>
+       { set_key  (aes_key   : Array[UInt8]): Int16,
+         put_plain(plain_text: Array[UInt8]): Int16,
+         change(
+           new_value: PointerTo[
+                      commandTAG { mote_id     : UInt8,
+                                   command_name: UInt8,
+                                   val         : UInt16,
+                                   nonce       : UInt8 } ] ): Void;
+
+         receive(buffer: Array[UInt8]): Void,
+         set_key_done( ): Void,
+         get_cipher(cipher_text: Array[UInt8]): Void }""")
     val rawSkeleton = new ANMSkeleton
-    rawSkeleton.instantiate
+    rawSkeleton.instantiate(authorizer.sessionKey)
   }
 
 

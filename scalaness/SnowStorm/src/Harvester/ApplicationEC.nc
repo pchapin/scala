@@ -7,6 +7,8 @@ configuration ApplicationEC {
     
     // Low level...
     provides command void send( const uint8_t buffer[], uint16_t size );
+    provides command int set_key( const uint8_t aes_key[], uint16_t size );
+    provides command int put_plain( const uint8_t plain_text[], uint16_t size );
 }
 implementation {
     components HarvesterC;
@@ -19,4 +21,8 @@ implementation {
     SendShimC.AMControl -> ActiveMessageC;
     SendShimC.Packet -> AMSenderC;
     SendShimC.AMSend -> AMSenderC;
+
+    components CryptoShimC;
+    set_key   = CryptoShimC.set_key;
+    put_plain = CryptoShimC.put_plain;
 }
