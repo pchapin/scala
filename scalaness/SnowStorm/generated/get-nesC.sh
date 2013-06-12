@@ -11,6 +11,7 @@ if [ \( ! -d $HARVESTER_DIR \) -o \( ! -d $SENSORBOX_DIR \) ]; then
 fi
 
 HARVESTER='BoundsCheckC.nc
+  CryptoShimC.nc
   HarvesterAppC.nc
   HarvesterC.nc
   HarvesterConfig.h
@@ -24,6 +25,7 @@ SENSORBOX='BoundsCheckC.nc
   AdcChannel0C.nc
   AdcChannel1C.nc
   BrainboxAppC.nc
+  CryptoShimC.nc
   GroundboxAppC.nc
   KappaMsg.h
   Makefile

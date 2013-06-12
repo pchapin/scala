@@ -135,8 +135,8 @@ class ProgramComponent(
 
   /**
    * Composes two ProgramComponents. The library can't use +> directly because otherwise
-   * the Scalaness compiler complains about missing nesT module types. Thus internally
-   * this method is used instead.
+   * the Scalaness compiler complains about missing nesT module types (for example, when
+   * compiling this code). Thus internally this method is used instead.
    * 
    * @param other The ProgramComponent to blend into this component.
    * @return A new ProgramComponent that wraps a configuration consisting of the two input
@@ -145,7 +145,7 @@ class ProgramComponent(
   def wireTo(other: ProgramComponent) = {
     val newTypeParameters  = mergeTypeParameters(other.typeParameters)
     val newValueParameters = mergeValueParameters(other.valueParameters)
-    val newExports         = mergeExports(other.exports)
+    val newExports         = exports
     val newImports         = mergeImports(other.imports, other.exports)
     val newConfiguration   =
       configuration.merge(other.configuration, imports, other.imports, newExports)
