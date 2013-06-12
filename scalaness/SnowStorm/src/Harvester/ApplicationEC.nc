@@ -22,7 +22,10 @@ implementation {
     SendShimC.Packet -> AMSenderC;
     SendShimC.AMSend -> AMSenderC;
 
-    components CryptoShimC;
+    components CryptoShimC, AesC;
     set_key   = CryptoShimC.set_key;
     put_plain = CryptoShimC.put_plain;
+    CryptoShimC.Boot -> MainC;
+    CryptoShimC.AESControl -> AesC;
+    CryptoShimC.Encrypt -> AesC;
 }

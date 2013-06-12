@@ -48,13 +48,13 @@ class ANMSkeleton extends MininessComponent {
       name            = "SkeletonC",
       enclosingObject = this,
       typeParameters  = Set(),
-      valueParameters = Set(),
+      valueParameters = Set("key"),
       imports         = Declarations.extractImports(abstractSyntax),
       exports         = Declarations.extractExports(abstractSyntax),
       abstractSyntax  = abstractSyntax), "generated" + File.separator + "SensorBox")
   
   def getTypeMap  = Map()
-  def getValueMap = Map()
+  def getValueMap = Map("key" -> sclnsKey)
   ////////
   // END of Scalaness generated code.
   ////////
