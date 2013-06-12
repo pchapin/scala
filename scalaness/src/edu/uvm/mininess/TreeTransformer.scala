@@ -193,6 +193,10 @@ object TreeTransformer {
         case ASTNode(DECLARATION,_,_,_,_) => node
         case ASTNode(STATEMENT,_,_,_,_)   => node
         case ASTNode(RETURN,_,_,_,_)      => node
+        case ASTNode(IF,_,_,_,_)          => node
+        case ASTNode(WHILE,_,_,_,_)       => node
+        case ASTNode(SWITCH,_,_,_,_)      => node
+        case ASTNode(FOR,_,_,_,_)         => node
         case ASTNode(_,_,_,_,_)                         => getStatementNode(parentNode)
         case _ => throw new Exception("Unable to locate parent node")
       }
