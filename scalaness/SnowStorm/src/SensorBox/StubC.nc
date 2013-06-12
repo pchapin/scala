@@ -25,7 +25,7 @@ implementation {
     command void change_neighbor( struct commandTAG *new_value )
     {
         int i;
-
+     
         // Ignore this request if we are already in the middle of something.
         if( in_progress ) return;
 

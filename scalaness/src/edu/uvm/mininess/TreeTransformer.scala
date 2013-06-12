@@ -250,7 +250,7 @@ object TreeTransformer {
       if (found) returnType else throw new Exception("Unable to locate struct member.")
     }
 
-    // if (root.parent == None) dumpAST(root)
+    // if (root.parent == None) TreeConverter.dumpAST(root)
     root match {
       case ASTNode(ARRAY_ELEMENT_SELECTION, text, children, parent, symbolTable) =>
         val parentNode = parent match {
@@ -260,8 +260,10 @@ object TreeTransformer {
         val arrayStructMember = (parentNode.children.length > 2)
         val arrayNode    = parentNode.children(0)
         val arrayPFENode = root.children(0)
-        val accessNode   = arrayPFENode.children(0)
-        val isIdentifier = (accessNode.tokenType == RAW_IDENTIFIER)
+        
+        val isExpression = (arrayPFENode.tokenType != POSTFIX_EXPRESSION)
+        val accessNode   = if (isExpression) root else arrayPFENode.children(0)
+        val isIdentifier = (accessNode.tokenType == RAW_IDENTIFIER)     
         val arrayName    = arrayNode.text
         val tempVarName =  NameGenerator.get
         val arrayType    = if (!(arrayStructMember)) Symbols.lookupVariable(root,arrayName)
@@ -316,8 +318,15 @@ object TreeTransformer {
         decListNode.children = List(initDecNode)
         val decrNode =
           ASTNode(DECLARATOR, "DECLARATOR", List(), Some(initDecNode), symbolTable)
-        val dPFENode = 
+        val dPFENode = if (!(isExpression))
           ASTNode(POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(initDecNode), symbolTable)
+        else
+          ASTNode(POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", accessNode.children, Some(initDecNode), symbolTable)
+        if (isExpression) {
+          for (i <- 0 until dPFENode.children.length) {
+            dPFENode.children(i).parent = Some(dPFENode)
+          }
+        } // All the children that used to belong to the Array_Element_Selection are severed and now children of the declaration PFE node
         initDecNode.children = List(decrNode, dPFENode)
         val idPathNode = 
           ASTNode(IDENTIFIER_PATH, "IDENTIFIER_PATH", List(), Some(decrNode), symbolTable)
@@ -325,15 +334,25 @@ object TreeTransformer {
         val newVarNode = 
           ASTNode(RAW_IDENTIFIER, tempVarName, List(), Some(idPathNode), symbolTable)
         idPathNode.children = List(newVarNode)
-        val oldVarNode = if (isIdentifier)
-          ASTNode(RAW_IDENTIFIER, accessNode.text, List(), Some(dPFENode), symbolTable)
-        else
-          ASTNode(CONSTANT, accessNode.text, List(), Some(dPFENode), symbolTable)
-        dPFENode.children = List(oldVarNode)
-
+        if (!(isExpression)) {
+            val oldVarNode = if (isIdentifier)
+              ASTNode(RAW_IDENTIFIER, accessNode.text, List(), Some(dPFENode), symbolTable)
+            else
+              ASTNode(CONSTANT, accessNode.text, List(), Some(dPFENode), symbolTable)
+            dPFENode.children = List(oldVarNode)
+        }
         val accessorNode = ASTNode(RAW_IDENTIFIER, tempVarName, List(), Some(newNode), symbolTable)
         newNode.children = List(accessorNode)
-        accessNode.text = tempVarName
+        if (!(isExpression))
+          accessNode.text = tempVarName // Does this need to be a new node?
+        else {
+          val newPFENode =
+            ASTNode(POSTFIX_EXPRESSION, "POSTFIX_EXPRESSION", List(), Some(root), symbolTable)
+          val newVarNode =
+            ASTNode(RAW_IDENTIFIER, tempVarName, List(), Some(newPFENode), symbolTable)
+          newPFENode.children = List(newVarNode)
+          root.children = List(newPFENode)          
+        }
         
         val sizeNode = if (isConstant) {
           ASTNode(CONSTANT, arraySize, List(), Some(newNode2), symbolTable)
