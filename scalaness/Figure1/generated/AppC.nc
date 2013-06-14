@@ -8,6 +8,4 @@ implementation {
     SendC.boundsCheckFailed -> BoundsCheckC;
     RadioC.boundsCheckFailed -> BoundsCheckC;
 
-    SendC.radio -> RadioC.radio;
-    NodeC.send -> SendC.send;
 }
