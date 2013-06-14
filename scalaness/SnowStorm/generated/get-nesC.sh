@@ -10,8 +10,12 @@ if [ \( ! -d $HARVESTER_DIR \) -o \( ! -d $SENSORBOX_DIR \) ]; then
   echo "Are you running this script while inside the 'generated' directory?"
 fi
 
-HARVESTER='BoundsCheckC.nc
+HARVESTER='AesC.nc
+  AesP.nc
+  AesRamP.nc
+  BoundsCheckC.nc
   CryptoShimC.nc
+  Encrypt.nc
   HarvesterAppC.nc
   HarvesterC.nc
   HarvesterConfig.h
@@ -21,11 +25,15 @@ HARVESTER='BoundsCheckC.nc
   SendShimC.nc
   volumes-stm25p.xml'
 
-SENSORBOX='BoundsCheckC.nc
+SENSORBOX='AesC.nc
+  AesP.nc
+  AesRamP.nc
+  BoundsCheckC.nc
   AdcChannel0C.nc
   AdcChannel1C.nc
   BrainboxAppC.nc
   CryptoShimC.nc
+  Encrypt.nc
   GroundboxAppC.nc
   KappaMsg.h
   Makefile

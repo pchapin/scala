@@ -148,7 +148,7 @@ class ProgramComponent(
     val newExports         = exports
     val newImports         = mergeImports(other.imports, other.exports)
     val newConfiguration   =
-      configuration.merge(other.configuration, imports, other.imports, newExports)
+      configuration.merge(other.configuration, imports, other.imports, other.exports)
     val newTargetFolder    = mergeTargetFolders(other.targetFolder)
 
     new ProgramComponent(newTypeParameters,
