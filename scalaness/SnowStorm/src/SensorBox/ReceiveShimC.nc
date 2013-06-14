@@ -6,7 +6,7 @@ module ReceiveShimC {
     uses command void receive( const uint8_t buffer[], uint16_t size );
 }
 implementation {
-    uint8_t buffer[6];
+    uint8_t buffer[10];
     
     event void Boot.booted( )
     {
@@ -24,10 +24,10 @@ implementation {
 
     event message_t *Receive.receive( message_t *msg, void *payload, uint8_t len )
     {
-        if( len == 6 ) {
+        if( len == 10 ) {
             uint8_t *message = ( uint8_t * )payload;
-            memcpy( buffer, message, 6 );
-            call receive( buffer, 6 );
+            memcpy( buffer, message, 10 );
+            call receive( buffer, 10 );
         }
         return msg;
     }
