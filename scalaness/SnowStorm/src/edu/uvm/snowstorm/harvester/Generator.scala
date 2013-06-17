@@ -12,7 +12,7 @@ import edu.uvm.snowstorm.ServiceAuthorizer
 object Generator {
 
   @ModuleType("""{}
-     <; key: Array[UInt8]>
+     <;>
      { send     (buffer    : Array[UInt8]): Void,
        set_key  (aes_key   : Array[UInt8]): Int16,
        put_plain(plain_text: Array[UInt8]): Int16;

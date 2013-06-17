@@ -213,7 +213,7 @@ abstract class Mixin extends InfoTransform with ast.TreeDSL {
         val newFlags   = field.flags & ~PrivateLocal | ACCESSOR | lateDEFERRED
         val setter     = clazz.newMethod(setterName, field.pos, newFlags)
         // TODO preserve pre-erasure info?
-        setter setInfo MethodType(setter.newSyntheticValueParams(List(field.info)), UnitClass.tpe)
+        setter setInfo MethodType(setter.newSyntheticValueParams(List(field.info)), UnitTpe)
         if (field.needsExpandedSetterName)
           setter.name = nme.expandedSetterName(setter.name, clazz)
 
@@ -594,11 +594,10 @@ abstract class Mixin extends InfoTransform with ast.TreeDSL {
       sym.owner.info        //todo: needed?
       sym.owner.owner.info  //todo: needed?
 
-      assert(
-        sym.owner.sourceModule ne NoSymbol,
-        "" + sym.fullLocationString + " in " + sym.owner.owner + " " + sym.owner.owner.info.decls
-      )
-      REF(sym.owner.sourceModule) DOT sym
+      if (sym.owner.sourceModule eq NoSymbol)
+        abort(s"Cannot create static reference to $sym because ${sym.safeOwner} has no source module")
+      else
+        REF(sym.owner.sourceModule) DOT sym
     }
 
     def needsInitAndHasOffset(sym: Symbol) =
