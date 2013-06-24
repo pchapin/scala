@@ -24,7 +24,7 @@
 
 // REMEMBER TO UPDATE THIS WHEN EDITING NODEIDS!!
 #define NUMNODES 1
-int NODEIDS[] = { 0 };
+int NODEIDS[] = { 1 };
 // int NODEIDS[] = { 4, 6 }; // Votey
 // int NODEIDS[] = { 0, 2, 3 }; // HBEF
 // int NODEIDS[] = { 0, 2, 3, 4 }; // Norway, Fauske

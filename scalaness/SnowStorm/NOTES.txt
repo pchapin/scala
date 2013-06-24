@@ -1,0 +1,24 @@
+Check HarvesterConfig.h to adjust from which nodes the Harvester will gather data.
+
+Harvester (node 0)
+   Upon start-up the green light will be blinking.
+
+     User Button SHORT (announce existence to network)
+       green light on SensorBox; red light on Harvester... User Button LONG to get data. there
+       will be a delay and then blue lights flash while data transferred. There is another delay
+       before the Harvester is ready for more (green light will start flashing again).
+
+     User Button LONG (shutdown)
+       User Button LONG again to restore SensorBox to "normal" operation. The Harvester has a
+       blue light on while it is working on this. There is a delay before the SensorBox goes
+       back to normal and a delay before the Harvester goes back to normal.
+
+SensorBox (node 1)
+   Upon start-up the red light will be on.
+
+     User Button LONG (clear memory)
+       red+green light... User Button LONG again... wait for blue light
+
+     User Button SHORT (sampling mode)
+       green light... User Button SHORT... light off (10 second start up)... red light on while
+       sampling... all lights off when sampling done and ready for Harvester.

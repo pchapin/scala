@@ -62,15 +62,5 @@ implementation {
         return &current_value;
     }
     
-//    component_id neighbors[] = {
-//        // Each component_id is { node_id, component_number }.
-//        { 2, 1 }
-//    };
-//
-//    command component_set ComponentManager.elements( )
-//    {
-//        component_set remote_set = { neighbors, 1 };
-//        return remote_set;
-//    }
 }
 
