@@ -91,6 +91,8 @@ Scala compiler build. Here we provide more specific details to assist the newcom
    git with your identity information. Execute the following commands (using your own name and
    email address, of course):
 
+   ::
+
        git config --global user.name "Jill Jones"
        git config --global user.email "jjones@example.com"
 
