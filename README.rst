@@ -7,14 +7,14 @@ called "Scalaness." The compiler has been modified so that it can specialize,
 compose, and type check components written in the embedded systems language
 nesC. One unique feature of Scalaness is its type system. If a Scalaness
 program type checks then all possible generated nesC programs will also type
-check successfully. See the documentation in the scalaness/doc folder for
-more information, and the Scalaness README in the scalaness folder for details
-on building the sample programs. Please send questions to PChapin@vtc.vsc.edu.
+check successfully. See the documentation in scalaness/doc for more information
+and the Scalaness README (in the scalaness folder) for details on setting up a
+Scalaness development system and building the sample programs. Send questions
+or comments to PChapin@vtc.vsc.edu.
 
 The material below is the README from the original Scala compiler repository.
-Most of the material (for example build instructions) is applicable to Scalaness.
-The Scalaness compiler is built and used the same way as the normal Scala
-compiler.
+Most of the material (for example build instructions) is applicable to
+Scalaness.
 
 Part 0. The original README
 --------------------------------------------------------------------------------
