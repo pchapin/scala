@@ -1,3 +1,7 @@
+
+Running the Harvester/SensorBox Application
+-------------------------------------------
+
 Check HarvesterConfig.h to adjust from which nodes the Harvester will gather data.
 
 Harvester (node 0)
@@ -22,3 +26,41 @@ SensorBox (node 1)
      User Button SHORT (sampling mode)
        green light... User Button SHORT... light off (10 second start up)... red light on while
        sampling... all lights off when sampling done and ready for Harvester.
+
+
+IntelliJ Compiler Output Logging
+--------------------------------
+
+To turn on IntelliJ's ability to log raw compiler output first add the following to log.xml in
+IntelliJ's bin folder (where IntelliJ is installed):
+
+    <category name="#org.jetbrains.plugins.scala.compiler.ScalacOutputParser">
+        <priority value="DEBUG"/>
+        <appender-ref ref="FILE"/>
+    </category>
+
+It should be added immediately above the <root> element (toward the bottom of the file).
+
+Next, restart IntelliJ. This causes the Scala compiler output parser to log all sorts of
+debugging information into IntelliJ's log file (located in ~/.IdeaIC12/system/log/idea.log). The
+output is rather verbose so you'll probably want to search it for strings of interest. Note that
+IntelliJ rotates log files when the active log reaches about 1 MiB in size and that doesn't take
+long with this debugging feature turned on. Be sure to comment out the lines in log.xml when you
+are done.
+
+IntelliJ appears to run the Scala compiler with a working folder of IntelliJ's installation bin
+folder and not, for example, any folder related to your project. This was determined by
+modifying the compiler to output its working directory while running and viewing that output
+using the technique described above.
+
+IntelliJ checks to be sure the library and compiler version are consistent. If you rebuild one
+and not the other it will complain. You should do 'ant quick.clean; ant' to rebuild both
+versions of the 'pack' compiler to match. Note that Eclipse does not (by default) rebuild pack.
+Thus building with Eclipse does not change or disrupt the compiler created by ant nor does it
+change what happens in IntelliJ (since IntelliJ is using the pack compiler). This can be good
+and bad, but it is important to at least understand it.
+
+The jar artifact created by IntelliJ does not include the bouncycastle jar. That jar has a
+signed manifest and the signature breaks when the jar is expanded for inclusion in the single
+jar artifact. Right now it is necessary to include a class path to bouncycastle when running
+SnowStorm.jar.

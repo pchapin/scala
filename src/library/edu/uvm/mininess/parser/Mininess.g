@@ -1,8 +1,6 @@
 grammar Mininess;
 
 options {
-    backtrack = true;
-    memoize   = true;
     output    = AST;
 }
 
@@ -31,31 +29,53 @@ tokens {
     WHILE          = 'while';
     
     // These type names are treated as if built-in.
+    //
+    // If you change here, be sure to update the 'type_specifier' production.
+    //
     INT8_T         = 'int8_t';
     INT16_T        = 'int16_t';
     INT32_T        = 'int32_t';
+
     UINT8_T        = 'uint8_t';
     UINT16_T       = 'uint16_t';
     UINT32_T       = 'uint32_t';
+
+    NX_INT8_T      = 'nx_int8_t';
+    NX_INT16_T     = 'nx_int16_t';
+    NX_INT32_T     = 'nx_int32_t';
+
     NX_UINT8_T     = 'nx_uint8_t';
     NX_UINT16_T    = 'nx_uint16_t';
     NX_UINT32_T    = 'nx_uint32_t';
+
+    NXLE_INT8_T    = 'nxle_int8_t';
+    NXLE_INT16_T   = 'nxle_int16_t';
+    NXLE_INT32_T   = 'nxle_int32_t';
+    
+    NXLE_UINT8_T   = 'nxle_uint8_t';
+    NXLE_UINT16_T  = 'nxle_uint16_t';
+    NXLE_UINT32_T  = 'nxle_uint32_t';
+
     ERROR_T        = 'error_t';
     
-    // nesC extensions to Standard C
+    // nesC extensions to Standard C. The 'event' and 'interface' reserved words are supported
+    // only because of earlier experiments with interface unwrapping (and the code that handles
+    // it is still in the code base). However, in current Mininess programs they should never
+    // appear.
+    //
     CALL           = 'call';
     COMMAND        = 'command';
-    EVENT          = 'event';
+    EVENT          = 'event';            // Should never appear.
     IMPLEMENTATION = 'implementation';
-    INTERFACE      = 'interface';
+    INTERFACE      = 'interface';        // Should never appear.
     MODULE         = 'module';
     POST           = 'post';
     PROVIDES       = 'provides';
     TASK           = 'task';
     USES           = 'uses';
     
-    // Punctuators
-    AMP            = '&';
+    // Punctuators.
+    AMP            = '&';    // This token has multiple semantic purposes.
     AND            = '&&';
     ARRAYINC       = '|>';
     ARROW          = '->';
@@ -70,6 +90,7 @@ tokens {
     DIVASSIGN      = '/=';
     DIVIDE         = '/';
     DOT            = '.';
+    ELLIPSIS       = '...';
     EQUAL          = '==';
     GREATER        = '>';
     GREATEREQUAL   = '>=';
@@ -160,8 +181,29 @@ tokens {
         symbols = globalSymbols;
     }
 
-    // Provide more detailed error messages for debugging. This is from Definitive ANTLR. This
-    // is useful for grammar debugging but should be changed for "production" use.
+    // The following two magic methods, together with the @rulecatch section below cause the
+    // parser to exit immediately with an exception when an error is encountered.
+    //
+    protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow)
+        throws RecognitionException
+    {
+        throw new MismatchedTokenException(ttype, input);
+    }
+   
+    public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow)
+        throws RecognitionException
+    {
+        throw e;
+    }
+
+    // The following two overrides provide enhanced error messages that are useful for debugging
+    // grammar problems. The messages produced are not very suitable for end users so these
+    // methods should probably be removed before a "production" version of Scalaness is released.
+    //
+    // If you run ANTLR with the -dfa option, it will generate DOT files showing decision state
+    // diagrams. You can use these files to look up a particular decision number to get more
+    // information about what the parser was attempting to do when it encountered the error.
+    // See Section 10.2 on page 245 of the Definitive ANTLR book (for ANTLR v3).
     //
     // public String getErrorMessage(RecognitionException e, String[] tokenNames)
     // {
@@ -184,21 +226,6 @@ tokens {
     // {
     //     return t.toString();
     // }
-
-    // The following two magic methods, together with the @rulecatch section below cause the
-    // parser to exit immediately with an exception when an error is encountered.
-    //
-    protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow)
-        throws RecognitionException
-    {
-        throw new MismatchedTokenException(ttype, input);
-    }
-   
-    public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow)
-        throws RecognitionException
-    {
-        throw e;
-    }
 }
 
 @parser::rulecatch {
@@ -243,7 +270,7 @@ postfix_expression_modifier
 
 call_kind
     :    CALL
-    |    POST;
+    |    POST;   // Do we really want to allow tasks in Mininess?
         
 argument_expression_list
     :    assignment_expression (','! assignment_expression)*;
@@ -256,7 +283,7 @@ unary_expression
     |    '+'  cast_expression  -> ^(UNARY_PLUS    cast_expression )
     |    '-'  cast_expression  -> ^(UNARY_MINUS   cast_expression )
     |    ('~'^ | '!'^) cast_expression
-    |    SIZEOF '(' type_name ')' -> ^(SIZEOF_TYPE type_name)
+    |    (SIZEOF '(' type_name ')') => SIZEOF '(' type_name ')' -> ^(SIZEOF_TYPE type_name)
     |    SIZEOF unary_expression  -> ^(SIZEOF_EXPRESSION unary_expression)
     |    postfix_expression;
     
@@ -265,7 +292,8 @@ unary_expression
 // expression should be entirely contained inside its own tree.
 //
 cast_expression
-    :    '(' type_name ')' cast_expression -> ^(CAST cast_expression type_name)
+    :    ('(' type_name ')') =>
+          '(' type_name ')' cast_expression -> ^(CAST cast_expression type_name)
     |    unary_expression;
 
 arrayinc_expression
@@ -305,11 +333,16 @@ conditional_expression
     :    logical_or_expression ('?'^ expression ':'! conditional_expression)?;
     
 assignment_expression
-    :    unary_expression ('='^ | '*='^ | '/='^ | '%='^ | '+='^ | '-='^ | '<<='^ | '>>='^ | '&='^ | '^='^ | '|='^) assignment_expression
+    :    (unary_expression assignment_operator) =>
+          unary_expression assignment_operator assignment_expression
+             -> ^(assignment_operator unary_expression assignment_expression)
     |    conditional_expression;
-    
+
+assignment_operator
+    :    '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '&=' | '^=' | '|=';
+
 expression
-    :    assignment_expression (','^ assignment_expression)*;
+    :    assignment_expression ((',' assignment_expression) => ','^ assignment_expression)*;
     
 constant_expression
     :    conditional_expression;
@@ -333,7 +366,8 @@ constant_expression
 declaration
 scope { LinkedList<String> declaredNames;
         boolean inStructDeclaration; }
-    :    { $declaration::declaredNames = new LinkedList<String>();
+    :    (declaration_specifiers init_declarator_list? ';') =>
+         { $declaration::declaredNames = new LinkedList<String>();
            $declaration::inStructDeclaration = false;
          }
          // The init_declarator_list is optional because of, for example, structure definitions.
@@ -349,8 +383,14 @@ scope { LinkedList<String> declaredNames;
     |    { $declaration::declaredNames = new LinkedList<String>();
            $declaration::inStructDeclaration = false;
          }
-         function_definition -> ^(DECLARATION ^(FUNCTION_DEFINITION function_definition))
-         // TODO: Add function names to the list of ordinary (non-type) names in the symbol table.
+         function_definition
+             {
+               // Inefficient, but how many declarators will be in a declaration, honestly?
+               for (int i = 0; i < $declaration::declaredNames.size(); ++i) {
+                   symbols.addIdentifier($declaration::declaredNames.get(i));
+               }
+             }
+             -> ^(DECLARATION ^(FUNCTION_DEFINITION function_definition))
 
     |    { $declaration::declaredNames = new LinkedList<String>();
            $declaration::inStructDeclaration = false;
@@ -364,11 +404,17 @@ scope { LinkedList<String> declaredNames;
              }
              -> ^(DECLARATION TYPEDEF declaration_specifiers init_declarator_list);
     
+// nesC allows declarations to be marked as "default" in certain situations. Currently doing so
+// causes problems in blocks where declarations have to be distinguished from statements. A
+// labeled_statement can start with DEFAULT.
+//
 declaration_specifiers
-    :    (storage_class_specifier |
-          type_specifier          |
-          type_qualifier          |
-          DEFAULT)+;
+    :    /* DEFAULT? */ c_style_declaration_specifier+;
+
+c_style_declaration_specifier
+    :    storage_class_specifier
+    |    type_specifier
+    |    type_qualifier;
   
 // The DECLARATOR_LIST pseudo-token is needed as a container for a list of declarators. This
 // is needed to distinguish the declarators in a declaration from the various declaration
@@ -397,37 +443,57 @@ type_specifier
     |   LONG
     |   SIGNED
     |   UNSIGNED
-    |   INT8_T            // Temporary hack?  These types are currently treated as built-in.
-    |   INT16_T           // Temporary hack?
-    |   INT32_T           // Temporary hack?
-    |   UINT8_T           // Temporary hack?
-    |   UINT16_T          // Temporary hack?
-    |   UINT32_T          // Temporary hack?
-    |   NX_UINT8_T        // Temporary hack?
-    |   NX_UINT16_T       // Temporary hack?
-    |   NX_UINT32_T       // Temporary hack?
-    |   ERROR_T           // Temporary hack?
+
+    |   INT8_T
+    |   INT16_T
+    |   INT32_T
+
+    |   UINT8_T
+    |   UINT16_T
+    |   UINT32_T
+
+    |   NX_INT8_T
+    |   NX_INT16_T
+    |   NX_INT32_T
+
+    |   NX_UINT8_T
+    |   NX_UINT16_T
+    |   NX_UINT32_T
+
+    |   NXLE_INT8_T
+    |   NXLE_INT16_T
+    |   NXLE_INT32_T
+
+    |   NXLE_UINT8_T
+    |   NXLE_UINT16_T
+    |   NXLE_UINT32_T
+
+    |   ERROR_T
+
     |   struct_or_union_specifier
     |   enum_specifier
     |   typedef_name;
 
+// Really structure tags should be in their own name space (maybe tag_identifier?) that is
+// distinguished from other identifiers using a semantic predicate. In any case they can be type
+// names (for example) so using the 'identifier' production isn't appropriate.
+//
 struct_or_union_specifier
-    :    struct_or_union identifier? '{' struct_declaration_list '}'
-            -> ^(struct_or_union identifier? struct_declaration_list)
-    |    struct_or_union identifier
-            -> ^(struct_or_union identifier);
-    
-// Unions are not actually supported. The 'or_union' is retained for future reference.
+    :    struct_or_union '{' struct_declaration_list? '}'
+             -> ^(struct_or_union struct_declaration_list?)
+    |    struct_or_union RAW_IDENTIFIER ('{' struct_declaration_list? '}')?
+             -> ^(struct_or_union RAW_IDENTIFIER struct_declaration_list?);
+
+// Unions are not actually supported. The '...or_union' is retained for future reference.
 struct_or_union
-    :    STRUCT
-    |    NX_STRUCT;
+    :    STRUCT | NX_STRUCT;
 
 // BUG: If structure declarations are nested the value of inStructDeclaration is mishandled when
 // the inner declaration is left.
 //
 struct_declaration_list
     :    { $declaration::inStructDeclaration = true; }
-         struct_declaration+
+         ( line_directive_mini | struct_declaration)+
          { $declaration::inStructDeclaration = false; };
     
 struct_declaration
@@ -451,17 +517,15 @@ struct_declarator_list
     :    struct_declarator (',' struct_declarator)* -> ^(DECLARATOR_LIST struct_declarator+);
     
 struct_declarator
-    :    declarator? ':' constant_expression
-    |    declarator;
+    :    declarator (':' constant_expression)?
+    |    ':' constant_expression;
     
 enum_specifier
-    :    ENUM identifier? '{' enumerator_list ','? '}'
-             -> ^(ENUM identifier? enumerator_list)
-    |    ENUM identifier '{' enumerator_list ','? '}'
-             -> ^(ENUM identifier enumerator_list)
-    |    ENUM identifier
-             -> ^(ENUM identifier);
-    
+    :    ENUM '{' enumerator_list ','? '}'
+             -> ^(ENUM enumerator_list)
+    |    ENUM identifier ('{' enumerator_list ','? '}')?
+             -> ^(ENUM identifier enumerator_list?);
+
 enumerator_list
     :    enumerator (','! enumerator)*;
     
@@ -498,14 +562,14 @@ direct_declarator_identifier
             } -> ^(IDENTIFIER_PATH identifier+)
     |   '(' declarator ')' -> declarator;
 
-// Pseudo-tokens are needed to distinguish between declarator modifies that otherwise have
+// Pseudo-tokens are needed to distinguish between declarator modifiers that otherwise have
 // subtle syntactic differences. There is no other regular token that can be naturally used
 // to distinguish these differences.
 //
 direct_declarator_modifier
-    :   '[' constant_expression? ']'
+    :   ('[' constant_expression? ']') => '[' constant_expression? ']'
             -> ^(DECLARATOR_ARRAY_MODIFIER constant_expression?)
-    |   ('[' gen=parameter_type_list ']')? '(' normal=parameter_type_list ')'
+    |   ('[' generic=parameter_list ']')? '(' normal=parameter_list ')'
             -> ^(DECLARATOR_PARAMETER_LIST_MODIFIER $normal);
 
 // The POINTER_QUALIFIER pseudo-token is needed to distinguish the use of '*' in declarations
@@ -519,17 +583,14 @@ pointer
 type_qualifier_list
     :    type_qualifier+;
     
-// BUG: Need to deal with the possibility of '...' in the AST more cleanly than this.
-parameter_type_list
-    :    parameter_list (',' '...')?;
-    
 // The PARAMETER_LIST pseudo-token is needed to properly deal with empty parameter lists (it
-// serves as a placeholder in that case). Also, direct_declarator_modifier entails two
-// parameter lists (one for generic parameters, etc) and they need to be distinguished.
+// serves as a placeholder in that case). Also, direct_declarator_modifier entails two parameter
+// lists (one for generic parameters, etc) and they need to be distinguished. Notice that
+// the ellipsis is only allowed if there is at least one ordinary parameter declaration.
 //
 parameter_list
-    :    parameter_declaration (',' parameter_declaration)*
-            -> ^(PARAMETER_LIST parameter_declaration+)
+    :    parameter_declaration (',' parameter_declaration)* (',' ELLIPSIS)?
+            -> ^(PARAMETER_LIST parameter_declaration+ ELLIPSIS?)
     |
             -> ^(PARAMETER_LIST) ;
 
@@ -538,28 +599,37 @@ parameter_list
 // should be packaged in order to distinguish them clearly.
 //
 parameter_declaration
-    :    declaration_specifiers declarator
-            -> ^(PARAMETER declaration_specifiers declarator)
-    |    declaration_specifiers abstract_declarator?
-            -> ^(PARAMETER declaration_specifiers abstract_declarator?);
-        
+    :    declaration_specifiers parameter_declarator?
+            -> ^(PARAMETER declaration_specifiers parameter_declarator?);
+
+// The problem here is that both declarator and abstract_declarator can start with pointer.
+parameter_declarator
+    :    (declarator) => declarator
+    |    abstract_declarator;
+    
+identifier_list
+    :    identifier (',' identifier)* -> identifier+;
+    
 type_name
     :    specifier_qualifier_list abstract_declarator?;
     
 abstract_declarator
-    :    pointer? direct_abstract_declarator
+    :    (pointer? direct_abstract_declarator) => pointer? direct_abstract_declarator
     |    pointer;
     
 direct_abstract_declarator
-    :    ('(' abstract_declarator    ')' |
-          '[' assignment_expression? ']' |
-          '(' parameter_type_list?   ')')
-             ('[' assignment_expression? ']' | '(' parameter_type_list? ')')*;
+    :    ('(' abstract_declarator ')') => 
+          '(' abstract_declarator ')' direct_abstract_declarator_modifier*
+    |    direct_abstract_declarator_modifier+;
+
+direct_abstract_declarator_modifier
+    :    '[' assignment_expression? ']'
+    |    '(' parameter_list ')';
         
-// Type names have to be handled in a special way. They are not just raw identifiers.
-typedef_name 
-    :    id=RAW_IDENTIFIER
-         { symbols.isType($id.text) }?;
+// Type names are special raw identifiers.
+typedef_name
+    :    { symbols.isType(input.LT(1).getText()) }? RAW_IDENTIFIER;
+//    |    RAW_IDENTIFIER '.' RAW_IDENTIFIER;
     
 // The INITIALIZER_LIST pseudo-token is needed to distinguish brace enclosed initializers from
 // simple assignment expressions. Since the first initializer in an initializer list might also
@@ -570,13 +640,29 @@ initializer
     :    assignment_expression
     |    '{' initializer_list ','? '}' -> ^(INITIALIZER_LIST initializer_list);
     
+// Note that designated initializers are using the gcc form (rather than the C99 form).
+// TODO: The designators should be in the AST since they have semantic significance.
 initializer_list
-    :    initializer (',' initializer)* -> initializer+;
-    
+    :    (RAW_IDENTIFIER ':')? initializer (',' (RAW_IDENTIFIER ':')? initializer)*
+            -> initializer+;
+
 /* ================= */
 /* Statement grammar */
 /* ================= */
 
+// Allowing line_directive here creates problems because an expression_statement can start with
+// a CONSTANT. This means the end of a line_directive can't be unambiguously found. For example
+// something like
+//
+// # "somefile.nc" 1
+// /* null statement */ ;
+//
+// can be parsed as
+//
+// # "somefile.nc"
+// 1;  /* an expression_statement */
+//
+// See also the comment at line_directive.
 statement
     :    labeled_statement
     |    compound_statement
@@ -584,8 +670,7 @@ statement
     |    selection_statement
     |    iteration_statement
     |    jump_statement
-    |    line_directive;    // This is a hack.
-    
+    |    line_directive_mini;    // This is a hack. Is it really necessary?
     
 labeled_statement
     :    CASE constant_expression ':' statement -> ^(CASE constant_expression statement)
@@ -596,12 +681,8 @@ labeled_statement
 //    
 compound_statement
     :    '{' { symbols.enterScope(); }
-         block_item*
-             { symbols.exitScope();  } '}' -> ^(COMPOUND_STATEMENT block_item*);
-
-block_item
-    :    declaration
-    |    statement;
+         declaration* statement*
+             { symbols.exitScope();  } '}' -> ^(COMPOUND_STATEMENT declaration* statement*);
     
 // The STATEMENT pseudo-token is needed so that expression statements are clearly distinguished
 // from declarations, other kinds of statements (if, while, etc), and also to clarify places
@@ -610,9 +691,18 @@ block_item
 expression_statement
     :    expression? ';' -> ^(STATEMENT expression?);
     
+// Using a syntactic predicate here is probably wrong. Typedef declarations inside the
+// controlled statements won't have their types entered into the symbol table when the predicate
+// is being evaluated. Thus nested declarations using those types won't parse. Correct handling
+// might require rewriting the grammar to resolve the ambiguity. The resulting grammar is ugly,
+// however.
+//
 selection_statement
-    :    IF '(' expression ')' statement (ELSE statement)?
-             -> ^(IF expression statement statement?)
+    :    (IF '(' expression ')' statement ELSE statement) =>
+          IF '(' expression ')' s1=statement ELSE s2=statement
+             -> ^(IF expression $s1 $s2)
+    |    IF '(' expression ')' statement
+             -> ^(IF expression statement)
     |    SWITCH '(' expression ')' statement
              -> ^(SWITCH expression statement);
     
@@ -635,7 +725,7 @@ jump_statement
 /* ===================================== */
 
 translation_unit
-    :    (external_declaration | line_directive)+;
+    :    (line_directive | external_declaration)+;
 
 // It would be more accurate to move function_definition here. See the comment at 'declaration'
 external_declaration
@@ -647,44 +737,45 @@ external_declaration
 // In particular, if the #includes are left expanded, the nesC compiler complains about
 // multiple definitions of constructs (types) defined in separate files.
 //
-// Note that because line directives can occur pretty much anywhere this grammar is sprinkled
-// with places where the 'line_directive' nonterminal is allowed. This is a bit of a hack. A
-// better approach might be to only recognize line directives at the top of the file and to
-// just shunt them to the hidden channel (lexically) when processing the body of a component or
-// interface. This requires context sensitive lexical analysis. I haven't implemented that yet.
+// Because line directives can occur pretty much anywhere this grammar is sprinkled with places
+// where line directives are allowed. This is a bit of a hack. A better approach might be to
+// only recognize line directives at global scope and to just shunt them to the hidden channel
+// (lexically) when processing the body of a component or interface. This requires context
+// sensitive lexical analysis. I haven't implemented that yet.
+//
+// For now it is necessary to distinguish between line directives that can occur at global scope
+// from those that can occur inside other structures. See the comment at 'statement' for more
+// information. See also: http://gcc.gnu.org/onlinedocs/cpp/Preprocessor-Output.html for details
+// on the line directive syntax.
 //
 line_directive
-    :    '#' CONSTANT STRING_LITERAL CONSTANT? -> ^(LINE_DIRECTIVE STRING_LITERAL);
+    :    '#' CONSTANT STRING_LITERAL CONSTANT* -> ^(LINE_DIRECTIVE STRING_LITERAL);
+
+line_directive_mini
+    :    '#' CONSTANT STRING_LITERAL -> ^(LINE_DIRECTIVE STRING_LITERAL);
     
+// This is a bit liberal. It permits things like 'int x { ... }.' That is, it does not require
+// the declarator to have a parameter list modifier.
+//
 function_definition
     :    declaration_specifiers declarator compound_statement
             -> declaration_specifiers declarator compound_statement;
 
-/* ============================ */
-/* nesC and Sprocket extensions */
-/* ============================ */
+/* =============== */
+/* nesC extensions */
+/* =============== */
 
 // The FILE pseudo-token is needed to provide a wrapper for the entire file. Otherwise if the
 // optional translation unit is present, a null token is used as the parent of that unit's
-// declarations and the interface|component. This null token is awkward. NOTE: Mininess does
-// not currently support interface files or the handling of interfaces in program specifications.
-// However, some of the productions supporting them are still here (commented out) for possible
-// future expansion.
+// declarations and the interface|component. This null token is awkward.
 //
 mininess_file
-    :    translation_unit? component -> ^(FILE translation_unit? component);
+    :    translation_unit? large_scale_construct
+             -> ^(FILE translation_unit? large_scale_construct);
 
-//  :    translation_unit? interface_definition -> ^(FILE translation_unit? interface_definition)
+large_scale_construct
+    :    component;
 
-
-// // Interface scope is nested inside the global scope.
-// interface_definition
-//     :    INTERFACE identifier
-//         '{' { symbols.enterScope(); }
-//         (declaration | line_directive)*
-//             { symbols.exitScope();  } '}'
-//             -> ^(INTERFACE identifier declaration*);
-    
 component
     :   MODULE identifier component_specification implementation
             -> ^(MODULE identifier component_specification implementation);
@@ -720,10 +811,10 @@ specification_element_list
 
 specification_element
     :    declaration;
-//    |    INTERFACE identifier ';' -> ^(INTERFACE identifier);
 
+// Ordinary identifiers are raw identifiers that are not type names.
 identifier
-    :   id=RAW_IDENTIFIER { !symbols.isType($id.text) }?;
+    :    { !symbols.isType(input.LT(1).getText()) }? RAW_IDENTIFIER;
 
 /* =========== */
 /* Lexer rules */
