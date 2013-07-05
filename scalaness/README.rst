@@ -96,6 +96,8 @@ Scala compiler build. Here we provide more specific details to assist the newcom
 
 3. Clone the Scalaness repository to your system.
 
+   ::
+
        $ mkdir Scala    # Make an appropriate folder.
        $ cd Scala
        $ git clone https://github.com/pchapin/scala.git .    # Note trailing dot.
@@ -128,9 +130,13 @@ Running the Samples
 In all of the sample folders, except the SnowStorm sample, you will find a single source file
 named Main.scala. Compile this file using the Scalaness compiler in the usual way. For example
 
+::
+
      scalac -cp ../bin/scalaness.jar -nowarn Main.scala
 
 Execute the program using a command such as
+
+::
 
      scala -cp .:../bin/scalaness.jar Main <arguments>
 
