@@ -74,7 +74,7 @@ Scala compiler build. Here we provide more specific details to assist the newcom
 1. Install a Java Development Kit. At the time of this writing the Scala compiler build works
    best using Java 6. Download and install the latest Java 6 JDK. We recommend setting the
    JAVA_HOME environment variable to point at the location where the JDK is installed. Also add
-   $JAVA_HOME/bin (or %JAVA_HOME%\bin on Windows) to your PATH environment variable.
+   $JAVA_HOME/bin (or %JAVA_HOME%\\bin on Windows) to your PATH environment variable.
 
 2. Install Ant_. We have used ant version 1.8.2 but any recent version should work. Add the
    folder containing the `ant` script to your PATH environment variable.
@@ -108,10 +108,13 @@ Scala compiler build. Here we provide more specific details to assist the newcom
    README.rst for more information on ant build target options. Note that the full compiler
    build takes a long time.
 
-5. Go into the `scalaness` folder (where this README.rst is located) and run `ant` again to
+5. Create a SCALANESS_HOME environment variable that points at the `build/pack` folder beneath
+   your Scala source tree. This is where the step above put the Scalaness compiler.
+
+6. Go into the `scalaness` folder (where this README.rst is located) and run `ant` again to
    build the scalaness.jar file.
 
-6. (Optional) Set up a TinyOS development environment. This is necessary if you want to compile
+7. (Optional) Set up a TinyOS development environment. This is necessary if you want to compile
    the second stage programs produced by the execution of a Scalaness program. The details on
    setting up and using TinyOS are not described here. See instead the `TinyOS web site`_ for
    more information.
