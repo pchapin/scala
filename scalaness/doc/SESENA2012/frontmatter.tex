@@ -1,0 +1,42 @@
+\title{Dynamic Configuration of nesC Components in Scala}
+\author{
+% 1st. author
+\IEEEauthorblockN{Peter Chapin}
+\IEEEauthorblockA{The University of Vermont\\
+Burlington, Vermont\\
+Email: pchapin@cs.uvm.edu}
+% 2nd. author
+\and
+\IEEEauthorblockN{Christian Skalka}
+\IEEEauthorblockA{The University of Vermont\\
+Burlington, Vermont\\
+Email: skalka@cs.uvm.edu}
+% 3rd. author
+\and
+\IEEEauthorblockN{Michael Watson}
+\IEEEauthorblockA{The University of Vermont\\
+Burlington, Vermont\\
+Email: mpwatson@uvm.edu}
+}
+\maketitle
+
+\begin{abstract}
+  Building programs for constrained embedded devices is challenging
+  due to severe limitations on processing speed, memory, and network
+  bandwidth. Staged programming can help bridge the gap between high
+  level code refinement techniques and device level programs by
+  allowing a first stage program to programmatically specialize device
+  level code. Here we introduce \textit{Scalaness}, a two stage
+  programming system for wireless sensor networks. With Scalaness the
+  first stage program is written in an extended dialect of Scala where
+  components written in a reduced dialect of nesC are composed and
+  specialized. This allows dynamic configuration of nesC components in
+  Scala in a well-typed manner. We give an overview of Scalaness and
+  focus particularly on how it allows second stage programs to be
+  constructed from a mixture of generated components and library
+  components.
+\end{abstract}
+
+\begin{IEEEkeywords}
+staged programming, wireless sensor networks, scala;
+\end{IEEEkeywords}

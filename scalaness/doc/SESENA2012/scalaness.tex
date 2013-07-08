@@ -1,0 +1,219 @@
+
+\section{Scalaness}
+\label{section-scalaness}
+
+In this section we describe the first stage language as an extension
+of Scala. We do not intend to restrict Scala in any way; the first
+stage programmer has full access to the entire language and supporting
+libraries. We extend the language by providing a way for the first
+stage programmer to declare, specialize, and manipulate Mininess
+components.
+
+\subsection{nesC Mappable Types}
+
+A Scalaness program manipulates values that will ultimately be used as
+parameters to generic Mininess modules. These values cross the
+boundary between Scalaness and Mininess and are subject to special
+handling by the system. We define a \newterm{nesC mappable type} as a
+Scala type that has a corresponding nesC type. In a Scalaness program
+all nesC mappable types must be subtypes of the marker trait
+\code{NesCType}. NesC mappable types are also first class values in
+Scalaness programs as further discussed in section
+\autoref{section-first-class-types}.
+
+The primitive nesC types are mapped from Scalaness by classes with
+names such as, for example, \code{Int32}, \code{UInt16}, and
+\code{Void}. Instances of these classes can be operated on in the
+expected way, allowing the Scalaness program to compute values that
+will be passed to the second stage Mininess program.
+
+Structure types in Mininess are mapped from Scala classes and can be
+defined by the programmer. A user defined class $C$ is nesC mappable
+if it obeys the following inductive rules.
+\begin{enumerate}
+\item $C$ is not generic.
+\item $C$ is a subtype of \code{NesCType}.
+\item All of $C$'s fields are nesC mappable.
+\item All of $C$'s supertypes (except for \code{AnyRef} and
+  \code{ScalaObject}) are nesC mappable.
+\end{enumerate}
+
+There are otherwise no restrictions on the definition or use of nesC
+mappable classes in the Scalaness program. In particular, they are
+able to have convenience methods, although the methods of a nesC
+mappable class have no manifestation in the generated nesC code.
+
+\autoref{figure-nesc-mappable-types} shows two nesC mappable classes
+that correspond to Mininess structures used by the secure messaging
+system introduced in \autoref{figure-mininess-message-builders}. The
+\code{Header} class contains a TinyOS node ID and the identifier of a
+component on that node where the message will be delivered. The
+\code{TimeStampedHeader} subclass includes a time stamp on the header.
+
+\begin{fpfig}[tbhp]{nesC Mappable Class Types}{figure-nesc-mappable-types}
+{
+\begin{Verbatim}[fontsize=\small]
+class Header(
+  nodeID     : nodeIDType,
+  componentID: UInt8) extends NesCType
+
+class TimeStampedHeader(timeStamp: UInt16)
+  extends Header
+\end{Verbatim}
+}
+\end{fpfig}
+
+The type used for the node ID, \code{nodeIDType}, is computed during
+the execution of the first stage program as described in
+\autoref{section-first-class-types}.
+
+\subsection{nesC Components}
+\label{section-nesc-components}
+
+A Scalaness program treats Mininess components as entire units. Each
+component is parameterized by upper bounded types or by typed values,
+which allows module genericity to be expressed. The types used with
+these parameters must be nesC mappable types.
+
+A Mininess module is represented in a Scalaness program as a Scala
+class or object that extends the marker trait \code{NesCComponet}.
+Type and value parameters of the module are provided using the usual
+Scala syntax; a Scala object is only permitted when the represented
+Mininess module is not generic.
+
+The last expression in the class's (or object's) primary constructor
+must be a string literal that names a file containing the Mininess
+code of the represented module.
+\autoref{figure-scalaness-message-builders} shows the Scalaness
+representation of the Mininess modules in
+\autoref{figure-mininess-message-builders}.
+
+\begin{fpfig}[tbhp]{Scalaness Message Building Modules}{figure-scalaness-message-builders}
+{
+\begin{Verbatim}[fontsize=\small]
+class MessageBuilderC[HeaderType <: Header]
+  (messageSize: UInt8)
+    extends NesCComponent
+{ "MessageBuilderC.nc" }
+
+object AuthorizeC extends NesCComponent
+{ "AuthorizeC.nc" }
+
+\end{Verbatim}
+}
+\end{fpfig}
+
+The \code{HeaderType} type parameter and \code{messageSize} value
+parameter are used in \code{MessageBuilderC}'s Mininess code. Each
+instance of the class corresponds to a separate instance of the
+module, appropriately specialized. The \code{AuthorizeC} module, in
+contrast, is not generic and can be represented by a singleton Scala
+object directly.
+
+\autoref{figure-module-instantiation} illustrates how generic Mininess
+modules can be instantiated using Scala's ordinary syntax for doing
+so. For illustrative purposes the payload size is dynamically
+specified in one case and statically in the other.
+
+\begin{fpfig}[tbhp]{Scalaness Module Instantiation}{figure-module-instantiation}
+{
+\begin{Verbatim}[fontsize=\small]
+val basicBuilder =
+  new MessageBuilderC[Header](payloadSize)
+
+val timeStampedBuilder =
+  new MessageBuilderC[TimeStampedHeader](16)
+\end{Verbatim}
+}
+\end{fpfig}
+
+The Scalaness compiler infers the module type for the instances. Note
+that there is currently no syntax for Scalaness module types in
+Scalaness programs. This imposes some limitations on how modules can
+be used since there are places in Scala where type annotations are
+necessary.
+
+\subsection{Component Composition}
+\label{section-component-composition}
+
+NesC programs consist of components that are wired together in
+\newterm{configurations}. Like a module a configuration also has
+imports and exports, and thus a Scalaness module type, but it is
+implemented by connecting together other components. Scalaness allows
+two components with module types to be composed with the \code{+}
+operator. This creates a new configuration from the components and
+joins exports of one component to the compatible imports of the other.
+It is important to note that it is a type error if such a composition
+can't be done.
+
+\autoref{figure-component-composition} shows the basic builder module
+being connected to the authorizer component. The resulting
+configuration is then composed with the timestamped builder module.
+Note that the exports of \code{AuthorizeC} are still available for
+connection after composition allowing both message builders to use the
+same authorizer.
+
+\begin{fpfig}[tbhp]{Component Composition}{figure-component-composition}
+{
+\begin{Verbatim}[fontsize=\small]
+val configuration =
+  timeStampedBuilder +
+    (basicBuilder + AuthorizeC)
+
+validate: configuration
+\end{Verbatim}
+}
+\end{fpfig}
+
+The \code{validate:} method applied to a component causes the
+specialized Mininess program to be generated, along with any
+supporting nesC configurations required. Following the theory
+developed in \cite{FramedML} if the \code{validate} expression type
+checks then the generated nesC program will be type correct.
+
+\subsection{Mappable Type Computation}
+\label{section-first-class-types}
+
+An important feature of Scalaness is its ability to treat nesC
+mappable types as first class values dung the execution of the first
+stage. This allows a Scalaness program to dynamically compute which
+types are most appropriate to use in the second stage code. Type
+computation in the first stage is done with the help of instances of
+the \code{Typedef} class defined in \autoref{figure-typedef}.
+
+\begin{fpfig}[tbhp]{Representation of a nesC Type}{figure-typedef}
+{
+\begin{Verbatim}[fontsize=\small]
+class Typedef[+T <: NesCType]
+  (t: CovariantClass[T]) extends NesCType
+
+class CovariantClass[+T](t: Class[T])
+\end{Verbatim}
+}
+\end{fpfig}
+
+Each \code{Typedef} instance wraps a normal Java \code{Class} instance
+representing a nesC mappable type. Its type parameter is an upper
+bound on the types that a particular instance may wrap. A
+\code{Typedef} instance may then be used syntactically as a type in
+Scalaness to, for example, specify the type of a field in a nesC
+mappable class as in \autoref{figure-nesc-mappable-types}, or passed
+as a type argument to a Mininess module.
+
+\autoref{figure-compute-with-types} shows an example of a node ID type
+being selected based on dynamic information about the size of the
+network. Note that there is an implicit conversion from \code{Class}
+to \code{CovariantClass}.
+
+\begin{fpfig}[tbhp]{Dynamic Computation with nesC Types}{figure-compute-with-types}
+{
+\begin{Verbatim}[fontsize=\small]
+val nodeIDType = new Typedef[UInt16](
+  if (topology.size >= 256)
+    Class[UInt16]
+  else
+    Class[UInt8]
+)
+\end{Verbatim}
+}
+\end{fpfig}

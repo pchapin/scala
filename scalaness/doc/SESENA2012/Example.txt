@@ -1,0 +1,48 @@
+
+class Header(
+  nodeID     : nodeIDType,
+  componentID: UInt8) extends NesCType
+
+class TimeStampedHeader(timeStamp: UInt16) extends Header
+
+class MessageBuilderC[HeaderType <: Header](messageSize: UInt8)
+  extends NesCComponent { "MessageBuilderC.nc" }
+
+module MessageBuilderC {
+  uses command computeToken(uint8_t *data, size_t size);
+}
+implementation {
+  ...
+  struct Message {
+    HeaderType header;
+    uint8_t    message[messageSize];
+  };
+
+  struct Message message;
+  ...
+  call computeToken(&message, sizeof(message));
+  ...
+}
+
+
+object AuthorizeC extends NesCComponent { "AuthorizeC.nc" }
+
+module AuthorizeC {
+  provides command computeToken(uint8_t *data, size_t size);
+}
+implementation {
+  ...
+  int16_t i;
+  for (i = 0; i < size; ++i) {
+    ...
+  }
+  ...
+}
+
+
+val nodeIDType = new Typedef[UInt16]( if (...) Class[UInt16] else Class[UInt8] )
+
+val basicBuilder = new MessageBuilderC[Header](16)
+val timeStampedBuilder = new MessageBuilderC[TimeStampedHeader](16)
+val configuration = timeStampedBuilder + (basicBuilder + AuthorizeC)
+validate: configuration

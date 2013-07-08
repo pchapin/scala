@@ -21,11 +21,3 @@ scaladoc
 
 # bak files produced by ./cleanup-commit
 *.bak
-
-# Artifacts related to the Scalaness sample programs.
-scalaness/*/*.class
-scalaness/*/generated
-scalaness/SnowStorm/.idea/workspace.xml
-
-# Artifacts related to the Scalaness plugin
-scalaness/plugin/.idea/workspace.xml

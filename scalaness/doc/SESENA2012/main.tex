@@ -1,0 +1,51 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FILE    : main.tex
+% SUBJECT : Master document for the SESENA 2012 paper.
+% AUTHOR  : (C) Copyright 2012 by Peter C. Chapin and Christan Skalka
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[10pt, conference, compsocconf]{IEEEtran}
+
+% --------
+% Packages
+% --------
+\usepackage{amstext}
+\usepackage{color}
+\usepackage{fancyvrb}
+\usepackage{stmaryrd}
+\usepackage[english]{fp-autoref}
+\usepackage{fp-frame}
+\usepackage{url}
+
+% ------
+% Macros
+% ------
+\include{macros}
+
+\begin{document}
+% ----------
+% Title page
+% ----------
+\input{frontmatter}
+
+% ----------------
+% Document content
+% ----------------
+\input{introduction}
+\input{mininess}
+\input{scalaness}
+\input{external}
+\input{implementation}
+%\input{related-work}
+\input{conclusion}
+
+% ------------------------------
+% Appendix and related materials
+% ------------------------------
+
+%\IEEEtriggeratref{11}   % Puts a column break before indicated reference.
+\bibliographystyle{IEEEtran}
+\bibliography{../references-Meta,../references-Scala,../references-WSN}
+
+\end{document}

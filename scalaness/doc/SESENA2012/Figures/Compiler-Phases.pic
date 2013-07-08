@@ -1,0 +1,33 @@
+.PS
+
+Compiler: box ht 2.80 wid 1.75;
+
+Parser: box ht 0.25 wid 1.25 "Scala Parser" \
+  with .nw at (Compiler.nw + (0.25, -0.20));
+
+Converter: box dashed ht 0.25 wid 1.25 "Scalaness to Scala" \
+  with .nw at (Parser.sw + (0.00, -0.20));
+
+Typer: box ht 0.50 wid 1.25 "Scala" "Type Analysis" \
+  with .nw at (Converter.sw + (0.00, -0.20));
+
+ScalanessTyper: box dashed ht 0.50 wid 1.25 "Scalaness" "Type Analysis" \
+  with .nw at (Typer.sw + (0.00, -0.20));
+
+move to Parser.n + (0.0, 0.4); down; arrow 0.4;
+move to Parser.s;         arrow 0.20;
+move to Converter.s;      arrow 0.20;
+move to Typer.s;          arrow 0.20;
+move to ScalanessTyper.s; arrow dashed to (Compiler.s + (0.0, -0.20));
+
+move to Compiler.n + (0.0, 0.1);  "Scalaness Source " rjust;
+move to Compiler.s + (0.0, -0.1); "JVM Bytecode " rjust;
+
+move to Parser.se + (0.65, -0.10); " Standard" ljust " Phases" ljust;
+move to Parser.se + (0.65, -0.10); arrow to Parser.e;
+move to Parser.se + (0.65, -0.10); arrow to Typer.e;
+move to Typer.se  + (0.65, -0.10); " Scalaness" ljust " Phases" ljust;
+move to Typer.se  + (0.65, -0.10); arrow to Converter.e;
+move to Typer.se  + (0.65, -0.10); arrow to ScalanessTyper.e;
+
+.PE

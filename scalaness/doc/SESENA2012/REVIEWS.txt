@@ -1,0 +1,170 @@
+Dear Peter Chapin,
+
+We are sorry to inform you that your paper #11, Dynamic Configuration of
+nesC Components in Scala was rejected, and will not appear in the SESENA
+workshop.
+
+Reviews and comments on your paper are appended to this email. We hope
+they will be useful as you continue your work.
+
+Attendance at the workshop is open, and we encourage you to consider
+attending to participate in the discussions, in particular the Speaker's
+Corner.
+
+SESENA'12 co-chairs
+Vittorio Cortellessa and Amy Murphy
+
+
+----------------------- REVIEW 1 ---------------------
+PAPER: 11
+TITLE: Dynamic Configuration of nesC Components in Scala
+AUTHORS: Peter Chapin, Christian Skalka and Michael Watson
+
+This work presents a staged programming approach for WSN.
+
+I'm quite expert of nesC and TinyOS "low-level" programming but I'm not
+an expert of staged programming (in particular I don't know the SCALA
+language). It is really difficult for me to identify the added value of
+the proposed approach since it seems to me quite complicated with
+respect to the direct use of nesc/tinyos (but maybe just a matter of
+experience). Moreover, I have found the paper quite difficult to follow
+so a better structuring and exposition would be needed.
+
+STRENGHTS: I'm not able to identify clear strenghts. This could be an
+indicator for the need of a better exposition of concepts and goals.
+
+WEAKNESSES: The work is quite difficult to follow. Moreover, it seems
+that the authors don't consider properly network protocol issues when
+talking about WSN applications. For example, they talk about the
+possibility to reduce size of "neighbor specific data structures" on the
+base of the data collected by means of a first stage run. However, such
+data structures could be related to the need to be compliant to a given
+protocol and not only to particular run-time data.
+
+
+----------------------- REVIEW 2 ---------------------
+PAPER: 11
+TITLE: Dynamic Configuration of nesC Components in Scala
+AUTHORS: Peter Chapin, Christian Skalka and Michael Watson
+
+Summary: The paper describes a staged programming framework based on a
+dialect of Scala. The first stage programs are used to manipulate and
+configure nesC components and component configurations. The authors
+describe the programming model and report on the current status of the
+implementation.
+
+Pros: Staged programming may be a nice twist on the WSN programming
+problem, particularly in that it appears to enable rapidly evolving
+implementations.
+
+Cons: The paper is limited to a mere description of the programming
+model by means of simplistic examples. What I am missing is a
+description of what advantages this framework provides over the state of
+the art to the implementation of a real application, and what it buys to
+WSN programmers using it. Maybe the work is a tad premature.
+
+Comments: I think this work could have been presented much better. Right
+now, the description is limited to series of simplistic examples showing
+the basic features of the programming framework. Perhaps I'm a bit
+exaggerated, but it feels almost like a tutorial rather than a
+scientific paper. I am missing a crisp discussion of what advances this
+provides over the state of the art, and what the framework ultimately
+buys to WSN programmers that they didn't have before. I think a much
+more thorough discussion of this is required, possibly along the lines
+of what's reported in:
+
+Sugihara, R. and Gupta, R. K. 2008. "Programming models for sensor
+networks: A survey." ACM Transactions on Sensor Networks 4, 2.
+
+L. Mottola and G.P. Picco, "Programming Wireless Sensor Networks:
+Fundamental Concepts and State of the Art". In ACM Computing Surveys.
+Volume 43, Issue 3. April 2011.
+
+Moreover, the requirements and application scenarios the authors target
+are only very vaguely discussed. I think it would be much more effective
+to use a non-trivial real application as motivating scenario and running
+example. Right now, it's hard to figure out how the authors' framework
+would work beyond the simple examples presented here.
+
+On the technical side, there are two aspects that deserve better discussion:
+
+- I didn't get why nesC events need to be transformed in commands. The
+  distinction between the two in nesC is purely syntactical and both
+  behave as pure C functions: why is it necessary to turn everything in
+  a command in the authors' framework? If this instead has something to
+  do with *async* events in nesC (which are a very particular case, and
+  I would argue would hardly be part of what programmers see through
+  Scalaness), then this must be discussed explicitly.
+
+- What is the type checking functionality providing specifically? Right
+  now, the description sounds like it could provide basically the same
+  static information on well-defined component configurations and such
+  that the latest nesC preprocessor versions provide anyways. What's the
+  added value here? What is it that the authors can capture that the
+  standard nesC preprocessor doesn't?
+
+Finally, I also need to point out that there is essentially no
+evaluation here, not even quantitatively. Although it's unreasonable to
+ask for a full-fledged evaluation here, a minimum evidence that the
+authors are on the right track shall be provided. I think this goes
+along the impression that the work is premature.
+
+
+----------------------- REVIEW 3 ---------------------
+PAPER: 11
+TITLE: Dynamic Configuration of nesC Components in Scala
+AUTHORS: Peter Chapin, Christian Skalka and Michael Watson
+
+This paper presents Scalaness, a two stage programming language for
+wireless sensor networks. The paper is very well written and addresses a
+very important problem: efficient and robust programming of sensor
+network applications. However, it is not clear to me what the motivation
+of using Scalaness as opposed to plain nesC is and, especially, what the
+overhead is of running a sensor network application with Scala.
+
+The claim from the introduction that Scalaness is needed in order to
+support dynamic changes and conditions of the networks is not properly
+motivated. What kind of changes are you considering? Changes in the
+code, in the environment where the sensor network is deployed, etc.?
+Additionally, the authors want to use a two stage process where the
+first stage runs on a powerful base station or hand-held device. But why
+do you need this? What is the purpose of having this second stage in the
+process? Do you do this only once or does this have to happen
+continuously? It seems to me that if you want to support dynamic and
+changing conditions, you need to have this first stage take care of the
+network, right?
+
+The expressiveness of Mininess and Scalaness has not really been argued
+for. What does it mean for most components to run? You mention that
+Mininess does not allow events, but this is the basis for the
+programming of nesC and TinyOS applications, so how do I need to write
+my applications now? Why translating them to nesC if the most basic
+feature is not supported? Maybe I am missing the point but this does not
+seem to be a trivial limitation. In section IV, you mention that
+Mininess is "expressive enough to write useful program components". What
+does this mean? Am I missing anything by using Mininess? What exactly?
+What are useful program components?
+
+I understand the need to bind to external libraries, but you mention
+also in the paragraph that you "break" Mininess ("interfaces are not
+strictly legal in Mininess") in order to allow for the binding of
+external libraries. Again, why did you design Mininess in such a way
+that it breaks one of the basic assumptions of programming for sensor
+nodes? It would have been useful to understand the reason for this
+design choice.
+
+Finally, and related to the first comment in this review, it is not
+clear what the overhead of running Scalaness programs is. In the
+implementation section you mention that Scala is compiled in several
+phases towards JVM bytecode. Why JVM? Why not native code? Do I need to
+run a virtual machine in the sensor nodes to execute my applications?
+Even if this is not the case, what is the overhead of running an
+application in your framework? How does the generated code compare to
+just using nesC and TinyOS (since you base your implementation on that)?
+It would have been nice to see experiments that support the use of
+Mininess and Scalaness for performance, robustness or flexibility
+reasons, as you claim in the introduction.
+
+All in all, an interesting approach to programming wireless sensor
+networks, but I am not sure the motivation and the benefits of using
+Mininess and Scalaness have been clearly presented in the paper.

@@ -1,0 +1,71 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FILE    : viewer.tex
+% SUBJECT : Main file for viewing a single figure.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+\usepackage{fancyvrb}
+\usepackage{fp-frame}
+
+\newsavebox{\savebigbox}
+\newenvironment{textbox}[1]{
+  \begin{lrbox}{\savebigbox}
+  \begin{minipage}{#1}
+  \vspace{1.0em}
+}
+{
+  \vspace{0.50em}
+  \end{minipage}
+  \end{lrbox}\framebox[\textwidth]{\hfill\fbox{\usebox{\savebigbox}}\hfill}
+}
+
+\begin{document}
+% ----------
+% Title page
+% ----------
+\title{Figure Viewer}
+\author{Peter C. Chapin}
+\maketitle
+
+% ----------------
+% Document content
+% ----------------
+
+As shown in Fig.~\ref{fig:fascinating} this paper contains fascinating results. After reading
+this paper you will be respected by your peers, make more money, own a fast car, and have a
+superior life in every way.
+
+%\begin{figure}[htbp]
+%{
+%\begin{textbox}{2.75in}
+%\begin{Verbatim}
+%typedef struct {
+%    uint16_t node_id;
+%    uint8_t  local_id;
+%} component_id;
+%
+%typedef struct {
+%    int count;
+%    component_id *ids;
+%} component_set;
+%
+%interface ComponentManager { 
+%    command component_set elements();
+%}
+%\end{Verbatim}
+%\end{textbox}
+%\caption{A Fascinating Figure}
+%\label{fig:fascinating}
+%}
+%\end{figure}
+
+\begin{figure}[htbp]
+  \input{Compiler-Phases}
+  \centerline{\raise 1em\box\graph}
+  \caption{A Fascinating Figure}
+  \label{fig:fascinating}
+\end{figure}
+
+\end{document}

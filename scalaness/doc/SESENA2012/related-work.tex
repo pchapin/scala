@@ -1,0 +1,60 @@
+
+\section{Related Work}
+\label{section-related-work}
+
+% This section is a simplifcation of the Related Work section in my proposal. There is certainly
+% a lot of literature on staging but given our limited space I just tried to highlight a couple
+% of things.
+
+%% * MetaML
+%% * MetaOCaml
+%
+%There is a large body of literature related to staged programming. One of the seminal works on
+%the subject is MetaML \cite{Taha-MetaML}. A practical implementation of MetaML concepts can be
+%found in MetaOCaml \cite{Calcagno-MetaOCaml}. These systems support a general ability, called
+%\emph{cross stage persistence}, for a later stage of computation to use values created in
+%earlier stages. The nesT system on which my work is based, uses a restricted notion of cross
+%stage persistence that is more appropriate for sensor network applications. Also MetaML does not
+%address the issue of dynamic type construction. Finally MetaML and MetaOCaml, like many other
+%staged programming systems, requires that the same language be used in all stages. That is not a
+%feasible requirement in my case.
+
+% * Flask
+% * Template Haskell
+
+Flask \cite{Mainland-Flask-2008} is a domain specific language embedded in Haskell that allows
+the generation of second stage programs in nesC. It uses a quasiquoting scheme similar to
+Template Haskell \cite{Sheard-TemplateHaskell} but extended to allow for non-Haskell second
+stage languages \cite{Mainland-2007}. However, Flask, unlike Scalaness, defers full type
+checking of the generated program until the execution of the first stage program. As discussed
+in \autoref{section-introduction} this is too late for in-the-field (re)configuration of sensor
+network deployments.
+
+%% * Extending Scala with Database Query Capability
+%
+%A Scala compiler plugin that processes a database query language embedded in Scala is described
+%in \cite{Garcia-Scala-Query}. Embedded queries can make use of data objects defined in the
+%enclosing Scala program and can bind query results to names accessible by the enclosing program.
+%Thus, as with my proposed work, issues of mapping types and values from one language to another
+%arise. In addition, similar to my proposed work, the embedded query processor statically ensures
+%that the queries are well typed and guaranteed to evaluate without run time error.
+%
+%In order to implement support for embedded queries as a compiler plugin, it was necessary to
+%require the programmer to express queries as string literals or, alternatively, in a subset of
+%plain Scala. The query processor plugin converts the query language into Scala abstract syntax
+%trees so that it can be manipulated by later compiler phases. This technique is also similar to
+%my anticipated implementation strategy. However, there are some important differences. My
+%proposed work requires that certain types be treated as values, along with associated changes in
+%type checking. In addition my proposed work must support parametric polymorphism in the style of
+%System F$_\le$, a feature not explored in \cite{Garcia-Scala-Query}.
+
+% * Lightweight Modular Staging
+
+Scala has also been used to implement a staged programming system, called Lightweight Modular
+Staging (LMS), entirely as a library \cite{Rompf-LMS}. In this system the representation of code
+is hidden inside a type constructor that is parameterized by the result type of the code it
+represents. Lightweight Modular Staging differs from Scalaness in that it does not allow types
+to be manipulated as values. Also it provides fine grained staged operations and would require a
+sensor network programmer to write node level code in Scala syntax. Scalaness allows the sensor
+network programmer to write the bulk of the node level code in nesC and use Scala strictly for
+component level processing.

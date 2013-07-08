@@ -1,0 +1,42 @@
+%\newtheorem{condition}{Condition}[section]
+%\newtheorem{corollary}{Corollary}[section]
+%\newtheorem{definition}{Definition}[section]
+%\newtheorem{example}{Example}[section]
+%\newtheorem{lemma}{Lemma}[section]
+%\newtheorem{proposition}{Proposition}[section]
+%\newtheorem{theorem}{Theorem}[section]
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\filename}[1]{\texttt{#1}}
+\newcommand{\newterm}[1]{\textit{#1}}
+\newcommand{\ttt}[1]{\texttt{#1}}
+
+\long\def\cnote#1{\marginpar{\color{red}{CS}}{\small \ \ $\langle\langle\langle$\
+{#1 - CS}\
+    $\rangle\rangle\rangle$\ \ }} 
+\long\def\pnote#1{\marginpar{\color{blue}{PC}}{\small \ \ $\langle\langle\langle$\
+{#1 - PC}\
+    $\rangle\rangle\rangle$\ \ }} 
+
+% This macro is for text figures (program listings). Use as follows:
+% \begin{figure}[htbp]
+% \begin{textbox}{3in}  % The width of the text.
+% \begin{Verbatim}
+% ...
+% \end{Verbatim}
+% \end{textbox}
+% \caption{...}
+% \label{...}
+% \end{figure}
+%
+\newsavebox{\savebigbox}
+\newenvironment{textbox}[1]{
+  \begin{lrbox}{\savebigbox}
+  \begin{minipage}{#1}
+  \vspace{1.0em}
+}
+{
+  \vspace{0.50em}
+  \end{minipage}
+  \end{lrbox}\framebox[\textwidth]{\hfill\fbox{\usebox{\savebigbox}}\hfill}
+}

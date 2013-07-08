@@ -1,0 +1,202 @@
+\expandafter\ifx\csname graph\endcsname\relax
+   \csname newbox\expandafter\endcsname\csname graph\endcsname
+\fi
+\ifx\graphtemp\undefined
+  \csname newdimen\endcsname\graphtemp
+\fi
+\expandafter\setbox\csname graph\endcsname
+ =\vtop{\vskip 0pt\hbox{%
+    \special{pn 8}%
+    \special{pa 0 3000}%
+    \special{pa 1750 3000}%
+    \special{pa 1750 200}%
+    \special{pa 0 200}%
+    \special{pa 0 3000}%
+    \special{fp}%
+    \special{pa 250 650}%
+    \special{pa 1500 650}%
+    \special{pa 1500 400}%
+    \special{pa 250 400}%
+    \special{pa 250 650}%
+    \special{fp}%
+    \graphtemp=.5ex
+    \advance\graphtemp by 0.525in
+    \rlap{\kern 0.875in\lower\graphtemp\hbox to 0pt{\hss Scala Parser\hss}}%
+    \special{pa 250 1100}%
+    \special{pa 1500 1100}%
+    \special{pa 1500 850}%
+    \special{pa 250 850}%
+    \special{pa 250 1100}%
+    \special{da 0.050}%
+    \graphtemp=.5ex
+    \advance\graphtemp by 0.975in
+    \rlap{\kern 0.875in\lower\graphtemp\hbox to 0pt{\hss Scalaness to Scala\hss}}%
+    \special{pa 250 1800}%
+    \special{pa 1500 1800}%
+    \special{pa 1500 1300}%
+    \special{pa 250 1300}%
+    \special{pa 250 1800}%
+    \special{fp}%
+    \graphtemp=\baselineskip
+    \multiply\graphtemp by -1
+    \divide\graphtemp by 2
+    \advance\graphtemp by .5ex
+    \advance\graphtemp by 1.550in
+    \rlap{\kern 0.875in\lower\graphtemp\hbox to 0pt{\hss Scala\hss}}%
+    \graphtemp=\baselineskip
+    \multiply\graphtemp by 1
+    \divide\graphtemp by 2
+    \advance\graphtemp by .5ex
+    \advance\graphtemp by 1.550in
+    \rlap{\kern 0.875in\lower\graphtemp\hbox to 0pt{\hss Type Analysis\hss}}%
+    \special{pa 250 2500}%
+    \special{pa 1500 2500}%
+    \special{pa 1500 2000}%
+    \special{pa 250 2000}%
+    \special{pa 250 2500}%
+    \special{da 0.050}%
+    \graphtemp=\baselineskip
+    \multiply\graphtemp by -1
+    \divide\graphtemp by 2
+    \advance\graphtemp by .5ex
+    \advance\graphtemp by 2.250in
+    \rlap{\kern 0.875in\lower\graphtemp\hbox to 0pt{\hss Scalaness\hss}}%
+    \graphtemp=\baselineskip
+    \multiply\graphtemp by 1
+    \divide\graphtemp by 2
+    \advance\graphtemp by .5ex
+    \advance\graphtemp by 2.250in
+    \rlap{\kern 0.875in\lower\graphtemp\hbox to 0pt{\hss Type Analysis\hss}}%
+    \special{sh 1.000}%
+    \special{pn 1}%
+    \special{pa 900 300}%
+    \special{pa 875 400}%
+    \special{pa 850 300}%
+    \special{pa 900 300}%
+    \special{fp}%
+    \special{pn 8}%
+    \special{pa 875 0}%
+    \special{pa 875 300}%
+    \special{fp}%
+    \special{sh 1.000}%
+    \special{pn 1}%
+    \special{pa 900 750}%
+    \special{pa 875 850}%
+    \special{pa 850 750}%
+    \special{pa 900 750}%
+    \special{fp}%
+    \special{pn 8}%
+    \special{pa 875 650}%
+    \special{pa 875 750}%
+    \special{fp}%
+    \special{sh 1.000}%
+    \special{pn 1}%
+    \special{pa 900 1200}%
+    \special{pa 875 1300}%
+    \special{pa 850 1200}%
+    \special{pa 900 1200}%
+    \special{fp}%
+    \special{pn 8}%
+    \special{pa 875 1100}%
+    \special{pa 875 1200}%
+    \special{fp}%
+    \special{sh 1.000}%
+    \special{pn 1}%
+    \special{pa 900 1900}%
+    \special{pa 875 2000}%
+    \special{pa 850 1900}%
+    \special{pa 900 1900}%
+    \special{fp}%
+    \special{pn 8}%
+    \special{pa 875 1800}%
+    \special{pa 875 1900}%
+    \special{fp}%
+    \special{sh 1.000}%
+    \special{pn 1}%
+    \special{pa 900 3100}%
+    \special{pa 875 3200}%
+    \special{pa 850 3100}%
+    \special{pa 900 3100}%
+    \special{fp}%
+    \special{pn 8}%
+    \special{pa 875 2500}%
+    \special{pa 875 3100}%
+    \special{da 0.050}%
+    \graphtemp=.5ex
+    \advance\graphtemp by 0.100in
+    \rlap{\kern 0.875in\lower\graphtemp\hbox to 0pt{\hss Scalaness Source }}%
+    \graphtemp=.5ex
+    \advance\graphtemp by 3.100in
+    \rlap{\kern 0.875in\lower\graphtemp\hbox to 0pt{\hss JVM Bytecode }}%
+    \graphtemp=\baselineskip
+    \multiply\graphtemp by -1
+    \divide\graphtemp by 2
+    \advance\graphtemp by .5ex
+    \advance\graphtemp by 0.750in
+    \rlap{\kern 2.150in\lower\graphtemp\hbox to 0pt{ Standard\hss}}%
+    \graphtemp=\baselineskip
+    \multiply\graphtemp by 1
+    \divide\graphtemp by 2
+    \advance\graphtemp by .5ex
+    \advance\graphtemp by 0.750in
+    \rlap{\kern 2.150in\lower\graphtemp\hbox to 0pt{ Phases\hss}}%
+    \special{sh 1.000}%
+    \special{pn 1}%
+    \special{pa 1586 581}%
+    \special{pa 1500 525}%
+    \special{pa 1603 534}%
+    \special{pa 1586 581}%
+    \special{fp}%
+    \special{pn 8}%
+    \special{pa 2150 750}%
+    \special{pa 1594 558}%
+    \special{fp}%
+    \special{sh 1.000}%
+    \special{pn 1}%
+    \special{pa 1582 1488}%
+    \special{pa 1500 1550}%
+    \special{pa 1544 1457}%
+    \special{pa 1582 1488}%
+    \special{fp}%
+    \special{pn 8}%
+    \special{pa 2150 750}%
+    \special{pa 1563 1472}%
+    \special{fp}%
+    \graphtemp=\baselineskip
+    \multiply\graphtemp by -1
+    \divide\graphtemp by 2
+    \advance\graphtemp by .5ex
+    \advance\graphtemp by 1.900in
+    \rlap{\kern 2.150in\lower\graphtemp\hbox to 0pt{ Scalaness\hss}}%
+    \graphtemp=\baselineskip
+    \multiply\graphtemp by 1
+    \divide\graphtemp by 2
+    \advance\graphtemp by .5ex
+    \advance\graphtemp by 1.900in
+    \rlap{\kern 2.150in\lower\graphtemp\hbox to 0pt{ Phases\hss}}%
+    \special{sh 1.000}%
+    \special{pn 1}%
+    \special{pa 1537 1071}%
+    \special{pa 1500 975}%
+    \special{pa 1578 1042}%
+    \special{pa 1537 1071}%
+    \special{fp}%
+    \special{pn 8}%
+    \special{pa 2150 1900}%
+    \special{pa 1557 1057}%
+    \special{fp}%
+    \special{sh 1.000}%
+    \special{pn 1}%
+    \special{pa 1600 2225}%
+    \special{pa 1500 2250}%
+    \special{pa 1576 2181}%
+    \special{pa 1600 2225}%
+    \special{fp}%
+    \special{pn 8}%
+    \special{pa 2150 1900}%
+    \special{pa 1588 2203}%
+    \special{fp}%
+    \hbox{\vrule depth3.200in width0pt height 0pt}%
+    \kern 2.150in
+  }%
+}%

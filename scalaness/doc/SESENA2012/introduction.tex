@@ -1,0 +1,80 @@
+\section{Introduction}
+\label{section-introduction}
+
+It is well known that wireless sensor network (WSN) programming is
+challenging because of the severe resource constraints imposed by
+sensor network nodes. Often, WSN software benefits from iterative
+refinement over time as it adapts to environmental and network
+conditions. \newterm{Staged programming}
+\cite{Taha-MetaML,Sheard-TemplateHaskell,Mainland-Flask-2008,FramedML}
+is a technique that supports programmatic specification of code
+deployment cycles and code refinement. In staged programming, code is
+a datatype that can be dynamically modified, composed, and
+specialized. Thus, one program ``stage'' can specify how to generate
+code for ``later'' stages. This idea has been explored previously for
+embedded systems programming, since it allows to obtain highly
+efficient code based on dynamically-determined conditions
+\cite{Taha03generatingheap-bounded,DBLP:conf/icess/Taha04}.
+
+We visualize a \emph{two} stage programming system for wireless sensor
+networks where the first stage runs possibly \emph{in the field} on a
+relatively powerful base station or hand-held device. The first stage
+could make use of inputs known only during deployment or by querying
+the network after it has been deployed. For example, using information
+about the actual the number of neighbors each node has, the first
+stage program could optimize routing tables, or other neighbor
+specific data structures, to the smallest possible size. The resulting
+specialized node-level program could then be (re)deployed to the
+network. This process could even be automated and executed
+periodically to allow the network to adapt to changing conditions
+while remaining highly optimized. In this way our system differs from
+macroprogramming systems such as Kairos
+\cite{springerlink:10.1007/1150259312}, and Regiment
+\cite{Newton:2007:RMS:1236360.1236422} which support full network
+programming but no facility for iteratively generating code.
+
+In our envisioned scenario it is critical that in all cases the first
+stage program generates a sensible, type correct residual program. The
+user of the first stage program will not be in a position to fix, or
+perhaps even understand, error messages produced by the second stage
+compiler. This is particularly true in the case where the first stage
+executes automatically without direct human oversight.
+
+Existing staged programming systems are not suitable for this
+application domain. Many systems assume that the first and second
+stage languages are the same or that both stages execute in the same
+address space. In our scenario the two stages are widely separated
+with the first stage executing on a powerful machine under the control
+of a conventional operating system and the second stage executing on
+small embedded devices. The dramatic difference between those
+platforms requires that significantly different programming languages
+be used for the two stages.
+
+Also in existing staged programming environments the type correctness
+of second stage programs is verified either during the running of the
+first stage program or, even later, during the compilation of the
+second stage program \cite{Mainland-Flask-2008}. This is too late for
+our envisioned sensor network applications. Instead the type
+correctness of all possible residual programs must be verified during
+the compilation of the first stage program. Previous work on $\langle
+\text{ML} \rangle$, a staged language calculus, provides this
+guarantee in the context of stages executing as separate processes
+\cite{FramedML}. $\langle \text{ML} \rangle$ was developed explicitly
+to provide a static type safety argument and theoretical foundation
+for the more practical programming system introduced here.
+
+In our system the programmer writes first stage programs in a dialect
+of Scala, a powerful functional and object oriented hybrid language
+for the Java Virtual Machine \cite{PiS2}. The first stage program
+specializes and composes modules of code written in a simplified
+dialect of nesC, a language commonly used on wireless sensor network
+nodes \cite{Gay-nesC-2003}. We call our system \newterm{Scalaness}.
+
+The remainder of this paper is organized as follows. In Sec.~II we
+give an overview of Mininess, the language in which node-level module
+code is written. In Sec.~III we describe the extensions to the Scala
+programming language that allow Mininess modules to be specialized and
+composed. In Sec.~IV we focus on how our system allows programs to be
+constructed from a mixture of staged components and pre-built
+components. In Sec.~V we discuss our implementation. Finally in
+Sec.~VI we conclude.

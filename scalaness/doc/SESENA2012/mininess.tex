@@ -1,0 +1,101 @@
+
+\section{Mininess}
+\label{section-mininess}
+
+To simplify our language design and to support strong type safety not
+present in the full nesC programming language, we have defined a
+reduced dialect of nesC we call \newterm{Mininess}. While Mininess
+retains much of the expression and statement structure of nesC, it
+simplifies nesC primarily in the way in which interfaces to modules
+are defined and used.
+
+In Mininess a module's uses-provides list can contain only bare
+command declarations. Commands that are provided form the
+\textit{exports} of the module, and commands that are used form the
+\textit{imports} of the module. NesC-style events are not permitted
+but can be encoded with suitably defined commands (e.g.~a used
+interface event is semantically equivalent to a provided command). In
+addition each module has a module type which is the signature of that
+module's imports and exports taken together. Generic components are
+supported at the Scalaness level as described in
+\autoref{section-scalaness}. In particular, Mininess components
+support a form of bounded parametric polymorphism \cite{FramedML}.
+
+As an example, the modules in
+\autoref{figure-mininess-message-builders} constitute part of a secure
+messaging system. The \code{MessageBuilderC} module builds a message
+consisting of a header and a block of message data. It then calls a
+\code{computeToken} command to obtain an authorization token over the
+completed message. The type \code{HeaderType} and value
+\code{messageSize} are not declared in the Mininess code but instead
+are provided during the execution of the first stage program using a
+mechanism described in \autoref{section-scalaness}. Notice that
+\code{AuthorizeC} does not require parameterization.
+
+\begin{fpfig}[tbhp]{Mininess Message Building Modules}{figure-mininess-message-builders}
+{
+\begin{Verbatim}[fontsize=\small]
+module MessageBuilderC {
+  uses command computeToken(
+    void *data, size_t size);
+}
+implementation {
+  struct Message {
+    HeaderType header;
+    uint8_t    message[messageSize];
+  };
+  struct Message mes;
+  ...
+  call computeToken(&mes, sizeof(mes));
+  ...
+}
+
+
+module AuthorizeC {
+  provides command computeToken(
+    void *data, size_t size);
+}
+implementation { ... }
+\end{Verbatim}
+}
+\end{fpfig}
+
+Mininess also defines a subtype relation between primitive integer
+types in an obvious way and a restricted form of record width
+subtyping. To make programming less error prone Mininess disallows
+implicit conversions from wide integers to narrow integers or between
+signed and unsigned integers.
+
+% ... and also array stuff. We can leave the details for another day.
+
+% TMI (Too Much Information)
+% ==========================
+%Mininess also defines subtype relations between the primitive integral
+%types. Let \code{<:} indicate the subtype relation. In Mininess we
+%have
+%\vspace{1.0ex}
+%\begin{Verbatim}[commandchars=\\\{\}, fontsize=\small]
+%\centerline{int8_t  <: int16_t  <: int32_t }
+%\centerline{uint8_t <: uint16_t <: uint32_t}
+%\end{Verbatim}
+%\vspace{1.0ex}
+%
+%The standard types \code{int} and \code{unsigned int} are treated as
+%aliases for appropriate exact width types. The Scalaness compiler is
+%configurable so that the aliases can be defined depending on the
+%target platform.
+%
+%Mininess also provides a restricted form of record width subtyping; a
+%pointer to structure $S_1$ is a subtype of a pointer to structure
+%$S_2$ if and only if the member declarations of $S_2$ is prefix of the
+%member declarations in $S_1$.
+%
+%Notice that there is no subtype relationship between the signed and
+%unsigned types. Mininess does not provide any implicit conversions
+%between signed and unsigned integers nor from a wide integer to a
+%narrower integer. Such conversions are error prone.
+%
+%Mininess also forbids parameterized interfaces (since it forbids all
+%interfaces) and generic components. These features are recovered in a
+%more powerful form in the first stage where Scala's support for
+%generic and parameterized classes can be used instead.
