@@ -1,0 +1,48 @@
+
+Dissertation Outline
+====================
+
+Top level sections...
+
+1. Introduction
+
+   Provides an overview of the work along with its scope and motivation. My intention is to
+   frame the work as two ways of solving the problem of application level authorization in
+   sensor network applications: a direct approach using Sprocket, and a staged approach using
+   Scalaness. Is this an appropriate place to discuss related work as well?
+
+2. Trust Management
+
+   Discuss the relevance of trust management for control authorization in distributed systems in
+   general and the value of using it in sensor network applications. This section would contain
+   material from the ACMCS paper.
+
+3. Extended Example
+
+   Describe the SnowCloud example in general terms and the intended security model to be applied
+   to it. This is to set the stage for the security enabled versions presented later.
+
+4. SpartanRPC and Sprocket
+
+   This section contains material from the MASS and TISSEC papers. It describes the direct
+   approach of solving the problem of the problem outlined in the introduction. I had thought to
+   include both the description of the system and implementation specifics in separate
+   subsections. Would that make this section too large?
+
+5. NesT and Scalaness
+
+   This section contains material from the GPCE paper. It describes the staged approach of
+   solving the problem outlined in the introduction. For symmetry with the section above I had
+   also thought to include both descripton and implementation specifics in separate subsections.
+   Would that make this section too large?
+
+6. Evaluation
+
+   The performance of SpartanRCP/Sprocket and nesT/Scalaness are compared using primarly the
+   extended SnowCloud example. However, other results as reported in our various papers are also
+   include.
+
+7. Conclusion
+
+   Summarizes the results obtained and generalizes them (for example, Scalaness applies to
+   potentially many embedded systems problems and not just authorization).
