@@ -9,8 +9,18 @@
 
 % Used for bits of code in-line.
 \newcommand{\inlinecode}[1]{\texttt{#1}}
-
 \newcommand{\filename}[1]{\texttt{#1}}
+
+\newcommand{\RT}{\text{RT}}
+\newcommand{\cedge}[1]{\stackrel{#1}{\longleftarrow}}
+\newcommand{\cred}[3]{#1 \cedge{#3} #2}
+\newcommand{\creds}{\mathcal{C}}
+\newcommand{\prolog}{\text{Prolog}}
+\newcommand{\datalog}{\text{Datalog}}
+\newcommand{\datalogc}{$\text{Datalog}_\mathcal{C}$}
+\newcommand{\activation}[2]{#1\,\mathit{as}\,#2}
+\newcommand{\delcred}[3]{#1 \stackrel{#3}{\longrightarrow} #2}
+\newcommand{\mathgraph}[1]{\mathcal{G}_{#1}}
 
 % The \note macro is useful for creating easy to see notes.
 \long\def\note#1{\marginpar{NT}{\small \ \ $\langle\langle\langle$\

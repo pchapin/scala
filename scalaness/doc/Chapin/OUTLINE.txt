@@ -16,9 +16,9 @@ Top level sections...
 
 2. Trust Management
 
-   Discuss the relevance of trust management for control authorization in distributed systems in
-   general and the value of using it in sensor network applications. This section would contain
-   material from the ACMCS paper.
+   Discuss the relevance of trust management for authorization in distributed systems in general
+   and the value of using it in sensor network applications. This section would contain material
+   from the ACMCS paper.
 
 3. SpartanRPC and Sprocket
 
