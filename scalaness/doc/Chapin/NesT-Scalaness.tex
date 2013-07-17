@@ -2,6 +2,1082 @@
 \chapter{NesT and Scalaness}
 \label{chapter-nest-scalaness}
 
+% Theory from the CC paper...
+
+Programming wireless sensor networks (WSNs) and other small embedded
+devices presents multiple challenges due to severe resource
+constraints.  This paper describes a programming language system
+supporting type safe dynamic code generation for WSNs. It features
+programming abstractions for specializing sensor code, allowing
+on-the-fly adaptation to current WSN deployment conditions that can achieve greater
+efficiency. %  The system has been implemented as an extension to Scala \cite{PiS2},
+ % through modification of the Scala compiler. 
+% everyone knows Scala -SS
+%Scala is a powerful
+% functional and object oriented hybrid language for the Java Virtual
+% Machine .
+
+Our system targets a scenario where a relatively powerful hub device
+can automatically combine dynamically specialized libraries and deploy
+them to a WSN. We use a restricted form of \emph{staging}
+\cite{metaml-main,DBLP:conf/icess/Taha04,289140} to achieve
+well founded dynamic program generation.  \emph{First stage} code is
+written in an extended version of Scala, called Scalaness, which is
+programmer friendly and suitable for running on powerful hubs.
+Scalaness program execution yields a residual \emph{second stage} WSN
+node program written in nesT, a type safe variant of the popular nesC
+WSN programming language \cite{Gay-nesC-2003}.  The second stage
+program is constructed from module components treated as first class
+values, which may be type and value specialized during the course of
+first stage computation.
+
+A central contribution of Scalaness is static type safety. The
+Scalaness implementation incorporates a type checking algorithm
+ensuring that typeable Scalaness programs will always generate type
+safe nesT code.  Since type generalization is allowed to be
+cross-stage, our technology supports a novel form of cross-stage type
+specialization.  In existing strongly typed staged sensor programming
+environments the type correctness of second stage programs must be
+verified after execution of first stage code
+\cite{Mainland-Flask-2008}, and could in fact error which would
+invalidate the deployment.  Such type errors are always caught at
+first stage compilation time in our system.  Our previous work on the
+staged programming calculus $\langle \text{ML} \rangle$
+\cite{FramedML} provides a theoretical foundation for Scalaness/nesT
+type safety.
+
+\subsection{Scalaness/nesT Implementations}
+
+The goal of our work is to build a practical programming system for
+writing real WSN applications. Here we present language designs and
+proof-of-concept implementations that are contributions in this
+direction. Scala is an appropriate choice as a basis for our Scalaness
+first stage language because its compiler is open source and easy to
+modify and maintain, and the Scala language offers a flexible and
+user friendly feature set. 
+% Commented out bits about Scalas formal foundation, its not
+%  verified so seems best to keep silent as its not a major selling
+%   point. - SS
+%
+%  Scala also has a strong formal foundation. In particular,
+% although full Scala has not been formally proven type safe in the
+% manner of its Java subset (via Featherweight Java \cite{XXX}), its
+% type checking algorithm has been formalized and shown to be decidable
+% \cite{XXX}. 
+Our nesT WSN language is implemented by translation into nesC,
+which can in turn be compiled for TinyOS platforms.
+% nesC characterized previously - SS
+%  This is an appropriate
+% choice due to the popularity of TinyOS in WSN settings, and the domain
+% specificity of nesC.
+% We also allow nesT code to reference nesC libraries in our
+% implementation. 
+nesT type checking has been implemented from the ground up since it
+attains stronger type safety guarantees than nesC.  Scalaness can
+compose and specialize nesT modules programmatically, and the compiler
+integrates type checking for nesT.  nesT is by necessity a lower level
+language than Scala, arguably a required gap since sensors are too small to
+support VMs or automated memory management.
+
+\subsection{Overview of Scalaness/nesT Design}
+
+We introduce our system through an informal discussion of its novel
+features, illustrated by the example in
+\autoref{figure-example}. This toy example highlights how staged
+programming techniques can reduce WSN energy consumption by allowing
+network node messaging code to be specialized on the hub. In
+particular, we focus on how radio packets can be specialized; since
+each bit of transmission is known to consume energy similar to 800
+instructions \cite{tag}, this can lead to big savings. The example is
+written in a user friendly form that is a minor variation on the
+formal abstract syntax of Scalaness and nesT that we subsequently present.
+
+In the example, the Scalaness function \tt{node\_specialize} configures a simple
+application to be run on individual sensor nodes-- to tell a one-hop
+neighbor ``hello''. To support configuration of the the application
+for a variety of node platforms, the function is abstract wrt the
+nesT radio module \tt{radioC} which defines the physical layer interface,
+although the required type signature \tt{radioT} of any particular
+radio module is known. The nesT \tt{sendC} module is explicitly defined,
+which implements a message send abstraction on the node, as is the
+nesT \tt{nodeC} module which implements the top level node application. The
+\tt{node\_specialize} code instantiates the \tt{nodeC} module with
+source and destination addresses, as well as an address type \tt{adt}
+which is determined dynamically based on the value \tt{nmax} which is
+a neighborhood size; we assume \emph{a priori} that the address space
+size is bounded by \tt{nmax}. Hence, instantiation of \tt{nodeC}
+enables a type specialization to use the minimal needed
+bit sizes. 
+% (note that all addresses are appropriately type cast leading to
+% reduced space consumption for those parameters). 
+%As a first
+%approximations, TinyOS pracitioners can view Scalaness programs as a
+%significantly enriched form of nesC module configuration.
+
+\subsubsection{Modules as Staging Elements.}
+
+In Scalaness, nesT modules can be treated as data to be composed,
+following traditional staged programming languages \cite{metaml-main}.
+The so-called ``runnable'' modules -- ones without imports or generic
+parameters -- define an initial machine configuration. This supports a
+TinyOS mote reprogramming model, where the entire OS is recompiled and
+target nodes are reimaged and rebooted. We define an \tt{image}
+operation (invoked in line \ref{l:image} of the example) which asserts
+its argument to be runnable and dumps the module code for subsequent
+sensor deployment.
+
+nesT modules specify a list of imported function signatures, and a list of
+exported functions implemented by the module. Module genericity is
+obtained via a sequence of type and value parameter definitions. For
+example, as specified in \autoref{figure-example}, any module
+\tt{radioC} satisfying \tt{radioT} has an address type parameter
+\tt{adt} which specializes the message type declared in the exported
+\tt{radio} function.
+%, whereas
+%\tt{sendC} imports a \tt{radio} function and exports a \tt{send}
+%function.  
+All generic type parameters are assigned an upper
+\emph{type bound} via the subtyping symbol $\subtype$. 
+%The \tt{nodeC}
+%module additionally has value parameters \tt{self} and \tt{neighbor},
+%which are type cast during the call to the imported \tt{send}
+%function. 
+(The concrete syntax used in \autoref{figure-example} 
+precedes each import/export definition with keyword
+$\tt{import}$/$\tt{export}$ for a more readable presentation; this is
+not part of the formal nesT syntax.)
+  
+The other Scalaness operations on nesT modules are instantiation and composition. In
+line \ref{l:lift}, module \tt{nodeC} is instantiated with arguments
+\tt{adt}, \tt{self}, and \tt{neighbor}. In lines \ref{l:scode} and
+\ref{l:image}, modules are composed using the $\ltimes$ operator.
+The semantics of module composition $\mu_1 \ltimes \mu_2$ is standard
+\cite{cardelli97:_progr}; imports of one module are connected
+to exports of the other. nesT module composition is analogous to nesC
+\emph{configuration wiring}.%  In \autoref{example-scalanesssemantics}
+% we describe these semantics in detail.
+\begin{fpfig*}[t]{An Example \tt{Scalaness}/{\bf \texttt{nesT}} Program; fonts distinguish the two grammars}{figure-example}
+\lstset{numbers=left, numberstyle=\tiny, stepnumber=1, numbersep=5pt, basicstyle=\ttfamily} 
+%\lstset{classoffset=1, 
+%morekeywords={post, typedef,image,uint,uint8,uint4,uint16,uint64,error_t,import,export,def,val},keywordstyle=\color{black}\bfseries, classoffset=0}
+\lstset{moredelim=*[is][\color{red}]{(((}{)))}} 
+\lstset{escapeinside={(*@}{@*)}}
+
+{\scriptsize\bf
+$$
+\tt{radioT} \defeq \texttt{<adt $\subtype$ uint> \{ export error\_t radio ({src:adt; dest:adt; data:uint8[]})\}} 
+$$
+\begin{lstlisting}
+ (*@\tt{sendC\ \  =}@*)  <adt (*@$\subtype$@*) uint>  
+           { import error_t radio( {src:adt; dest:adt; data: uint8[]} );       
+             export error_t send (adt s, adt d, uint8[] data) 
+               { radio({src = s, dest = d, data = data}); (*@\label{l:struct}@*) }
+           }
+ 
+ (*@\tt{nodeC\ \  =}@*) < adt (*@$\subtype$@*) uint, uint self, uint neighbor>.
+          { import error_t send (adt s, adt d, uint8[] data); 
+            export error_t main() 
+              { call send((adt)self, (adt)neighbor, "hello"); }   
+          }
+ 
+ (*@\tt{def\ nodeSpecialize(self: uint, neighbor: uint, nmax: uint16, radioC: radioT)}@*) {
+   (*@\tt{typedef\ adt <: uint16 =\ if\ (nmax <= 256)\ uint8\ else\ uint16;}@*)  (*@\label{l:typedef}@*)   
+   (*@\tt{val\ scode = \jinst{sendC}{adt} \ltimes \jinst{radioC}{adt};}@*)  (*@\label{l:scode}@*)    
+   (*@\tt{val\ ncode = \jinst{nodeC}{adt, self, neighbor};}@*) (*@\label{l:lift}@*)    
+   (*@\tt{image(ncode  \ltimes scode);}@*) (*@\label{l:image}@*)   
+ }
+\end{lstlisting}}%small
+\end{fpfig*}
+
+
+\subsubsection{Typing.} 
+
+The most novel feature of our type system is dynamic type
+construction. We allow dynamic construction of nesT types at the
+Scalaness level for module instantiation and specialization.  On line
+\ref{l:typedef} in \autoref{figure-example}, the address type \tt{adt}
+is dynamically constructed via a conditional expression.
+
+% Scalaness incorporates two distinct type checking algorithms-- one for
+% the first stage extended Scala language, and one for nesT
+% code.  
+Scalaness type checking is an extension of Scala type checking; we
+introduce a new module type form to the Scala type language, and add
+type checking cases for the three module operations: instantiation,
+composition, and imaging. No other part of Scala type checking needs
+to be modified.  NesT type checking is defined as a standalone type system, and
+yields first stage module types.
+
+% stuff about soundness cut, was already mentioned in intro and is in
+% scalaness section below as well. SS
+%
+% Scala type checking has been formally studied and shown to be
+% decidable \cite{Cremet:2006:CCS:2135978.2135980}.
+% % , and in this work it
+% % is also conjectured that Scala enjoys type safety.
+% % no need to say - SS
+% % , which is supported
+% % by practical experience
+% The typing rules we add to accommodate staged module
+% operations are based on our previous foundational work
+% \cite{FramedML}, lending strong support for the safety of Scalaness typing.
+% % Not sure what this review of nesT is doing here, nesT was already
+% % briefly described earlier. - SS
+% %
+% % The nesT type system is a
+% % mostly standard procedural language type system, but with type safety
+% % restrictions on features (e.g.~no pointer arithmetic) and bounded
+% % subtyping polymorphism for greater precision of the analysis.  We
+% % illustrate nesT and Scalaness type checking in
+% % \autoref{example-nesttyping} and \autoref{example-scalanesstyping},
+% % respectively.
+
+
+
+%\subsubsection{TinyOS Compliant Programming Model.} 
+%
+%Like nesC, the nesT langage comprises a subset of the C language of
+%expressions and statements to define sequential computations. The
+%model also includes pseudo-concurrent task postings with a
+%run-to-completion semantics. Indeed, all nesT code has an
+%interpretation in nesC, and residual nesT code is translated to nesC
+%by the Scalaness compiler for subsequent compilation and deployment.
+%
+%Although Scalaness is intended for real applications, in this document
+%and in our implementation we have focused on a minimal language to
+%isolate fundamental issues and simplify implementation details. Thus
+%for example, our module language does not separate interfaces and
+%module implementations as in nesC. Nevertheless it is an adequate
+%``featherweight'' representation of the nesC module language and
+%integrates naturally with the TinyOS programming model.
+%
+%Since it is not realistic (or convenient) to imagine that all TinyOS
+%libraries can be recreated in nesT, it is essential to be able to use
+%nesC libraries as needed. In \autoref{section-libraries} we describe a
+%nesT mechanism in the implementation for importing nesC modules.
+
+\subsubsection{Cross-Stage Migration of Types and Values.} 
+
+A crucial feature of our programming model is \emph{process
+  separation} between stages \cite{FramedML}.  Since
+  first and second stage code are 
+to be run on separate devices, state is not shared between these
+stages. Thus, serialization may be required when modules are
+instantiated. Furthermore, types and base values may be represented
+differently on the first and second stages, requiring some sort of
+transformation during module instantiation.  An example transformation
+is discussed in \autoref{section-serialization}.
+
+\section{The nesT language}
+\label{section-nest}
+ 
+\syntaxfig
+
+The nesT design aims to distill a production language, nesC,
+into its fundamental elements, yielding a language that is amenable to
+formal analysis but also practical. However, since our focus is on type
+safety, we enhance, and in some instances restrict, those fundamental
+elements to obtain a type safe language, as discussed below.
+
+\subsubsection{Notation.}  \emph{Sequences} are notated
+$x_1,\ldots,x_n$, and are abbreviated $\vect{x}$; $\vect{x}_\mapidx{i}$ is the $i$-th
+element, $\emptyset$ denotes the empty sequence, and $\abs{\vect{x}}$
+is the size. We write $x \in \vect{x}$ to denote membership in
+sequences, and $x\vect{x}$ denotes a sequence with head $x$ and tail
+$\vect{x}$.  We denote append as $\vect{x}@\vect{y}$.  For relational
+symbols $R \in \{ \subtype, =, : \}$, we use the abbreviation:
+$\vect{x}\, R\, \vect{y} = x_1\, R\, y_1, \ldots, x_n\, R\, y_n$. So
+for example, $\tbindvec{x}{\t} = x_1 : \t_1,\ldots,x_n : \t_n$.
+
+We also use the following naming conventions for various language 
+constructs.
+We use metavariable $\fname$ (of set $\mathcal{F}$) for function
+names, $\fdname$ (of set $\mathcal{L}$) for field names, $\VAR$ (of
+set $\mathcal{V}$) for term variables, $\TVAR$ (of set $\mathcal{T}$)
+for type variables, $ \blockno$ (of set $\mathcal{M}$) for memory
+locations, $\neight$ (of set $\mathbb{Z}_{2^8}$) for 8-bit unsigned
+integers, and $\nsixtn$ (of set $\mathbb{Z}_{2^{16}}$) for 16-bit
+unsigned integers.  We use $n$ to range over both types of integers
+when their type is irrelevant.
+\subsection{Syntax and Features of nesT} The syntax of nesT is presented 
+in \autoref{figure-syntax}. It comprises a core language of
+expressions for defining computations, a language of declarations for
+defining variables and functions, and a language for defining modules.
+
+\semanticssyntaxfig
+
+\coresemanticsfig
+
+%\subsubsection{Expressions.}  headers elided to save space - SS
+The nesT language includes standard C-like 
+constructs, such as conditional branching, looping, sequencing of
+expressions, and function calls, arrays, structs, numeric base
+datatypes (and operations on them). % Familiar syntax $e \idx e$ and
+% $e.\fdname$ is used for array indexing and struct field selection,
+% respectively.
+%For the purpose of this presentation,
+%array-out-of-bound access can happen.  
+A ``null'' value $\undefv$ is also provided.  Function definitions and
+calls are available only in a limited nullary form to simplify our
+model, in particular the expression $\blok{e}$ is a function body.
+Since functions are not recursive there is no expressiveness lost, a
+global variable can be used to encode a function
+parameter.  Memory locations $\blockno$ are program values (\emph{\'a la}
+pointers).  As in all C dialects, assignment can only be performed on
+so-called \emph{l-values} $\lvalue$, a restricted subset of expression syntax.
+
+As in nesC, no dynamic memory allocation is possible; all memory
+layout is established by static variable declarations.  Also, the core
+language we present here does not allow pointer arithmetic to support
+type safety. Type casting and array access have run time checks
+imposed, as we explain in \autoref{section-nestsemantics}.  
+
+Also as in nesC, we provide a $\kwpost$ operation for posting tasks.
+Our semantics will account for tasks using the ``run-to-completion''
+model of TinyOS.  Interrupts are omitted from our language to avoid
+concurrency issues in the semantics.  Typical WSN
+applications do not need interrupts; they are only needed in a few
+low level nesC libraries.
+
+%\subsubsection{Declarations.} 
+Programs in nesT may refer to declarations of values 
+and functions which are scoped at the module level and establish the
+statically fixed memory layout of nesT.
+% More explanation than is needed - SS
+%  We provide a convenient form
+% for explicit initialization of array and struct values, though neither
+% arrays nor struct values may be treated anonymously (i.e.~they must be
+% declared and referred to by name).
+Besides convenience, declarations
+are useful to support serialization of program objects passed in from
+the Scala level in Scalaness, as we discuss in
+\autoref{section-serialization}.
+
+%\subsubsection{Modules.} 
+nesT Modules are written $\margs{\tpdecl; \vpdecl}\lc \imports; \decls
+\exports \rc $ with $\tpdecl$ and $\vpdecl$ being generic type and
+term parameters, $\vect{d}$ being module scope identifier
+declarations, including function definitions, and $\imports$ and
+$\exports$ being imports and exports.  Exports are explicitly defind
+in the module. A ``runnable'' module -- one without imports or generic
+parameters -- defines an initial machine configuration. In
+\autoref{figure-example}, the wiring $\tt{ncode} \ltimes \tt{scode}$
+on line \ref{l:image} yields a runnable module.
+
+\tasksemanticsfig
+
+%\declsemanticsfig
+
+\subsection{Semantics of nesT} 
+\label{section-nestsemantics}
+
+We define an operational semantics for nesT as a small step relation
+$\compute$ on dynamic configurations in
+\autoref{figure-semanticssyntax}.  We decompose the semantics into
+several distinct $\compute$ relations; each computation
+``sub-relation'' can be distinguished by the arity of the relevant
+configurations.
+The semantics for the non-module portions follows standard C-like
+language formalizations \cite{Leroy-compcert-06,grossman03}.
+
+\subsubsection{Semantics of Expressions.}
+% At the heart of nesT is a C-like 
+% language of expressions built from l- and r-values.  An
+% l-value is an object in memory that can be assigned to, in particular
+% a variable, a struct or array field, or a pointer. An r-value is a
+% value resulting from expression computation and may be a value
+% that is not in memory. 
+
+The nesT syntax for necessary dynamic entities is given in
+\autoref{figure-semanticssyntax}.  In nesT, we represent computed
+values as pairs $\cval{\pi}{\mv}$, where $\mv$ is a base, pointer,
+array, or struct value, and $\pi$ is a tag indicating whether or not
+the value is in memory.  Computed r-values not in memory are denoted
+$\cval{\circ}{\mv}$, e.g. $\cval{\circ}{2}$ is the result of computing
+1 + 1. The l-value object $\cval{\bn}{\mv}$ indicates that the value
+$\mv$ is in memory at location $\bn$.
+
+We model memories as sequences of definitions $\bn : \t = \mv$;
+observe that each memory location $\bn$ is typed at $\t$ and assigned
+a value $\mv$. We interpret memories as mappings, writing
+$\blockmem(\bn) = \mv$ when there exists some $\t$ such that $\bn : \t
+= \mv$ is the leftmost definition of $\bn$ in $\blockmem$, and writing
+$\blockmem[\bn \mapsto \mv]$ to denote $(\bn : \t = \mv)$ where $\bn :
+\t = \mv'$ is the leftmost definition of $\bn$ in $\blockmem$.%  (this
+% latter notation is used when a memory location is updated with a new
+% value).
+
+Evaluation rules for selected expressions are given in
+\autoref{figure-coresemantics}. Here, computation is on pairs of
+memories and expressions. 
+%We assume existence of a function
+%$\fundef{opsem}$ that interprets operations $\mathit{op}$. We also
+We assume existence of a function $\fundef{docast}$ which performs a
+casting conversion. We allow this function to be defined by users.
+% space saver - SS
+% , and in
+% certain cases may be a no-op (e.g.~casting pointers to arrays when the
+% latter are contiguous in memory). But in any case, i
+If $\docast{\t}{\mv}{\blockmem}$ is defined, we require that the cast
+conversion is type safe, in that the result must be of type $\t$.
+This is discussed more in \autoref{section-nesttyping}. 
+% space saver - SS
+%  Note that a
+% pointer is modeled by an object of the form $\cval{\pi}{\bn}$. The
+% operation $\kwstar\cval{\pi}{\bn}$ looks up the value at address $\bn$
+% in memory.  The operation $\&\cval{\bn}{\mv}$ returns the address
+% $\bn$ of the object in memory as an r-value. Functions are defined in
+% an assumed-given codebase $\flash$ with a lookup semantics defined
+% similarly to that for memories $\bm$.
+
+%\bootloadsemanticsfig
+
+\subsubsection{Semantics of Tasks.}  NesC uses a simple scheduling model 
+of serial, run-to-completion execution of queued \emph{tasks}. We thus
+supplement the base semantics of nesT with a corresponding \emph{task
+  collection} $\tasks$ of the tasks yet to run, and define a
+single step transition relation on configurations extended with task
+collections.  We leave undetermined the definition of task
+collections, and also how tasks are added and retrieved -- this
+because it is unspecified whether tasks are treated in e.g.~a FIFO
+manner by the scheduler.  We let $\addt(\tasks,\fname\blok{})$ denote
+$\tasks'$ which is $\tasks$ plus the task consisting of the function
+call $\fname\blok{}$, and let $\nextt(\tasks)$ denote a pair
+$\tasks',\fname\blok{}$ which comprises the ``next'' task
+$\fname\blok{}$ in $\tasks$, and $\tasks'$ which is $\tasks$ with
+$\fname\blok{}$ removed.  We define the task semantics, integrated
+with the expression semantics defined previously, in
+\autoref{figure-tasksemantics}. As for expressions, we assume the
+existence of a given codebase $\flash$. When it is necessary to be
+explicit about which codebase is given for a computation, we will
+write $\flash \vdash \tasks, \bm, e \compute \tasks', \bm', e'$.
+
+\subsubsection{Semantics of Declarations.} The operational behavior of
+declarations is fairly straightforward.
+%  Since sunction definitions may
+% be declared, we must now add \emph{codebases} $\flash$ to the
+% execution model. 
+Functions and first class mutable variables may be declared and
+initialized.  At run time mutable variables are bound (via 
+substitution) to an l-value $\cval{\bn}{\mv}$, where $\bn$ is the
+address of the variable. Thus, for base and function type declarations 
+we have the following rules, respectively:
+$$
+\small{
+\inferrule[FDecl]
+{}
+{\flash, \tasks, \bm, (\fname : \t = \blok{e}) \vect{\decl} \compute 
+ (\fname : \t = \blok{e}) \flash, \tasks, \bm, \vect{\decl}}
+}
+$$
+$$
+\small{
+\inferrule[BaseInit]
+{\kappa = \cval{\bn}{\mv} \\ \bn \not\in \dom(\bm)}
+{\flash, \tasks, \bm,(\xlet{\t}{x}{\cval{\pi}{\mv}}) \vect{\decl} \compute 
+ \flash, \tasks, (\bn : \t = \mv)\bm, \vect{\decl}[\kappa/x]}
+}
+$$ A contextual evaluation rule for declarations allows variables to
+be initialized with arbitrary expressions. This is omitted for brevity
+but is similar to the expression \TirName{Context} rule, using a 
+a notion of declaration evaluation contexts denoted $D$.
+%Two different initialization rules are given,
+%since since arrays and structs use special initialization syntax and
+%must be treated as special cases in the \TirName{StructInit} rule.
+%
+%There are some other subtleties involved with initialization of struct
+%and array variables. First, since array and struct fields are
+%l-values, we constrain the syntax of array and struct values in memory
+%as follows.
+%\begin{definition}
+%Given any $\arr{\vect{\kappa}}$ or $\{\vect{\fdname} = \vect{k}\}$ and 
+%$\kappa\in\vect{\kappa}$, we have $\kappa = \cval{\bn}{\mv}$ for some $\bn$ and
+%$\mv$.
+%\end{definition}
+%Given this requirement, we see that no base values can be inlined in
+%array and struct initializations, rather only bound variables can be
+%used. This is awkward in practice but simplifies our formal
+%presentation, and is easily relaxed in our implementation.
+
+\subsubsection{Semantics of Boot and Run Time.}
+
+In the nesT machine model, a top level program execution is obtained
+by loading and running a fully instantiated module. The codebase,
+memory layout, and initial machine 
+configuration is generated at load time by evaluating the declarations
+in the module. The top level program is then started at the
+\texttt{main} entry point.
+
+To differentiate load/boot and run segments of a computation we define
+$\bootseq{}$ and $\runseq{}$ 
+constructors to inject declarations and
+expressions into a uniform datatype. Top level computation is 
+then defined as a single step reduction relation $\compute$ on
+configurations  $\flash,\tasks,\bm,X$, where $X$ is of the form
+$\bootseq{\vect{d}}$ or $\runseq{e}$ depending on whether the
+machine is booting or running.
+\begin{definition}
+A module of the form $\margs{\varnothing; \varnothing }\lc ;
+\vect{\decl}; \exports\rc$  is \emph{runnable}, and we define:
+$$\bootload(\margs{\varnothing; \varnothing }\lc ; \vect{\decl}; \exports\rc) =
+\exports,\varnothing,\varnothing, \bootseq{\vect{\decl}}$$
+\end{definition}
+
+Now, for all computation relations we define $\compute^*$ to be the
+reflexive, transitive closure of $\compute$. The concern for our type
+analysis is to rule out modules which, when bootloaded, will evaluate
+to semantically ill-formed configurations. In the context of nesT this
+is defined as follows. It is important to stipulate that failing casts
+and out-of-bound array access are not stuck cases, since run time
+checks in place with enable graceful failurex.
+\begin{definition}
+A configuration $\bm, e$ \emph{fails a run time check} iff $e$ is of
+the form $\castto{\t}{\kappa}$ and $\docast{\t}{\kappa}{\blockmem}$ is
+undefined, or $e$ is of the form $\cval{\bn}{\mv}\idx{\cval{\pi}{n}}$ and 
+$n\ge\abs{\vect{\mv}}$.
+\end{definition}
+
+\begin{definition}
+\label{def-runnable}
+A configuration $\flash, \tasks, \bm, \ell$ is \emph{stuck} iff it is
+irreducible and $\ell$ is neither of the form $\runseq{\context{E}{e}}$ 
+nor $\bootseq{\context{D}{e}}$ 
+where $\bm, e$ fails a run time check. A runnable
+module $\mu$ \emph{goes wrong} iff
+$\bootload(\mu) \compute^\star \flash, \tasks, \bm, \ell $ 
+where $\flash, \tasks, \bm, \ell$ is stuck.
+\end{definition}
+
+\subjudgefig
+
+\coretypingfig
+
+\declmodtypingfig
+
+\subsection{nesT Typing} 
+\label{section-nesttyping}
+
+The typing rules for nesT combine a standard procedural language
+typing approach with subtyping techniques adapted from previous
+foundational work \cite{FramedML,Ghelli199875}. Our goal here is to specify
+the typing algorithm used in our Scalaness implementation.
+
+\subsubsection{Subtyping.} At the heart of our system is a decidable
+subtyping judgement $\subjudge{\tpdecl}{\t_1}{\t_2}$, where $\tpdecl$
+in the context of typing is called a \emph{coercion} and defines a
+system of upper bounds for type variables. 
+% space saver - SS
+% We do not allow recursive
+% type bounds definitions. 
+%
+% more space savers - SS
+% We implement subtyping with an algorithm
+% based on a classic technique \cite{Ghelli199875}
+% , with straightforward
+% extensions to accommodate structs and arrays as defined in
+% \autoref{figure-subjudge}
+A subtyping relation typically called
+\emph{promotion} is also central to our approach; given a set of
+subtyping coercions $\tpdecl$ and a type variable $t$, promotion will
+return the least upper bound of $t$ which is also a structured type,
+i.e.~not a type variable.
+\begin{definition}
+The relation $\ll$ \emph{promotes} a type variable:
+\begin{mathpar}
+\figsize
+\inferrule
+{\tpdecl \vdash \tpdecl(t) \ll \tau}
+{\tpdecl \vdash t \ll \tau}
+
+\inferrule
+{\neg\exists t . \tau = t}
+{\tpdecl \vdash \tau \ll \tau}
+\end{mathpar}
+\end{definition} 
+It is important to observe how promotion and subtyping are used
+differently in our system.  Since any sort of l-value can be written
+to via assignment, subtyping invariance \emph{must} be imposed on
+l-values occuring in write positions to maintain type soundness.
+Therefore type subsumption is allowed only at program points where
+read-only control flow occurs -- for example when an r-value is
+directly assigned to an l-value. 
+
+\subsubsection{Type Environments and Checking} Our typing algorithm 
+for source code expressions is based on judgements $\tenv,\tpdecl
+\vdash e : \t$, where $\tenv$ is an environment of free term variable
+typings, syntactically defined equivalent to value parameters
+$\vpdecl$ and imports $\imports$. We also endow type environments with
+the same lookup semantics as memories and codebases.  Representative
+typing rules for selected expressions are given in
+\autoref{figure-coretyping}.  The derivation of any judgement
+$\tenv,\tpdecl \vdash e : \t$ can be interpreted as an algorithm where
+both $\tenv$ and $\tpdecl$ are given as arguments and $\t$ is returned
+as a result.
+
+Note that type casting is only statically allowed if the types
+involved are \emph{compatible} as specified in rule \TirName{TypeT}.
+This relation, formalized as $\tpdecl \vdash \compatible{\t_1}{\t_2}$,
+is left abstract and user defined, but typical examples include
+casting structs to arrays in contiguous memory, and provable lack of
+pointers in types.  Recalling that the semantics of nesT relies on a
+$\fundef{docast}$ function that implements cast conversions, any
+implementation must be type safe, which allows us to rule out run time
+cast failures in well typed programs. Informally, $\fundef{docast}$ is
+type safe iff the resulting expression has the type of the cast.  We
+refer the reader to \cite{FramedML} for a thorough formal discussion of
+type safety for this style of casting.
+
+\subsubsection{Declaration and Module Typings.} At the module level, 
+we need to first type check and generate typing environments from
+declarations, as specified in \autoref{figure-declmodtyping} (rules
+for array and struct declarations omitted for brevity). Given this, a
+module typing is obtained by type checking module exports, using a
+coercion obtained from the module type parameters and a typing
+environment obtained from a combination of module value parameters,
+imports, and variable type declarations. Module type checking is also
+specified in \autoref{figure-declmodtyping}. Our type safety conjecture 
+for nesT can then be stated as follows.
+
+\begin{conject}[nesT Type Safety]
+If $\mu : \jmodtcat$ is valid and $\mu$ is runnable, then $\mu$ does not 
+go wrong.
+\end{conject}
+Here is an example nesT typing. In this and other examples we will
+take narrative liberties with function definitions, assuming they can
+be non-nullary as in \autoref{figure-example}.
+\begin{example}
+\label{example-nesttyping}
+The module $\tt{nodeC}$ of \autoref{figure-example} can be assigned the type:
+$$
+\begin{array}{l}
+\margs{\tt{adt} \subtype \tt{uint}; \tt{self : uint}, \tt{neighbor : uint} \tt}\\
+\ \ \ \ \lc
+\tt{error\_t\ \ send}(\tt{s : adt}, \tt{d : adt}, \tt{uint8[] : data});\ \ 
+\tt{error\_t\ \  main()} 
+\rc
+\end{array}
+$$
+\end{example}
+
+
+\section{The Scalaness Language}
+\label{section-scalaness}
+
+Scalaness serves as the language for nesT module composition in the
+same manner as nesC configurations serve to compose nesC modules, but
+Scalaness is a more powerful metalanguage since modules are treated as
+a new category of first class values in Scalaness.  Instantiation,
+composition (aka wiring), and imaging of modules are defined as
+operations on module values.  Because instantiation of modules with
+both types and values is allowed, values and types may migrate from
+the Scalaness level to the nesT level after programmatic refinement,
+realizing a disciplined form of code specialization.
+
+%\snote{Scalaness formalized vs Scalaness implemented was not clear,
+%  reworded this to bring out the difference.  May need some polishing,
+%  take a pass at it.}  
+Our goal in this Section is to describe the
+Scalaness syntax and semantics realized in our implementation, and
+justify our claims of type safety. Since Scala as implemented is too
+large to easily formalize, we formalize here a subset of Scala
+expressed as an extension of Featherweight Java \cite{FJ}, a core
+calculus subsumed by Scala. A formalized core calculus and type
+analysis for Scala exists \cite{Cremet:2006:CCS:2135978.2135980}, but
+FJ is adequate and simpler.  We thus elide many features of Scala in
+the Scalaness formalization, but we adapt all Scala features unchanged
+in our Scalaness implementation.  Here we primarily focus on the
+module metaprogramming operations that we add.  The presentation here
+``cleans up'' some implementation details, but is otherwise an
+accurate description of the module operation semantics and especially
+the module operation typing rules.
+
+% Scalaness type checking is grounded in a previous foundational
+% work, as discussed in \autoref{section-framedml}. The type checking
+% algorithm presented here statically supports type safety at both
+% programmatic levels, i.e.~if a Scalaness program type checks, then
+% running it will not cause a type failure, \emph{and} residual nesT
+% code will also be type-safe when run on its own. 
+
+\subsection{Syntax of Scalaness}
+
+\scalanesssyntaxfig The Scalaness language syntax is presented in
+\autoref{figure-scalanesssyntax}. To represent an adequate core
+calculus of Scala, it subsumes two Featherweight Java variants:
+Featherweight Generic Java (FGJ) \cite{FJ} and Assignment Featherweight Java
+(AFJ) \cite{AFJ}. The generic class types of FGJ are needed to model
+type construction, and the mutation in AFJ is essential to consider
+since one of our main concerns is nesT code specialization; nesT
+programs are run in a separate process space, so specialization with
+stateful values, a likely common idiom in a Scala setting, presents a
+challenge.
+
+We refer the reader to \cite{FJ,AFJ} for details on the FGJ and AFJ
+object oriented calculi, which are represented in the languages of
+class definitions, constructors, methods, and the first line of expression
+forms defined in \autoref{figure-scalanesssyntax}. Scalaness extends
+these features with a typed variable declaration form
+$\jdef{x}{T}{e_1}{e_2}$ where the scope of $\ttt{x}$ is $\tt{e_2}$, a
+dynamic type construction form $\jtlet{x}{T}{e_1}{e_2}$ with similar
+scoping rules, and several features for module definition and
+manipulation. First, we include nesT modules $\jmodval$ in the
+Scalaness expression and value spaces: instantiation is
+obtained via the form $\jinst{e_1}{\ttvec{e}_1; \ttvec{e}_2}$, where
+$\ttvec{e}_\tt{1}$ are type parameters and $\ttvec{e}_\tt{2}$ are
+value parameters. Wiring of modules is denoted
+$\jwire{\tt{e_1}}{\tt{e_2}}$.  Imaging of modules, denoted
+$\jimage{\tt{e}}$, ensures that $\tt{e}$ computes to a runnable
+module, in the sense of \autoref{def-runnable}.
+
+\subsection{Semantics of Scalaness}
+
+The semantics of Scalaness is an extension of the semantics of AFJ and
+FGJ to incorporate nesT modules and operations.  Computations assume a
+fixed class table $\CT$ allowing access to class definitions via class
+names, which always decorate an object's type. A \emph{store}
+$\jstore$ is a function from memory locations $\tt{p}$ to object
+representations.  Objects are represented in memory by lists of object
+references $\ttvec{l}$, which refer to the locations of the objects
+stored in mutable field values.  A reference $\tt{l}$ is a pair
+$\jref{\tt{p}}{N}$ where $\tt{p}$ is the memory location of an object
+representation and $\tt{N}$ is the nominal type of the object,
+including its class name. Hence, given an object reference
+$\jref{\tt{p}}{\jinst{C}{\ttvec{T}}}$, we can access and mutate its
+fields $\ttvec{l} = \jstore(\tt{p})$, and access and use its methods
+via the definition $\CT(\tt{C})$.
+
+Following AFJ, the semantics of Scalaness is defined as a \emph{labeled
+  transition system}, where transitions are of the form
+$\tt{e} - \lc s = \jstore, s' = \jstore' \rc \rightarrow \tt{e}'
+$. Intuitively, this denotes that given an initial store $\jstore$ and
+expression $\tt{e}$, one step of evaluation results in a modified
+store $\jstore'$ and contractum $\tt{e}'$. We write $\tt{e}
+  \rightarrow \tt{e}'$ as an abbreviation when the store is not altered.
+% space saver - SS
+%  When discussing the
+% semantics of module operations in Scalaness we will use this
+% abbreviated form, since they are purely functional.
+
+% We refer the reader to \cite{XXX} for details on the semantics of AFJ
+% and FGJ subsumed by Scalaness.
+The primary novelty of Scalaness over FGJ/AFJ is the formal semantics
+of type and module construction. We begin with type construction,
+which is provided to allow programmers to dynamically construct module
+type instances.  The appropriate behavior is obtained by treating
+dynamically constructed types as extensions of a basic class of
+objects, and declarations of nesT level types via a \tt{typedef}
+construct as syntactic sugar for ordinary object construction. We
+define a \tt{LiftableType} class as the supertype of all types of
+objects which can be used to instantiate a module, and dynamically
+constructed types are defined as instances of a generic \tt{MetaType}
+class.
+\begin{definition}
+Any Scalaness class table $\CT$ comprises the following definitions:
+$$
+\begin{array}{l}
+\CT(\tt{LiftableType}) = \gclass{\tt{LiftableType}}{}{Object}{\ldots}\\
+\CT(\tt{MetaType}) = \gclass{\tt{MetaType}}{\tt{X <: LiftableType}}{Object}{ \ldots }
+\end{array}
+$$
+And we take as given the following syntactic sugar:
+$$
+\jtlet{x}{T}{e_1}{e_2}\ \defeq\ \jdef{x}{\jinst{MetaType}{T}}{e_1}{e_2}
+$$
+Class type $\tt{MetaType}$ is generalized on a single type variable. For brevity of 
+notation, we define:
+$$
+\jinst{\tt{MetaType}}{\ttvec{T}}\quad \defeq \quad \overline{\jinst{MetaType}{T}}
+$$
+\end{definition}
+A crucial fact of Scalaness type construction is that any dynamically
+constructed type cannot be treated as a type at the Scalaness
+level. This is a more restrictive mechanism than envisioned in our
+foundational model \cite{FramedML,FramedMLworkshop}, however it allows us to define
+Scalaness as a straightforward extension to Scala, especially in terms
+of type checking.
+
+Module instantiation is the only point where specialization of nesT
+modules is allowed.
+% , since non-local variables are disallowed in module
+% definitions
+Since Scalaness and nesT are two different language spaces, some sort
+of transformation must occur when values migrate from Scalaness to
+nesT via module instantiation. This \emph{lifting} transformation
+involves both data mapping and serialization since the process spaces
+also differ.  We aim to be flexible and allow the user to specify how
+values are lifted and how types are transformed. We only require that
+lifting and type transformation are coherent, in the sense that the
+lifting of an object should be typeable at the object's type
+transformation.  We formalize this in the
+following definition.%  Note that lifting is defined on references,
+% since this is how objects are referred to at run-time and we never
+% want to allow lifting of modules.
+\begin{definition}
+\label{def-lifting}
+We assume given a relation $\ser{\jstore}$ which transforms a
+Scalaness reference $\tt{l}$ into nesT declarations $\vect{d}$ and 
+expression $e$.  We also assume given a Scalaness-to-nesT
+transformation of types $\codt{\cdot}$. To preserve type safety, we
+require in all cases that $\jref{p}{N} \ser{\jstore} \vect{d}, e$
+implies both of the following for some type environment $G$:
+$$
+\varnothing, \varnothing \vdash \vect{d} : \tenv \qquad \text{ and} \qquad
+ \tenv, \varnothing \vdash e : \codt{\tt{N}} 
+$$
+\end{definition}
+The full definition of serialization and an example are given and
+discussed below in \autoref{section-serialization}.
+% \snote{check that cut here is OK, just trying to save space.}
+%  In brief, when a
+% module $\mu$ is instantiated, serialization will bind the value
+% parameters of $\mu$ to the lifted values of their instances in a
+% series of declarations that are added to its own. This is specified in
+% the \TirName{ModInst} rule in \autoref{figure-jmodsemantics}. Another
+% important detail of the \TirName{ModInst} rule is that only type
+% information in type parameters is used, and migrates into the module
+% via type transformation and ordinary substititution.  
+
+\jmodsemanticsfig
+
+Module wiring is given a standard component composition semantics. We
+only allow wiring of instantiated modules, which is consistent with
+nesC and simpler to implement. In a wiring
+$\jwire{\tt{e}_1}{\tt{e}_2}$, the exports of $\tt{e}_1$ are wired to
+the imports of $\tt{e}_2$.  This is specified in the \TirName{ModWire}
+rule in \autoref{figure-jmodsemantics}, which relies on the following
+auxiliary definition of operations for combining mappings.
+% space saver - SS
+%  of various
+% sorts (e.g.~lists of imports and exports)
+\begin{definition}[Special Mapping Operations]
+Let $m$ range over vectors with mapping interpretations, in
+particular~$\tpdecl$, $\vpdecl$, $\imports$, and $\exports$. Binary
+operator $m_1\maploosemerge m_2$ represents (non-exclusive) map merge,
+i.e.~$m_1 \maploosemerge m_2 = m_1 @ m_2$ with the requirement that
+$\identifier\in \dom(m_1)\cap\dom(m_2)$ implies $m_1(\identifier) =
+m_2(\identifier)$.
+%Binary operator $\mu_1\uplus\mu_2$
+%represents mutually exclusive map merge; for this operation to be
+%defined it must be that $\dom(\mu_1)\cap\dom(\mu_2) = \emptyset$.
+%Given $\vect{\mu} = [\mu_1,\ldots,\mu_n]$ we write
+%$\maploosemerge\vect{\mu}$ to denote $\mu_1 \maploosemerge \cdots
+%\maploosemerge \mu_n$, similarly $\uplus\vect{\mu}$. 
+The mapping $m / S$ is the same as $m$ except undefined on domain
+elements in set $S$, and the mapping $\restrict{m}{S}$ is the same
+as $m$ except undefined on elements not in ${S}$.
+\end{definition}
+Finally, the $\TirName{ModImage}$ rule in
+\autoref{figure-jmodsemantics} shows that imaging it is an
+assertion requiring its arguments to be a runnable module.
+
+\begin{example}
+\label{example-scalanesssemantics}
+Assume given the definitions in \autoref{figure-example}, a module
+$\tt{radioC : radioT}$ and an invocation 
+$\tt{nodeSpecialize}(1,2,50,\tt{radioC})$. 
+Then $\tt{ncode} \ltimes \tt{scode}$ will evaluate to the following module:
+$$
+\margs{}\lc\ ; \ldots; \tt{error\_t\ \ main()} \lc \tt{call}\ \ \tt{send}((\tt{uint8})1, (\tt{uint8})2, "\tt{hello}") \rc\rc
+$$  
+where the elided declarations include a specialized radio and message type:
+$$
+\tt{error\_t\ \ radio(\lc \tt{src : uint8}; \tt{dest : uint8}; \tt{data : uint8[\,]} \rc)} \lc \ldots \rc
+$$
+\end{example}
+
+\subsection{Serialization and Lifting}
+\label{section-serialization}
+
+Serialization generates a flattened nesT source code version of a
+Scalaness object in memory. At the top level, serialization binds the
+value parameters of a module to the results of flattening, aka
+lifting, via a sequence of declarations. Here is the precise 
+definition.
+\begin{definition}[Serialization]
+\label{def-serialization}
+Assume given a store $\jstore$ which is implicit in the following definitions.
+We define serialization of Scalaness references as follows, along with an 
+extension of the user defined lifting relation to sequences of references:
+\begin{mathpar}
+\inferrule%[Serialize]
+{\vect{\tt{l}} \ser{\bm} \vect{\decl},\vect{e}}
+{\serialize(\vect{x}, \vect{\t}, \vect{\tt{l}}) = \vect{\decl} @\ {\vect{\t}\ \vect{x} = \vect{e}}}
+
+\inferrule
+{}
+{\varnothing \ser{\jstore} \varnothing, \varnothing}
+
+\inferrule
+{\tt{l} \ser{\jstore} \vect{d}, e \\ \ttvec{l} \ser{\jstore} \vect{d'}, \vect{e}}
+{\tt{l}\vect{\tt{l}} \ser{\jstore} \vect{d} @ \vect{d'}, e\vect{e}}
+\end{mathpar}
+\end{definition}
+Although lifting is user defined, a standard strategy is to introduce
+a new declared variable for each memory reference in the lifted
+object, and bind the variable to the lifted referent. Hence, lifting
+will typically be defined recursively. In our implementation, we have
+adapted a ``default'' lifting which follows this strategy, and also 
+transforms objects by just transforming the fields into a representative
+struct, and ignoring methods. We will illustrate this with an example in 
+\autoref{section-implementation}.
+% , which also shows how base values such 
+% as integers are lifted
+We can formally capture the essence of this 
+transformation with the following definitions. It is easy to see that 
+these definitions will satisfy the requirements of \autoref{def-lifting}.
+\begin{example} In this example we allow lifting of any object references,
+and transform the object $o$ into a structure containing the transformed 
+fields of $o$. Methods are disregarded by the transformation. Here is the 
+specification of the type transformation:
+\begin{mathpar}
+\inferrule[ChapinT] {\CT(\ttt{C}) =
+  \gclass{C}{\gbounds{X}{S}}{N}{\fieldvec{R}{f};\ K\ \ttvec{M}}}
+          {\codt{\jinst{C}{\ttvec{T}}} = \lc \vect{\ttt{f}} :
+            \codt{\ttvec{R}[\ttvec{T}/\ttvec{X}]} \rc}
+\end{mathpar}
+and here is the specification of lifting.
+\begin{mathpar}
+\inferrule[Chapin]
+{\jstore(\tt{p}) = \ttvec{l} \\ \fields{C} = \tdecls{T}{f} \\ 
+ \ttvec{l} \ser{\jstore} \vect{d}, \vect{e} \\ x \ \text{ fresh}} 
+{\jref{p}{\jinst{C}{\ttvec{R}}} \ser{\jstore} \vect{\decl} 
+   @ (\xlet{\codt{\jinst{C}{\ttvec{R}}}}{x}{\lc \vect{\ttt{f}} = \vect{e}\rc}) , x}
+\end{mathpar}
+\end{example}
+
+
+\subsection{Scalaness Type Checking}
+\label{section-typing}
+
+\scalanesstypingfig
+% boilerplate cut to save space - SS
+% The Scalaness Type judgements are of the form $\Gamma \vdash \tt{e} :
+% \tt{T}$, where $\Gamma$ is a free variable typing environment and
+% judgement validity is obtained via a deduction system. 
+We adapt the
+typing rules of FGJ in their entirety, and refer the reader to
+\cite{FJ} for relevant details. Since type construction via 
+\texttt{typedef} is syntactic sugar for normal object construction, 
+that is covered by those rules as well. It remains to define typing 
+rules for nesT modules and module operations.
+
+%\begin{theorem}[AFGJ Type Safety]
+%If $\varnothing \vdash \tt{e} : \tt{N}$ and $\tt{e} \rightarrow^*
+%\tt{e}'$ with $\tt{e}'$ irreducible\footnote{This is defined as ``normal
+%form'' in \cite{XXX}.}, then $\tt{e}'$ is either a
+%reference $\jref{\tt{p}}{N'}$ with $\tt{N'} <: \tt{N}$, or an
+%expression containing $(\tt{N}')\tt{\jref{\tt{p}}{N''}}$ where
+%$\tt{N''}\not<:\tt{N}'$.
+%\end{theorem}
+
+The nesT module type form at the Scalaness level is
+$\jmodt{\tpdecl}{\jmodtcat}$, where $\jmodtcat$ is a nesT module
+type. The $\tpdecl$ in this form represents the type bounds of
+dynamically constructed types that have been used to instantiate the
+module; we refer to this part of the type as the \emph{instance
+  coercion}. Because these types are dynamically constructed, their
+identity is not known statically, hence the need to treat them as
+upper-bounded type names in the static type analysis. It is important
+to note that the type names in $\tpdecl$ will be fully resolved at
+run time, so that any module generated by a Scalaness program
+execution will have a fully reified nesT type, i.e.~an empty instance
+coercion.
+
+This is reflected in the \TirName{ModT} rule in
+\autoref{figure-scalanesstyping}, which connects the nesT typing
+system with the Scalaness type system. Since in this case we are
+typing an uninstantiated module definition its instance coercion is
+empty.  An instance coercion in a module type is directly populated
+when a module is instantiated, as in the \TirName{ModInstT} rule.
+Here, the type instances $\ttvec{e}_1$ are all dynamically
+constructed, so they define the upper bounds of the instantiated
+module's instance coercion. We also expect all type and value
+parameters to respect the typing bounds specified in the module
+definition. 
+%A subtle but significant detail in this rule is the
+%consequence of dynamically constructed types having no meaning ``as
+%types'' at the Scalaness level. This means that no Scalaness value of
+%that type can be constructed, so dynamically constructed type names do
+%not occur in the typings of value parameters. This detail is of
+%practical importance, and will be discussed at greater length in
+%\autoref{section-futurework}.
+The \TirName{ModWireT} typing rule for module wiring is a
+straightforward reflection of the operational rule for module wiring,
+as is the \TirName{ModImageT} rule for module runnability
+imaging.
+\begin{example}
+\label{example-scalanesstyping}
+Returning to the code in \autoref{figure-example}, we may assign the
+following typing, where the relevant type environment $G$ contains 
+typing for free variables within the function \tt{nodeSpecialize}:
+$$
+  G \vdash \jinst{radioC}{adt}\ :\  
+    \jmodt{\tt{adt} \subtype \tt{int32}}{\margs{}\lc\ ;
+      \tt{error\_t\ radio(\t)} \rc }
+$$
+$$
+\text{where}\ \t = \lc \tt{src : adt}; \tt{dest : adt}; \tt{data : uint8[\,]} \rc 
+$$
+%and
+%$$    
+%  G \vdash \jinst{sendC}{adt} \ltimes \jinst{radioC}{adt}\ :\   
+%    \jmodt{\tt{adt} \subtype \tt{int32}}{\margs{}\lc \ 
+%      ;\,
+%      \tt{error\_t\ send(\tt{adt\ s}, \tt{adt\ d}, \tt{data\ uint8[\,]})} \rc}
+%$$
+%$$
+%\text{where}\ \t = \lc \tt{src : adt}; \tt{dest : adt}; \tt{data : uint8[\,]} \rc 
+%$$
+\end{example}
+
+\subsection{Foundational Insights and Type Safety} 
+\label{section-framedml}
+
+Type checking of modules and operations is inspired by the type theory
+and metatheory developed for the language \fml\ \cite{FramedML}. Scalaness
+module instantiation in particular can be decomposed into a set of
+\fml\ operations, and typeablity of module instantiation follows from
+the typeablity of their composition. The language \fml\ is obtained by
+extending system \fsub\ with state, dynamic type construction, and
+staging features. The expression $\langle e \rangle$ is a code value,
+and the $\mathrm{lift}$ operation takes a value at one stage
+and ``lifts'' it to the next, by turning it into code and performing
+any necessary serialization.
+
+Given this, a Scalaness module with a value and type parameter can be
+modeled in \fml\ as a term: 
+$$\lambda x : \s_1 . \Lambda t \subtype \s_2 . \langle e \rangle$$
+where $x$ and $t$ are value and type parameters for the block of code
+$\langle e \rangle$.  Then, module instantiation can be modeled as the
+application of this term to a type and value parameter, where the
+latter must be lifted into the next stage:
+$$
+(\lambda x : \s_1 . \Lambda t \subtype \s_2 . \langle e \rangle)\ (\mathrm{lift}\ e)\ \t
+$$ 
+% This interpretation of modules and module operations for the
+% purposes of typing is evidenced by the Scalaness type form
+% $\jmodt{\tpdecl}{\jmodtcat}$, where $\tpdecl$ defines the type bounds
+% for dynamically constructed types used to instantiate a module. This
+% is directly analogous to $\exists$ type bindings in $\fml$ types,
+% which statically define the upper bounds of dynamically constructed
+% types. 
+
+Observing that AFJ, FGJ, and \fml\ are all proven type safe, and that
+Scalaness is in essence an orthogonal composition of these three
+languages, we conjecture that type safety is maintained in this
+composition. 
+% Furthermore, since static type safety in \fml\ implies
+% type safety of all computational stages, we expect that static type
+% safety in Scalaness implies type safety of any residual nesT code in
+% Scalaness computations. This conjecture can be stated formally as
+% follows.
+
+\begin{conject}[Scalaness Type Safety]
+If $\varnothing \vdash \tt{e} : \tt{T}$ and $\tt{e} \rightarrow^*
+\jimage{\mu}$, then $\mu$ is runnable and does not go wrong.
+\end{conject}
+
+% Below is stuff I threw together...
+
 \section{Scalaness Design}
 \label{section-scalaness-design}
 

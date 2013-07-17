@@ -4,34 +4,154 @@
 % SUBJECT : Various macro definitions that can be used in my dissertation.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%\newtheorem{condition}{Condition}[section]
-%\newtheorem{corollary}{Corollary}[section]
+\newtheorem{condition}{Condition}[section]
+\newtheorem{conject}{Conjecture}[section]
+\newtheorem{corollary}{Corollary}[section]
 \newtheorem{definition}{Definition}[section]
-%\newtheorem{example}{Example}[section]
-%\newtheorem{lemma}{Lemma}[section]
-%\newtheorem{proposition}{Proposition}[section]
-%\newtheorem{theorem}{Theorem}[section]
+\newtheorem{example}{Example}[section]
+%\newtheorem{exmp}{Example}[section]
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{theorem}{Theorem}[section]
 
-% I want to typeset newly introduced terms in a special way.
-\newcommand{\newterm}[1]{\emph{#1}}
+\def\arr#1{\textup{\textbf{[}}\mskip -.5mu\textup{\textbf{|}}\, #1 \,\textup{\textbf{|}}\mskip -.5 mu\textup{\textbf{]}}}
+\def\blockno{m}
+\def\blok#1{\textbf{(}#1\textbf{)}}
+\def\castto#1#2{(#1)\,#2}
+\def\defassign{::=}
+\def\dom{{\rm Dom}}
+\def\envletter{E}
+\def\figsize{\small}                      % Use in figures to set the size of the figure.
+\def\fundef#1{\mathit{#1}}
+\def\lc{\textup{\textbf{\{}}}             % Set brackets used in code.
+\def\mapidx#1{{(\mskip -2.5mu #1\mskip -2.5mu)}}
+\def\maploosemerge{\curlyveedownarrow}
+\def\margs#1{\mathrm{<}#1\mathrm{>}}
+\def\neight{n^{8}}
+\def\nsixtn{n^{16}}
+\def\ran{{\rm Ran}}
+\def\rc{\textup{\textbf{\}}}}
+\def\s{\varsigma}
+\def\t{\tau }
+\def\undefv{\ttbf{uninit}}
+\def\VAR{\textit{x} }
 
-% Used for bits of code in-line.
-\newcommand{\inlinecode}[1]{\texttt{#1}}
-\newcommand{\filename}[1]{\texttt{#1}}
-
-\newcommand{\code}[1]{\texttt{#1}}
-\newcommand{\RT}{\text{RT}}
+\newcommand{\abs}[1]{|#1|}
+\newcommand{\activation}[2]{#1\,\mathit{as}\,#2}
+\newcommand{\addt}{\mathit{add}}
+\newcommand{\bit}{\ttbf{bit}}
+\newcommand{\blockmem}{M}
+\newcommand{\bm}{\blockmem}
+\newcommand{\bn}{\blockno}
+\newcommand{\bootload}{\fundef{bootload}}
+\newcommand{\bootseq}[1]{\mathbf{boot}(#1)}
+\newcommand{\cast}[2]{\tt{(#1)#2}}
 \newcommand{\cedge}[1]{\stackrel{#1}{\longleftarrow}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\codt}[1]{\llbracket #1 \rrbracket}
+\newcommand{\compatible}[2]{\mathit{compatible}(#1,#2)}
+\newcommand{\compute}{\leadsto}
+\newcommand{\context}[2]{#1\lc#2\rc}
 \newcommand{\cred}[3]{\mathit{#1} \cedge{#3} \mathit{#2}}
 \newcommand{\creds}{\mathcal{C}}
-\newcommand{\prolog}{\text{Prolog}}
-\newcommand{\datalog}{\text{Datalog}}
+\newcommand{\CT}{{CT}}
+\newcommand{\cval}[2]{\lfloor #1,#2 \rfloor}
 \newcommand{\datalogc}{$\text{Datalog}_\mathcal{C}$}
-\newcommand{\semantics}[1]{\llbracket #1 \rrbracket}
-\newcommand{\activation}[2]{#1\,\mathit{as}\,#2}
+\newcommand{\datalog}{\text{Datalog}}
+\newcommand{\decl}{d}
+\newcommand{\decls}{\vect{\decl};}
+\newcommand{\defeq}{\triangleq}
+\newcommand{\defvec}[2]{\vect{#1} = \vect{#2}}
 \newcommand{\delcred}[3]{#1 \stackrel{#3}{\longrightarrow} #2}
+\newcommand{\docast}[3]{\fundef{docast}(#1,#2,#3)}
+\newcommand{\exportsty}{\varepsilon}
+\newcommand{\exports}{\xi}
+\newcommand{\fdname}{\textsf{l}}
+\newcommand{\fields}[1]{\mathit{fields}(\tt{#1})}
+\newcommand{\fieldvec}[2]{\ttvec{#1}\ \ttvec{#2}}
+\newcommand{\filename}[1]{\texttt{#1}}    % File names.
+\newcommand{\flash}{F}
+\newcommand{\fml}{\ensuremath{\langle \text{ML} \rangle}}
+\newcommand{\fname}{\textsf{f}}
+\newcommand{\fsub}{\ensuremath{F_\le}}
+\newcommand{\gbounds}[2]{\ttvec{#1} <: {\ttvec{#2}}}
+\newcommand{\gclass}[4]{\tt{class\ #1\langle #2\rangle\ extends\ #3\ \{#4 \}}}
+\newcommand{\gdesc}[1]{\text{\textit{#1}}}
+\newcommand{\gnew}[3]{\tt{new\ #1\langle#2\rangle(#3)}}
+\newcommand{\identifier}{\mathit{id}}
+\newcommand{\id}{\identifier}
+\newcommand{\idx}[1]{[#1]}
+\newcommand{\imports}{\iota}
+\newcommand{\init}[3]{\tt{#1(#2)\{ #3 \}}}
+\newcommand{\inlinecode}[1]{\texttt{#1}}  % Inline code (use lstinline instead?)
+\newcommand{\inteight}{\ttbf{uint64}}
+\newcommand{\intfour}{\ttbf{uint32}}
+\newcommand{\inthalf}{\ttbf{uint4}}
+\newcommand{\intone}{\ttbf{uint8}}
+\newcommand{\intt}{\ttbf{uint}}
+\newcommand{\inttwo}{\ttbf{uint16}}
+\newcommand{\jdef}[4]{\tt{def\ #1 : #2 = #3\ in\ #4}}
+\newcommand{\jimage}[1]{\tt{image}\ #1}
+\newcommand{\jinst}[2]{\tt{#1\ensuremath \langle #2 \ensuremath \rangle}}
+\newcommand{\jmodt}[2]{#1 \circ #2}
+\newcommand{\jmodtcat}{\mu\!\tau}
+\newcommand{\jmodval}{\mu}
+\newcommand{\jref}[2]{\tt{(}#1,\tt{#2)}}
+\newcommand{\jstore}{ST}
+\newcommand{\jtlet}[4]{\tt{typedef\ #1 <: #2 = #3\ in\ #4}}
+\newcommand{\jwire}[2]{#1 \ltimes #2}
+\newcommand{\kwelse}{\ttbf{else}}
+\newcommand{\kwif}{\ttbf{if}}
+\newcommand{\kwpost}{\ttbf{post}}
+\newcommand{\kwreturn}{\ttbf{return}}
+\newcommand{\kwstar}{\texttt{*}}
+\newcommand{\kwthen}{\ttbf{then}}
+\newcommand{\kwtlet}{\ttbf{typedef}}
+\newcommand{\kwtypet}{\ttbf{type}}
+\newcommand{\kwwhile}{\ttbf{while}}
+\newcommand{\lvalue}{\ell e}
 \newcommand{\mathgraph}[1]{\mathcal{G}_{#1}}
+\newcommand{\meth}[4]{\tt{#1\ #2(#3)\{ #4 \}}}
+\newcommand{\mutate}[2]{\tt{#1 = #2}}
+\newcommand{\mv}{{\nu}}
+\newcommand{\nesT}{\text{nesT}}
+\newcommand{\newterm}[1]{\emph{#1}}                    % Newly introduced terms.
+\newcommand{\nextt}{\mathit{next}}
+\newcommand{\op}{\ \textit{op}\ }
+\newcommand{\prolog}{\text{Prolog}}
+\newcommand{\promote}{\ll}
+\newcommand{\restrict}[2]{#1\!\mid\!_{#2}}
+\newcommand{\return}[1]{\tt{return\ #1}}
+\newcommand{\RT}{\text{RT}}
+\newcommand{\runseq}[1]{\mathbf{run}(#1)}
+\newcommand{\select}[2]{\tt{#1.#2}}
+\newcommand{\semantics}[1]{\llbracket #1 \rrbracket}
+\newcommand{\send}[3]{\tt{#1.#2(#3)}}
+\newcommand{\ser}[1]{\overset{\text{lift}}{\hookrightarrow}}
+\newcommand{\serialize}{\mathrm{serialize}}
 \newcommand{\Sprocket}{Sprocket$_{RT}$}
+\newcommand{\subjudge}[3]{#1 \vdash #2 \subtype #3}
+\newcommand{\subtvec}[2]{\vect{#1} \subtype \vect{#2}}
+\newcommand{\subtype}{\preccurlyeq}
+\newcommand{\super}{\tt{super}}
+\newcommand{\tasks}{P}
+\newcommand{\tbindvec}[2]{\vect{#1} : \vect{#2}}
+\newcommand{\tcompute}[1]{\stackrel{#1}\leadsto}
+\newcommand{\tdecls}[2]{\ttvec{#1}\ \ttvec{#2}}
+\newcommand{\tdefvec}[3]{\vect{#1} : \vect{#2} = \vect{#3}}
+\newcommand{\tenv}{G}
+\newcommand{\this}{\tt{this}}
+\newcommand{\tpdecl}{\textit{T}}
+\newcommand{\ttbf}[1]{\mbox{\bf \texttt{#1}}}          % New version to match lstlisting.
+\newcommand{\ttt}[1]{{\tt #1}}
+\newcommand{\ttvec}[1]{{\tt{\bar{#1}}}}
+\newcommand{\TVAR}{\textit{t}}
+\newcommand{\vect}[1]{\overline{#1}}
+\newcommand{\vpdecl}{\textit{V}}
+\newcommand{\xlet}[3]{#1\ #2\ =\ #3}
+
+\renewcommand{\tt}[1]{\ensuremath{\mathtt{#1}}}
+
 
 % The \note macro is useful for creating easy to see notes.
 \long\def\note#1{\marginpar{NT}{\small \ \ $\langle\langle\langle$\
