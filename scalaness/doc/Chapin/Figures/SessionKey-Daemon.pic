@@ -1,0 +1,35 @@
+.PS
+
+box_width = 0.8;
+box_height = 0.4;
+box_separation = 0.3;
+
+Sender: box width box_width height box_height "{\small Sender}";
+move 0.75;
+Receiver: box width box_width height box_height "{\small Receiver}";
+
+move to Sender.e; move 0.75/2;
+down; move 0.50;
+KeyStorage: box width 1.7*box_width height box_height "{\small SessionKeyStorage}";
+
+move to KeyStorage.n;
+arrow to Sender.s;     # This arrow should be bidirectional.
+move to KeyStorage.n;
+arrow to Receiver.s;   # This arrow should be bidirectional.
+
+# Arrows representing the radio communications.
+move to Sender.n; left;  move box_width/8; up;
+SOut: arrow box_separation;
+move to Sender.n; right; move box_width/8; up; move box_separation; down;
+SIn: arrow box_separation;
+move to Receiver.n; left;  move box_width/8; up;
+ROut: arrow box_separation;
+move to Receiver.n; right; move box_width/8; up; move box_separation; down;
+RIn: arrow box_separation;
+
+move to SOut.c "{\small Request\ }" rjust
+move to SIn.c "{\small \ Reply}" ljust
+move to ROut.c "{\small Reply\ }" rjust
+move to RIn.c "{\small \ Request}" ljust
+
+.PE

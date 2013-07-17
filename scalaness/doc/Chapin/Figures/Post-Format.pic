@@ -1,0 +1,58 @@
+.PS
+
+separation = 0.30;
+boxht = 0.25;
+
+define l_box { box width boxht $1 }
+define b_box { box width 3*boxht $1 }
+
+# ============
+# The boxes...
+# ============
+
+A: l_box("");
+B: l_box("{\small $n$}");
+C: l_box("");
+D: l_box("");
+move 0.75;
+E: b_box("{\small args}");
+F: b_box("{\small MAC}");
+
+move to D.ne;
+line dotted to E.nw;
+move to D.se;
+line dotted to E.sw;
+move to F.ne;
+line dotted right 0.75;
+move to F.se;
+line dotted right 0.75;
+move to F.ne + (0.75, 0);
+line dotted down boxht;
+
+move to A.n; down; line dashed to A.s;
+
+# =============
+# The labels...
+# =============
+
+move to A.nw + (-0.2, 0); "{\small Interface ID }" rjust;
+spline up 0.15 right 0.1 then to (A.n + (-boxht/4, 0)) ->;
+move to A.sw + (-0.2, 0); "{\small Duty ID }" rjust;
+spline down 0.2 right 0.15 then to (A.s + (boxht/4, 0)) ->;
+
+move to C.n + (-0.3, 0.3);
+Label1: "{\small Node ID}";
+move to Label1 + (0, -0.05); arrow to C.n;
+
+move to D.n + (0.3, 0.3);
+Label2: "{\small Component ID}";
+move to Label2 + (0, -0.05); arrow to D.n;
+
+move to B.se; down; move 0.1; D1: line boxht;
+move to E.sw; down; move 0.1; D2: line boxht;
+line <-> from D1.c to D2.c "" "{\small $n$ Components}";
+
+move to E.se; down; move 0.1; D3: line boxht;
+move to F.se + (0.75, 0); down; move 0.1; D4: line boxht;
+line <-> from D3.c to D4.c "" "{\small $n$ Components}";
+.PE

@@ -4,6 +4,14 @@
 % SUBJECT : Various macro definitions that can be used in my dissertation.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%\newtheorem{condition}{Condition}[section]
+%\newtheorem{corollary}{Corollary}[section]
+\newtheorem{definition}{Definition}[section]
+%\newtheorem{example}{Example}[section]
+%\newtheorem{lemma}{Lemma}[section]
+%\newtheorem{proposition}{Proposition}[section]
+%\newtheorem{theorem}{Theorem}[section]
+
 % I want to typeset newly introduced terms in a special way.
 \newcommand{\newterm}[1]{\emph{#1}}
 
@@ -11,35 +19,69 @@
 \newcommand{\inlinecode}[1]{\texttt{#1}}
 \newcommand{\filename}[1]{\texttt{#1}}
 
+\newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\RT}{\text{RT}}
 \newcommand{\cedge}[1]{\stackrel{#1}{\longleftarrow}}
-\newcommand{\cred}[3]{#1 \cedge{#3} #2}
+\newcommand{\cred}[3]{\mathit{#1} \cedge{#3} \mathit{#2}}
 \newcommand{\creds}{\mathcal{C}}
 \newcommand{\prolog}{\text{Prolog}}
 \newcommand{\datalog}{\text{Datalog}}
 \newcommand{\datalogc}{$\text{Datalog}_\mathcal{C}$}
+\newcommand{\semantics}[1]{\llbracket #1 \rrbracket}
 \newcommand{\activation}[2]{#1\,\mathit{as}\,#2}
 \newcommand{\delcred}[3]{#1 \stackrel{#3}{\longrightarrow} #2}
 \newcommand{\mathgraph}[1]{\mathcal{G}_{#1}}
+\newcommand{\Sprocket}{Sprocket$_{RT}$}
 
 % The \note macro is useful for creating easy to see notes.
 \long\def\note#1{\marginpar{NT}{\small \ \ $\langle\langle\langle$\
 {#1}\
     $\rangle\rangle\rangle$\ \ }} 
 
+
 % I really should put this in a package file! Note how I set up some parameters before opening
 % the listing. This used to be necessary when I was using verbatim environments. Is it still
 % necessary with the listings package? Are those other settings just being overridden?
 %
 \newsavebox{\savebigbox}
-\newenvironment{bigbox}{\begin{lrbox}{\savebigbox}
+\newenvironment{mybigbox}{\begin{lrbox}{\savebigbox}
   \begin{minipage}{0.95\columnwidth}%
     \small\setlength{\baselineskip}{0.9\baselineskip}}
 {\end{minipage}\end{lrbox}\fbox{\usebox{\savebigbox}}}
+% The definition of 'bigbox' above appears to conflict with something in the stmaryrd package.
+% I thus changed it to 'mybigbox.' Uses of \begin{bigbox} in the text should probably be changed
+% to \begin{mybigbox} to reflect this. Note that I also changed 'wbigbox' to 'mywbigbox' for
+% consistency.
+
 
 % This version should be used for full width boxes.
 \newsavebox{\savewbigbox}
-\newenvironment{wbigbox}{\begin{lrbox}{\savewbigbox}
+\newenvironment{mywbigbox}{\begin{lrbox}{\savewbigbox}
   \begin{minipage}{0.9\textwidth}%
     \small\setlength{\baselineskip}{0.9\baselineskip}}
 {\end{minipage}\end{lrbox}\fbox{\usebox{\savewbigbox}}}
+
+
+% This macro is for text figures (program listings). Use as follows:
+% \begin{figure}[htbp]
+% \begin{textbox}{3in}  % The width of the text.
+% \begin{Verbatim}
+% ...
+% \end{Verbatim}
+% \end{textbox}
+% \caption{...}
+% \label{...}
+% \end{figure}
+%
+\newsavebox{\savetextbigbox}
+\newenvironment{textbox}[1]{
+  \begin{lrbox}{\savetextbigbox}
+  \begin{minipage}{#1}
+  \vspace{0.6em}
+}
+{
+  \vspace{0.3em}
+  \end{minipage}
+  \end{lrbox}\framebox[\textwidth]{\hfill\usebox{\savetextbigbox}\hfill}
+}
+% Surround the \usebox{} call with \fbox{} to make the centering boxes visible.

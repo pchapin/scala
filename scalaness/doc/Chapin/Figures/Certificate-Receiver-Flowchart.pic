@@ -1,0 +1,45 @@
+.PS
+
+copy "flowchart-macros.pic"
+
+down_length = 7;
+
+down;
+Input: data(1, 1);
+    "\parbox{6em}{\centering \small Received\\Certificate}" at Input.c;
+move to Input.s;
+arrow down_length;
+D1: decision(1.2, 1.2);
+    "\parbox{6em}{\centering \small Checksum\\Valid?}" at D1.c;
+move to D1.s;
+arrow down_length;
+D2: decision(1.2, 1.2);
+    "\parbox{6em}{\centering \small Certificate\\in Storage?}" at D2.c;
+move to D2.s;
+arrow down_length;
+D3: decision(1.2, 1.2);
+    "\parbox{6em}{\centering \small Signature\\Valid?}" at D3.c;
+move to D3.s;
+arrow down_length;
+Done: process(1, 1);
+    "\parbox{6em}{\centering \small Store Credential\\Update Model}" at Done.c;
+
+right;
+move to D1.e;
+arrow;
+Kill1: process(1.5, 1); "Discard Certificate" at Kill1.c;
+move to D2.e;
+arrow;
+Kill2: process(1.5, 1); "Discard Certificate" at Kill2.c;
+move to D3.e;
+arrow;
+Kill3: process(1.5, 1); "Discard Certificate" at Kill3.c;
+
+move to D1.e; "No"  above ljust;
+move to D1.s; "\,Yes" below ljust;
+move to D2.e; "Yes" above ljust;
+move to D2.s; "\,No"  below ljust;
+move to D3.e; "No"  above ljust;
+move to D3.s; "\,Yes" below ljust;
+
+.PE

@@ -1,0 +1,58 @@
+
+.PS
+
+small_width  = 0.8;
+small_height = 0.5;
+vertical_separation   = 0.2;
+horizontal_separation = 1.4;
+
+# ==================
+# The basic boxes...
+# ==================
+A1: box width small_width height small_height "{\small Certificate}" "{\small Sender}";
+move right horizontal_separation;
+B1: box width small_width height small_height "{\small Certificate}" "{\small Receiver}";
+
+move to A1.s;
+move down vertical_separation;
+A2: box width small_width height small_height "{\small Session Key}" "{\small Sender}";
+move to A2.e;
+move right horizontal_separation;
+B2: box width small_width height small_height "{\small Session Key}" "{\small Receiver}";
+
+move to A2.s;
+move down vertical_separation;
+A3: box width small_width height small_height "{\small Client}";
+move to A3.e;
+move right horizontal_separation;
+B3: box width small_width height small_height "{\small Server}";
+
+move to A3.s
+move down (vertical_separation + 0.15);
+"{\small Node A}";
+move right (horizontal_separation + small_width);
+"{\small Node B}";
+
+# ==================
+# The large boxes...
+# ==================
+box dashed width (small_width + 0.4) height (3*small_height + 2*vertical_separation + 0.4) at A2.c;
+box dashed width (small_width + 0.4) height (3*small_height + 2*vertical_separation + 0.4) at B2.c;
+
+# =============
+# The arrows...
+# =============
+
+right;
+move to A1.e;
+arrow to B1.w "{\small Certificates}" "";
+move to A2.e + (0, 0.25*small_height);
+arrow to (B2.w + (0, 0.25*small_height)) "{\small $(K_{cp}, C, I)$}" "";
+move to B2.w + (0, -0.25*small_height);
+LeftArrow: arrow to (A2.e + (0, -0.25*small_height));
+move to LeftArrow.c + (0, -0.1);
+"{\small $(K_{sp}, C, I)$}";
+move to A3.e;
+arrow to B3.w "{\small Post + MAC}" "";
+
+.PE

@@ -1,0 +1,15 @@
+.PS
+
+boxht = 0.25;
+
+define l_box { box width boxht $1 }
+define b_box { box width 3*boxht $1 }
+
+Form1: [
+  b_box("$K_p$ (40)");
+  l_box("$N$");
+  l_box("$C$");
+  l_box("$I$");
+]
+
+.PE

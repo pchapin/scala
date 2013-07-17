@@ -1,0 +1,40 @@
+.PS
+
+box_width = 0.90;
+box_height = 0.40;
+box_separation = 0.3;
+
+Timer: box width 0.5 height 0.25 "{\small Timer}";
+arrow box_separation;
+Sender: box width box_width height box_height "{\small Sender}";
+
+move to Sender.sw; down; move 0.50; right;
+CertStorage: box width box_width height box_height "{\small CertStorage}";
+move box_separation;
+KeyStorage: box width box_width height box_height "{\small KeyStorage}";
+move box_separation;
+CredStorage: box width box_width height box_height "{\small CredStorage}";
+
+move to KeyStorage.e; right; move box_separation/2;
+up; move 0.50;
+Receiver: box width box_width height box_height "{\small Receiver}";
+
+# Wire up the sender.
+move to CertStorage.n;
+arrow to Sender.s;
+
+# Wire up the receiver.
+move to Receiver.s;
+arrow to KeyStorage.n;
+move to Receiver.s;
+arrow to CredStorage.n;
+
+# Arrows representing the radio communications.
+move to Sender.n; up;
+TX: arrow box_separation;
+move to TX.c "{\small \ TX}" ljust
+move to Receiver.n; up; move box_separation; down;
+RX: arrow box_separation;
+move to RX.c "{\small \ RX}" ljust
+
+.PE

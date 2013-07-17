@@ -1,0 +1,83 @@
+.PS
+
+separation = 0.30;
+boxht = 0.25;
+
+define l_box { box width boxht $1 }
+define b_box { box width 3*boxht $1 }
+
+##
+## Form 1: Membership Credential
+##
+#Label1: box invis; move to Label1.w; "$A.r \leftarrow E$" ljust;
+#move to Label1.sw + (0.0, -boxht/2);
+#Form1: [
+#  l_box("1");
+#  b_box("$A$ (40)");
+#  l_box("$r$");
+#  b_box("$E$ (40)");
+#  b_box("sig (42)");
+#  Last: b_box("chk (2)");
+#]
+##move to Form1.Last.e;
+##" (126)";
+
+##
+## Form 2: Inclusion Credential
+##
+#move to Form1.sw + (0.00, -separation);
+#Label2: box invis; move to Label2.w; "$A.r \leftarrow B.s$" ljust;
+#move to Label2.sw + (0.0, -boxht/2);
+#Form2: [
+#  l_box("2");
+#  b_box("$A$ (40)");
+#  l_box("$r$");
+#  b_box("$B$ (40)");
+#  l_box("$s$");
+#  b_box("sig (42)");
+#  Last: b_box("chk (2)");
+#]
+##move to Form2.Last.e;
+##" (127)";
+
+##
+## Form 3: Indirection Credential
+##
+#move to Form2.sw + (0.00, -separation);
+#Label3: box invis; move to Label3.w; "$A.r \leftarrow B.s.t$" ljust;
+#move to Label3.sw + (0.0, -boxht/2);
+#Form3: [
+#  l_box("3");
+#  b_box("$A$ (40)");
+#  l_box("$r$");
+#  b_box("$B$ (40)");
+#  l_box("$s$");
+#  l_box("$t$");
+#  b_box("sig (42)");
+#  Last: b_box("chk (2)");
+#]
+##move to Form3.Last.e;
+##" (128)";
+
+
+#
+# Form 4: Intersection Credential
+#
+#move to Form3.sw + (0.00, -separation);
+Label4: box invis; move to Label4.w; "$A.r \leftarrow B.s \cap C.t$" ljust;
+move to Label4.sw + (0.0, -boxht/2);
+Form4: [
+  l_box("4");
+  b_box("$A$ (40)");
+  l_box("$r$");
+  b_box("$B$ (40)");
+  l_box("$s$");
+  b_box("$C$ (40)");
+  l_box("$t$");
+  b_box("sig (42)");
+  Last: b_box("chk (2)");
+]
+#move to Form4.Last.e;
+#" (168)";
+
+.PE
