@@ -87,6 +87,64 @@ potentially other kinds of embedded systems. To demonstrate the effectiveness of
 use Scalaness to provide the same trust management support as demonstrated with Sprocket. I then
 compare the effectiveness of the two systems.
 
+\section{Field Example}
+
+To illustrate the two approaches described here in a realistic setting I will use a common
+example based on the SnowCloud system \cite{XXX}. This system was developed by (who?) to (do
+what?). \note{FIXME} It consists of two node level applications. The first application, called
+SensorBox, runs on the sensor network itself, gathers data related to snow depth, and saves it
+in non-volatile storage on each node. The second application, called Harvester, runs on a
+specialized device that is hand carried into the field and collects sensor data from the
+network. The Harvester issues commands to the nodes as well as collects data from the nodes.
+
+\note{Describe the SnowCloud application in more detail. Moving on for now\ldots}
+
+\subsection{SnowStorm}
+
+\note{Move the description of policy into the chapter on Trust Management. Move the details of
+  SnowStorm to the chapter on nesT and Scalaness.}
+
+I visualize a scenario where the administrative domain running the Harvester might be different
+from the administrative domain owning the sensor network. Each of these domains is its own
+$RT_0$ entity, called $H$ and $N$ respectively. $N$ defines the role \texttt{control}, the
+members of which are able to send commands to network nodes. Each node holds the following
+policy
+\begin{Verbatim}
+N.control <- H
+N.control <- N
+\end{Verbatim}
+
+It is necessary for $N$ to be made a member of $N.\textrm{control}$ so that commands can be
+forwarded from node to node during their dissemination. \note{Is there value in defining a more
+  interesting policy?}
+
+The Scalaness program, called SnowStorm, is able to generate both the Harvester and SensorBox
+applications. \autoref{fig:running-snowstorm} shows two instances of SnowStorm running, $S_H$
+and $S_N$, one by each administrative domain. $S_H$ is only interested in generating the
+Harvester application and $S_N$ is only interested in generating the SensorBox application.
+Conceptually the two domains might run completely independent Scalaness programs, but as a
+convenience during development and testing a single program was created to serve the needs of
+both domains.
+
+\begin{figure}[htbp]
+  \input{Figures/SnowStorm}
+  \centerline{\raise 1em\box\graph}
+  \caption{Running SnowStorm}
+  \label{fig:running-snowstorm}
+\end{figure}
+
+$S_H$ and $S_N$ are assumed to both have Internet access and run continuously. $H$ requests
+authorization from $N$ and, if successful, session keys are negotiated over the Internet.
+SnowStorm provides a menu that allows an interactive user to control its operation and trigger
+the generation of the node level programs.
+
+Each instance of SnowStorm holds the private key of its domain and maintains a database of
+public keys ($RT$ entities) and certificates ($RT$ policy). Users are able to issue new
+certificates under their domain's key.
+
+
+\section{Dissertation Organization}
+
 The rest of this dissertation is organized as follows. In Chapter~2 I describe trust management
 systems in general and motivate their use in sensor network applications. In Chapter~3 I
 describe a practical test application that I used to demonstrate the feasibility of both
