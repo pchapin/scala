@@ -20,7 +20,7 @@ efficiency. %  The system has been implemented as an extension to Scala \cite{Pi
 Our system targets a scenario where a relatively powerful hub device
 can automatically combine dynamically specialized libraries and deploy
 them to a WSN. We use a restricted form of \emph{staging}
-\cite{metaml-main,DBLP:conf/icess/Taha04,289140} to achieve
+\cite{Taha-MetaML,DBLP:conf/icess/Taha04,289140} to achieve
 well founded dynamic program generation.  \emph{First stage} code is
 written in an extended version of Scala, called Scalaness, which is
 programmer friendly and suitable for running on powerful hubs.
@@ -117,7 +117,7 @@ bit sizes.
 \subsubsection{Modules as Staging Elements.}
 
 In Scalaness, nesT modules can be treated as data to be composed,
-following traditional staged programming languages \cite{metaml-main}.
+following traditional staged programming languages \cite{Taha-MetaML}.
 The so-called ``runnable'' modules -- ones without imports or generic
 parameters -- define an initial machine configuration. This supports a
 TinyOS mote reprogramming model, where the entire OS is recompiled and
@@ -152,7 +152,7 @@ line \ref{l:lift}, module \tt{nodeC} is instantiated with arguments
 \tt{adt}, \tt{self}, and \tt{neighbor}. In lines \ref{l:scode} and
 \ref{l:image}, modules are composed using the $\ltimes$ operator.
 The semantics of module composition $\mu_1 \ltimes \mu_2$ is standard
-\cite{cardelli97:_progr}; imports of one module are connected
+\cite{Cardelli-1997}; imports of one module are connected
 to exports of the other. nesT module composition is analogous to nesC
 \emph{configuration wiring}.%  In \autoref{example-scalanesssemantics}
 % we describe these semantics in detail.
