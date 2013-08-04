@@ -22,11 +22,12 @@ networks much of that work has focused on low level concerns such as link layer 
 concern is rather to support high level authorization policies that allow a network in one
 security domain to grant selective access to its resources by nodes in a cooperating security
 domain. Such distributed authorization systems, called \newterm{trust management systems} have
-also been an active area of research \cite{XXX}.
+also been an active area of research \cite{chapin-skalka-wang-acmcs08}.
 
-A trust management system typically entails the use of public key cryptography and a system for
-evaluating authorization requests in the light of some access policy. Although the feasibility
-of using public key cryptography on sensor nodes has been shown by several authors
+A trust management system typically entails the use of public key cryptography to allow
+principals to authorize each other without prior introduction, and a system for evaluating
+authorization requests in the light of some access policy. Although the feasibility of using
+public key cryptography on sensor nodes has been shown by several authors
 \cite{bertoni-2006,Liu-Peng-TinyECC-2008,Szczechowiak:2008:NTL:1786014.1786040}, combining this
 with the necessary authorization computations to support a full trust management system, and
 showing the feasibility and practicality of doing so, has not been previously demonstrated.
@@ -61,10 +62,12 @@ efficiency of node level programs for wireless sensor networks. In such an envir
 stage program is envisioned to run on a powerful base station or even a hand-held device such as
 a smart phone. Using information gathered in the field, the first stage program computes an
 appropriately specialized second stage program that is then deployed to the network using an
-in-situ distributed deployment system such as Deluge \cite{XXX}. Feedback provided by the
+in-situ distributed deployment system such as Deluge \cite{deluge04}. Feedback provided by the
 network allows the first stage program to recompute an updated second stage program that can
 then be redeployed. The second stage program running on the sensor nodes remains small and
 efficient and yet long term flexibility is retained.
+
+\note{Should I include the figure here that illustrates the blocks in a Scalaness system?}
 
 In this environment only two stages are necessary so a language that provides an arbitrary
 number of stages is not required. Furthermore the practical realities of sensor network
@@ -145,12 +148,13 @@ certificates under their domain's key.
 
 \section{Dissertation Organization}
 
-The rest of this dissertation is organized as follows. In Chapter~2 I describe trust management
-systems in general and motivate their use in sensor network applications. In Chapter~3 I
-describe a practical test application that I used to demonstrate the feasibility of both
-Sprocket and Scalaness. In Chapter~4 I describe the design and implementation of Sprocket. In
-Chapter~5 I describe the design and implementation of Scalaness. In Chapter~6 I show an
-evaluation of these systems as applied to the extended example. Finally in Chapter~7 I conclude.
+The rest of this dissertation is organized as follows. In \autoref{chapter-trust-management} I
+describe trust management systems in general and motivate their use in sensor network
+applications. In \autoref{chapter-spartanrpc-sprocket} I describe the direct approach to
+providing useful trust management authorization in sensor networks based on SpartanRPC and
+Sprocket. In \autoref{chapter-nest-scalaness} I describe the staged approach based on nesT and
+Scalaness. In \autoref{chapter-evaluation} I show an evaluation of these systems as applied to
+the extended example. Finally in \autoref{chapter-conclusion} I conclude.
 
 %%% Local Variables: 
 %%% mode: LaTeX
