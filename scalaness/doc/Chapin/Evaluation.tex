@@ -324,32 +324,27 @@ through the first and second hops.
 \section{SnowCloud with \Sprocket}
 \label{section-snowcloud-sprocket}
 
+\textit{blah, blah, blah\ldots}
 
 \subsection{Security Policies}
 
-To specify and implement the security policies informally described
-above, we consider the sensor network and the Harvester single node
-``network'' as separate security domains, each with their own set of
-credentials. The sensor network is always endowed with
-administrator-level credentials. If a Harvester is to be used by a
-system engineer, its mote is also endowed with administrator-level
-credentials, whereas a Harvester to be used by a data end-user is only
-endowed with user-level credentials. When a Harvester is introduced to
-the sensor network, its resource accesses are mediated by its
-authorization level. Since credentials are unforgeable, a user-level
-Harvester can never be used for sensor network control even if it is
-reprogrammed.
+To specify and implement the security policies informally described in
+\autoref{chapter-introduction}, I consider the sensor network and the Harvester single node
+``network'' as separate security domains, each with their own set of credentials. The sensor
+network is always endowed with administrator-level credentials. If a Harvester is to be used by
+a system engineer, it is also endowed with administrator-level credentials, whereas a Harvester
+to be used by a data end-user is only endowed with user-level credentials. When a Harvester is
+introduced to the sensor network, its resource accesses are mediated by its authorization level.
+Since credentials are unforgeable, a user-level Harvester can never be used for sensor network
+control even if it is reprogrammed.
 
-Sensor nodes within the network possess four credentials, as follows.
-In these credentials the Snowcloud domain is abbreviated
-$\mathit{SC}$. Authority to collect data and control sensors in the
-network are governed by the roles $\mathit{SC.Col}$ and
-$\mathit{SC.Con}$, respectively.  Credential (1) says that control
-authority contains collection authority. (2) says that nodes in the
-Snowcloud domain have control authority. (3) says that any entity in a
-Snowcloud collaborator's $\mathit{Usr}$ role has collection
-authority. (4) says that the node identified by $\mathit{Nid}$ is in
-the Snowcloud domain.
+Sensor nodes within the network possess four credentials, as follows. In these credentials the
+Snowcloud domain is abbreviated $\mathit{SC}$. Authority to collect data and control sensors in
+the network are governed by the roles $\mathit{SC.Col}$ and $\mathit{SC.Con}$, respectively.
+Credential (1) says that any node with control authority also has collection authority. (2) says
+that nodes in the Snowcloud domain have control authority. (3) says that any entity in a
+Snowcloud collaborator's $\mathit{Usr}$ role has collection authority. (4) says that the node
+identified by $\mathit{Nid}$ is in the Snowcloud domain.
 \begin{mathpar}
 (1)\quad \cred{SC.Col}{SC.Con}{}
 
@@ -359,47 +354,40 @@ the Snowcloud domain.
 
 (4)\quad \cred{SC.Node}{NId}{}
 \end{mathpar}
-When invoking remote services, the node will do so on behalf of the
-entity $\mathit{Nid}$. It will also be imaged with the $\mathit{NId}$
-private key for session key negotiation.
+When invoking remote services, the node will do so on behalf of the entity $\mathit{Nid}$. It
+will also be imaged with the $\mathit{NId}$ private key for session key negotiation.
 
-Any Harvester within the Snowcloud domain is then provided with the
-credential $\cred{SC.Node}{HId}{}$ and the $\mathit{HId}$ private key
-issued by Snowcloud domain administration. This will provide that
-Harvester with collection and control authority in the domain. For
-Harvesters to be provided to collaborators, the Snowcloud
-administrators issue a credential establishing the institution as a
-collaborator, while the institution itself may define and manage policy
-for their $\mathit{Usr}$ role membership. For example, the University
-of New Hampshire ($\mathit{UNH}$) can be established as a collaborator
-with credential (5) issued by Snowcloud domain administration, and may
-specify role membership with the credential (6) issued by UNH domain
-administration:
+Any Harvester within the Snowcloud domain is then provided with the credential
+$\cred{SC.Node}{HId}{}$ and the $\mathit{HId}$ private key issued by Snowcloud domain
+administration. This will provide that Harvester with collection and control authority in the
+domain. For Harvesters to be provided to collaborators, the Snowcloud administrators issue a
+credential establishing the institution as a collaborator, while the institution itself may
+define and manage policy for their $\mathit{Usr}$ role membership. For example, the University
+of New Hampshire ($\mathit{UNH}$) can be established as a collaborator with credential (5)
+issued by Snowcloud domain administration, and may specify role membership with the credential
+(6) issued by UNH domain administration:
 \begin{mathpar}
 (5)\quad \cred{SC.Collab}{{UNH}}{}
 
 (6)\quad \cred{{UNH}.Usr}{UsrID}{}
 \end{mathpar}
-These two credentials, along with the $\mathit{UsrID}$ private key,
-are imaged on Harvesters issued to UNH collaborators for data
-collection, but which remain unauthorized for control.
+These two credentials, along with the $\mathit{UsrID}$ private key, are imaged on Harvesters
+issued to UNH collaborators for data collection, but which remain unauthorized for control.
 
 \subsection{Implementation}
 
-Resources themselves are accessed through a secure command
-dissemination protocol, that is modeled upon the TinyOS Dissemination
-protocol (as described in TEP 118). In short, protected RPC services
-establish network level broadcast channels requiring authorization for
-use. Commands are communicated to the network over these channels, and
-different channels are used for different sorts of commands. 
+Resources themselves are accessed through a secure command dissemination protocol, that is
+modeled upon the TinyOS Dissemination protocol (as described in TEP 118). In short, protected
+RPC services establish network level broadcast channels requiring authorization for use.
+Commands are communicated to the network over these channels, and different channels are used
+for different sorts of commands.
 
-In more detail, command broadcast services can be specified as a duty
-in a remotable interface:
+In more detail, command broadcast services can be specified as a duty in a remotable interface:
 \begin{Verbatim}
 interface SpDisseminationUpdate { duty void change(command_t new_value); }
 \end{Verbatim}
-To implement e.g.~the control command channel, the following module
-can be defined and included on sensor nodes in the Snowcloud domain:
+To implement e.g.~the control command channel, the following module can be defined and included
+on sensor nodes in the Snowcloud domain:
 \begin{Verbatim}
 module ControlDissemC {
     provides remote interface SpDisseminationUpdate requires "SC.Con";
@@ -408,80 +396,64 @@ module ControlDissemC {
 }
 implementation { ... }
 \end{Verbatim}
-In the implementation, the provided $\verb+SpDisseminationUpdate+$
-interface accepts command invocations from neighbors, but requires
-them to be authorized for the $\mathit{SC.Con}$ role. Commands are
-relayed to all other neighbors (i.e.~disseminated) via the used
-$\verb+NeighborUpdate+$ interface; those neighbors are identified by
-the provided $\verb+ComponentManager+$.
+In the implementation, the provided $\verb+SpDisseminationUpdate+$ interface accepts command
+invocations from neighbors, but requires them to be authorized for the $\mathit{SC.Con}$ role.
+Commands are relayed to all other neighbors (i.e.~disseminated) via the used
+$\verb+NeighborUpdate+$ interface; those neighbors are identified by the provided
+$\verb+ComponentManager+$.
 
-To use this component, both sensor and Harvester nodes can configure 
-it through the following component instantiation and wiring, where 
-the component's $\verb+NeighborUpdate+$ interface is wired remotely
-to neighbors: 
+To use this component, both sensor and Harvester nodes can configure it through the following
+component instantiation and wiring, where the component's $\verb+NeighborUpdate+$ interface is
+wired remotely to neighbors:
 \begin{Verbatim}
 components ControlDissemC as ControlChan;
 activate "*" for 
   ControlChan.NeighborUpdate -> [ControlChan].SpDisseminationUpdate;
 \end{Verbatim}
-Note that a node must be endowed with the appropriate credentials for
-this wiring to be useful. 
+Note that a node must be endowed with the appropriate credentials for this wiring to be useful.
 
-This same code pattern can be used to implement a data collection
-request channel, protected by the $\mathit{SC.Col}$ role instead of
-$\mathit{SC.Con}$. In response to an authorized control command
-invocation, sensor nodes will modify their behavior appropriately,
-whereas in response to authorized data collection requests sensor
-nodes will report their data using collection tree protocol (TEP 123)
-to the Harvester.
+This same code pattern can be used to implement a data collection request channel, protected by
+the $\mathit{SC.Col}$ role instead of $\mathit{SC.Con}$. In response to an authorized control
+command invocation, sensor nodes will modify their behavior appropriately, whereas in response
+to authorized data collection requests sensor nodes will report their data using collection tree
+protocol (TEP 123) to the Harvester.
 
 \subsection{Results}
 
-Results can be characterized according to both the user experience and
-to quantitative aspects. As detailed in
-\autoref{section-empirical-results}, a one-time transient overhead is
-imposed for initial credential exchange and session key negotiation
-when a Harvester is first introduced to the network. However, since
-data collection for a network after several months of deployment can
-take up to an hour, this overhead is relatively insignificant. And
-steady-state overhead is small, and does not affect data collection
-rates. Further, subsequent field visits will not impose transient
-overhead since negotiated keys can be cached in non-volatile
-memory. Thus, authorized user experience is not significantly impacted
-by the addition of security.
+Results can be characterized according to both the user experience and to quantitative aspects.
+As detailed in \autoref{section-sprocket-overhead}, a one-time transient overhead is imposed for
+initial credential exchange and session key negotiation when a Harvester is first introduced to
+the network. However, since data collection for a network after several months of deployment can
+take up to an hour, this overhead is relatively insignificant. And steady-state overhead is
+small, and does not significantly affect data collection rates. Further, subsequent field visits
+will not impose transient overhead since negotiated keys can be cached in non-volatile memory.
+Thus, authorized user experience is not significantly impacted by the addition of security.
 
-From a quantitative perspective, the most important measurements to
-consider for this application, beyond the general ones already
-considered in \autoref{section-empirical-results}, are RAM and ROM
-consumption of the insecure and secured versions of the Harvester
-collection protocol. We have to consider whether layering SpartanRPC
-security over a realistic application will overrun the resources
-available to a mote platform. Relevant measurements are as follows.
+From a quantitative perspective, the most important measurements to consider for this
+application, beyond the general ones already considered in \autoref{section-sprocket-overhead},
+are RAM and ROM consumption of the insecure and secured versions of the Harvester collection
+protocol. We have to consider whether layering SpartanRPC security over a realistic application
+will overrun the resources available to a mote platform. Relevant measurements are as follows.
 \begin{table}[h]
 \centering \newcommand\T{\rule{0pt}{2.1ex}} \caption{RAM and ROM
   consumption for Snowcloud versions} {
 \begin{tabular}{|l|c|c|}
 \hline
-\emph{Program} \T & \emph{RAM Bytes} & \emph{ROM Bytes} \\ \hline\hline
-Insecure Harvester \T & 2274 & 24316 \\ \hline
-Secure Harvester \T & 4771 & 35834 \\ \hline
-Insecure Sensor Node \T & 2868 & 36254 \\ \hline
-Secure Sensor Node \T & 5417 & 48616 \\ \hline
+\emph{Program} \T       & \emph{RAM Bytes} & \emph{ROM Bytes} \\ \hline\hline
+Insecure Harvester \T   &             2274 &            24316 \\ \hline
+Secure Harvester \T     &             4771 &            35834 \\ \hline
+Insecure Sensor Node \T &             2868 &            36254 \\ \hline
+Secure Sensor Node \T   &             5417 &            48616 \\ \hline
 \end{tabular}
 }
 \label{table-snowcloud}
 \end{table}
 
-Both RAM and ROM consumption are significantly increased by the
-addition of SpartanRPC security to this application. 
-%For a platform
-%such as the TelosB with 48K of available program ROM, the secured
-%sensor node image is pushing the boundaries. 
-However, these numbers are within operating parameters, and the
-Sprocket implementation of SpartanRPC described in
-\autoref{section-implementation} has not yet been optimized for space
-efficiency in any way; improvements in this respect can be made but
-are out of scope for this work.
+Both RAM and ROM consumption are significantly increased by the addition of SpartanRPC security
+to this application. However, these numbers are within operating parameters, and the Sprocket
+implementation of SpartanRPC described in \autoref{section-implementation} has not yet been
+optimized for space efficiency in any way; improvements in this respect can be made but are out
+of scope for this work.
 
 
 \section{Overhead Analysis of Scalaness}
