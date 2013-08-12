@@ -1,0 +1,13 @@
+
+The on-node cryptographic computations required by our system are digital signature
+verification, session key negotiation using Diffie-Hellman key exchange, and message
+authentication code (MAC) computation using a session key. Of these three operations the first
+two involve complex public key cryptography. The MAC computation occurs much more frequently but
+is much cheaper since it uses hardware accelerated symmetric key cryptography. In fact, the
+motivation behind creating session keys is to avoid public key operations for every message.
+
+ECC can achieve much higher security for a given number of key bits saving memory and network
+bandwidth relative to other public key cryptosystems. In our implementation, described in detail
+in \autoref{section-implementation}, we use 160 bit ECC keys, providing a security similar to
+1024 bit RSA keys \cite{lenstra-verheul-2001}. We believe this is a reasonable level of security
+for the anticipated applications.

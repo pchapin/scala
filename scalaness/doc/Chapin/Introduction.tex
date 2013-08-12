@@ -18,19 +18,26 @@ stacks \cite{XXX}, elaborate security services \cite{XXX}, and etc \cite{XXX}.
 My interest is in discovering how to effectively program these limited devices to meet high
 level security goals. While there has been a great deal of research on security in sensor
 networks much of that work has focused on low level concerns such as link layer security
-\cite{XXX}, key distribution \cite{XXX}, and secure network protocols \cite{1049776,XXX}. My
-concern is rather to support high level authorization policies that allow a network in one
-security domain to grant selective access to its resources by nodes in a cooperating security
-domain. Such distributed authorization systems, called \newterm{trust management systems} have
-also been an active area of research \cite{chapin-skalka-wang-acmcs08}.
+\cite{XXX}, key distribution \cite{XXX}, and secure network protocols \cite{1049776,XXX}.
+Systems such as TinySec \cite{karlog-tinysec-2004} and MiniSec \cite{luk-minisec-2007} are based
+on shared secrets and generally assume that an entire network comprises a single security
+domain. Furthermore, these systems support confidentiality and integrity properties, but not
+access control, aka authorization.
+
+The purpose of my work is, rather, to support high level authorization policies that allow a
+network in one security domain to grant selective access to its resources by nodes in a
+cooperating security domain. Such distributed authorization systems, called \newterm{trust
+  management systems} have also been an active area of research
+\cite{chapin-skalka-wang-acmcs08}.
 
 A trust management system typically entails the use of public key cryptography to allow
 principals to authorize each other without prior introduction, and a system for evaluating
 authorization requests in the light of some access policy. Although the feasibility of using
 public key cryptography on sensor nodes has been shown by several authors
-\cite{bertoni-2006,Liu-Peng-TinyECC-2008,Szczechowiak:2008:NTL:1786014.1786040}, combining this
-with the necessary authorization computations to support a full trust management system, and
-showing the feasibility and practicality of doing so, has not been previously demonstrated.
+\cite{1049776,Malan:2008:IPI:1387663.1387668,bertoni-2006,kumar-2006,4604657,Liu-Peng-TinyECC-2008,Szczechowiak:2008:NTL:1786014.1786040},
+combining this with the necessary authorization computations to support a full trust management
+system, and showing the feasibility and practicality of doing so, has not been previously
+demonstrated.
 
 Here I show two approaches to solving the problem of providing trust management-style
 distributed authorization in WSNs. The first approach is based on an RPC discipline called
@@ -92,59 +99,36 @@ compare the effectiveness of the two systems.
 
 \section{Field Example}
 
-To illustrate the two approaches described here in a realistic setting I will use a common
-example based on the SnowCloud system \cite{XXX}. This system was developed by (who?) to (do
-what?). \note{FIXME} It consists of two node level applications. The first application, called
-SensorBox, runs on the sensor network itself, gathers data related to snow depth, and saves it
-in non-volatile storage on each node. The second application, called Harvester, runs on a
-specialized device that is hand carried into the field and collects sensor data from the
-network. The Harvester issues commands to the nodes as well as collects data from the nodes.
+To evaluate the performance of SpartanRPC and Scalaness in a real application setting, I used
+both systems to implement secure versions of data collection and sampling control protocols in
+an environmental monitoring system. The Snowcloud system
+\cite{frolik-skalka-snowcloudtr,moeser-walker-skalka-frolik-wsc11} is a wireless sensor network
+developed at the University of Vermont for snow hydrology research applications. It is based on
+the MEMSIC TelosB mote platform running TinyOS, and has seen multiple field deployments. Typical
+deployed systems comprise 4-8 sensor nodes but the technology is scalable to arbitrary numbers
+of nodes. For data collection and sampling rate control, the system also includes a handheld
+``Harvester'' device. This device incorporates a TelosB mote to establish a network connection
+when in radio communication with the deployment. Users transport the device to and from
+deployment sites, and interact with the sensor node network by issuing commands from a simple
+push-button interface. A Harvester device and a deployed Snowcloud sensor tower are pictured in
+\autoref{figure-snowcloud}. The scheme described here has been implemented and tested in the UVM
+test network, which uses the same software and hardware platforms as in the active deployments.
 
-\note{Describe the SnowCloud application in more detail. Moving on for now\ldots}
+\snowcloudfig
 
-\subsection{SnowStorm}
+In the secured version of the Snowcloud system, the goal is to treat data collection and
+sampling rate control as protected resources requiring authorization. Furthermore, sampling rate
+modifications should require a higher, ``administrator'' level of authorization than data
+collection. That is, only system engineers should be able to perform control operations, whereas
+data end-users making field visits should be able to collect data. Snowcloud sensor node code in
+particular makes use of nearly every resource available on the mote---including timing, sensor
+I/O, radio messaging, and flash memory, not to mention CPU and main memory. Thus, it is a robust
+example of a realistically scaled application.
 
-\note{Move the description of policy into the chapter on Trust Management. Move the details of
-  SnowStorm to the chapter on nesT and Scalaness.}
-
-I visualize a scenario where the administrative domain running the Harvester might be different
-from the administrative domain owning the sensor network. Each of these domains is its own
-$RT_0$ entity, called $H$ and $N$ respectively. $N$ defines the role \texttt{control}, the
-members of which are able to send commands to network nodes. Each node holds the following
-policy
-\begin{Verbatim}
-N.control <- H
-N.control <- N
-\end{Verbatim}
-
-It is necessary for $N$ to be made a member of $N.\textrm{control}$ so that commands can be
-forwarded from node to node during their dissemination. \note{Is there value in defining a more
-  interesting policy?}
-
-The Scalaness program, called SnowStorm, is able to generate both the Harvester and SensorBox
-applications. \autoref{fig:running-snowstorm} shows two instances of SnowStorm running, $S_H$
-and $S_N$, one by each administrative domain. $S_H$ is only interested in generating the
-Harvester application and $S_N$ is only interested in generating the SensorBox application.
-Conceptually the two domains might run completely independent Scalaness programs, but as a
-convenience during development and testing a single program was created to serve the needs of
-both domains.
-
-\begin{figure}[htbp]
-  \input{Figures/SnowStorm}
-  \centerline{\raise 1em\box\graph}
-  \caption{Running SnowStorm}
-  \label{fig:running-snowstorm}
-\end{figure}
-
-$S_H$ and $S_N$ are assumed to both have Internet access and run continuously. $H$ requests
-authorization from $N$ and, if successful, session keys are negotiated over the Internet.
-SnowStorm provides a menu that allows an interactive user to control its operation and trigger
-the generation of the node level programs.
-
-Each instance of SnowStorm holds the private key of its domain and maintains a database of
-public keys ($RT$ entities) and certificates ($RT$ policy). Users are able to issue new
-certificates under their domain's key.
-
+The system described here is also informative since it can be easily ported to other similar
+application settings. That is, sensor network application settings wherein multiple users of
+various authorization levels need to interact with the same network in control or collection
+capacities, as mediated by security policy.
 
 \section{Dissertation Organization}
 
