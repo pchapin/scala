@@ -22,18 +22,21 @@ Top level sections...
 
 3. SpartanRPC and Sprocket
 
-   This section contains material from the MASS and TISSEC papers. It describes the direct
+   This chapter contains material from the MASS and TISSEC papers. It describes the direct
    approach of solving the problem of the problem outlined in the introduction. I had thought to
    include both the description of the system and implementation specifics in separate
    subsections.
 
-4. NesT and Scalaness
+4. Scalaness/nesT Theory
 
-   This section contains material from the GPCE paper. It describes the staged approach of
+   This chapter contains material from the GPCE paper. It describes the staged approach of
    solving the problem outlined in the introduction. It also includes a description of the type
-   theory and formal semantics of nesT from the CC and LCTES submissions. For symmetry with the
-   section above I had also thought to include both descripton and implementation specifics in
-   separate subsections.
+   theory and formal semantics of nesT from the CC and LCTES submissions.
+
+5. Scalaness/Mininess Implementation
+
+   This chapter contains a detailed description of the implementation of Scalaness and the
+   realistic version of nesT called Mininess.
 
 5. Evaluation
 
