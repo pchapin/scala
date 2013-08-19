@@ -23,7 +23,7 @@ trait ModuleTypeParser {
         val lexer  = new ModuleTypeLexer(new ANTLRStringStream(value.toString))
         val tokens = new CommonTokenStream(lexer)
         val parser = new edu.uvm.scalaness.parser.ModuleTypeParser(tokens)
-
+       
         // Annotate the ugly result type for future reference (for now).
         val result: edu.uvm.scalaness.parser.ModuleTypeParser.module_type_return = parser.module_type()
         ANTLRToScala(t = result.getTree.asInstanceOf[CommonTree])
@@ -45,6 +45,36 @@ trait ModuleTypeParser {
     }
     // TODO: We currently only handle one type (and we assume it is there).
     parsedTypes(0)
+  }
+  
+  def parseScalanessAbbrvAnnotation(value: String) = {
+    // TODO: Check that we only process the "value" association. Deal with other associations.
+    val parsedType =
+      try {
+        val lexer  = new ModuleTypeLexer(new ANTLRStringStream(value))
+        val tokens = new CommonTokenStream(lexer)
+        val parser = new edu.uvm.scalaness.parser.ModuleTypeParser(tokens)
+       
+        // Annotate the ugly result type for future reference (for now).
+        val result: edu.uvm.scalaness.parser.ModuleTypeParser.module_type_return = parser.module_type()
+        ANTLRToScala(t = result.getTree.asInstanceOf[CommonTree])
+      }
+      catch {
+        case ex: org.antlr.runtime.RecognitionException =>
+          reporter.error(null, "parse error in ModuleType annotation: " + ex.getClass.getName)
+
+          // If there's a ModuleType annotation parse error, hand back an empty module type.
+          TypeASTNode(
+            ModuleTypeLexer.MODULE_TYPE,
+            "",
+            List(TypeASTNode(ModuleTypeLexer.EXISTENTIAL_LIST, "", List()),
+                 TypeASTNode(ModuleTypeLexer.TYPE_PARAMETER_LIST, "", List()),
+                 TypeASTNode(ModuleTypeLexer.VALUE_PARAMETER_LIST, "", List()),
+                 TypeASTNode(ModuleTypeLexer.IMPORT_LIST, "", List()),
+                 TypeASTNode(ModuleTypeLexer.EXPORT_LIST, "", List())));
+      }
+    // TODO: We currently only handle one type (and we assume it is there).
+    parsedType
   }
 }
 

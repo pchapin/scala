@@ -7,10 +7,13 @@
 package edu.uvm.snowstorm.sensorbox
 
 import edu.uvm.scalaness.ModuleType
+import edu.uvm.scalaness.TypeAbbreviation
 import edu.uvm.snowstorm.ServiceAuthorizer
 
 object Generator {
 
+   val StubType = new TypeAbbreviation("Hey")
+   
  /* @ModuleType("""{}
      <; key: Array[UInt8]>
      { send     (buffer    : Array[UInt8]): Void,

@@ -275,6 +275,12 @@ trait Types
      */
     var nesTModuleType: Option[(Map[edu.uvm.mininess.MininessTypes.TypeVariable, edu.uvm.mininess.MininessTypes.Representation],
                                 edu.uvm.mininess.MininessTypes.Module)] = None
+                                
+    /**
+     * If the type represents a symbol that corresponds to a type abbreviation, the
+     * unformation about said type abbreviation is stored in the symbol's type.
+    **/
+    var typeAbbreviation: Option[edu.uvm.scalaness.TypeAbbreviation] = None
     
     /** Types for which asSeenFrom always is the identity, no matter what
      *  prefix or owner.

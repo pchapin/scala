@@ -2118,6 +2118,45 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
       
       // Search for Scalaness ModuleType annotations and process them.
       val annots = sym.annotations
+      
+      
+      val typeAbbreviationAnnotations = annots filter { _.tpe.toString.contains("edu.uvm.scalaness.TypeAbbr") }
+      if (typeAbbreviationAnnotations.length > 0 && doNesTTypeCheck) {
+        // println(typeAbbreviationAnnotations(0).args(0).children(0).children(0)) // RadioT
+        var fullTypeString = "Empty"
+        if (typeAbbreviationAnnotations(0).args(0).symbol.toString == "method parameterize") {
+          var stringParamList = List[String]()
+          val mySymbol = typeAbbreviationAnnotations(0).args(0).children(0).children(0).symbol
+          val symbolSingle = SingleType(NoPrefix,mySymbol)
+          val myTypeAbbreviation = symbolSingle.typeAbbreviation match {
+            case Some(typeA) => typeA
+            case None => throw new Exception("Unable to find abbreviation")
+          }
+          for (i <- 1 until typeAbbreviationAnnotations(0).args(0).children(1).children.length) {
+            val tempString = typeAbbreviationAnnotations(0).args(0).children(1).children(i).toString
+            stringParamList ::= tempString.substring(1,tempString.length - 1) // This cuts off the " quotes " that the toString takes
+          }
+          stringParamList = stringParamList.reverse
+          fullTypeString = myTypeAbbreviation.parameterize(stringParamList)
+        }
+        else {
+          val mySymbol = typeAbbreviationAnnotations(0).args(0).symbol
+          val symbolSingle = SingleType(NoPrefix,mySymbol)
+          val myTypeAbbreviation = symbolSingle.typeAbbreviation match {
+            case Some(typeA) => typeA
+            case None => throw new Exception("Unable to find abbreviation")
+          }
+          fullTypeString = myTypeAbbreviation.getFullType
+        }
+        // println("Here is the final product")
+        // println(fullTypeString)
+        // val moduleTypeAbbrvAST = parseScalanessAbbrvAnnotation(fullTypeString)
+        // println(Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAbbrvAST)))
+      }
+      
+
+      
+      
       val moduleTypeAnnotations = annots filter { _.tpe.toString == "edu.uvm.scalaness.ModuleType" }
       val annotatedNesTModuleType =
         if (moduleTypeAnnotations.length == 0)
@@ -2159,6 +2198,20 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
       if (doNesTTypeCheck) {
         
         var nesTModuleType = rhs1.tpe.nesTModuleType
+        var currAbbrv = rhs1.tpe.typeAbbreviation
+      
+        if (rhs1.symbol != null) {
+          if (rhs1.symbol.skipConstructor.toString == "class TypeAbbreviation") {
+            val fullTypeString = rhs1.children(1).toString
+            var stringParamList = List[String]()
+            for (i <- 1 until rhs1.children(2).children.length) {
+              val tempString = rhs1.children(2).children(i).toString
+              stringParamList ::= tempString.substring(1,tempString.length - 1) // This cuts off the " quotes " that the toString takes
+            }
+            val newTypeAbbreviation = new edu.uvm.scalaness.TypeAbbreviation(fullTypeString,stringParamList.reverse)
+            currAbbrv = Some(newTypeAbbreviation)
+          }
+        }  
         
         if (sym.isParameter)
           nesTModuleType = annotatedNesTModuleType 
@@ -2183,8 +2236,9 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
         // Stores the nesT information in a singleton type associated with the symbol
         val singletonType = singleType(NoPrefix,sym)
         singletonType.nesTModuleType = nesTModuleType
-
+        singletonType.typeAbbreviation = currAbbrv
       }
+      
       treeCopy.ValDef(vdef, typedMods, vdef.name, tpt1, checkDead(rhs1)) setType NoType
     }
 

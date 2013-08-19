@@ -9,7 +9,7 @@ object Main {
 
   import edu.uvm.mininess._
   import edu.uvm.scalaness._
-  import LiftableTypes._
+  import LiftableTypes._ 
 
   // The Scalaness representation of the nesC Library's imports.
   @ModuleType("""{}
@@ -210,6 +210,7 @@ object Main {
 
     if (args.length != 2) println("Usage: Main checksum_bit_length block_size")
     else {
+    
       val desiredChecksumType = getChecksumType(args)
       val desiredSize = getSize(args)
       

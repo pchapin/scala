@@ -140,7 +140,7 @@ trait Symbols extends api.Symbols { self: SymbolTable =>
     // TODO - don't allow names to be renamed in this unstructured a fashion.
     // Rename as little as possible.  Enforce invariants on all renames.
     type TypeOfClonedSymbol >: Null <: Symbol { type NameType = Symbol.this.NameType }
-
+    
     // Abstract here so TypeSymbol and TermSymbol can have a private[this] field
     // with the proper specific type.
     def rawname: NameType
