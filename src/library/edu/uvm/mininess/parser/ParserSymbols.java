@@ -23,6 +23,7 @@ public class ParserSymbols {
    * Exception class used to signal duplicate symbols in the same scope.
    */
   public static class SymbolRedefinitionException extends Exception {
+      static final long serialVersionUID = 1;
       SymbolRedefinitionException(String message) {
           super(message);
       }
@@ -34,6 +35,7 @@ public class ParserSymbols {
    * used as both type names and non-type names).
    */
   public static class SymbolConflictException extends Exception {
+      static final long serialVersionUID = 1;
       SymbolConflictException(String message) {
           super(message);
       }

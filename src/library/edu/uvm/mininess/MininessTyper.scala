@@ -1211,10 +1211,10 @@ class MininessTyper(
       }
 
       case ASTNode(MininessLexer.POSTFIX_EXPRESSION, _, children, _, _) => {
-        var primaryChild = 0
-        if (children(0).tokenType == MininessLexer.CALL ||
-            children(0).tokenType == MininessLexer.POST)
-          primaryChild = 1
+        val primaryChild =
+          if (children(0).tokenType == MininessLexer.CALL ||
+              children(0).tokenType == MininessLexer.POST) 1 else 0
+              
         val numPostFixModifiers = ((children.length - 1) - primaryChild)
         val childType = checkMininessExpression(children(primaryChild), depth + 1)
         if (numPostFixModifiers == 0) {
@@ -1231,7 +1231,7 @@ class MininessTyper(
         }
       }  // Tests for a CALL/POST child, but needs to be updated with the case that a CALL/POST
          // does exist and what to do with it? Fixed return type. No modifiers returns child
-         // type. If there exists modifiers, it will typevcheck the modifiers and return the
+         // type. If there exists modifiers, it will type check the modifiers and return the
          // modifier type. Problem may exist: More than one modifier? a[3]++ <- needs attention.
 
       case ASTNode(MininessLexer.SIZEOF_TYPE, _, _, _, _) =>
