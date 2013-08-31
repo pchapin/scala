@@ -2,6 +2,9 @@
 \chapter{SpartanRPC and Sprocket}
 \label{chapter-spartanrpc-sprocket}
 
+\lstset{language=nesC}
+\lstMakeShortInline[basicstyle=\ttfamily]!
+
 SpartanRPC is a new programming language based on nesC for wireless sensor networks that
 provides primitives for managing access to protected resources. SpartanRPC as a language allows
 potentially many different forms of access control to be used. The implementation of SpartanRPC
@@ -127,62 +130,55 @@ abstraction called a \emph{duty}.
 \label{section-duties-syntax}
 
 Duties are declared in interfaces and syntactically resemble command declarations. Instead of
-using the reserved word \code{command} the new reserved word \code{duty} is used. Duties are
-allowed to take parameters (with restrictions as discussed below) but must return the type
-\code{void}. For example the following interface describes an RPC service for remotely
-controlling a collection of LEDs:
+using the reserved word !command! the new reserved word !duty! is used. Duties are allowed to
+take parameters (with restrictions as discussed below) but must return the type !void!. For
+example the following interface describes an RPC service for remotely controlling a collection
+of LEDs:
 
-\begin{lrbox}{\savebigbox}
-\begin{minipage}{4.2in}
-\vspace{0.8em}
-\begin{Verbatim}
+\begin{lstlisting}
 interface LEDControl { duty void setLeds(uint8_t ctl); }
-\end{Verbatim}
-\vspace{0.3em}
-\end{minipage}
-\end{lrbox}
-\centerline{\usebox{\savebigbox}}
+\end{lstlisting}
 
 Duties are defined in modules in a manner similar to the way tasks, commands, or events are
-defined. The reserved word \code{duty} is again used on the definition. Like commands and events
-the name of the duty is qualified by the name of the interface in which it is declared.
-Including a duty in an interface definition automatically implies that the interface can be
-remotely invoked, or is \emph{remotable} in the sense formalized in \autoref{section-remotable}.
-Any remotable interface provided by a component must be specified as \code{remote} in its
-provides specification. The first code sample in \autoref{figure-duty-usage} shows an
-\code{LEDControllerC} component that provides the \code{LEDControl} interface remotely i.e.~that
-allows remote nodes to control LED status lights on a board. A more extended example of duty
-implementation and usage is provided in \autoref{section-example}.
+defined. The reserved word !duty! is again used on the definition. Like commands and events the
+name of the duty is qualified by the name of the interface in which it is declared. Including a
+duty in an interface definition automatically implies that the interface can be remotely
+invoked, or is \emph{remotable} in the sense formalized in \autoref{section-remotable}. Any
+remotable interface provided by a component must be specified as !remote! in its provides
+specification. The first code sample in \autoref{figure-duty-usage} shows an !LEDControllerC!
+component that provides the !LEDControl! interface remotely i.e.~that allows remote nodes to
+control LED status lights on a board. A more extended example of duty implementation and usage
+is provided in \autoref{section-example}.
 
 A module on the client node that wishes to use a remote interface simply posts the duty in the
-same manner as tasks are posted. The use of \code{post} emphasizes the asynchronous nature of
-the invocation. An example duty posting is illustrated in \autoref{figure-duty-usage}. The
-standard component semantics of nesC provide a natural abstraction of ``where'' the RPC call
-goes, just as a normal command invocation will go through a component interface that is
-disconnected from its implementation. Like a normal command invocation, configuration wirings
-determine where duty control flows. However, in SpartanRPC duty invocation control flows to a
-component residing on a different node. The invoking module must be connected to the remote
-modules by way of a dynamic wire as described in \autoref{section-dynamic-wires}.
+same manner as tasks are posted. The use of !post! emphasizes the asynchronous nature of the
+invocation. An example duty posting is illustrated in \autoref{figure-duty-usage}. The standard
+component semantics of nesC provide a natural abstraction of ``where'' the RPC call goes, just
+as a normal command invocation will go through a component interface that is disconnected from
+its implementation. Like a normal command invocation, configuration wirings determine where duty
+control flows. However, in SpartanRPC duty invocation control flows to a component residing on a
+different node. The invoking module must be connected to the remote modules by way of a dynamic
+wire as described in \autoref{section-dynamic-wires}.
 
 \begin{fpfig}[t]{Duty Implementation and Invocation Examples}{figure-duty-usage}
 {
-\begin{center}
-%\begin{minipage}[t]{0in}
-\vspace{0.5em}
-\begin{Verbatim}[fontsize=\small]
-         module LEDControllerC { provides remote interface LEDControl; }
-         implementation {
-           duty void LEDControl.setLeds(uint8_t ctl) { ... }
-         } 
+\singlespace
+\begin{lstlisting}
+module LEDControllerC {
+  provides remote interface LEDControl;
+}
+implementation {
+  duty void LEDControl.setLeds(uint8_t ctl) { ... }
+} 
  
-         module LoggerC { uses interface LEDControl; }
-         implementation {
-           void f() { ... post LEDControl.setLeds(42); }
-         }
-\end{Verbatim}
-\vspace{0.1em}
-%\end{minipage}
-\end{center}
+module LoggerC {
+  uses interface LEDControl;
+}
+implementation {
+  void f() { ... post LEDControl.setLeds(42); }
+}
+\end{lstlisting}
+\primaryspacing
 }
 \end{fpfig}
 
@@ -234,56 +230,62 @@ programmer has control over wiring endpoints and how they may change during prog
 
 I begin by discussing how remote components are identified for wiring. In order to uniquely
 identify components on the network, remotable components are specified via a two-element
-structure called a \code{component\_id} defined on the left side of
-\autoref{figure-componentmanager}. The \code{node\_id} member is the same node ID used by TinyOS
-and is set when the node is programmed during deployment. The local ID member is an arbitrary
-value defined by the programmer of the server node. Only components that are visible remotely
-need to have ID values assigned, however, the ID values must be unique \emph{on the node}. The
-\code{component\_set} structure defined on the right side of \autoref{figure-componentmanager}
-wraps an arbitrary array of \code{component\_id} values.
+structure called a !component_id! defined on the left side of \autoref{figure-componentmanager}.
+The !node_id! member is the same node ID used by TinyOS and is set when the node is programmed
+during deployment. The local ID member is an arbitrary value defined by the programmer of the
+server node. Only components that are visible remotely need to have ID values assigned, however,
+the ID values must be unique \emph{on the node}. The !component_set! structure defined on the
+right side of \autoref{figure-componentmanager} wraps an arbitrary array of !component_id!
+values.
  
-\begin{figure}[!t]
-\begin{textbox}{4in}
-\begin{minipage}[t]{1.75in}
-\begin{Verbatim}[fontsize=\small]
-    typedef struct {
-        uint16_t node_id;
-        uint8_t  local_id;
-    } component_id;
-\end{Verbatim}
+\begin{fpfig}[t]{Component Manager Interface and Type Definitions}{figure-componentmanager}
+{
+\begin{minipage}[t]{2.5in}
+\singlespace
+\begin{lstlisting}
+typedef struct {
+  uint16_t node_id;
+  uint8_t  local_id;
+} component_id;
+\end{lstlisting}
+\primaryspacing
 \end{minipage}
 \hfill
-\begin{minipage}[t]{1.75in}
-\begin{Verbatim}[fontsize=\small]
+\begin{minipage}[t]{2.5in}
+\singlespace
+\begin{lstlisting}
 typedef struct {
-    int count;
-    component_id *ids;
+  int count;
+  component_id *ids;
 } component_set;
-\end{Verbatim}
+\end{lstlisting}
+\primaryspacing
 \end{minipage}
 \\
 \centering
-\begin{minipage}[t]{5.8in}
+\begin{minipage}[t]{5in}
 \vspace{1.5em}
-\begin{Verbatim}[fontsize=\small]
-interface ComponentManager { command component_set elements(); }
-\end{Verbatim}
+\singlespace
+\begin{lstlisting}
+interface ComponentManager {
+  command component_set elements();
+}
+\end{lstlisting}
+\primaryspacing
 \end{minipage}
-\end{textbox}
-\caption{Component Manager Interface and Type Definitions}
-\label{figure-componentmanager}
-\end{figure}
+}
+\end{fpfig}
 
-A \emph{component manager} is a component that provides the \code{ComponentManager} interface
-defined at the bottom of \autoref{figure-componentmanager}. It dynamically specifies a set of
-component IDs that ultimately serve as dynamic wiring endpoints. An example component manager is
-discussed in detail \autoref{section-example}.
+A \emph{component manager} is a component that provides the !ComponentManager! interface defined
+at the bottom of \autoref{figure-componentmanager}. It dynamically specifies a set of component
+IDs that ultimately serve as dynamic wiring endpoints. An example component manager is discussed
+in detail \autoref{section-example}.
 
-As a simple example, consider the component manager \code{RemoteSelectorC} as shown in
+As a simple example, consider the component manager !RemoteSelectorC! as shown in
 \autoref{figure-example-componentmanager}. This component manager always returns a component set
-containing a single component. The special SpartanRPC broadcast node ID is used (\code{0xFFFF})
+containing a single component. The special SpartanRPC broadcast node ID is used (!0xFFFF!)
 indicating that all neighbors should be the target of the dynamic wire. The component ID on the
-neighbors is specified as $1$ in this example. In a more complex example the component manager
+neighbors is specified as !1! in this example. In a more complex example the component manager
 would compute the component set each time the dynamic wire is used, filling in an array of
 component IDs based on information gathered earlier in the node's lifetime.
 
@@ -295,34 +297,28 @@ In SpartanRPC the syntax and semantics of nesC is extended to allow the target o
 to be dynamically specified by a component manager. The syntax of wirings, or connections, is
 extended as follows:
 
-\begin{lrbox}{\savebigbox}
-\begin{minipage}{4.3in}
-\vspace{0.6em}
+\singlespace
 \begin{Verbatim}
         connection ::= endpoint '->' dynamic_endpoint
-
   dynamic_endpoint ::= '[' IDENTIFIER ']' ('.' IDENTIFIER)
 \end{Verbatim}
-\vspace{0.3em}
-\end{minipage}
-\end{lrbox}
-\centerline{\usebox{\savebigbox}}
+\primaryspacing
 
-Given a dynamic wiring of the form \code{C.I -> [RC].I}, I informally summarize its semantics as
-follows. First, I statically require that \code{RC} is a component manager, and that \code{I} is
-remotable. At run time, if control flows across this wire via posting of some duty \code{I.d}
-within \code{C}, the command \code{elements} in \code{RC} is called to obtain a set of component
-IDs. The duties \code{I.d} provided by those remote components will then be posted on the host
-nodes via an underlying link layer communication, the details of which are hidden from the
-SpartanRPC programmer. Thus, duties can only be posted on neighbors. Note that since this call
-to \code{elements} may return more than one component ID, this is a sort of fan-out wiring.
+Given a dynamic wiring of the form !C.I -> [RC].I!, I informally summarize its semantics as
+follows. First, I statically require that !RC! is a component manager, and that !I! is
+remotable. At run time, if control flows across this wire via posting of some duty !I.d! within
+!C!, the command !elements! in !RC! is called to obtain a set of component IDs. The duties !I.d!
+provided by those remote components will then be posted on the host nodes via an underlying link
+layer communication, the details of which are hidden from the SpartanRPC programmer. Thus,
+duties can only be posted on neighbors. Note that since this call to !elements! may return more
+than one component ID, this is a sort of fan-out wiring.
 
-For example, the programmer could wire the \code{LoggerC} component mentioned in
+For example, the programmer could wire the !LoggerC! component mentioned in
 \autoref{figure-duty-usage} to LED controller components on a dynamically changing subset of
 neighbors using a configuration such as:
-\begin{Verbatim}[commandchars=\\\{\}]
-\centerline{LoggerC.LEDControl -> [RemoteSelectorC];}
-\end{Verbatim}
+\begin{lstlisting}
+LoggerC.LEDControl -> [RemoteSelectorC];
+\end{lstlisting}
 
 The server's configuration does not need to wire anything to the remote interface explicitly.
 
@@ -343,36 +339,37 @@ server could store those values for use by a server-side component manager. It i
 a component to be its own component manager making it easy for a service to return a result by
 posting the appropriate duty.
 
-\begin{figure}[!t]
-\begin{textbox}{4.0in}
-\begin{Verbatim}[fontsize=\small]
-module RemoteSelectorC { provides interface ComponentManager; }
-implementation {
-    component_id  broadcast  = { 0xFFFF, 1 };
-    component_set broadcast_set = { 1, &broadcast };
-
-    command component_set ComponentManager.elements() {
-        return broadcast_set;
-    }
+\begin{fpfig}[t]{Example Component Manager}{figure-example-componentmanager}
+{
+\singlespace
+\begin{lstlisting}
+module RemoteSelectorC {
+  provides interface ComponentManager;
 }
-\end{Verbatim}
-\end{textbox}
-\caption{Example Component Manager}
-\label{figure-example-componentmanager}
-\end{figure}
+implementation {
+  component_id  broadcast  = { 0xFFFF, 1 };
+  component_set broadcast_set = { 1, &broadcast };
+
+  command component_set ComponentManager.elements() {
+    return broadcast_set;
+  }
+}
+\end{lstlisting}
+\primaryspacing
+}
+\end{fpfig}
 
 % For example, assume that the LED controller on the server returns the old state of the LEDs
 % whenever the LED value is changed. The server configuration would include an appropriate
 % dynamic wire as follows
-% \begin{Verbatim}[commandchars=\\\{\}, fontsize=\small]
-% \centerline{LEDControllerC.LEDResult -> [LEDControllerC];}
-% \end{Verbatim}
+% \begin{lstlisting}
+% LEDControllerC.LEDResult -> [LEDControllerC];
+% \end{lstlisting}
 %
 % The client must provide the LEDResult interface remotely to receive this result. In this
-% example the \code{LEDControllerC} component is its own component manager. This makes it easy
-% for the \code{elements} command to access global data that was recorded inside
-% \code{LEDControllerC} when the service it provides was previously invoked. This is a common
-% SpartanRPC idiom.
+% example the !LEDControllerC! component is its own component manager. This makes it easy for
+% the !elements! command to access global data that was recorded inside !LEDControllerC! when
+% the service it provides was previously invoked. This is a common SpartanRPC idiom.
 
 \section{Security Policy Specification}
 \label{section-security-extensions}
@@ -401,16 +398,16 @@ A.g$ holds, where:
   \item $\creds$ are the credentials known to the RPC host server
 \end{itemize}
 RPC service programmers specify governing roles as part of module definitions---specifically at
-remote interface \texttt{provides} clauses. Hence, governing roles are associated with interface
+remote interface !provides! clauses. Hence, governing roles are associated with interface
 \emph{implementations}, not interfaces themselves. This allows application flexibility, in that
 the same interface can be implemented with various authorization levels within the same network.
 Syntax is as follows:
-\begin{Verbatim}[commandchars=\\\{\}]
-\centerline{provides remote interface \textit{I} requires \textit{A.g}}
-\end{Verbatim}
+\begin{lstlisting}[mathescape=true]
+provides remote interface $I$ requires $A.g$
+\end{lstlisting}
 
 Note the minor modification to previously introduced syntax for remote module definitions, via
-the \texttt{requires} keyword.
+the !requires! keyword.
 
 \subsection{RPC Client Side Logic}
 \label{section-rpc-client-side}
@@ -420,81 +417,71 @@ In order to use a secure remote module, RPC clients wire to it as for unsecured 
 under what \RT\ entity the invocations will be performed, and (2) the client may also specify
 credentials in their possession which are to be activated for use in the invocation. Syntax is
 as follows:
-\begin{Verbatim}[commandchars=\\\{\}, codes={\catcode`*=3\catcode`!=8}]
-\centerline{enable "*C!1, \ldots, C!n*" as "*B*" for C.I -> [M].J}
-\end{Verbatim}
+\begin{lstlisting}[mathescape=true]
+enable "$C_1, \ldots, C_n$" as "$B$" for C.I -> [M].J
+\end{lstlisting}
 For any invocation made through this wiring the credentials $C_1, \ldots, C_n$ will be remotely
 added to the RPC server's database for the authorization decision, via a process detailed in
 \autoref{section-implementation}. Note that these credentials \emph{need not establish
   authorization entirely by themselves}, rather they will be \emph{added} to the server's
 existing credentials, all of which will be used in the authorization decision. A special form of
-the \code{enable} clause using \code{"*"} for the list of credentials is also supported. This
-form indicates that all credentials known to the client should be communicated to the server.
+the !enable! clause using !"*"! for the list of credentials is also supported. This form
+indicates that all credentials known to the client should be communicated to the server.
 
 Each node is deployed with a collection of ECC key pairs, one for each entity the node
-represents. When an invocation is made the entity $B$ mentioned in the \code{as} clause of the
-dynamic wire is used in the request. The \code{as} clause is optional; if it is omitted a
+represents. When an invocation is made the entity $B$ mentioned in the !as! clause of the
+dynamic wire is used in the request. The !as! clause is optional; if it is omitted a
 distinguished \newterm{default entity} is used for the invocation.
 
 \begin{comment}
 \subsection{Example}
 \label{section-security-example}
 
-Suppose that an existing network deployment \code{NetA} is imaged with a component
-\code{SamplingRateC} which provides a means to control sampling rates through an interface
-\code{SamplingRate}. Further, since sampling rate modification is a sensitive operation, the
-network administrators require \code{NetA.control} authorization to use this component:
+Suppose that an existing network deployment !NetA! is imaged with a component !SamplingRateC!
+which provides a means to control sampling rates through an interface !SamplingRate!. Further,
+since sampling rate modification is a sensitive operation, the network administrators require
+!NetA.control! authorization to use this component:
 
-\begin{lrbox}{\savebigbox}
-\begin{minipage}{5.0in}
-\vspace{0.6em}
-\begin{Verbatim}
+\begin{lstlisting}
 module SamplingRateC {
     provides remote interface SamplingRate requires "NetA.control";
 }
-\end{Verbatim}
-\vspace{0.3em}
-\end{minipage}
-\end{lrbox}
-\centerline{\usebox{\savebigbox}}
+\end{lstlisting}
 
 \noindent Any node supporting this component will transparently receive \RT\ credentials from
 neighboring nodes and attempt to use those credentials to establish that each client entity is a
-member of the \code{NetA.control} role in the formal sense described above.
+member of the !NetA.control! role in the formal sense described above.
 
-Suppose also that nodes in \code{NetA} are deployed with the credential
+Suppose also that nodes in !NetA! are deployed with the credential
 \begin{displaymath}
 \code{NetA.control} \leftarrow \code{WSNAdmin.control}
 \end{displaymath}
-Here the role \code{WSNAdmin.control} is administered by some overarching network authority.
-However this authority need not be physically ``present'' in the network during operation.
-Instead the credential above represents \code{NetA}'s access control policy: any entity blessed
-by \code{WSNAdmin} as a controller can control \code{NetA}.
+Here the role !WSNAdmin.control! is administered by some overarching network authority. However
+this authority need not be physically ``present'' in the network during operation. Instead the
+credential above represents !NetA!'s access control policy: any entity blessed by !WSNAdmin! as
+a controller can control !NetA!.
 
-Suppose further that another subnet, called \code{NetB}, wishes to modify the sampling rate of
-\code{NetA}. A node in \code{NetB} might be imaged with the following credentials, among
-possibly others:
+Suppose further that another subnet, called !NetB!, wishes to modify the sampling rate of
+!NetA!. A node in !NetB! might be imaged with the following credentials, among possibly others:
 \begin{eqnarray}
 \code{WSNAdmin.control} & \leftarrow & \code{NetB.control} \\
 \code{NetB.control}     & \leftarrow & \code{NetB}
 \end{eqnarray}
-Note that credential (1) is issued by the \code{WSNAdmin} authority, while credential (2) is
-issued by \code{NetB}. Critically, direct communication with \code{NetA} authorities to obtain
-these credentials is unnecessary.
+Note that credential (1) is issued by the !WSNAdmin! authority, while credential (2) is issued
+by !NetB!. Critically, direct communication with !NetA! authorities to obtain these credentials
+is unnecessary.
 
 In order to invoke this service the wiring as shown in \autoref{figure-secure-wire} could be
 made on the client side. Note the activation of the necessary credentials, as well as the
-specification of client identity as \code{NetB}.
+specification of client identity as !NetB!.
 
-\begin{figure}[!t]
-\begin{textbox}{3.0in}
-\begin{Verbatim}[fontsize=\small]
+\begin{lstlisting}
 enable
   "WSNAdmin.control <- NetB.control, 
     NetB.control    <- NetB" as "NetB"
 for 
   ClientC.SamplingRate -> [RemoteSelectorC];
-\end{Verbatim}
+\end{lstlisting}
 \end{textbox}
 \caption{Security Enabled Dynamic Wire}
 \label{figure-secure-wire}
@@ -553,10 +540,10 @@ SpartanRPC-enabled node is deployed with a collection of certificates in read-on
 representing that node's credentials, which are determined by some external means. Once the node
 is booted, the certificate sender starts a periodic timer. When the timer fires, the node
 link-layer broadcasts (i.e.~only to neighbors) all certificates in its certificate storage that
-are mentioned in the \texttt{enable} clauses in its program. To prevent adjacent node
-certificate broadcasts from colliding, the certificate broadcast interval is modulated randomly
-by $\pm 10$\%. For example if the nominal broadcast interval is one minute, the actual time
-varies randomly between 54 and 66 seconds.
+are mentioned in the !enable! clauses in its program. To prevent adjacent node certificate
+broadcasts from colliding, the certificate broadcast interval is modulated randomly by $\pm
+10$\%. For example if the nominal broadcast interval is one minute, the actual time varies
+randomly between 54 and 66 seconds.
 
 The certificate distribution strategy is robust in the face of new nodes being added to the
 network or intermittent radio connectivity. If a node fails to receive certain certificates from
@@ -661,7 +648,7 @@ entry has a flag to indicate the nature (client-side or server-side) of the sess
 The first time a client attempts to access a service on a particular server, it will send a
 session key negotiation request. When a server receives a session key negotiation request
 message from a client node $N$ containing the public key $K_{cp}$ of the requesting entity (as
-mentioned in the \code{as} clause of the dynamic wire) and the $(C, I)$ address of the desired
+mentioned in the !as! clause of the dynamic wire) and the $(C, I)$ address of the desired
 service, the following steps are taken:
 \begin{enumerate}
 \item Authorization of $K_{cp}$ for service $(C, I)$ is checked using the \RT\ minimum model
@@ -793,20 +780,18 @@ these features.
 
 \subsubsection{Interfaces, Call Sites, and Duty Definitions}
 
-Duty declarations in interfaces are rewritten to command declarations by substituting
-\code{command} for \code{duty}. Since nesC commands are allowed to have arbitrary parameters,
-duties with parameters present no complications. \Sprocket\ verifies that if an interface
-contains a duty, then the only declarations in that interface are duties. \Sprocket\ further
-verifies that the parameters of each duty, if any, conform to the restrictions described in
-\autoref{section-remotable}.
+Duty declarations in interfaces are rewritten to command declarations by substituting !command!
+for !duty!. Since nesC commands are allowed to have arbitrary parameters, duties with parameters
+present no complications. \Sprocket\ verifies that if an interface contains a duty, then the
+only declarations in that interface are duties. \Sprocket\ further verifies that the parameters
+of each duty, if any, conform to the restrictions described in \autoref{section-remotable}.
 
 % Some of these checks are not yet implemented, but they should present no problems. The current
 % implementation only supports duties with parameters of primitive types (no structure types).
 
-Call sites where duties are posted are rewritten to command invocations by substituting
-\code{call} for \code{post}. Only post operations applied to duties are rewritten in this way.
-Finally, duty definitions are rewritten to command definitions by also substituting
-\code{command} for \code{duty}.
+Call sites where duties are posted are rewritten to command invocations by substituting !call!
+for !post!. Only post operations applied to duties are rewritten in this way. Finally, duty
+definitions are rewritten to command definitions by also substituting !command! for !duty!.
 
 \subsubsection{Authorization Interfaces}
 
@@ -833,16 +818,15 @@ The authorization interfaces provide their services in a split-phase manner so t
 long-running authorization computations can be performed while allowing the node to continue
 other functions. In the current implementation, two kinds of authorization are supported. On the
 client side the precise method used depends on the dynamic wire over which a particular
-communication takes place. On the server side it depends on the presence of a \code{requires}
-clause on the remotely provided interface.
+communication takes place. On the server side it depends on the presence of a !requires! clause
+on the remotely provided interface.
 
-The full $RT_0$ mechanism is supported by client and server components \texttt{ACRT0C} and
-\texttt{ASRT0C} respectively (details about this mechanism are discussed in
+The full $RT_0$ mechanism is supported by client and server components !ACRT0C! and !ASRT0C!
+respectively (details about this mechanism are discussed in
 \autoref{section-security-extensions} and \autoref{section-security-protocols}). In addition a
-``null'' authorization is supported by client and server components \texttt{ACNullC} and
-\texttt{ASNullC} respectively. The null authorization components perform no operation. They are
-used for dynamic wires that do not require authorization and remote interfaces provided publicly
-by servers.
+``null'' authorization is supported by client and server components !ACNullC! and !ASNullC!
+respectively. The null authorization components perform no operation. They are used for dynamic
+wires that do not require authorization and remote interfaces provided publicly by servers.
 
 \subsubsection{Dynamic Wires} In the following, I use italics for metavariables that range over
 arbitrary identifiers. The reader is referred to the rewriting schema defined in
@@ -851,41 +835,41 @@ to configurations that statically wire the using component \code{\textit{ClientC
 \code{Spkt\_\textit{n}} that interacts with the appropriate component manager
 \code{\textit{SelectorC}} and that handles radio communication. Every stub generated by
 \Sprocket\ is uniquely identified over the scope of the entire program by an arbitrary integer
-$n$. The \code{\textit{AuthorizerC}} component is \code{ACNullC} in the case where no
-authorization is requested.
+$n$. The \code{\textit{AuthorizerC}} component is !ACNullC! in the case where no authorization
+is requested.
 
-\begin{figure}[!t]
-\begin{textbox}{3.0in}
-\begin{Verbatim}[commandchars=\\\{\}, fontsize=\small]
-\textrm{\textit{Dynamic Wire}}
-    \textit{ClientC}.\textit{I} -> [\textit{SelectorC}].\textit{I};
+\begin{fpfig}[t]{Dynamic Wire Rewriting}{figure-dynamic-wire-rewriting}
+{
+\singlespace
+\begin{lstlisting}[escapechar=@]
+@\textrm{\textit{Dynamic Wire}}@
+    @\textit{ClientC}@.@\textit{I}@ -> [@\textit{SelectorC}@].@\textit{I}@;
 
-\textrm{\textit{Rewritten as\ldots}}
-    components Spkt_\textit{n};
-    \textit{ClientC}.\textit{I} -> Spkt_\textit{n};
-    Spkt_\textit{n}.ComponentManager -> \textit{SelectorC};
-    Spkt_\textit{n}.AuthorizationClient -> \textit{AuthorizerC};
-    Spkt_\textit{n}.Packet -> AMSenderC;
-    Spkt_\textit{n}.AMSend -> AMSenderC;
-\end{Verbatim}
-\end{textbox}
-\caption{Dynamic Wire Rewriting}
-\label{figure-dynamic-wire-rewriting}
-\end{figure}
+@\textrm{\textit{Rewritten as\ldots}}@
+    components Spkt_@\textit{n}@;
+    @\textit{ClientC}@.@\textit{I}@ -> Spkt_@\textit{n}@;
+    Spkt_@\textit{n}@.ComponentManager -> @\textit{SelectorC}@;
+    Spkt_@\textit{n}@.AuthorizationClient -> @\textit{AuthorizerC}@;
+    Spkt_@\textit{n}@.Packet -> AMSenderC;
+    Spkt_@\textit{n}@.AMSend -> AMSenderC;
+\end{lstlisting}
+\primaryspacing
+}
+\end{fpfig}
 
-In contrast a dynamic wire using either an \code{enable} or \code{as} clause is rewritten the
-same way except that the \code{\textit{AuthorizerC}} component is \code{ACRT0C}. Furthermore,
-the list of enabled credentials is added to local certificate storage by \Sprocket. Certificates
-in storage are periodically beaconed at run-time as described above. Finally, the entity on
-whose behalf the RPC invocation is performed is specified in the session key negotiation message
-sent to the server, also as described above.
+In contrast a dynamic wire using either an !enable! or !as! clause is rewritten the same way
+except that the \code{\textit{AuthorizerC}} component is !ACRT0C!. Furthermore, the list of
+enabled credentials is added to local certificate storage by \Sprocket. Certificates in storage
+are periodically beaconed at run-time as described above. Finally, the entity on whose behalf
+the RPC invocation is performed is specified in the session key negotiation message sent to the
+server, also as described above.
 
 The \code{Spkt\_\textit{n}} stub provides the same interface provided by
 \code{\textit{ClientC}}. Wherever a duty is posted by \code{\textit{ClientC}} in source code,
 the rewritten call invokes code in the stub that was specialized to handle that duty. The stub
 calls into the component manager at run time to obtain a list of the dynamic wire's endpoints
 and then prepares a data packet containing remote endpoint addresses and marshaled duty
-arguments. Finally the stub calls through the \code{AuthorizationClient} interface to perform
+arguments. Finally the stub calls through the !AuthorizationClient! interface to perform
 whatever authorization is needed.
 
 \subsubsection{Remote Services}
@@ -898,46 +882,46 @@ general, the skeleton contains a task corresponding to each duty provided in the
 every generated skeleton is distinguished by a unique integer $n$ taken from the same numbering
 space as the generated stubs.
 
-\begin{figure}[!t]
-\begin{textbox}{3.0in}
-\begin{Verbatim}[commandchars=+\[\], fontsize=\small]
-+textrm[+textit[Server Component]]
-    module +textit[ServerC] {
-        provides remote interface +textit[I] requires +textit["A.g"];
-        +textit[other (local) uses/provides]
-    }
+\begin{fpfig}[t]{Server Skeleton Generation}{figure-server-skeleton-generation}
+{
+\singlespace
+\begin{lstlisting}[escapechar=@]
+@\textrm{\textit{Server Component}}@
+  module @\textit{ServerC}@ {
+    provides remote interface @\textit{I}@ requires @\textit{"A.g"}@;
+    @\textit{other (local) uses/provides}@
+  }
 
-+textrm[+textit[Skeleton generated as+ldots]]
-    module Spkt_+textit[n] {
-        uses interface +textit[I];
-        uses interface Receive;
-        uses interface AuthorizationServer;
-    }
-    implementation {
+@\textrm{\textit{Skeleton generated as\ldots}}@
+  module Spkt_@\textit{n}@ {
+    uses interface @\textit{I}@;
+    uses interface Receive;
+    uses interface AuthorizationServer;
+  }
+  implementation {
 
-        +textit[int value_1;]
-        +textit[task void d() {]
-            +textit[call I.d(value_1);]
-        +textit[}]
+    @\textit{int value\_1;}@
+    @\textit{task void d() \{}@
+      @\textit{call I.d(value\_1);}@
+    @\textit{\}}@
 
-        event message_t *Receive.receive( ... ) {
-            ...
-        }
+    event message_t *Receive.receive( ... ) {
+      ...
     }
-\end{Verbatim}
-\end{textbox}
-\caption{Server Skeleton Generation}
-\label{figure-server-skeleton-generation}
-\end{figure}
+  }
+\end{lstlisting}
+\primaryspacing
+}
+\end{fpfig}
 
 When messages are received on a node that provides RPC services, they are examined to see if
-they are duty postings and thus to be handled by a skeleton. If so, the
-\code{AuthorizationServer} interface is used to authorize the message. If authorization
-succeeds, the task corresponding to the specified duty is posted. That task simply calls into
-\code{\textit{ServerC}} through the original interface \code{\textit{I}}. Thus the task-like
-behavior of duties is ultimately implemented using actual nesC tasks inside the server
-skeletons. Duty parameters are conveyed via module-level variables accessed by the duty tasks
-(since nesC tasks do not take formal arguments).
+they are duty postings and thus to be handled by a skeleton. If so, the !AuthorizationServer!
+interface is used to authorize the message. If authorization succeeds, the task corresponding to
+the specified duty is posted. That task simply calls into \code{\textit{ServerC}} through the
+original interface \code{\textit{I}}. Thus the task-like behavior of duties is ultimately
+implemented using actual nesC tasks inside the server skeletons. Duty parameters are conveyed
+via module-level variables accessed by the duty tasks (since nesC tasks do not take formal
+arguments).
 
 For each component that provides at least one remote interface, \Sprocket\ creates a
 configuration as shown in \autoref{figure-server-skeleton-wiring} that wires the corresponding
@@ -945,29 +929,31 @@ skeleton(s) to that component. This new configuration wraps the original compone
 uses of the original component in other configurations in the program.
 
 In this Figure, as is the case for client-side code, the \code{\textit{AuthorizerC}} component
-is either \code{ASRT0C} or \code{ASNullC} depending on whether the original remote interface
-specified authorization or not.
+is either !ASRT0C! or !ASNullC! depending on whether the original remote interface specified
+authorization or not.
 
 % This is the part that isn't implemented yet. Right now skeleton wiring is done manually.
 
-\begin{figure}[!t]
-\begin{textbox}{3.0in}
-\begin{Verbatim}[commandchars=+\[\], fontsize=\small]
-configuration +textit[ServerC]_SpktC {
-    +textit[other (local) uses/provides]
+\begin{fpfig}[t]{Server Skeleton Wiring}{figure-server-skeleton-wiring}
+{
+\singlespace
+\begin{lstlisting}[escapechar=@]
+configuration @\textit{ServerC}@_SpktC {
+    @\textit{other (local) uses/provides}@
 }
 implementation {
-    components +textit[ServerC], Spkt_+textit[n];
-    Spkt_+textit[n].+textit[I] -> +textit[ServerC];
-    Spkt_+textit[n].Receive -> AMReceiverC;
-    Spkt_+textit[n].AuthorizationServer -> +textit[AuthorizerC];
-    +textit[pass local uses/provides directly to ServerC]
+    components @\textit{ServerC}@, Spkt_@\textit{n}@;
+    Spkt_@\textit{n}@.@\textit{I}@ -> @\textit{ServerC}@;
+    Spkt_@\textit{n}@.Receive -> AMReceiverC;
+    Spkt_@\textit{n}@.AuthorizationServer -> @\textit{AuthorizerC}@;
+    @\textit{pass local uses/provides directly to ServerC}@
 }
-\end{Verbatim}
-\end{textbox}
-\caption{Server Skeleton Wiring}
-\label{figure-server-skeleton-wiring}
-\end{figure}
+\end{lstlisting}
+\primaryspacing
+}
+\end{fpfig}
+
+\lstDeleteShortInline!
 
 %%% Local Variables: 
 %%% mode: LaTeX

@@ -47,7 +47,13 @@
 \newcommand{\bootseq}[1]{\mathbf{boot}(#1)}
 \newcommand{\cast}[2]{\tt{(#1)#2}}
 \newcommand{\cedge}[1]{\stackrel{#1}{\longleftarrow}}
+
+% The \code macro should only be used when italic font is needed in inline code snippets, for
+% example to deal with metavariables in code examples. Otherwise the listings package should
+% be used (the short inline form should be turned on in most chapters). The listings package
+% is more configurable and automatically bolds keywords.
 \newcommand{\code}[1]{\texttt{#1}}
+
 \newcommand{\codt}[1]{\llbracket #1 \rrbracket}
 \newcommand{\compatible}[2]{\mathit{compatible}(#1,#2)}
 \newcommand{\compute}{\leadsto}
@@ -83,7 +89,6 @@
 \newcommand{\idx}[1]{[#1]}
 \newcommand{\imports}{\iota}
 \newcommand{\init}[3]{\tt{#1(#2)\{ #3 \}}}
-\newcommand{\inlinecode}[1]{\texttt{#1}}  % Inline code (use lstinline instead?)
 \newcommand{\inteight}{\ttbf{uint64}}
 \newcommand{\intfour}{\ttbf{uint32}}
 \newcommand{\inthalf}{\ttbf{uint4}}
@@ -115,21 +120,21 @@
 \newcommand{\mutate}[2]{\tt{#1 = #2}}
 \newcommand{\mv}{{\nu}}
 \newcommand{\nesT}{\text{nesT}}
-\newcommand{\newterm}[1]{\emph{#1}}                    % Newly introduced terms.
+\newcommand{\newterm}[1]{\emph{#1}}                  % Newly introduced terms.
 \newcommand{\nextt}{\mathit{next}}
 \newcommand{\op}{\ \textit{op}\ }
 \newcommand{\prolog}{\text{Prolog}}
 \newcommand{\promote}{\ll}
 \newcommand{\restrict}[2]{#1\!\mid\!_{#2}}
 \newcommand{\return}[1]{\tt{return\ #1}}
-\newcommand{\RT}{\text{RT}}
+\newcommand{\RT}{\textit{RT}}
 \newcommand{\runseq}[1]{\mathbf{run}(#1)}
 \newcommand{\select}[2]{\tt{#1.#2}}
 \newcommand{\semantics}[1]{\llbracket #1 \rrbracket}
 \newcommand{\send}[3]{\tt{#1.#2(#3)}}
 \newcommand{\ser}[1]{\overset{\text{lift}}{\hookrightarrow}}
 \newcommand{\serialize}{\mathrm{serialize}}
-\newcommand{\Sprocket}{Sprocket$_{RT}$}
+\newcommand{\Sprocket}{Sprocket}                     % The name of my SpartanRPC implementation.
 \newcommand{\subjudge}[3]{#1 \vdash #2 \subtype #3}
 \newcommand{\subtvec}[2]{\vect{#1} \subtype \vect{#2}}
 \newcommand{\subtype}{\preccurlyeq}
@@ -142,7 +147,7 @@
 \newcommand{\tenv}{G}
 \newcommand{\this}{\tt{this}}
 \newcommand{\tpdecl}{\textit{T}}
-\newcommand{\ttbf}[1]{\mbox{\bf \texttt{#1}}}          % New version to match lstlisting.
+\newcommand{\ttbf}[1]{\mbox{\bf \texttt{#1}}}        % New version to match lstlisting.
 \newcommand{\ttt}[1]{{\tt #1}}
 \newcommand{\ttvec}[1]{{\tt{\bar{#1}}}}
 \newcommand{\TVAR}{\textit{t}}
@@ -152,35 +157,16 @@
 
 \renewcommand{\tt}[1]{\ensuremath{\mathtt{#1}}}
 
-
 % The \note macro is useful for creating easy to see notes.
 \long\def\note#1{\marginpar{NT}{\small \ \ $\langle\langle\langle$\
 {#1}\
     $\rangle\rangle\rangle$\ \ }} 
 
 
-% I really should put this in a package file! Note how I set up some parameters before opening
-% the listing. This used to be necessary when I was using verbatim environments. Is it still
-% necessary with the listings package? Are those other settings just being overridden?
-%
-\newsavebox{\savebigbox}
-\newenvironment{mybigbox}{\begin{lrbox}{\savebigbox}
-  \begin{minipage}{0.95\columnwidth}%
-    \small\setlength{\baselineskip}{0.9\baselineskip}}
-{\end{minipage}\end{lrbox}\fbox{\usebox{\savebigbox}}}
-% The definition of 'bigbox' above appears to conflict with something in the stmaryrd package.
-% I thus changed it to 'mybigbox.' Uses of \begin{bigbox} in the text should probably be changed
-% to \begin{mybigbox} to reflect this. Note that I also changed 'wbigbox' to 'mywbigbox' for
-% consistency.
-
-
-% This version should be used for full width boxes.
-\newsavebox{\savewbigbox}
-\newenvironment{mywbigbox}{\begin{lrbox}{\savewbigbox}
-  \begin{minipage}{0.9\textwidth}%
-    \small\setlength{\baselineskip}{0.9\baselineskip}}
-{\end{minipage}\end{lrbox}\fbox{\usebox{\savewbigbox}}}
-
+% The macro below was being used for some of the program listings. However, all listings are now
+% being handled by the listings package so the macro below is no longer needed. I'm keeping it
+% for possible future reference in case, for some reason, it proves useful again (perhaps for
+% other kind of Verbatim displays?). It is commented out to be sure it is not used accidentally.
 
 % This macro is for text figures (program listings). Use as follows:
 % \begin{figure}[htbp]
@@ -193,15 +179,15 @@
 % \label{...}
 % \end{figure}
 %
-\newsavebox{\savetextbigbox}
-\newenvironment{textbox}[1]{
-  \begin{lrbox}{\savetextbigbox}
-  \begin{minipage}{#1}
-  \vspace{0.6em}
-}
-{
-  \vspace{0.3em}
-  \end{minipage}
-  \end{lrbox}\framebox[\textwidth]{\hfill\usebox{\savetextbigbox}\hfill}
-}
+%\newsavebox{\savetextbigbox}
+%\newenvironment{textbox}[1]{
+%  \begin{lrbox}{\savetextbigbox}
+%  \begin{minipage}{#1}
+%  \vspace{0.6em}
+%}
+%{
+%  \vspace{0.3em}
+%  \end{minipage}
+%  \end{lrbox}\framebox[\textwidth]{\hfill\usebox{\savetextbigbox}\hfill}
+%}
 % Surround the \usebox{} call with \fbox{} to make the centering boxes visible.

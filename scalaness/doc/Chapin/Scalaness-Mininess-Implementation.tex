@@ -94,11 +94,11 @@ Neither Mininess nor Scalaness provide any direct support for interfacing to ext
 However, a programming technique can be used whereby shim components are manually created that
 wrap library interfaces.
 
-As an example, consider the TinyOS \lstinline!Boot! interface. This interface is used to
-indicate when a node is started; all useful nesC programs must interact with it. Yet Mininess
-does not support interfaces at all much less some of the entities, such as events, that are
-commonly declared in nesC interfaces. Instead the programmer creates a shim component such as
-\lstinline!BootShimC! as shown below
+As an example, consider the TinyOS !Boot! interface. This interface is used to indicate when a
+node is started; all useful nesC programs must interact with it. Yet Mininess does not support
+interfaces at all much less some of the entities, such as events, that are commonly declared in
+nesC interfaces. Instead the programmer creates a shim component such as !BootShimC! as shown
+below
 
 \singlespace
 \vspace{1.0ex}
@@ -129,34 +129,33 @@ commands. In any case, shim components can be reused across Mininess application
 programmers to accumulate a library of such shims.
 
 The shim components must be wired to the external library components they wrap. This is done by
-producing two standard nesC configurations. The first, conventionally called
-\lstinline!LibraryIC! encapsulates all full nesC components that have imports. The second,
-conventionally called \lstinline!LibraryEC! encapsulates all full nesC components that have
-exports. Normally these are the only two configurations an application needs. If the programmer
-has full control over the entire application he or she can add the necessary external library
-components (via their shims) to either \lstinline!LibraryIC! or \lstinline!LibraryEC! as
-appropriate.
+producing two standard nesC configurations. The first, conventionally called !LibraryIC!
+encapsulates all full nesC components that have imports. The second, conventionally called
+!LibraryEC! encapsulates all full nesC components that have exports. Normally these are the only
+two configurations an application needs. If the programmer has full control over the entire
+application he or she can add the necessary external library components (via their shims) to
+either !LibraryIC! or !LibraryEC! as appropriate.
 
-For example, \autoref{figure-libraryic} shows an example \lstinline!LibraryIC! component for a
-hypothetical application that uses the external \lstinline!MainC! component and a specific
-instance of the generic timer module, both from the TinyOS library. \note{Probably need to say
-  something more about how generic modules are handled}
+For example, \autoref{figure-libraryic} shows an example !LibraryIC! component for a
+hypothetical application that uses the external !MainC! component and a specific instance of the
+generic timer module, both from the TinyOS library. \note{Probably need to say something more
+  about how generic modules are handled}
 
 \singlespace
 \begin{fpfig}[tbhp]{Example LibraryIC configuration}{figure-libraryic}
 {
 \begin{lstlisting}[language=nesC]
 configuration LibraryIC {
-    uses command void booted( );
-    uses command void fired( );
+  uses command void booted( );
+  uses command void fired( );
 }
 implementation {
-    components MainC, BootShimC, SpecificTimerC;
+  components MainC, BootShimC, SpecificTimerC;
 
-    BootShimC.booted = booted;
-    BootShimC.Boot   -> MainC;
+  BootShimC.booted = booted;
+  BootShimC.Boot   -> MainC;
 
-    SpecificTimerC.fired = fired;
+  SpecificTimerC.fired = fired;
 }
 \end{lstlisting}
 }
@@ -165,8 +164,8 @@ implementation {
 
 Mininess does not (currently) support nesC configurations but Scalaness does allow the component
 such as the one shown in \autoref{figure-libraryic} to be declared and manipulated in Scalaness
-code. Such components are represented as Scala objects that extend the
-\lstinline!MininessComponent! trait as shown below
+code. Such components are represented as Scala objects that extend the !MininessComponent! trait
+as shown below
 
 \singlespace
 \vspace{1.0ex}
@@ -183,9 +182,9 @@ is not necessarily in the Mininess subset of nesC. Instead the module type on su
 components must be annotated by the programmer as described in XXX, and is accepted without
 question by the Scalaness compiler.
 
-In a typical program there are two such objects created, one representing the
-\lstinline!LibraryIC! configuration and one representing the \lstinline!LibraryEC!
-configuration. These objects are then manipulated in the usual way by the Scalaness program.
+In a typical program there are two such objects created, one representing the !LibraryIC!
+configuration and one representing the !LibraryEC! configuration. These objects are then
+manipulated in the usual way by the Scalaness program.
 
 Although it is not possible to use Scalaness to compose external library components directly,
 the programmer is free to create several different wrapping configurations if desired and
@@ -212,14 +211,14 @@ the following two structure definitions.
 \singlespace
 \begin{lstlisting}[language=nesC]
 struct UserInfo {
-    char name[25];
-    int  age;
-    int  id;
+  char name[25];
+  int  age;
+  int  id;
 };
 
 struct UserToken {
-    int id;
-    int hash;
+  int id;
+  int hash;
 };
 \end{lstlisting}
 \primaryspacing
@@ -823,11 +822,10 @@ class MetaType[+Tau <: LiftableTypes.NesCType]
 \end{lstlisting}
 \primaryspacing
 
-Objects of type \inlinecode{MetaType} contain a representation of a nesC type. They are
-covariently parameterized by an upper bound type. Note that \inlinecode{MetaType}'s type
-parameter is a Scala type that is liftable to nesC. However the type it wraps is the already
-lifted type. Thus \inlinecode{MetaType} objects form a bridge between the Scala and nesC sides
-of the system.
+Objects of type !MetaType! contain a representation of a nesC type. They are covariently
+parameterized by an upper bound type. Note that !MetaType!'s type parameter is a Scala type that
+is liftable to nesC. However the type it wraps is the already lifted type. Thus !MetaType!
+objects form a bridge between the Scala and nesC sides of the system.
 
 A module such as
 
@@ -859,15 +857,14 @@ class BlinkC[A <: Int32](period: A) extends NesCComponent {
 \end{lstlisting}
 \primaryspacing
 
-The generated field \inlinecode{AType} holds a reference to the type used to instantiate the
-module. In Scalaness this type can only be known at runtime. The methods \inlinecode{getTypeMap}
-and \inlinecode{getValueMap} are used during module specialization. The method that does so is
-inherited from \inlinecode{NesCComponent} but it calls these methods through their abstract
-interface.
+The generated field !AType! holds a reference to the type used to instantiate the module. In
+Scalaness this type can only be known at runtime. The methods !getTypeMap! and !getValueMap! are
+used during module specialization. The method that does so is inherited from !NesCComponent! but
+it calls these methods through their abstract interface.
 
 Notice that at the Scala level the type parameter must be some type that extends
-\inlinecode{LiftableTypes.Int32} (in this example). However, when the module is instantiated the
-Scalaness programmer might provide a variable of type \inlinecode{MetaType[Int32]}. For example
+!LiftableTypes.Int32! (in this example). However, when the module is instantiated the Scalaness
+programmer might provide a variable of type !MetaType[Int32]!. For example
 
 \singlespace
 \begin{lstlisting}[language=scalaness]
