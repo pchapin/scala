@@ -2,7 +2,7 @@
 \startslide{The Name of the Game}
 Multiple sensor networks from different security domains interacting.
 
-\cemph{Example:} Time synchronization
+Example: \cemph{Time synchronization}
 
 Can a system providing policy drive authorization (trust management) be supported on such small
 devices?
@@ -13,7 +13,9 @@ devices?
 \end{citemize}
 \stopslide
 
-% TRUST MANAGEMENT!
+% TRUST MANAGEMENT?
+
+% DIRECT APPROACH (Sprocket)
 
 \startslide{Direct Approach}
 
@@ -29,7 +31,7 @@ Sprocket translates SpartanRPC programs into plain nesC programs.
 \url{https://github.com/pchapin/sprocket}
 \end{center}
 
-(paper under review at TISSEC)
+(paper under review at ACM TISSEC)
 \stopslide
 
 \startslide{Dynamic Wires}
@@ -178,26 +180,18 @@ def getChecksumType(args: Array[String]) = {
 
 \startslide{More Observations}
 \begin{citemize}
-\item Of course Scalaness is allows more optimized node programs!
+\item Of course Scalaness allows more optimized node programs!
 \item Type safety is retained, even across stages (all generated programs will type check).
 \item \cemph{Scalaness is general!}
 \end{citemize}
 \stopslide
 
 \startslide{Conclusion}
-
-Scalaness/nesT is a two-stage language for WSN programming and orchestration.
-
 \begin{citemize}
-\item Orchestrating program written in Scala variany, run on powerful hub
-\item Second-stage code is efficient TinyOS program
-\item Allows factoring of public and private key computations in secure SpartanRPC 
-applications
-\begin{citemize}
-\item Expensive operations offloaded to orchestrating hub
-\end{citemize} 
-\item Other interesting applications for automated, ``intelligent'' network 
-control.
+\item Both direct and staged approaches \cemph{can} work.
+\item Direct approach very costly in time and space.
+\item Staged approach allows some application logic to have ``unlimited'' resources.
+\item SpartanRPC is a general RPC discipline for sensor networks.
+\item Scalaness is an even more general staging system for sensor networks.
 \end{citemize}
-
 \stopslide
