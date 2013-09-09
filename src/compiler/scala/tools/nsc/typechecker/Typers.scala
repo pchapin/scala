@@ -2120,9 +2120,17 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
       val annots = sym.annotations
       
       
+      val moduleTypeAnnotations = annots filter { _.tpe.toString == "edu.uvm.scalaness.ModuleType" }
+      var annotatedNesTModuleType =
+        if (moduleTypeAnnotations.length == 0)
+          None
+        else {
+          val moduleTypeAST = parseScalanessAnnotation(moduleTypeAnnotations(0).assocs)
+          Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST))
+        }
+      
       val typeAbbreviationAnnotations = annots filter { _.tpe.toString.contains("edu.uvm.scalaness.TypeAbbr") }
       if (typeAbbreviationAnnotations.length > 0 && doNesTTypeCheck) {
-        // println(typeAbbreviationAnnotations(0).args(0).children(0).children(0)) // RadioT
         var fullTypeString = "Empty"
         if (typeAbbreviationAnnotations(0).args(0).symbol.toString == "method parameterize") {
           var stringParamList = List[String]()
@@ -2133,7 +2141,17 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
             case None => throw new Exception("Unable to find abbreviation")
           }
           for (i <- 1 until typeAbbreviationAnnotations(0).args(0).children(1).children.length) {
-            val tempString = typeAbbreviationAnnotations(0).args(0).children(1).children(i).toString
+            val tempString = if (!((typeAbbreviationAnnotations(0).args(0).children(1).children(i).children.length > 0))) {
+                               typeAbbreviationAnnotations(0).args(0).children(1).children(i).toString
+                             } else {
+                               val tempSymbolSingle = SingleType(NoPrefix,
+                                 typeAbbreviationAnnotations(0).args(0).children(1).children(i).children(0).symbol)
+                               val newTypeAbbreviation = tempSymbolSingle.typeAbbreviation match {
+                                 case Some(typeA) => typeA
+                                 case None => throw new Exception("Unable to find abbreviation")
+                               }
+                               newTypeAbbreviation.getFullType
+                             }
             stringParamList ::= tempString.substring(1,tempString.length - 1) // This cuts off the " quotes " that the toString takes
           }
           stringParamList = stringParamList.reverse
@@ -2148,24 +2166,10 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
           }
           fullTypeString = myTypeAbbreviation.getFullType
         }
-        // println("Here is the final product")
-        // println(fullTypeString)
-        // val moduleTypeAbbrvAST = parseScalanessAbbrvAnnotation(fullTypeString)
-        // println(Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAbbrvAST)))
+        val moduleTypeAbbrvAST = parseScalanessAbbrvAnnotation(fullTypeString)
+        annotatedNesTModuleType = Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAbbrvAST))
       }
       
-
-      
-      
-      val moduleTypeAnnotations = annots filter { _.tpe.toString == "edu.uvm.scalaness.ModuleType" }
-      val annotatedNesTModuleType =
-        if (moduleTypeAnnotations.length == 0)
-          None
-        else {
-          val moduleTypeAST = parseScalanessAnnotation(moduleTypeAnnotations(0).assocs)
-          Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST))
-        }
-
       if (sym.hasAnnotation(definitions.VolatileAttr) && !sym.isMutable)
         VolatileValueError(vdef)
 
@@ -2211,7 +2215,7 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
             val newTypeAbbreviation = new edu.uvm.scalaness.TypeAbbreviation(fullTypeString,stringParamList.reverse)
             currAbbrv = Some(newTypeAbbreviation)
           }
-        }  
+        }  // NOTE:  This if statement may throw some ugly errors if the TypeAbbrs are used in bad context.  This may need more testing.
         
         if (sym.isParameter)
           nesTModuleType = annotatedNesTModuleType 

@@ -185,6 +185,8 @@ object Main {
    * @param args The command line arguments
    */ 
   def main(args: Array[String]) {
+  
+    
 
     def getChecksumType(args: Array[String]) = {
       args(0).toInt match {
@@ -228,8 +230,8 @@ object Main {
                        startPeriodic(period: UInt32): Void;
                        booted(): Void,
                        fired(): Void }""")
-      val formattingModule = MessageFormatter.instantiate(desiredSize, desiredChecksumType)
-      
+      val formattingModule = MessageFormatter.instantiate(desiredSize, desiredChecksumType)                 
+                 
       @ModuleType("""{ checksumType <: UInt32 }
                  <;>
                  { ; compute_checksum(data: Array[UInt8]): checksumType }""")
