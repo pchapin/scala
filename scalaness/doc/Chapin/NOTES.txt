@@ -1,0 +1,75 @@
+
+Build Procedure
+===============
+
+Building the document requires the following steps:
+
+$ latex main
+$ bibtex main
+$ latex main
+$ latex main
+$ dvips main
+$ ps2pdf main.ps main.pdf
+
+The three invocations of LaTeX are needed to get all cross references right. It is necessary to
+go through PS format because of the various EPS figures that are used. Also I believe the pic
+figures use PostScript specials (not sure about that).
+
+
+On Package Hyperref
+===================
+
+It would be nice to use package hyperref to get a navigable table of contents (the clickable
+citations and cross-references are nice too). However, doing so makes the links unwrappable so
+long citations stick out into the right margin. This arises because I'm using the dvips driver
+which, apparently, can't handle wrapping links. Here is a quote from section 7 of the README.pdf
+that comes with my hyperref:
+
+<QUOTE>
+Wrapped/broken link support
+---------------------------
+Only few drivers support automatically wrapped/broken links, e.g. pdftex, dvipdfm, hypertex.
+Other drivers lack this feature, e.g. dvips, dvipsone.
+
+Workarounds:
+
+* For long section or caption titles in the table of contents or list of figures/tables option
+  "linktocpage" can be used. Then the page number will be a link, and the overlong section title
+  is not forced into an one line link with overvull \hbox warning.
+
+* "\url"s are caught by package "breakurl".
+
+* The option "breaklinks" is intended for internal use. But it can be used to force link
+  wrapping, e.g. when printing a document. However, when such a document is converted to PDF and
+  viewed with a PDF viewer, the active link area will be misplaced.
+</QUOTE>
+
+I attempted to use dvipdfm instead of dvips but that generated a large number of warnings and
+produced an invalid document. I think dvipdfm can't deal with the EPS figures, etc, that I'm
+using. It would be necessary to redraw some (all?) of my figures to switch to it.
+
+The discussion here:
+
+http://tex.stackexchange.com/questions/823/remove-ugly-borders-around-clickable-cross-references-and-hyperlinks
+
+talks about how to remove the borders around clickable links. The "hidelinks" option mentioned
+there does not appear to be supported by my version of hyperref (dated 2009, default version on
+Ubuntu Linux 12.04). However adding this
+
+\hypersetup{
+  colorlinks=false,
+  pdfborder={0 0 0},
+}
+
+does, indeed, remove the border. It doesn't change the way they are formatted, however; they
+still stick out into the right margin.
+
+I also tried the breaklinks option like this
+
+\usepackage[breaklinks=true]{hyperref}
+
+This worked in the sense that the links wrapped but, as mentioned in the README quote above, the
+placement of the clickable area on the next line is wrong and looks terrible.
+
+Right now my conclusion is that hyperref can't be used and to fix this I would have to redraw
+some, possibly all, of my figures in a form acceptable to a PDF driver.

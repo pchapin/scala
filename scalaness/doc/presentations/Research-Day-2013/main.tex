@@ -1,29 +1,27 @@
 
-% The following list of packages used by my dissertation.
+\documentclass[landscape]{slides}
 
-\usepackage[dvipdfm]{graphicx}
-\usepackage{amsbsy}
-\usepackage{amsfonts}
+% Are all these packages really necessary?
+\usepackage{times}
+\usepackage{ifthen}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amstext}
-\usepackage{boxedminipage}
-\usepackage[dvipdfm]{color}
-\usepackage{comment}
-\usepackage{fancyvrb}
+\usepackage[latin1]{inputenc}
+\usepackage{moreverb}
+\usepackage{stmaryrd}
+\usepackage{url}
+\usepackage{epsfig}
+\usepackage{mathrsfs}
 \usepackage[english]{fp-autoref}
 \usepackage{fp-frame}
-\usepackage{hyperref}  % See NOTES.txt for more information.
-\usepackage{ifthen}
-\usepackage{listings}
 \usepackage{mathpartir}
-\usepackage{stmaryrd}
-\usepackage{times}
-\usepackage{url}
+\usepackage{enumerate}
+\usepackage{listings}
+\usepackage{graphics}
 
-% =====================
-% Package configuration
-% =====================
+\input{slide-macros}
+\input{macros}
 
 % Define Scalaness language support.
 % The keywords listed here include all reserved words from Scala along with nesT/Scalaness
@@ -72,3 +70,27 @@
   commentstyle=\ttfamily,
   xleftmargin=0.25in,
   showstringspaces=false}
+
+\title{\color{titlecolor}Trust Management in Sensor Networks\\Direct vs Staged Approaches}
+\author{
+  \begin{tabular}{c}
+    \Large{Peter Chapin} \\[2mm]
+    \normalsize{Department of Computer Science}\\[5mm]
+    \includegraphics{uvm-logo}\\[10mm]
+    \tiny{Research Day 2013}
+  \end{tabular}
+}
+\date{}
+
+\begin{document}
+
+\color{myblack}
+\pagecolor{Background}
+
+\newcommand{\heading}[1]{\textbf{\LARGE #1}}
+
+\maketitle
+
+\input{slides}
+
+\end{document}

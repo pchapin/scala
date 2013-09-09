@@ -122,8 +122,8 @@ object Declarations {
       return List()
     }
   
-    // If the declaration is a function definition, the FUNCTION_DEFINITION node
-    // Is used as the main declaration node, as its children mirror a normal declaration
+    // If the declaration is a function definition, the FUNCTION_DEFINITION node is used as the
+    // main declaration node, as its children mirror a normal declaration.
     def getDecNode(declaration: ASTNode): ASTNode = {
       if (existsChild(declaration, MininessLexer.FUNCTION_DEFINITION))
         findChild(declaration, MininessLexer.FUNCTION_DEFINITION)
@@ -131,8 +131,8 @@ object Declarations {
         declaration
     }
 
-    // Looks at the children of the declaration to find the node with 
-    // The type information in it.  Either primary type or return type for a function
+    // Looks at the children of the declaration to find the node with the type information in
+    // it.  Either primary type or return type for a function.
     def getDecType(declarationNode: ASTNode): ASTNode = {
       for (i <- 0 until declarationNode.children.length) {
         if (declarationNode.children(i).tokenType == MininessLexer.DECLARATOR ||
@@ -143,9 +143,9 @@ object Declarations {
       declarationNode.children(0)
     }
     
-    // Deals with the case that the declaration is a structure DEC
-    // Right now can only declare a new structure type or declare a value of an exisiting type
-    // Ideally could do both at once, logic can be changed to reflect this
+    // Deals with the case where the declaration is a structure declaration. Right now can only
+    // declare a new structure type or declare a value of an existing type. Ideally could do
+    // both at once, logic can be changed to reflect this.
     def declareNewStruct(declarationNode: ASTNode): (List[(String, MininessTypes.Representation)],
                                                      List[(String, MininessTypes.Representation)])    = {
       val structNode = declarationNode.children(0)
@@ -211,15 +211,16 @@ object Declarations {
     if (decList.length == 0)
       return (List(), List("NULL" -> declaredType))
     
-    // Goes through each declared variable and makes a pair that maps the variable to the declared type.
+    // Goes through each declared variable and makes a pair that maps the variable to the
+    // declared type.
     val declaratorList =
       for (declarationChild <- decList) yield {
         
-        // Find the individual identifier for each declarator
+        // Find the individual identifier for each declarator.
         val identifierPath = findChild(declarationChild, MininessLexer.IDENTIFIER_PATH)
         val identifier = identifierPath.children(0).text
        
-        // A localized copy of the declaration type that can be manipulated
+        // A localized copy of the declaration type that can be manipulated.
         var finalType = declaredType
         
         // If the declaration is a pointer, or an array of pointers, the pointers will be added
@@ -233,22 +234,25 @@ object Declarations {
           }
         }
         
-        // Boolean that denotes existence of an array or function modifier
-        val existsModifier = (existsChild(declarationChild, MininessLexer.DECLARATOR_ARRAY_MODIFIER) ||
-                              existsChild(declarationChild, MininessLexer.DECLARATOR_PARAMETER_LIST_MODIFIER))
+        // Boolean that denotes existence of an array or function modifier.
+        val existsModifier =
+          (existsChild(declarationChild, MininessLexer.DECLARATOR_ARRAY_MODIFIER) ||
+           existsChild(declarationChild, MininessLexer.DECLARATOR_PARAMETER_LIST_MODIFIER))
         
-        // If there is no modifier, we return a map from identifer to type        
+        // If there is no modifier, we return a map from identifier to type        
         if (!(existsModifier)) {
           (identifier -> finalType)
         }
         
         // If there is an array modifier, return an array type
         else if (existsChild(declarationChild, MininessLexer.DECLARATOR_ARRAY_MODIFIER)) {
-          val arrayModifier = findChild(declarationChild, MininessLexer.DECLARATOR_ARRAY_MODIFIER)
-          val arraySize = if (arrayModifier.children.length > 0)
-                            arrayModifier.children(0).children(0).text
-                          else 
-                            ""
+          val arrayModifier =
+            findChild(declarationChild, MininessLexer.DECLARATOR_ARRAY_MODIFIER)
+          val arraySize =
+            if (arrayModifier.children.length > 0)
+              arrayModifier.children(0).children(0).text
+            else 
+              ""
          (identifier -> Array(finalType, arraySize))
         }
         
@@ -256,15 +260,15 @@ object Declarations {
         else if (existsChild(declarationChild, MininessLexer.DECLARATOR_PARAMETER_LIST_MODIFIER)) {
             
           // Find the parameter list node
-          val parameterListModifier = findChild(declarationChild, MininessLexer.DECLARATOR_PARAMETER_LIST_MODIFIER)              
-          val parameterListChild = findChild(parameterListModifier, MininessLexer.PARAMETER_LIST)
+          val parameterListModifier =
+            findChild(declarationChild, MininessLexer.DECLARATOR_PARAMETER_LIST_MODIFIER)              
+          val parameterListChild =
+            findChild(parameterListModifier, MininessLexer.PARAMETER_LIST)
             
           // Boolean that is true if there are no parameters
-          var voidParameter = if ((parameterListChild.children.length == 0) || 
-                                  (parameterListChild.children(0).children(0).tokenType == MininessLexer.VOID))
-                                true
-                              else
-                                false
+          var voidParameter =
+            (parameterListChild.children.length == 0) || 
+            (parameterListChild.children(0).children(0).tokenType == MininessLexer.VOID)
                                 
           // Initialize an empty parameter list to be filled up if parameters exist
           var parameterList = List[MininessTypes.Representation]()
