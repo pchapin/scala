@@ -2,6 +2,8 @@ package scala
 package reflect
 package internal
 
+import Flags._
+
 abstract class TreeGen extends macros.TreeBuilder {
   val global: SymbolTable
 
@@ -12,7 +14,8 @@ abstract class TreeGen extends macros.TreeBuilder {
   def rootScalaDot(name: Name)       = Select(rootId(nme.scala_) setSymbol ScalaPackage, name)
   def scalaDot(name: Name)           = Select(Ident(nme.scala_) setSymbol ScalaPackage, name)
   def scalaAnnotationDot(name: Name) = Select(scalaDot(nme.annotation), name)
-  def scalaAnyRefConstr              = scalaDot(tpnme.AnyRef) setSymbol AnyRefClass // used in ide
+  def scalaAnyRefConstrRaw           = scalaDot(tpnme.AnyRef)
+  def scalaAnyRefConstr              = scalaAnyRefConstrRaw setSymbol AnyRefClass // used in ide
 
   def scalaFunctionConstr(argtpes: List[Tree], restpe: Tree, abstractFun: Boolean = false): Tree = {
     val cls = if (abstractFun)
@@ -183,7 +186,7 @@ abstract class TreeGen extends macros.TreeBuilder {
       val needsPackageQualifier = (
            (sym ne null)
         && qualsym.isPackage
-        && !sym.isDefinedInPackage
+        && !(sym.isDefinedInPackage || sym.moduleClass.isDefinedInPackage) // SI-7817 work around strangeness in post-flatten `Symbol#owner`
       )
       val pkgQualifier =
         if (needsPackageQualifier) {
@@ -302,4 +305,136 @@ abstract class TreeGen extends macros.TreeBuilder {
     val factory = Select(gen.mkAttributedRef(SeqModule), nme.apply)
     Apply(factory, List(arg))
   }
+
+  def mkSuperInitCall: Select = Select(Super(This(tpnme.EMPTY), tpnme.EMPTY), nme.CONSTRUCTOR)
+
+  /** Generates a template with constructor corresponding to
+   *
+   *  constrmods (vparams1_) ... (vparams_n) preSuper { presupers }
+   *  extends superclass(args_1) ... (args_n) with mixins { self => body }
+   *
+   *  This gets translated to
+   *
+   *  extends superclass with mixins { self =>
+   *    presupers' // presupers without rhs
+   *    vparamss   // abstract fields corresponding to value parameters
+   *    def <init>(vparamss) {
+   *      presupers
+   *      super.<init>(args)
+   *    }
+   *    body
+   *  }
+   */
+  def mkTemplate(parents: List[Tree], self: ValDef, constrMods: Modifiers,
+                 vparamss: List[List[ValDef]], body: List[Tree], superPos: Position = NoPosition): Template = {
+    /* Add constructor to template */
+
+    // create parameters for <init> as synthetic trees.
+    var vparamss1 = mmap(vparamss) { vd =>
+      atPos(vd.pos.focus) {
+        val mods = Modifiers(vd.mods.flags & (IMPLICIT | DEFAULTPARAM | BYNAMEPARAM) | PARAM | PARAMACCESSOR)
+        ValDef(mods withAnnotations vd.mods.annotations, vd.name, vd.tpt.duplicate, vd.rhs.duplicate)
+      }
+    }
+    val (edefs, rest) = body span treeInfo.isEarlyDef
+    val (evdefs, etdefs) = edefs partition treeInfo.isEarlyValDef
+    val gvdefs = evdefs map {
+      case vdef @ ValDef(_, _, tpt, _) =>
+        copyValDef(vdef)(
+        // atPos for the new tpt is necessary, since the original tpt might have no position
+        // (when missing type annotation for ValDef for example), so even though setOriginal modifies the
+        // position of TypeTree, it would still be NoPosition. That's what the author meant.
+        tpt = atPos(vdef.pos.focus)(TypeTree() setOriginal tpt setPos tpt.pos.focus),
+        rhs = EmptyTree
+      )
+    }
+    val lvdefs = evdefs collect { case vdef: ValDef => copyValDef(vdef)(mods = vdef.mods | PRESUPER) }
+
+    val constr = {
+      if (constrMods.isTrait) {
+        if (body forall treeInfo.isInterfaceMember) None
+        else Some(
+          atPos(wrappingPos(superPos, lvdefs)) (
+            DefDef(NoMods, nme.MIXIN_CONSTRUCTOR, List(), List(Nil), TypeTree(), Block(lvdefs, Literal(Constant())))))
+      } else {
+        // convert (implicit ... ) to ()(implicit ... ) if its the only parameter section
+        if (vparamss1.isEmpty || !vparamss1.head.isEmpty && vparamss1.head.head.mods.isImplicit)
+          vparamss1 = List() :: vparamss1
+        val superRef: Tree = atPos(superPos)(mkSuperInitCall)
+        val superCall = pendingSuperCall // we can't know in advance which of the parents will end up as a superclass
+                                         // this requires knowing which of the parents is a type macro and which is not
+                                         // and that's something that cannot be found out before typer
+                                         // (the type macros aren't in the trunk yet, but there is a plan for them to land there soon)
+                                         // this means that we don't know what will be the arguments of the super call
+                                         // therefore here we emit a dummy which gets populated when the template is named and typechecked
+        Some(
+          // TODO: previously this was `wrappingPos(superPos, lvdefs ::: argss.flatten)`
+          // is it going to be a problem that we can no longer include the `argss`?
+          atPos(wrappingPos(superPos, lvdefs)) (
+            DefDef(constrMods, nme.CONSTRUCTOR, List(), vparamss1, TypeTree(), Block(lvdefs ::: List(superCall), Literal(Constant())))))
+      }
+    }
+    constr foreach (ensureNonOverlapping(_, parents ::: gvdefs, focus=false))
+    // Field definitions for the class - remove defaults.
+    val fieldDefs = vparamss.flatten map (vd => copyValDef(vd)(mods = vd.mods &~ DEFAULTPARAM, rhs = EmptyTree))
+
+    global.Template(parents, self, gvdefs ::: fieldDefs ::: constr ++: etdefs ::: rest)
+  }
+
+  def mkParents(ownerMods: Modifiers, parents: List[Tree], parentPos: Position = NoPosition) =
+    if (ownerMods.isCase) parents ::: List(scalaDot(tpnme.Product), scalaDot(tpnme.Serializable))
+    else if (parents.isEmpty) atPos(parentPos)(scalaAnyRefConstrRaw) :: Nil
+    else parents
+
+  def mkClassDef(mods: Modifiers, name: TypeName, tparams: List[TypeDef], templ: Template): ClassDef = {
+    val isInterface = mods.isTrait && (templ.body forall treeInfo.isInterfaceMember)
+    val mods1 = if (isInterface) (mods | Flags.INTERFACE) else mods
+    ClassDef(mods1, name, tparams, templ)
+  }
+
+  /** Create positioned tree representing an object creation <new parents { stats }
+   *  @param npos  the position of the new
+   *  @param cpos  the position of the anonymous class starting with parents
+   */
+  def mkNew(parents: List[Tree], self: ValDef, stats: List[Tree],
+            npos: Position, cpos: Position): Tree =
+    if (parents.isEmpty)
+      mkNew(List(scalaAnyRefConstr), self, stats, npos, cpos)
+    else if (parents.tail.isEmpty && stats.isEmpty) {
+      // `Parsers.template` no longer differentiates tpts and their argss
+      // e.g. `C()` will be represented as a single tree Apply(Ident(C), Nil)
+      // instead of parents = Ident(C), argss = Nil as before
+      // this change works great for things that are actually templates
+      // but in this degenerate case we need to perform postprocessing
+      val app = treeInfo.dissectApplied(parents.head)
+      atPos(npos union cpos) { New(app.callee, app.argss) }
+    } else {
+      val x = tpnme.ANON_CLASS_NAME
+      atPos(npos union cpos) {
+        Block(
+          List(
+            atPos(cpos) {
+              ClassDef(
+                Modifiers(FINAL), x, Nil,
+                mkTemplate(parents, self, NoMods, List(Nil), stats, cpos.focus))
+            }),
+          atPos(npos) {
+            New(
+              Ident(x) setPos npos.focus,
+              Nil)
+          }
+        )
+      }
+    }
+
+  /** Create a tree representing the function type (argtpes) => restpe */
+  def mkFunctionTypeTree(argtpes: List[Tree], restpe: Tree): Tree =
+    AppliedTypeTree(rootScalaDot(newTypeName("Function" + argtpes.length)), argtpes ::: List(restpe))
+
+  /** Create block of statements `stats`  */
+  def mkBlock(stats: List[Tree]): Tree =
+    if (stats.isEmpty) Literal(Constant(()))
+    else if (!stats.last.isTerm) Block(stats, Literal(Constant(())))
+    else if (stats.length == 1) stats.head
+    else Block(stats.init, stats.last)
 }

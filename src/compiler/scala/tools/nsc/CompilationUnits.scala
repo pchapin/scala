@@ -34,6 +34,20 @@ trait CompilationUnits { self: Global =>
     /** the content of the compilation unit in tree form */
     var body: Tree = EmptyTree
 
+    /** The position of the first xml literal encountered while parsing this compilation unit.
+     * NoPosition if there were none. Write-once.
+     */
+    private[this] var _firstXmlPos: Position = NoPosition
+
+    /** Record that we encountered XML. Should only be called once. */
+    protected[nsc] def encounteredXml(pos: Position) = _firstXmlPos = pos
+
+    /** Does this unit contain XML? */
+    def hasXml = _firstXmlPos ne NoPosition
+
+    /** Position of first XML literal in this unit. */
+    def firstXmlPos = _firstXmlPos
+
     def exists = source != NoSourceFile && source != null
 
     /** Note: depends now contains toplevel classes.
@@ -43,8 +57,8 @@ trait CompilationUnits { self: Global =>
     // SBT compatibility (SI-6875)
     //
     // imagine we have a file named A.scala, which defines a trait named Foo and a module named Main
-    // Main contains a call to a macro, which calls c.introduceTopLevel to define a mock for Foo
-    // c.introduceTopLevel creates a virtual file Virt35af32.scala, which contains a class named FooMock extending Foo,
+    // Main contains a call to a macro, which calls compileLate to define a mock for Foo
+    // compileLate creates a virtual file Virt35af32.scala, which contains a class named FooMock extending Foo,
     // and macro expansion instantiates FooMock. the stage is now set. let's see what happens next.
     //
     // without this workaround in scalac or without being patched itself, sbt will think that
@@ -77,7 +91,7 @@ trait CompilationUnits { self: Global =>
         debuglog(s"removing synthetic $sym from $self")
         map -= sym
       }
-      def get(sym: Symbol): Option[Tree] = logResultIf[Option[Tree]](s"found synthetic for $sym in $self", _.isDefined) {
+      def get(sym: Symbol): Option[Tree] = debuglogResultIf[Option[Tree]](s"found synthetic for $sym in $self", _.isDefined) {
         map get sym
       }
       def keys: Iterable[Symbol] = map.keys

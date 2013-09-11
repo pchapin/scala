@@ -12,10 +12,9 @@ package runtime
 import scala.collection.{ Seq, IndexedSeq, TraversableView, AbstractIterator }
 import scala.collection.mutable.WrappedArray
 import scala.collection.immutable.{ StringLike, NumericRange, List, Stream, Nil, :: }
-import scala.collection.generic.{ Sorted }
+import scala.collection.generic.{ Sorted, IsTraversableLike }
 import scala.reflect.{ ClassTag, classTag }
 import scala.util.control.ControlThrowable
-import scala.xml.{ Node, MetaData }
 import java.lang.{ Class => jClass }
 
 import java.lang.Double.doubleToLongBits
@@ -48,6 +47,10 @@ object ScalaRunTime {
     }
     names.toSet
   }
+
+  // A helper method to make my life in the pattern matcher a lot easier.
+  def drop[Repr](coll: Repr, num: Int)(implicit traversable: IsTraversableLike[Repr]): Repr =
+    traversable conversion coll drop num
 
   /** Return the class object representing an array with element class `clazz`.
    */
@@ -269,10 +272,20 @@ object ScalaRunTime {
     def isScalaClass(x: AnyRef)         = packageOf(x) startsWith "scala."
     def isScalaCompilerClass(x: AnyRef) = packageOf(x) startsWith "scala.tools.nsc."
 
+    // We use reflection because the scala.xml package might not be available
+    def isSubClassOf(potentialSubClass: Class[_], ofClass: String) =
+      try {
+        val classLoader = potentialSubClass.getClassLoader
+        val clazz = Class.forName(ofClass, /*initialize =*/ false, classLoader)
+        clazz.isAssignableFrom(potentialSubClass)
+      } catch {
+        case cnfe: ClassNotFoundException => false
+      }
+    def isXmlNode(potentialSubClass: Class[_])     = isSubClassOf(potentialSubClass, "scala.xml.Node")
+    def isXmlMetaData(potentialSubClass: Class[_]) = isSubClassOf(potentialSubClass, "scala.xml.MetaData")
+
     // When doing our own iteration is dangerous
     def useOwnToString(x: Any) = x match {
-      // Node extends NodeSeq extends Seq[Node] and MetaData extends Iterable[MetaData]
-      case _: Node | _: MetaData => true
       // Range/NumericRange have a custom toString to avoid walking a gazillion elements
       case _: Range | _: NumericRange[_] => true
       // Sorted collections to the wrong thing (for us) on iteration - ticket #3493
@@ -281,10 +294,12 @@ object ScalaRunTime {
       case _: StringLike[_] => true
       // Don't want to evaluate any elements in a view
       case _: TraversableView[_, _] => true
+      // Node extends NodeSeq extends Seq[Node] and MetaData extends Iterable[MetaData]
+      // -> catch those by isXmlNode and isXmlMetaData.
       // Don't want to a) traverse infinity or b) be overly helpful with peoples' custom
       // collections which may have useful toString methods - ticket #3710
       // or c) print AbstractFiles which are somehow also Iterable[AbstractFile]s.
-      case x: Traversable[_] => !x.hasDefiniteSize || !isScalaClass(x) || isScalaCompilerClass(x)
+      case x: Traversable[_] => !x.hasDefiniteSize || !isScalaClass(x) || isScalaCompilerClass(x) || isXmlNode(x.getClass) || isXmlMetaData(x.getClass)
       // Otherwise, nothing could possibly go wrong
       case _ => false
     }
@@ -325,7 +340,7 @@ object ScalaRunTime {
     // to be iterated, such as some scala.tools.nsc.io.AbstractFile derived classes.
     try inner(arg)
     catch {
-      case _: StackOverflowError | _: UnsupportedOperationException | _: AssertionError => "" + arg
+      case _: UnsupportedOperationException | _: AssertionError => "" + arg
     }
   }
 
@@ -335,20 +350,6 @@ object ScalaRunTime {
     val nl = if (s contains "\n") "\n" else ""
 
     nl + s + "\n"
-  }
-  private[scala] def checkZip(what: String, coll1: TraversableOnce[_], coll2: TraversableOnce[_]) {
-    if (sys.props contains "scala.debug.zip") {
-      val xs = coll1.toIndexedSeq
-      val ys = coll2.toIndexedSeq
-      if (xs.length != ys.length) {
-        Console.err.println(
-          "Mismatched zip in " + what + ":\n" +
-          "  this: " + xs.mkString(", ") + "\n" +
-          "  that: " + ys.mkString(", ")
-        )
-        (new Exception).getStackTrace.drop(2).take(10).foreach(println)
-      }
-    }
   }
 
   def box[T](clazz: jClass[T]): jClass[_] = clazz match {

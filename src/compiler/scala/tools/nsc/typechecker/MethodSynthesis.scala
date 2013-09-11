@@ -25,7 +25,7 @@ trait MethodSynthesis {
     type TT[T]  = ru.TypeTag[T]
     type CT[T] = ClassTag[T]
 
-    def ValOrDefDef(sym: Symbol, body: Tree) =
+    def newValOrDefDef(sym: Symbol, body: Tree) =
       if (sym.isLazy) ValDef(sym, body)
       else DefDef(sym, body)
 
@@ -67,7 +67,7 @@ trait MethodSynthesis {
     }
 
     private def finishMethod(method: Symbol, f: Symbol => Tree): Tree =
-      localTyper typed ValOrDefDef(method, f(method))
+      localTyper typed newValOrDefDef(method, f(method))
 
     private def createInternal(name: Name, f: Symbol => Tree, info: Type): Tree = {
       val name1 = name.toTermName
@@ -259,7 +259,7 @@ trait MethodSynthesis {
      *  So it's important that creating an instance of Derived does not have a side effect,
      *  or if it has a side effect, control that it is done only once.
      */
-    trait Derived {
+    sealed trait Derived {
 
       /** The tree from which we are deriving a synthetic member. Typically, that's
        *  given as an argument of the instance. */
@@ -288,7 +288,7 @@ trait MethodSynthesis {
       def derivedTree: Tree
     }
 
-    trait DerivedFromMemberDef extends Derived {
+    sealed trait DerivedFromMemberDef extends Derived {
       def tree: MemberDef
       def enclClass: Symbol
 
@@ -297,12 +297,12 @@ trait MethodSynthesis {
       final def basisSym           = tree.symbol
     }
 
-    trait DerivedFromClassDef extends DerivedFromMemberDef {
+    sealed trait DerivedFromClassDef extends DerivedFromMemberDef {
       def tree: ClassDef
       final def enclClass = basisSym.owner.enclClass
     }
 
-    trait DerivedFromValDef extends DerivedFromMemberDef {
+    sealed trait DerivedFromValDef extends DerivedFromMemberDef {
       def tree: ValDef
       final def enclClass = basisSym.enclClass
 
@@ -341,10 +341,10 @@ trait MethodSynthesis {
         logDerived(derivedTree)
       }
     }
-    trait DerivedGetter extends DerivedFromValDef {
+    sealed trait DerivedGetter extends DerivedFromValDef {
       // TODO
     }
-    trait DerivedSetter extends DerivedFromValDef {
+    sealed trait DerivedSetter extends DerivedFromValDef {
       override def isSetter = true
       private def setterParam = derivedSym.paramss match {
         case (p :: Nil) :: _  => p
@@ -378,7 +378,7 @@ trait MethodSynthesis {
       def name: TermName               = tree.name.toTermName
     }
 
-    abstract class BaseGetter(tree: ValDef) extends DerivedGetter {
+    sealed abstract class BaseGetter(tree: ValDef) extends DerivedGetter {
       def name       = tree.name
       def category   = GetterTargetClass
       def flagsMask  = GetterFlags
@@ -397,6 +397,12 @@ trait MethodSynthesis {
         if (mods.isDeferred) basisSym
         else basisSym.getter(enclClass)
       )
+      // Range position errors ensue if we don't duplicate this in some
+      // circumstances (at least: concrete vals with existential types.)
+      private def tptOriginal = (
+        if (mods.isDeferred) tree.tpt                       // keep type tree of original abstract field
+        else tree.tpt.duplicate setPos tree.tpt.pos.focus   // focused position of original tpt
+      )
 
       override def derivedTree: DefDef = {
         // For existentials, don't specify a type for the getter, even one derived
@@ -407,16 +413,11 @@ trait MethodSynthesis {
         // starts compiling (instead of failing like it's supposed to) because the typer
         // expects to be able to identify escaping locals in typedDefDef, and fails to
         // spot that brand of them. In other words it's an artifact of the implementation.
-        val tpt = derivedSym.tpe.finalResultType match {
+        val tpt = atPos(derivedSym.pos.focus)(derivedSym.tpe.finalResultType match {
           case ExistentialType(_, _)  => TypeTree()
           case _ if mods.isDeferred   => TypeTree()
           case tp                     => TypeTree(tp)
-        }
-        tpt setPos derivedSym.pos.focus
-        // keep type tree of original abstract field
-        if (mods.isDeferred)
-          tpt setOriginal tree.tpt
-
+        })
         // TODO - reconcile this with the DefDef creator in Trees (which
         //   at this writing presented no way to pass a tree in for tpt.)
         atPos(derivedSym.pos) {
@@ -425,7 +426,7 @@ trait MethodSynthesis {
             derivedSym.name.toTermName,
             Nil,
             Nil,
-            tpt,
+            tpt setOriginal tptOriginal,
             if (mods.isDeferred) EmptyTree else fieldSelection
           ) setSymbol derivedSym
         }
@@ -510,7 +511,7 @@ trait MethodSynthesis {
       def flagsExtra = 0
       override def derivedSym = enclClass.info decl name
     }
-    trait AnyBeanGetter extends BeanAccessor with DerivedGetter {
+    sealed trait AnyBeanGetter extends BeanAccessor with DerivedGetter {
       def category = BeanGetterTargetClass
       override def validate() {
         if (derivedSym == NoSymbol) {

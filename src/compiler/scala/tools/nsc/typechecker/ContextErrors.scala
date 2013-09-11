@@ -21,13 +21,13 @@ trait ContextErrors {
   import global._
   import definitions._
 
-  abstract class AbsTypeError extends Throwable {
+  sealed abstract class AbsTypeError extends Throwable {
     def errPos: Position
     def errMsg: String
     override def toString() = "[Type error at:" + errPos + "] " + errMsg
   }
 
-  abstract class TreeTypeError extends AbsTypeError {
+  sealed abstract class TreeTypeError extends AbsTypeError {
     def underlyingTree: Tree
     def errPos = underlyingTree.pos
   }
@@ -517,6 +517,9 @@ trait ContextErrors {
       def TooManyArgsPatternError(fun: Tree) =
         NormalTypeError(fun, "too many arguments for unapply pattern, maximum = "+definitions.MaxTupleArity)
 
+      def WrongShapeExtractorExpansion(fun: Tree) =
+        NormalTypeError(fun, "extractor macros can only expand into extractor calls")
+
       def WrongNumberOfArgsError(tree: Tree, fun: Tree) =
         NormalTypeError(tree, "wrong number of arguments for "+ treeSymTypeMsg(fun))
 
@@ -593,7 +596,12 @@ trait ContextErrors {
       }
 
       def CaseClassConstructorError(tree: Tree) = {
-        issueNormalTypeError(tree, tree.symbol + " is not a case class constructor, nor does it have an unapply/unapplySeq method")
+        val baseMessage = tree.symbol + " is not a case class constructor, nor does it have an unapply/unapplySeq method"
+        val addendum = directUnapplyMember(tree.symbol.info) match {
+          case sym if hasMultipleNonImplicitParamLists(sym) => s"\nNote: ${sym.defString} exists in ${tree.symbol}, but it cannot be used as an extractor due to its second non-implicit parameter list"
+          case _                                            => ""
+        }
+        issueNormalTypeError(tree, baseMessage + addendum)
         setError(tree)
       }
 
@@ -697,7 +705,7 @@ trait ContextErrors {
       protected def macroExpansionError(expandee: Tree, msg: String, pos: Position = NoPosition) = {
         def msgForLog = if (msg != null && (msg contains "exception during macro expansion")) msg.split(EOL).drop(1).headOption.getOrElse("?") else msg
         macroLogLite("macro expansion has failed: %s".format(msgForLog))
-        if (msg != null) context.error(pos, msg) // issueTypeError(PosAndMsgTypeError(..)) won't work => swallows positions
+        if (msg != null) context.error(if (pos.isDefined) pos else expandee.pos, msg) // issueTypeError(PosAndMsgTypeError(..)) won't work => swallows positions
         setError(expandee)
         throw MacroExpansionException
       }
@@ -741,7 +749,7 @@ trait ContextErrors {
           try {
             // [Eugene] is there a better way?
             // [Paul] See Exceptional.scala and Origins.scala.
-            val relevancyThreshold = realex.getStackTrace().indexWhere(_.getMethodName endsWith "macroExpand1")
+            val relevancyThreshold = realex.getStackTrace().indexWhere(_.getMethodName endsWith "macroExpandWithRuntime")
             if (relevancyThreshold == -1) None
             else {
               var relevantElements = realex.getStackTrace().take(relevancyThreshold + 1)
@@ -782,13 +790,16 @@ trait ContextErrors {
       }
 
       def MacroExpansionHasInvalidTypeError(expandee: Tree, expanded: Any) = {
+        def isUnaffiliatedExpr = expanded.isInstanceOf[scala.reflect.api.Exprs#Expr[_]]
+        def isUnaffiliatedTree = expanded.isInstanceOf[scala.reflect.api.Trees#TreeApi]
         val expected = "expr or tree"
-        val isPathMismatch = expanded != null && expanded.isInstanceOf[scala.reflect.api.Exprs#Expr[_]]
+        val actual = if (isUnaffiliatedExpr) "an expr" else if (isUnaffiliatedTree) "a tree" else "unexpected"
+        val isPathMismatch = expanded != null && (isUnaffiliatedExpr || isUnaffiliatedTree)
         macroExpansionError(expandee,
           s"macro must return a compiler-specific $expected; returned value is " + (
             if (expanded == null) "null"
-            else if (isPathMismatch) s" $expected, but it doesn't belong to this compiler"
-            else " of " + expanded.getClass
+            else if (isPathMismatch) s"$actual, but it doesn't belong to this compiler's universe"
+            else "of " + expanded.getClass
         ))
       }
 

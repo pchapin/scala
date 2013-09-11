@@ -28,6 +28,7 @@ import transform.patmat.PatternMatching
 import transform._
 import backend.icode.{ ICodes, GenICode, ICodeCheckers }
 import backend.{ ScalaPrimitives, Platform, JavaPlatform }
+import backend.jvm.GenBCode
 import backend.jvm.GenASM
 import backend.opt.{ Inliners, InlineExceptionHandlers, ConstantOptimization, ClosureElimination, DeadCodeElimination }
 import backend.icode.analysis._
@@ -79,7 +80,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
 
   class GlobalMirror extends Roots(NoSymbol) {
     val universe: self.type = self
-    def rootLoader: LazyType = platform.rootLoader
+    def rootLoader: LazyType = new loaders.PackageLoader(classPath)
     override def toString = "compiler mirror"
   }
 
@@ -98,6 +99,9 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
 
   override def settings = currentSettings
 
+  /** Switch to turn on detailed type logs */
+  var printTypings = settings.Ytyperdebug.value
+
   def this(reporter: Reporter) =
     this(new Settings(err => reporter.error(null, err)), reporter)
 
@@ -108,12 +112,15 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
 
   // platform specific elements
 
-  type ThisPlatform = Platform { val global: Global.this.type }
+  protected class GlobalPlatform extends {
+    val global: Global.this.type = Global.this
+    val settings: Settings = Global.this.settings
+  } with JavaPlatform
 
-  lazy val platform: ThisPlatform =
-    new { val global: Global.this.type = Global.this } with JavaPlatform
+  type ThisPlatform = JavaPlatform { val global: Global.this.type }
+  lazy val platform: ThisPlatform  = new GlobalPlatform
 
-  type PlatformClassPath = ClassPath[platform.BinaryRepr]
+  type PlatformClassPath = ClassPath[AbstractFile]
   type OptClassPath = Option[PlatformClassPath]
 
   def classPath: PlatformClassPath = platform.classPath
@@ -131,16 +138,8 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
       typer.typed(mkCast(tree, pt))
   }
 
-  /** Trees fresh from the oven, mostly for use by the parser. */
-  object treeBuilder extends {
-    val global: Global.this.type = Global.this
-  } with TreeBuilder {
-    def freshName(prefix: String): Name               = freshTermName(prefix)
-    def freshTermName(prefix: String): TermName       = currentUnit.freshTermName(prefix)
-    def freshTypeName(prefix: String): TypeName       = currentUnit.freshTypeName(prefix)
-    def o2p(offset: Int): Position                    = new OffsetPosition(currentUnit.source, offset)
-    def r2p(start: Int, mid: Int, end: Int): Position = rangePos(currentUnit.source, start, mid, end)
-  }
+  /** A spare instance of TreeBuilder left for backwards compatibility. */
+  lazy val treeBuilder: TreeBuilder { val global: Global.this.type } = new syntaxAnalyzer.ParserTreeBuilder
 
   /** Fold constants */
   object constfold extends {
@@ -250,12 +249,15 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
 
   // not deprecated yet, but a method called "error" imported into
   // nearly every trait really must go.  For now using globalError.
-  def error(msg: String)                = globalError(msg)
-  override def inform(msg: String)      = reporter.echo(msg)
-  override def globalError(msg: String) = reporter.error(NoPosition, msg)
-  override def warning(msg: String)     =
-    if (settings.fatalWarnings) globalError(msg)
-    else reporter.warning(NoPosition, msg)
+  def error(msg: String) = globalError(msg)
+
+  override def inform(msg: String)      = inform(NoPosition, msg)
+  override def globalError(msg: String) = globalError(NoPosition, msg)
+  override def warning(msg: String)     = warning(NoPosition, msg)
+
+  def globalError(pos: Position, msg: String) = reporter.error(pos, msg)
+  def warning(pos: Position, msg: String)     = if (settings.fatalWarnings) globalError(pos, msg) else reporter.warning(pos, msg)
+  def inform(pos: Position, msg: String)      = reporter.echo(pos, msg)
 
   // Getting in front of Predef's asserts to supplement with more info.
   // This has the happy side effect of masking the one argument forms
@@ -288,25 +290,25 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
     if (settings.debug)
       body
   }
+
+  override protected def isDeveloper = settings.developer || super.isDeveloper
+
   /** This is for WARNINGS which should reach the ears of scala developers
    *  whenever they occur, but are not useful for normal users. They should
    *  be precise, explanatory, and infrequent. Please don't use this as a
    *  logging mechanism. !!! is prefixed to all messages issued via this route
    *  to make them visually distinct.
    */
-  @inline final override def devWarning(msg: => String) {
-    if (settings.developer || settings.debug)
-      warning("!!! " + msg)
+  @inline final override def devWarning(msg: => String): Unit = devWarning(NoPosition, msg)
+  @inline final def devWarning(pos: Position, msg: => String) {
+    def pos_s = if (pos eq NoPosition) "" else s" [@ $pos]"
+    if (isDeveloper)
+      warning(pos, "!!! " + msg)
     else
-      log("!!! " + msg) // such warnings always at least logged
+      log(s"!!!$pos_s $msg") // such warnings always at least logged
   }
 
-  private def elapsedMessage(msg: String, start: Long) =
-    msg + " in " + (currentTime - start) + "ms"
-
   def informComplete(msg: String): Unit    = reporter.withoutTruncating(inform(msg))
-  def informProgress(msg: String)          = if (settings.verbose) inform("[" + msg + "]")
-  def informTime(msg: String, start: Long) = informProgress(elapsedMessage(msg, start))
 
   def logError(msg: String, t: Throwable): Unit = ()
 
@@ -379,9 +381,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
   // Here comes another one...
   override protected val enableTypeVarExperimentals = settings.Xexperimental.value
 
-  def getSourceFile(f: AbstractFile): BatchSourceFile =
-    if (settings.script.isSetByUser) ScriptSourceFile(f, reader read f)
-    else new BatchSourceFile(f, reader read f)
+  def getSourceFile(f: AbstractFile): BatchSourceFile = new BatchSourceFile(f, reader read f)
 
   def getSourceFile(name: String): SourceFile = {
     val f = AbstractFile.getFile(name)
@@ -390,9 +390,10 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
     getSourceFile(f)
   }
 
-  lazy val loaders = new SymbolLoaders {
+  lazy val loaders = new {
     val global: Global.this.type = Global.this
-  }
+    val platform: Global.this.platform.type = Global.this.platform
+  } with GlobalSymbolLoaders
 
   /** Returns the mirror that loaded given symbol */
   def mirrorThatLoaded(sym: Symbol): Mirror = rootMirror
@@ -452,10 +453,6 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
       }
     }
   }
-
-  /** Switch to turn on detailed type logs */
-  val printTypings = settings.Ytyperdebug.value
-  val printInfers = settings.Yinferdebug.value
 
   // phaseName = "parser"
   lazy val syntaxAnalyzer = new {
@@ -647,6 +644,13 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
     val runsAfter = List("dce")
     val runsRightAfter = None
   } with GenASM
+
+  // phaseName = "bcode"
+  object genBCode extends {
+    val global: Global.this.type = Global.this
+    val runsAfter = List("dce")
+    val runsRightAfter = None
+  } with GenBCode
 
   // phaseName = "terminal"
   object terminal extends {
@@ -944,7 +948,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
              invalidated: mutable.ListBuffer[ClassSymbol], failed: mutable.ListBuffer[ClassSymbol]) {
     ifDebug(informProgress(s"syncing $root, $oldEntries -> $newEntries"))
 
-    val getName: ClassPath[platform.BinaryRepr] => String = (_.name)
+    val getName: ClassPath[AbstractFile] => String = (_.name)
     def hasClasses(cp: OptClassPath) = cp.isDefined && cp.get.classes.nonEmpty
     def invalidateOrRemove(root: ClassSymbol) = {
       allEntries match {
@@ -1086,6 +1090,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
   @inline final def enteringMixin[T](op: => T): T         = enteringPhase(currentRun.mixinPhase)(op)
   @inline final def enteringPickler[T](op: => T): T       = enteringPhase(currentRun.picklerPhase)(op)
   @inline final def enteringRefchecks[T](op: => T): T     = enteringPhase(currentRun.refchecksPhase)(op)
+  @inline final def enteringSpecialize[T](op: => T): T    = enteringPhase(currentRun.specializePhase)(op)
   @inline final def enteringTyper[T](op: => T): T         = enteringPhase(currentRun.typerPhase)(op)
   @inline final def enteringUncurry[T](op: => T): T       = enteringPhase(currentRun.uncurryPhase)(op)
 
@@ -1137,7 +1142,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
         "symbol owners"      -> ownerChainString(sym),
         "call site"          -> (site.fullLocationString + " in " + site.enclosingPackage)
       )
-      ("\n" + info1) :: info2 :: context_s :: Nil mkString "\n\n"
+      ("\n  " + errorMessage + "\n" + info1) :: info2 :: context_s :: Nil mkString "\n\n"
     }
     catch { case _: Exception | _: TypeError => errorMessage }
   }
@@ -1515,20 +1520,23 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
       }
     }
 
-    /** Compile list of source files */
-    def compileSources(sources: List[SourceFile]) {
-      // there is a problem already, e.g. a plugin was passed a bad option
-      if (reporter.hasErrors)
-        return
+    /** Compile list of source files,
+     *  unless there is a problem already,
+     *  such as a plugin was passed a bad option.
+     */
+    def compileSources(sources: List[SourceFile]) = if (!reporter.hasErrors) {
 
-      // nothing to compile, but we should still report use of deprecated options
-      if (sources.isEmpty) {
+      def checkDeprecations() = {
         checkDeprecatedSettings(newCompilationUnit(""))
         reportCompileErrors()
-        return
       }
 
-      compileUnits(sources map (new CompilationUnit(_)), firstPhase)
+      val units = sources map scripted map (new CompilationUnit(_))
+
+      units match {
+        case Nil => checkDeprecations()   // nothing to compile, report deprecated options
+        case _   => compileUnits(units, firstPhase)
+      }
     }
 
     def compileUnits(units: List[CompilationUnit], fromPhase: Phase): Unit =
@@ -1633,12 +1641,18 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
       catch { case ex: IOException => globalError(ex.getMessage()) }
     }
 
+    /** If this compilation is scripted, convert the source to a script source. */
+    private def scripted(s: SourceFile) = s match {
+      case b: BatchSourceFile if settings.script.isSetByUser => ScriptSourceFile(b)
+      case _ => s
+    }
+
     /** Compile abstract file until `globalPhase`, but at least
      *  to phase "namer".
      */
     def compileLate(file: AbstractFile) {
       if (!compiledFiles(file.path))
-        compileLate(new CompilationUnit(getSourceFile(file)))
+        compileLate(new CompilationUnit(scripted(getSourceFile(file))))
     }
 
     /** Compile abstract file until `globalPhase`, but at least to phase "namer".
