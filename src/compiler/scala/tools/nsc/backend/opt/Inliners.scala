@@ -78,10 +78,10 @@ abstract class Inliners extends SubComponent {
       assert(clazz != NoSymbol, "Walked up past Object.superClass looking for " + sym +
                                 ", most likely this reveals the TFA at fault (receiver and callee don't match).")
       if (sym.owner == clazz || isBottomType(clazz)) sym
-      else sym.overridingSymbol(clazz) match {
-        case NoSymbol  => if (sym.owner.isTrait) sym else lookup(clazz.superClass)
-        case imp       => imp
-      }
+      else sym.overridingSymbol(clazz) orElse (
+        if (sym.owner.isTrait) sym
+        else lookup(clazz.superClass)
+      )
     }
     if (needsLookup) {
       val concreteMethod = lookup(clazz)
@@ -679,9 +679,18 @@ abstract class Inliners extends SubComponent {
         }
         */
 
-        def checkField(f: Symbol)   = check(f, f.isPrivate && !canMakePublic(f))
-        def checkSuper(n: Symbol)   = check(n, n.isPrivate || !n.isClassConstructor)
-        def checkMethod(n: Symbol)  = check(n, n.isPrivate)
+
+        def isPrivateForInlining(sym: Symbol): Boolean = {
+          if (sym.isJavaDefined) {
+            def check(sym: Symbol) = !(sym.isPublic || sym.isProtected)
+            check(sym) || check(sym.owner) // SI-7582 Must check the enclosing class *and* the symbol for Java.
+          }
+          else sym.isPrivate // Scala never emits package-private bytecode
+        }
+
+        def checkField(f: Symbol)   = check(f, isPrivateForInlining(f) && !canMakePublic(f))
+        def checkSuper(n: Symbol)   = check(n, isPrivateForInlining(n) || !n.isClassConstructor)
+        def checkMethod(n: Symbol)  = check(n, isPrivateForInlining(n))
 
         def getAccess(i: Instruction) = i match {
           case CALL_METHOD(n, SuperCall(_)) => checkSuper(n)

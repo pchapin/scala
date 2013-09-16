@@ -40,6 +40,7 @@ trait StdNames {
     def result: Set[TermName] = try kws finally kws = null
   }
 
+  private[reflect] def compactifyName(orig: String): String = compactify(orig)
   private final object compactify extends (String => String) {
     val md5 = MessageDigest.getInstance("MD5")
 
@@ -216,23 +217,42 @@ trait StdNames {
 
     final val Any: NameType             = "Any"
     final val AnyVal: NameType          = "AnyVal"
+    final val FlagSet: NameType         = "FlagSet"
     final val Mirror: NameType          = "Mirror"
+    final val Modifiers: NameType       = "Modifiers"
     final val Nothing: NameType         = "Nothing"
     final val Null: NameType            = "Null"
     final val Object: NameType          = "Object"
+    final val Option: NameType          = "Option"
     final val PrefixType: NameType      = "PrefixType"
     final val Product: NameType         = "Product"
     final val Serializable: NameType    = "Serializable"
     final val Singleton: NameType       = "Singleton"
     final val Throwable: NameType       = "Throwable"
 
+    final val api: NameType                 = "api"
     final val Annotation: NameType          = "Annotation"
+    final val CaseDef: NameType             = "CaseDef"
     final val ClassfileAnnotation: NameType = "ClassfileAnnotation"
     final val ClassManifest: NameType       = "ClassManifest"
     final val Enum: NameType                = "Enum"
     final val Group: NameType               = "Group"
+    final val Name: NameType                = "Name"
     final val Tree: NameType                = "Tree"
+    final val TermName: NameType            = "TermName"
     final val Type : NameType               = "Type"
+    final val TypeName: NameType            = "TypeName"
+    final val TypeDef: NameType             = "TypeDef"
+    final val Tuple: NameType               = "Tuple"
+    final val Universe: NameType            = "Universe"
+    final val Quasiquote: NameType          = "Quasiquote"
+
+    // quasiquote-specific names
+    final val QUASIQUOTE_MODS: NameType        = "$quasiquote$mods$"
+    final val QUASIQUOTE_TUPLE: NameType       = "$quasiquote$tuple$"
+    final val QUASIQUOTE_FUNCTION: NameType    = "$quasiquote$function$"
+    final val QUASIQUOTE_REFINE_STAT: NameType = "$quasiquote$refine$stat$"
+    final val QUASIQUOTE_EARLY_DEF: NameType   = "$quasiquote$early$def$"
 
     // Annotation simple names, used in Namer
     final val BeanPropertyAnnot: NameType = "BeanProperty"
@@ -304,6 +324,10 @@ trait StdNames {
     val REIFY_FREE_THIS_SUFFIX: NameType   = "$this"
     val REIFY_FREE_VALUE_SUFFIX: NameType  = "$value"
     val REIFY_SYMDEF_PREFIX: NameType      = "symdef$"
+    val QUASIQUOTE_PREFIX: String          = "qq$"
+    val QUASIQUOTE_FILE: String            = "<quasiquote>"
+    val QUASIQUOTE_TUPLE: NameType         = "$quasiquote$tuple$"
+    val QUASIQUOTE_CASE: NameType          = "$quasiquote$case$"
     val MIXIN_CONSTRUCTOR: NameType        = "$init$"
     val MODULE_INSTANCE_FIELD: NameType    = NameTransformer.MODULE_INSTANCE_NAME  // "MODULE$"
     val OUTER: NameType                    = "$outer"
@@ -539,19 +563,25 @@ trait StdNames {
     val Annotation: NameType           = "Annotation"
     val Any: NameType                  = "Any"
     val AnyVal: NameType               = "AnyVal"
+    val Apply: NameType                = "Apply"
     val ArrayAnnotArg: NameType        = "ArrayAnnotArg"
+    val Block: NameType                = "Block"
     val ConstantType: NameType         = "ConstantType"
     val EmptyPackage: NameType         = "EmptyPackage"
     val EmptyPackageClass: NameType    = "EmptyPackageClass"
+    val False : NameType               = "False"
     val Flag : NameType                = "Flag"
+    val FlagsRepr: NameType            = "FlagsRepr"
     val Ident: NameType                = "Ident"
     val Import: NameType               = "Import"
     val Literal: NameType              = "Literal"
     val LiteralAnnotArg: NameType      = "LiteralAnnotArg"
     val Modifiers: NameType            = "Modifiers"
     val NestedAnnotArg: NameType       = "NestedAnnotArg"
+    val New: NameType                  = "New"
     val NoFlags: NameType              = "NoFlags"
     val NoSymbol: NameType             = "NoSymbol"
+    val NoMods: NameType               = "NoMods"
     val Nothing: NameType              = "Nothing"
     val Null: NameType                 = "Null"
     val Object: NameType               = "Object"
@@ -560,8 +590,23 @@ trait StdNames {
     val Select: NameType               = "Select"
     val SelectFromTypeTree: NameType   = "SelectFromTypeTree"
     val StringContext: NameType        = "StringContext"
+    val SyntacticApplied: NameType     = "SyntacticApplied"
+    val SyntacticBlock: NameType       = "SyntacticBlock"
+    val SyntacticClassDef: NameType    = "SyntacticClassDef"
+    val SyntacticDefDef: NameType      = "SyntacticDefDef"
+    val SyntacticFunction: NameType    = "SyntacticFunction"
+    val SyntacticFunctionType: NameType= "SyntacticFunctionType"
+    val SyntacticModuleDef: NameType   = "SyntacticModuleDef"
+    val SyntacticNew: NameType         = "SyntacticNew"
+    val SyntacticTraitDef: NameType    = "SyntacticTraitDef"
+    val SyntacticTuple: NameType       = "SyntacticTuple"
+    val SyntacticTupleType: NameType   = "SyntacticTupleType"
+    val SyntacticTypeApplied: NameType = "SyntacticTypeApplied"
+    val SyntacticValDef: NameType      = "SyntacticValDef"
+    val SyntacticVarDef: NameType      = "SyntacticVarDef"
     val This: NameType                 = "This"
     val ThisType: NameType             = "ThisType"
+    val True : NameType                = "True"
     val Tuple2: NameType               = "Tuple2"
     val TYPE_ : NameType               = "TYPE"
     val TypeRef: NameType              = "TypeRef"
@@ -593,12 +638,15 @@ trait StdNames {
     val checkInitialized: NameType     = "checkInitialized"
     val classOf: NameType              = "classOf"
     val clone_ : NameType              = "clone"
+    val collection: NameType           = "collection"
     val conforms: NameType             = "conforms"
+    val compare: NameType              = "compare"
     val copy: NameType                 = "copy"
     val create: NameType               = "create"
     val currentMirror: NameType        = "currentMirror"
     val delayedInit: NameType          = "delayedInit"
     val delayedInitArg: NameType       = "delayedInit$body"
+    val dollarScope: NameType          = "$scope"
     val drop: NameType                 = "drop"
     val elem: NameType                 = "elem"
     val emptyValDef: NameType          = "emptyValDef"
@@ -616,12 +664,15 @@ trait StdNames {
     val filter: NameType               = "filter"
     val finalize_ : NameType           = "finalize"
     val find_ : NameType               = "find"
-    val flagsFromBits : NameType       = "flagsFromBits"
     val flatMap: NameType              = "flatMap"
+    val flatten: NameType              = "flatten"
+    val foldLeft: NameType             = "foldLeft"
     val foreach: NameType              = "foreach"
     val get: NameType                  = "get"
     val hashCode_ : NameType           = "hashCode"
     val hash_ : NameType               = "hash"
+    val head : NameType                = "head"
+    val immutable: NameType            = "immutable"
     val implicitly: NameType           = "implicitly"
     val in: NameType                   = "in"
     val inlinedEquals: NameType        = "inlinedEquals"
@@ -643,12 +694,17 @@ trait StdNames {
     val materializeWeakTypeTag: NameType = "materializeWeakTypeTag"
     val materializeTypeTag: NameType   = "materializeTypeTag"
     val moduleClass : NameType         = "moduleClass"
+    val mkAnnotation: NameType         = "mkAnnotation"
+    val mkRefineStat: NameType         = "mkRefineStat"
+    val mkEarlyDef: NameType           = "mkEarlyDef"
     val ne: NameType                   = "ne"
     val newArray: NameType             = "newArray"
     val newFreeTerm: NameType          = "newFreeTerm"
     val newFreeType: NameType          = "newFreeType"
     val newNestedSymbol: NameType      = "newNestedSymbol"
     val newScopeWith: NameType         = "newScopeWith"
+    val nmeCONSTRUCTOR: NameType       = "CONSTRUCTOR"
+    val nmeNme: NameType               = "nme"
     val notifyAll_ : NameType          = "notifyAll"
     val notify_ : NameType             = "notify"
     val null_ : NameType               = "null"
@@ -664,6 +720,7 @@ trait StdNames {
     val runtime: NameType              = "runtime"
     val runtimeClass: NameType         = "runtimeClass"
     val runtimeMirror: NameType        = "runtimeMirror"
+    val RefTree: NameType              = "RefTree"
     val scala_ : NameType              = "scala"
     val selectDynamic: NameType        = "selectDynamic"
     val selectOverloadedMethod: NameType = "selectOverloadedMethod"
@@ -679,11 +736,15 @@ trait StdNames {
     val staticModule : NameType        = "staticModule"
     val staticPackage : NameType       = "staticPackage"
     val synchronized_ : NameType       = "synchronized"
+    val ScalaDot: NameType             = "ScalaDot"
     val TermName: NameType             = "TermName"
     val this_ : NameType               = "this"
     val thisPrefix : NameType          = "thisPrefix"
     val toArray: NameType              = "toArray"
+    val toList: NameType               = "toList"
     val toObjectArray : NameType       = "toObjectArray"
+    val toSeq: NameType                = "toSeq"
+    val TopScope: NameType             = "TopScope"
     val toString_ : NameType           = "toString"
     val toTypeConstructor: NameType    = "toTypeConstructor"
     val tpe : NameType                 = "tpe"
@@ -692,6 +753,7 @@ trait StdNames {
     val typedProductIterator: NameType = "typedProductIterator"
     val TypeName: NameType             = "TypeName"
     val typeTagToManifest: NameType    = "typeTagToManifest"
+
     val unapply: NameType              = "unapply"
     val unapplySeq: NameType           = "unapplySeq"
     val unbox: NameType                = "unbox"
@@ -705,6 +767,12 @@ trait StdNames {
     val wait_ : NameType               = "wait"
     val withFilter: NameType           = "withFilter"
     val zero: NameType                 = "zero"
+
+    // quasiquote interpolators:
+    val q: NameType                    = "q"
+    val tq: NameType                   = "tq"
+    val cq: NameType                   = "cq"
+    val pq: NameType                   = "pq"
 
     // unencoded operators
     object raw {
@@ -742,6 +810,7 @@ trait StdNames {
     val ADD      = encode("+")
     val AND      = encode("&")
     val ASR      = encode(">>")
+    val CONS     = encode("::")
     val DIV      = encode("/")
     val EQ       = encode("==")
     val EQL      = encode("=")
@@ -758,6 +827,7 @@ trait StdNames {
     val NE       = encode("!=")
     val OR       = encode("|")
     val PLUS     = ADD    // technically redundant, but ADD looks funny with MINUS
+    val PLUSPLUS = encode("++")
     val SUB      = MINUS  // ... as does SUB with PLUS
     val XOR      = encode("^")
     val ZAND     = encode("&&")

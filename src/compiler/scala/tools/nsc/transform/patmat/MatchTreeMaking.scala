@@ -79,7 +79,7 @@ trait MatchTreeMaking extends MatchCodeGen with Debugging {
       def chainBefore(next: Tree)(casegen: Casegen): Tree
     }
 
-    trait NoNewBinders extends TreeMaker {
+    sealed trait NoNewBinders extends TreeMaker {
       protected val localSubstitution: Substitution = EmptySubstitution
     }
 
@@ -105,12 +105,12 @@ trait MatchTreeMaking extends MatchCodeGen with Debugging {
       override def toString = "S"+ localSubstitution
     }
 
-    abstract class FunTreeMaker extends TreeMaker {
+    sealed abstract class FunTreeMaker extends TreeMaker {
       val nextBinder: Symbol
       def pos = nextBinder.pos
     }
 
-    abstract class CondTreeMaker extends FunTreeMaker {
+    sealed abstract class CondTreeMaker extends FunTreeMaker {
       val prevBinder: Symbol
       val nextBinderTp: Type
       val cond: Tree
@@ -126,7 +126,7 @@ trait MatchTreeMaking extends MatchCodeGen with Debugging {
     // unless we're optimizing, emit local variable bindings for all subpatterns of extractor/case class patterns
     protected val debugInfoEmitVars = !settings.optimise.value
 
-    trait PreserveSubPatBinders extends TreeMaker {
+    sealed trait PreserveSubPatBinders extends TreeMaker {
       val subPatBinders: List[Symbol]
       val subPatRefs: List[Tree]
       val ignoredSubPatBinders: Set[Symbol]
@@ -200,6 +200,16 @@ trait MatchTreeMaking extends MatchCodeGen with Debugging {
           ) extends FunTreeMaker with PreserveSubPatBinders {
 
       def extraStoredBinders: Set[Symbol] = Set()
+
+      debug.patmat(s"""
+        |ExtractorTreeMaker($extractor, $extraCond, $nextBinder) {
+        |  $subPatBinders
+        |  $subPatRefs
+        |  $extractorReturnsBoolean
+        |  $checkedLength
+        |  $prevBinder
+        |  $ignoredSubPatBinders
+        |}""".stripMargin)
 
       def chainBefore(next: Tree)(casegen: Casegen): Tree = {
         val condAndNext = extraCond match {
@@ -426,7 +436,7 @@ trait MatchTreeMaking extends MatchCodeGen with Debugging {
           case _ if testedBinder.info.widen <:< expectedTp =>
             // if the expected type is a primitive value type, it cannot be null and it cannot have an outer pointer
             // since the types conform, no further checking is required
-            if (expectedTp.typeSymbol.isPrimitiveValueClass) tru
+            if (isPrimitiveValueType(expectedTp)) tru
             // have to test outer and non-null only when it's a reference type
             else if (expectedTp <:< AnyRefTpe) {
               // do non-null check first to ensure we won't select outer on null
@@ -587,9 +597,8 @@ trait MatchTreeMaking extends MatchCodeGen with Debugging {
             t.symbol.owner = currentOwner
           case d : DefTree if (d.symbol != NoSymbol) && ((d.symbol.owner == NoSymbol) || (d.symbol.owner == origOwner)) => // don't indiscriminately change existing owners! (see e.g., pos/t3440, pos/t3534, pos/unapplyContexts2)
             debug.patmat("def: "+ ((d, d.symbol.ownerChain, currentOwner.ownerChain)))
-            if(d.symbol.moduleClass ne NoSymbol)
-              d.symbol.moduleClass.owner = currentOwner
 
+            d.symbol.moduleClass andAlso (_.owner = currentOwner)
             d.symbol.owner = currentOwner
           // case _ if (t.symbol != NoSymbol) && (t.symbol ne null) =>
           debug.patmat("untouched "+ ((t, t.getClass, t.symbol.ownerChain, currentOwner.ownerChain)))

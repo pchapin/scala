@@ -16,8 +16,10 @@ import scala.reflect.internal.util.shortClassOfInstance
  */
 trait Contexts { self: Analyzer =>
   import global._
-  import definitions.{ JavaLangPackage, ScalaPackage, PredefModule }
+  import definitions.{ JavaLangPackage, ScalaPackage, PredefModule, ScalaXmlTopScope, ScalaXmlPackage }
   import ContextMode._
+
+  protected def onTreeCheckerError(pos: Position, msg: String): Unit = ()
 
   object NoContext
     extends Context(EmptyTree, NoSymbol, EmptyScope, NoCompilationUnit,
@@ -93,9 +95,22 @@ trait Contexts { self: Analyzer =>
     else RootImports.completeList
   }
 
+
   def rootContext(unit: CompilationUnit, tree: Tree = EmptyTree, erasedTypes: Boolean = false): Context = {
     val rootImportsContext = (startContext /: rootImports(unit))((c, sym) => c.make(gen.mkWildcardImport(sym)))
-    val c = rootImportsContext.make(tree, unit = unit)
+
+    // there must be a scala.xml package when xml literals were parsed in this unit
+    if (unit.hasXml && ScalaXmlPackage == NoSymbol)
+      unit.error(unit.firstXmlPos, "To compile XML syntax, the scala.xml package must be on the classpath.\nPlease see https://github.com/scala/scala/wiki/Scala-2.11#xml.")
+
+    // scala-xml needs `scala.xml.TopScope` to be in scope globally as `$scope`
+    // We detect `scala-xml` by looking for `scala.xml.TopScope` and
+    // inject the equivalent of `import scala.xml.{TopScope => $scope}`
+    val contextWithXML =
+      if (!unit.hasXml || ScalaXmlTopScope == NoSymbol) rootImportsContext
+      else rootImportsContext.make(gen.mkImport(ScalaXmlPackage, nme.TopScope, nme.dollarScope))
+
+    val c = contextWithXML.make(tree, unit = unit)
     if (erasedTypes) c.setThrowErrors() else c.setReportErrors()
     c(EnrichmentEnabled | ImplicitsEnabled) = !erasedTypes
     c
@@ -254,13 +269,9 @@ trait Contexts { self: Analyzer =>
     /** Saved type bounds for type parameters which are narrowed in a GADT. */
     var savedTypeBounds: List[(Symbol, Type)] = List()
 
-    /** Indentation level, in columns, for output under -Ytyper-debug */
-    var typingIndentLevel: Int = 0
-    def typingIndent = "  " * typingIndentLevel
-
     /** The next enclosing context (potentially `this`) that is owned by a class or method */
     def enclClassOrMethod: Context =
-      if ((owner eq NoSymbol) || (owner.isClass) || (owner.isMethod)) this
+      if (!owner.exists || owner.isClass || owner.isMethod) this
       else outer.enclClassOrMethod
 
     /** The next enclosing context (potentially `this`) that has a `CaseDef` as a tree */
@@ -269,6 +280,11 @@ trait Contexts { self: Analyzer =>
     /** ...or an Apply. */
     def enclosingApply = nextEnclosing(_.tree.isInstanceOf[Apply])
 
+    def siteString = {
+      def what_s  = if (owner.isConstructor) "" else owner.kindString
+      def where_s = if (owner.isClass) "" else "in " + enclClass.owner.decodedName
+      List(what_s, owner.decodedName, where_s) filterNot (_ == "") mkString " "
+    }
     //
     // Tracking undetermined type parameters for type argument inference.
     //
@@ -432,7 +448,6 @@ trait Contexts { self: Analyzer =>
       // Fields that are directly propagated
       c.variance           = variance
       c.diagnostic         = diagnostic
-      c.typingIndentLevel  = typingIndentLevel
       c.openImplicits      = openImplicits
       c.contextMode        = contextMode // note: ConstructorSuffix, a bit within `mode`, is conditionally overwritten below.
       c._reportBuffer      = reportBuffer
@@ -518,8 +533,8 @@ trait Contexts { self: Analyzer =>
       if (msg endsWith ds) msg else msg + ds
     }
 
-    private def unitError(pos: Position, msg: String) =
-      unit.error(pos, if (checking) "\n**** ERROR DURING INTERNAL CHECKING ****\n" + msg else msg)
+    private def unitError(pos: Position, msg: String): Unit =
+      if (checking) onTreeCheckerError(pos, msg) else unit.error(pos, msg)
 
     @inline private def issueCommon(err: AbsTypeError)(pf: PartialFunction[AbsTypeError, Unit]) {
       if (settings.Yissuedebug) {
@@ -640,13 +655,8 @@ trait Contexts { self: Analyzer =>
       lastAccessCheckDetails = ""
       // Console.println("isAccessible(%s, %s, %s)".format(sym, pre, superAccess))
 
-      def accessWithinLinked(ab: Symbol) = {
-        val linked = ab.linkedClassOfClass
-        // don't have access if there is no linked class
-        // (before adding the `ne NoSymbol` check, this was a no-op when linked eq NoSymbol,
-        //  since `accessWithin(NoSymbol) == true` whatever the symbol)
-        (linked ne NoSymbol) && accessWithin(linked)
-      }
+      // don't have access if there is no linked class (so exclude linkedClass=NoSymbol)
+      def accessWithinLinked(ab: Symbol) = ab.linkedClassOfClass.fold(false)(accessWithin)
 
       /* Are we inside definition of `ab`? */
       def accessWithin(ab: Symbol) = {
@@ -944,7 +954,7 @@ trait Contexts { self: Analyzer =>
         //   2) sym.owner is inherited by the correct package object class
         // We try to establish 1) by inspecting the owners directly, and then we try
         // to rule out 2), and only if both those fail do we resort to looking in the info.
-        !sym.isPackage && (sym.owner ne NoSymbol) && (
+        !sym.isPackage && sym.owner.exists && (
           if (sym.owner.isPackageObjectClass)
             sym.owner.owner == pkgClass
           else
@@ -1018,7 +1028,7 @@ trait Contexts { self: Analyzer =>
         (scope lookupUnshadowedEntries name filter (e => qualifies(e.sym))).toList
 
       def newOverloaded(owner: Symbol, pre: Type, entries: List[ScopeEntry]) =
-        logResult(s"!!! lookup overloaded")(owner.newOverloaded(pre, entries map (_.sym)))
+        logResult(s"overloaded symbol in $pre")(owner.newOverloaded(pre, entries map (_.sym)))
 
       // Constructor lookup should only look in the decls of the enclosing class
       // not in the self-type, nor in the enclosing context, nor in imports (SI-4460, SI-6745)
@@ -1181,7 +1191,7 @@ trait Contexts { self: Analyzer =>
     override final def imports      = impInfo :: super.imports
     override final def firstImport  = Some(impInfo)
     override final def isRootImport = !tree.pos.isDefined
-    override final def toString     = s"ImportContext { $impInfo; outer.owner = ${outer.owner} }"
+    override final def toString     = super.toString + " with " + s"ImportContext { $impInfo; outer.owner = ${outer.owner} }"
   }
 
   /** A buffer for warnings and errors that are accumulated during speculative type checking. */
@@ -1327,6 +1337,7 @@ trait Contexts { self: Analyzer =>
 }
 
 object ContextMode {
+  import scala.language.implicitConversions
   private implicit def liftIntBitsToContextState(bits: Int): ContextMode = apply(bits)
   def apply(bits: Int): ContextMode = new ContextMode(bits)
   final val NOmode: ContextMode                   = 0

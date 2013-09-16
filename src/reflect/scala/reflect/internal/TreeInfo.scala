@@ -98,7 +98,7 @@ abstract class TreeInfo {
    */
   def isStableIdentifier(tree: Tree, allowVolatile: Boolean): Boolean =
     tree match {
-      case Ident(_)        => symOk(tree.symbol) && tree.symbol.isStable && !tree.symbol.hasVolatileType // TODO SPEC: not required by spec
+      case i @ Ident(_)    => isStableIdent(i)
       case Select(qual, _) => isStableMemberOf(tree.symbol, qual, allowVolatile) && isPath(qual, allowVolatile)
       case Apply(Select(free @ Ident(_), nme.apply), _) if free.symbol.name endsWith nme.REIFY_FREE_VALUE_SUFFIX =>
         // see a detailed explanation of this trick in `GenSymbols.reifyFreeTerm`
@@ -117,6 +117,13 @@ abstract class TreeInfo {
   def isStableMemberOf(sym: Symbol, tree: Tree, allowVolatile: Boolean): Boolean = (
     symOk(sym)       && (!sym.isTerm   || (sym.isStable && (allowVolatile || !sym.hasVolatileType))) &&
     typeOk(tree.tpe) && (allowVolatile || !hasVolatileType(tree)) && !definitions.isByNameParamType(tree.tpe)
+  )
+
+  private def isStableIdent(tree: Ident): Boolean = (
+       symOk(tree.symbol)
+    && tree.symbol.isStable
+    && !definitions.isByNameParamType(tree.tpe)
+    && !tree.symbol.hasVolatileType // TODO SPEC: not required by spec
   )
 
   /** Is `tree`'s type volatile? (Ignored if its symbol has the @uncheckedStable annotation.)
@@ -201,7 +208,7 @@ abstract class TreeInfo {
       }
       def isWarnableSymbol = {
         val sym = tree.symbol
-        (sym == null) || !(sym.isModule || sym.isLazy) || {
+        (sym == null) || !(sym.isModule || sym.isLazy || definitions.isByNameParamType(sym.tpe_*)) || {
           debuglog("'Pure' but side-effecting expression in statement position: " + tree)
           false
         }
@@ -481,7 +488,7 @@ abstract class TreeInfo {
   }
 
   object WildcardStarArg {
-    def unapply(tree: Typed): Option[Tree] = tree match {
+    def unapply(tree: Tree): Option[Tree] = tree match {
       case Typed(expr, Ident(tpnme.WILDCARD_STAR)) => Some(expr)
       case _                                       => None
     }
@@ -553,6 +560,12 @@ abstract class TreeInfo {
     })
   )
 
+  /** Is this CaseDef synthetically generated, e.g. by `MatchTranslation.translateTry`? */
+  def isSyntheticCase(cdef: CaseDef) = cdef.pat.exists {
+    case dt: DefTree => dt.symbol.isSynthetic
+    case _           => false
+  }
+
   /** Is this pattern node a catch-all or type-test pattern? */
   def isCatchCase(cdef: CaseDef) = cdef match {
     case CaseDef(Typed(Ident(nme.WILDCARD), tpt), EmptyTree, _) =>
@@ -615,11 +628,12 @@ abstract class TreeInfo {
    * case Extractor(a @ (b, c)) => 2
    * }}}
    */
-  def effectivePatternArity(args: List[Tree]): Int = (args.map(unbind) match {
+  def effectivePatternArity(args: List[Tree]): Int = flattenedPatternArgs(args).length
+
+  def flattenedPatternArgs(args: List[Tree]): List[Tree] = args map unbind match {
     case Apply(fun, xs) :: Nil if isTupleSymbol(fun.symbol) => xs
     case xs                                                 => xs
-  }).length
-
+  }
 
   // used in the symbols for labeldefs and valdefs emitted by the pattern matcher
   // tailcalls, cps,... use this flag combination to detect translated matches
@@ -757,6 +771,17 @@ abstract class TreeInfo {
 
     def unapply(tree: Tree): Option[(Tree, List[Tree], List[List[Tree]])] =
       unapply(dissectApplied(tree))
+  }
+
+  /** Locates the synthetic Apply node corresponding to an extractor's call to
+   *  unapply (unwrapping nested Applies) and returns the fun part of that Apply.
+   */
+  object Unapplied {
+    def unapply(tree: Tree): Option[Tree] = tree match {
+      case Apply(fun, Ident(nme.SELECTOR_DUMMY) :: Nil) => Some(fun)
+      case Apply(fun, _)                                => unapply(fun)
+      case _                                            => None
+    }
   }
 
   /** Is this file the body of a compilation unit which should not
