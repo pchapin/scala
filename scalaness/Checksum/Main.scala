@@ -163,6 +163,7 @@ object Main {
    */
                  
   def getChecksummer(size: UInt16, checksumType: MetaType[UInt32]) = {
+  
     @ModuleType("""{}
                  < checksumType <: UInt32; size: UInt16 >
                  { ; compute_checksum(data: Array[UInt8]): checksumType }""")
@@ -186,7 +187,33 @@ object Main {
    */ 
   def main(args: Array[String]) {
   
-    
+    val MesgT = new TypeAbbreviation("""{}
+                 < checksumType <: UInt32; size: UInt16 >
+                 { startPeriodic(period: UInt32): Void,
+                   compute_checksum(data: Array[UInt8]): checksumType;
+                   fired(): Void,
+                   booted(): Void }""",List())
+                   
+    val FormT = new TypeAbbreviation("""{ checksumType <: UInt32 }
+                     <;>
+                     { compute_checksum(data: Array[UInt8]): checksumType,
+                       startPeriodic(period: UInt32): Void;
+                       booted(): Void,
+                       fired(): Void }""",List())
+                       
+    val CheckT = new TypeAbbreviation("""{ checksumType <: UInt32 }
+                 <;>
+                 { ; compute_checksum(data: Array[UInt8]): checksumType }""",List())
+                      
+    val WireT = new TypeAbbreviation("""{ checksumType <: UInt32 }
+                 <;>
+                 { startPeriodic(period: UInt32): Void; 
+                   booted(): Void,
+                   fired(): Void  }""",List())
+                   
+    val ResultT = new TypeAbbreviation("""{ checksumType <: UInt32 }
+                     <;>
+                     { ; }""",List())
 
     def getChecksumType(args: Array[String]) = {
       args(0).toInt match {
@@ -216,38 +243,21 @@ object Main {
       val desiredChecksumType = getChecksumType(args)
       val desiredSize = getSize(args)
       
-      @ModuleType("""{}
-                 < checksumType <: UInt32; size: UInt16 >
-                 { startPeriodic(period: UInt32): Void,
-                   compute_checksum(data: Array[UInt8]): checksumType;
-                   fired(): Void,
-                   booted(): Void }""")
+      @TypeAbbr(MesgT)
       val MessageFormatter = new MessageFormatterC
 
-      @ModuleType("""{ checksumType <: UInt32 }
-                     <;>
-                     { compute_checksum(data: Array[UInt8]): checksumType,
-                       startPeriodic(period: UInt32): Void;
-                       booted(): Void,
-                       fired(): Void }""")
+      @TypeAbbr(FormT)
       val formattingModule = MessageFormatter.instantiate(desiredSize, desiredChecksumType)                 
                  
-      @ModuleType("""{ checksumType <: UInt32 }
-                 <;>
-                 { ; compute_checksum(data: Array[UInt8]): checksumType }""")
+      @TypeAbbr(CheckT)
       val checkingModule = getChecksummer(desiredSize, desiredChecksumType)
       
-      @ModuleType("""{ checksumType <: UInt32 }
-                 <;>
-                 { startPeriodic(period: UInt32): Void; 
-                   booted(): Void,
-                   fired(): Void  }""")
+      @TypeAbbr(WireT)
       val wireModule = formattingModule +> checkingModule
-            
-      @ModuleType("""{ checksumType <: UInt32 }
-                     <;>
-                     { ; }""")
+      
+      @TypeAbbr(ResultT)
       val resultModule = LibraryIC +> formattingModule +> checkingModule +> LibraryEC
+      
       resultModule.image()
 
     }

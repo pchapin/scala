@@ -127,34 +127,40 @@ object Main {
     @ModuleType(
       """{}< addrT <: UInt32; >{ ;
            radio(message: MessageType{src: addrT, dest: addrT, data: Array[UInt8,64]}): ErrorT}""") rawRadioC: RadioC) = {
+           
+    val SendT = new TypeAbbreviation("""{}
+                   < addrT <: UInt32; >
+                   { radio(message: MesgType): ErrorT;
+                     send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT }""",
+                     List("MesgType"))
+    val ScodeT = new TypeAbbreviation("""{ addrT <: UInt32 }<;>{
+                     ;
+                     send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT}""", List())
+    val NodeT = new TypeAbbreviation("""{}
+                   < addrT <: UInt32; self: UInt32, neighbor: UInt32 >
+                   { send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT;
+                     main(): ErrorT }""", List())
+    val McodeT = new TypeAbbreviation("""{ addrT <: UInt32 }
+                   <;>
+                   { send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT;
+                     main(): ErrorT}""",List())
 
     val addrt: MetaType[UInt32] =
       if (nmax < 256) new MetaType[UInt32](MininessTypes.UInt8)
         else new MetaType[UInt32](MininessTypes.UInt16)
 
-    @ModuleType("""{}
-                   < addrT <: UInt32; >
-                   { radio(message: MessageType{src: addrT, dest: addrT, data: Array[UInt8,64]}): ErrorT;
-                     send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT }""")
+    @TypeAbbr(SendT.parameterize(List("MessageType{src: addrT, dest: addrT, data: Array[UInt8,64]}")))
     val rawSendC = new SendC
     
 
-    @ModuleType("""{ addrT <: UInt32 }<;>{
-                     ;
-                     send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT}""")
+    @TypeAbbr(ScodeT)
     val scode = (rawSendC.instantiate(addrt)) +> rawRadioC.instantiate(addrt)
     // Extra parentheses around first component above intentional. Does it work?
 
-    @ModuleType("""{}
-                   < addrT <: UInt32; self: UInt32, neighbor: UInt32 >
-                   { send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT;
-                     main(): ErrorT }""")
+    @TypeAbbr(NodeT)
     val rawNodeC = new NodeC
 
-    @ModuleType("""{ addrT <: UInt32 }
-                   <;>
-                   { send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT;
-                     main(): ErrorT}""")
+    @TypeAbbr(McodeT)
     val mcode = rawNodeC.instantiate(addrt, self, neighbor)
 
     (mcode +> scode).image

@@ -2143,7 +2143,8 @@ trait Typers extends Adaptations with Tags with edu.uvm.scalaness.ScalanessTyper
           for (i <- 1 until typeAbbreviationAnnotations(0).args(0).children(1).children.length) {
             val tempString = if (!((typeAbbreviationAnnotations(0).args(0).children(1).children(i).children.length > 0))) {
                                typeAbbreviationAnnotations(0).args(0).children(1).children(i).toString
-                             } else {
+                             } // HERE BUT AN ELSE IF, SO THAT WE CAN SEE IF IT IS A TYPE ABBREVIATION, then return the abbreviation .getFullType as tempstring 
+                             else {
                                val tempSymbolSingle = SingleType(NoPrefix,
                                  typeAbbreviationAnnotations(0).args(0).children(1).children(i).children(0).symbol)
                                val newTypeAbbreviation = tempSymbolSingle.typeAbbreviation match {
