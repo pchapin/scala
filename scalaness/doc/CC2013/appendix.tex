@@ -1,0 +1,217 @@
+\section*{Appendix A: Scalaness Code Sample}
+
+This code sample defines and creates two modules, one that knows how to compute checksums and
+another that formats messages and calculates a checksum on them. These two modules are
+parameterized by the size of the message block to use and by the type used to hold the checksum.
+A special Library component is defined that wraps the TinyOS libraries, specifically the
+\tt{MainC} component and a Timer. Upon booting the program formats a message every second.
+
+{\scriptsize
+\begin{verbatim}
+//-----------------------------------------------------------------------
+// FILE    : Main.scala
+// SUBJECT : The main object for the Scalaness Checksum sample.
+//-----------------------------------------------------------------------
+object Main {
+
+  import edu.uvm.mininess._
+  import edu.uvm.scalaness._
+  import LiftableTypes._
+
+  // The Scalaness representation of the nesC Library.
+  @ModuleType("""{}
+                 <;>
+                 { booted(): Void,
+                   fired(): Void;
+                   startPeriodic(period: UInt32): Void }""")
+  object LibraryC extends NesTModule {
+    external("LibraryC.nc")
+  }
+
+  // A component for computing checksums.
+  @ModuleType("""{ }
+                 <checksumType <: UInt32; size : UInt16> 
+                 { ; compute_checksum(data: Array[UInt8]): checksumType }""")
+  class ChecksumC extends NesTModule {
+    var checksumType : Metatype[LiftableType] = _
+    var size : LiftableType = _
+    def instantiate(size: LiftableType, checksumType: MetaType[LiftableType])
+       { val result = new ChecksumC; 
+         result.size = size; 
+         result.checksumType = checksumType; 
+         result }
+    "ChecksumC.nt"
+  }
+
+  // A component for creating messages.
+  @ModuleType("""{}
+                 <checksumType <: UInt32; size : UInt16>
+                 { compute_checksum(data: Array[UInt8]): checksumType,
+                   startPeriodic(period: UInt32): Void;
+                   booted(): Void,
+                   fired(): Void }""")
+  class MessageFormatterC extends NesTModule {
+    var checksumType : Metatype[LiftableType] = _
+    var size : LiftableType = _
+    def instantiate(size: LiftableType, checksumType: MetaType[LiftableType])
+       { val result = new ChecksumC; 
+         result.size = size; 
+         result.checksumType = checksumType; 
+         result }
+    "MessageFormatterC.nt"
+  }
+
+  /**
+   * The following method returns a fully instantiated nesT component for 
+   * computing checksums. The precise component created depends on runtime 
+   * information.
+   *
+   * @param size The size of the data block the component will process.
+   * @checksumType The type used for the final checksum.
+   */
+  @ModuleType("""{ checksumType <: UInt32 }
+                 <;>
+                 { ; compute_checksum(data: Array[UInt8]): checksumType }""")
+  def getChecksummer(size: UInt16, checksumType: MetaType[UInt32]) = {
+    // Arbitrary computation...
+    (new ChecksumC).instantiate(size, checksumType)
+  }
+    
+  /**
+   * The main method obtains configuration information from the command line 
+   * and composes the final program accordingly.
+   * 
+   */ 
+  def main(args: Array[String]) {
+
+    def getChecksumType(args: Array[String]) = {
+      args(0).toInt match {
+        case  8 => 
+          println("Selecting 8 bit checksums")   
+          new MetaType[UInt32](NesTTypes.UInt8)
+        
+        case 16 =>
+          println("Selecting 16 bit checksums") 
+          new MetaType[UInt32](NesTTypes.UInt16)
+
+        case 32 =>
+          println("Selecting 32 bit checksums")
+          new MetaType[UInt32](NesTTypes.UInt32)
+      }
+    }
+
+    def getSize(args: Array[String]) = {
+      val size = args(1).toInt
+      println(s"Selecting $size byte message blocks")
+      new UInt16(size)
+    }
+
+    if (args.length != 2) println("Usage: Main checksum_bit_length block_size")
+    else {
+      val desiredChecksumType = getChecksumType(args)
+      val desiredSize = getSize(args)
+
+      @ModuleType("""{checksumType <: UInt32}
+                     <;>
+                     { compute_checksum(data: Array[UInt8]): checksumType,
+                       startPeriodic(period: UInt32): Void;
+                       booted(): Void,
+                       fired(): Void }""")
+      val formattingModule =
+        (new MessageFormatterC).instantiate(desiredSize, desiredChecksumType)
+
+      @ModuleType("""{checksumType <: UInt32}
+                     <;>
+                     { ; }""")
+      val resultModule =
+        LibraryC +>  
+        formattingModule +> 
+        getChecksummer(desiredSize, desiredChecksumType)
+
+      resultModule.image()
+    }
+  }   
+}
+\end{verbatim}       
+}
+
+\section*{Appendix B: nesT Code Sample}
+
+Here is some of the nesT source code associated with the preceding Scalaness program. Note that
+module definitions refer to type and value parameters declared in Scalaness code.
+
+{\scriptsize
+\begin{verbatim}
+//-----------------------------------------------------------------------
+// FILE    : MessageFormatterC.nt
+// SUBJECT : Formats messages for checksumming
+//-----------------------------------------------------------------------
+// Type  parameter: checksumType: The type used to hold a checksum.
+// Value parameter: size: The size of the data array to process.
+
+// Main program of the node.
+module MessageFormatterC {
+    
+    // Convenience feature. Library interface automatically "unwrapped."
+    uses interface Boot;
+    
+    import command checksumType compute_checksum( uint8_t data[] );
+
+    // Current can't unwrap the Timer interface automatically.
+    import command void startPeriodic( uint32_t period );
+    export command void fired( );
+}
+implementation {
+    
+    // Unwrapping converts this event to appropriate command.
+    event void Boot.booted( )
+    {
+        // Casting from int16_t to uint32_t explicitly enabled 
+        // in configuration.
+        call startPeriodic( (uint32_t)1000 );
+    }
+    
+    // Called once per second.
+    command void fired( )
+    {
+        uint8_t raw[size];
+        int16_t i;
+        checksumType checksum;
+        
+        // Construct message.
+        for( i = 0; i < (int16_t)size; ++i ) {
+            raw[i] = (i & 0x00FF);
+        }
+        checksum = call compute_checksum( raw );
+        
+        // Other program components used to send message with checksum.
+    }    
+}
+//-----------------------------------------------------------------------
+// FILE    : ChecksumC.nt
+// SUBJECT : Checksum computation code
+//-----------------------------------------------------------------------
+// Type  parameter: checksumType: The type used to hold a checksum.
+// Value parameter: size: The size of the data array to process.
+
+module ChecksumC {
+    export command checksumType compute_checksum(uint8_t data[]);
+}
+implementation {
+   
+    // Computes a simple checksum over the data array.
+    command checksumType compute_checksum(uint8_t data[])
+    {
+        checksumType sum = 0;
+        int16_t i;
+        
+        // Casting from uint16_t to int16_t is explicitly enabled 
+        // in configuration.
+        for( i = 0; i < (int16_t)size; ++i ) {
+            sum += data[i];
+        }
+        return sum;
+    }   
+}
+\end{verbatim}
+}

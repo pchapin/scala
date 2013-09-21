@@ -1,0 +1,862 @@
+%
+% Packages
+%
+%\usepackage{a4wide}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{conject}{Conjecture}[section]
+\newtheorem{exmp}{Example}[section]
+\usepackage{times}
+\usepackage{amsfonts}
+\usepackage{subfigure}
+\usepackage{amsmath} %xrightarrow
+\usepackage{amssymb} %leadsto rightsquigarrow rhd mathbb Join Subset
+\usepackage{amsbsy} % bold greek letter
+\usepackage{amstext}
+%\usepackage{amsthm} %proof -- llncs is not happy
+\usepackage{harpoon}
+\usepackage{array}
+\usepackage{latexsym}
+\usepackage[T1]{fontenc}
+\usepackage[english]{fp-autoref}
+\usepackage{fp-frame}
+\usepackage[latin1]{inputenc}
+\usepackage{mathpartir}
+\usepackage{moreverb}% TEMPORARY
+\usepackage{stmaryrd}
+\usepackage{url}
+\usepackage{epsfig}
+\usepackage{alltt}
+% \usepackage{slashbox}
+\usepackage{mathrsfs} %mathscr
+\usepackage{bbm}  %mathbbmss
+\usepackage{wasysym} %rhd, RHD
+\usepackage{protosem}
+\usepackage{setspace}
+\usepackage{ifthen}
+\usepackage{boxedminipage} 
+\usepackage{listings}
+\usepackage{color}
+\PassOptionsToPackage{usenames,dvipsnames}{xcolor} 
+\usepackage{xcolor}
+\usepackage{fancyvrb}
+\usepackage{graphics}
+%\usepackage{atbeginend}
+
+
+%\usepackage{mathtools} % newtagform
+%\usepackage{listings}
+
+%\lstset{%
+%  basicstyle=\ttfamily,%
+%%  backgroundcolor=\color{codebackground},%
+%  moredelim=**[is][\bfseries]{|}{|},%
+%  moredelim=**[is][\itshape]{!}{!}%
+%}
+
+
+\def\figsize{\small} % use in figures to set the size of the figures
+
+\def\TirName#1{\text{\sc #1}}
+
+%\newcommand{\ttt}[1]{\texttt{#1}}
+\newcommand{\ttt}[1]{{\tt #1}}
+\newcommand{\tcipher}[1]{\ttt{cipher}[#1]}
+\newcommand{\encrypt}[2]{\ttt{|}#1\ttt{|}\ttt{#2}}
+\newcommand{\decrypt}[5]{\encrypt{\ttt{#1}}{#2} \,\ttt{=}\, #3\ttt{?}#4\ttt{:}#5}
+
+\newcommand{\newterm}[1]{\textit{#1}}
+\newcommand{\preprocess}{\mathrm{rstar}}
+
+
+\newcommand{\compute}{\leadsto}
+\newcommand{\tcompute}[1]{\stackrel{#1}\leadsto}
+\newcommand{\codebase}{\mathit{CB}}
+\newcommand{\nextt}{\mathit{next}}
+\newcommand{\addt}{\mathit{add}}
+\newcommand{\nesT}{\text{nesT}}
+
+\newcommand{\locmesg}{\textit{MSG}}
+\newcommand{\rcvflag}{\textit{RCV\_MODE}}
+\newcommand{\taskmesg}{\ttt{sys\_rcv\_task}}
+\newcommand{\signalmesg}{\ttt{user\_rcv}}
+\newcommand{\true}{\text{true}}
+\newcommand{\false}{\text{false}}
+\newcommand{\rcv}{\mathrm{rcv}}
+\newcommand{\comp}{\mathrm{comp}}
+\newcommand{\netreduce}{\rightrightarrows}
+\newcommand{\neighbors}{\mathcal{L}}
+\newcommand{\aether}{\mathcal{A}}
+\newcommand{\nodes}{\mathcal{N}}
+\newcommand{\nid}{\textit{id}}
+\newcommand{\setdefn}[1]{\{#1\}}
+
+\newcommand{\code}[1]{\langle #1 \rangle}
+\newcommand{\escape}[1]{\,\tilde{ }#1}
+\newcommand{\lift}[1]{\mathrm{lift}\ #1}
+\newcommand{\run}[1]{\kwrun\ #1}
+\newcommand{\labs}[2]{\lambda #1 . #2}
+\newcommand{\codet}[2]{\langle #1,#2\rangle}
+\newcommand{\ereft}[1]{\mathrm{ref}\ #1}
+\newcommand{\eref}[1]{\mathrm{ref}\ #1}
+\newcommand{\eassign}[2]{#1 \assign\, #2}
+\newcommand{\deref}[1]{\,!#1}
+\newcommand{\elet}[3]{\mathrm{let\ }#1 = #2 \ \mathrm{in}\ #3}
+\newcommand{\hublab}{\mathit{h}}
+\newcommand{\motelab}{\mathit{m}}
+\newcommand{\tjudge}[4]{#2 \vdash_{#1} #3 : #4}
+%\newcommand{\htjudge}[3]{#1 \vdash_\hublab #2 : #3}
+\newcommand{\mtjudge}[3]{#1 \vdash_\motelab #2 : #3}
+\newcommand{\const}{\mathbf{c}}
+
+
+\def\nocaptionrule{\sp} % to make llncs happy
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% general symbols
+
+\def\lb{\langle}
+\def\rb{\rangle}
+\def\bottom{\bot}
+\def\restr{\lceil}
+
+\def\dot{.}
+\def\bangsign{!}
+
+\def\sp{\hspace*{6mm}}
+\def\smallp{\sp}
+\def\brs#1{\llbracket\, #1 \,\rrbracket}
+\def\union#1{\llbracket\, #1 \,\rrbracket}
+\def\arr#1{\textup{\textbf{[}}\mskip -.5mu\textup{\textbf{|}}\, #1 \,\textup{\textbf{|}}\mskip -.5 mu\textup{\textbf{]}}}
+\def\blok#1{\textbf{(}#1\textbf{)}}
+\def\margs#1{\mathrm{<}#1\mathrm{>}}
+\def\neight{n^{8}}
+\def\nsixtn{n^{16}}
+
+\def\castto#1#2{(#1)\,#2}
+\def\docastto#1#2{\fundef{docast}(#1,#2)}
+\newcommand{\docast}[3]{\fundef{docast}(#1,#2,#3)}
+
+\def\df{\ \stackrel{\rm def}{=}\ }
+\def\abbrv{\ \stackrel{\rm encoded}{=}\ }
+
+\def\defassign{::=}
+\def\assign{\texttt{:=}}
+\def\fundef#1{\mathit{#1}}
+
+
+\def\sequiv{\ {\tt =_s}\ }
+\def\splus{\ {\tt +}\ }
+\def\sminus{\ {\tt -}\ }
+\def\sgeq{\ {\tt \geq_s}\ }
+\def\sleq{\ {\tt \leq_s}\ }
+
+\def\soutside{\ {\tt <_s}\ }
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Set related
+
+\def\dom{{\rm Dom}}
+\def\ran{{\rm Ran}}
+%\emptyset predefined
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Mapping related
+
+
+\def\mapmerge{\uplus}
+\def\maploosemerge{\curlyveedownarrow}
+\def\maprightmerge{\rhd}
+\def\mapsub#1#2#3{#1 \mid^{#2}_{#3}}
+\def\mapminus{\backslash}
+\def\mapcompose{\circ}
+\def\mapidx#1{{(\mskip -2.5mu #1\mskip -2.5mu)}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Sequence related
+
+\def\seqoccur#1{(#1)}
+\def\emptyseq{[\ ]}
+\def\seqconcat{\texttt{@}}
+\def\seqelmconcat{\texttt{:\!:}} 
+\def\seqshowup{\propto}
+\def\seqsize#1{\mid#1\mid}
+\def\seqtop#1{\ulcorner #1 \urcorner}
+\def\seqend#1{\llcorner #1 \lrcorner}
+\def\seqpick#1#2#3{#1 \mid\ ^{#2}_{#3}}
+
+
+\def\emptyped{\epsilon}
+
+\def\precond{\mathbf{precondition}}
+
+
+\def\slm{\mathit{SOL}}
+
+
+\newcommand{\consno}[3]{\mathbf{\thelemma.#1.(#2)#3}}
+
+
+\def\transmerge{\circ}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% calculus source-level keywords and symbols
+\newcommand{\ttbf}[1]{\mbox{\bf \texttt{#1}}} % new version to match lstlisting
+%\newcommand{\ttbf}[1]{\texttt{\bf #1}} % original version - SS
+\newcommand{\kwreturn}{\ttbf{return}}
+\newcommand{\kwif}{\ttbf{if}}
+\newcommand{\kwthen}{\ttbf{then}}
+\newcommand{\kwelse}{\ttbf{else}}
+\newcommand{\kwwhile}{\ttbf{while}}
+\newcommand{\kwpost}{\bf{post}}
+\newcommand{\kwtlet}{\ttbf{typedef}}
+\newcommand{\kwtypet}{\ttbf{type}}
+\newcommand{\kwstar}{\texttt{*}}
+\newcommand{\kwarrplus}{\oplus}
+
+\newcommand{\sealer}{\blacksquare}
+
+
+\newcommand{\kwmalloc}{\ttbf{alloc}}
+\newcommand{\kwsizeof}{\ttbf{sizeof}}
+\newcommand{\kwfree}{\ttbf{free}}
+\newcommand{\kwcustomize}{\ttbf{customize}}
+\newcommand{\kwwith}{\ttbf{with}}
+\newcommand{\kwas}{\ttbf{as}}
+\newcommand{\kwself}{\ttbf{self}}
+\newcommand{\kwsolidify}{\ttbf{solidify}}
+
+
+\newcommand{\kwprovides}{\ttbf{provides}}
+\newcommand{\kwuses}{\ttbf{uses}}
+\newcommand{\kwimpl}{\ttbf{implementation}}
+\newcommand{\kwcomponents}{\ttbf{components}}
+
+\newcommand{\kwunion}{\ttbf{union}}
+\newcommand{\kwmodule}{\ttbf{generic\ module}}
+\newcommand{\kwconfig}{\ttbf{generic\ configuration}}
+\newcommand{\kwinterface}{\ttbf{interface}}
+\newcommand{\kwevent}{\ttbf{event}}
+\newcommand{\kwcommand}{\ttbf{command}}
+\newcommand{\kwstruct}{\ttbf{struct}}
+\newcommand{\kwtypedef}{\ttbf{typedef}}
+
+\newcommand{\kwrun}{\textbf{\bf validate}}
+\newcommand{\kwat}{\ttbf{at}}
+\newcommand{\kwsquash}{\ttbf{squash}}
+\newcommand{\kwinsert}{\mbox{$\sim$}}
+
+\newcommand{\tuint}{\ttbf{uint}}
+\newcommand{\tvoid}{\ttbf{void}}
+\newcommand{\tstruct}{\ttbf{struct}}
+\newcommand{\stau}{s\tau}
+\newcommand{\mtau}{\mu\mskip -.25mu \tau}
+\newcommand{\tprog}{{\bf prog}}
+\newcommand{\tcmd}{{\bf cmd}}
+
+
+
+\newcommand{\fintt}{\textbf{uint}}
+\newcommand{\fintone}{\textbf{uint8}}
+\newcommand{\finttwo}{\textbf{uint16}}
+
+\newcommand{\intt}{\bf{uint}}
+\newcommand{\inthalf}{\ttbf{uint4}}
+\newcommand{\intone}{\bf{uint8}}
+\newcommand{\inttwo}{\bf{uint16}}
+\newcommand{\intfour}{\ttbf{uint32}}
+\newcommand{\inteight}{\ttbf{uint64}}
+\newcommand{\bit}{\ttbf{bit}}
+
+\newcommand{\kwsend}{\ttbf{send}}
+\newcommand{\kwrcv}{\ttbf{rcv}}
+
+
+\def\wireto{\ \smile\ }
+%\def\subsyn{\ {\tt <:}\ }
+
+\def\actframe#1{\varobslash #1 \varoslash} % \sim doesn't look good next to \compute
+
+
+%\def\memory{\mathcal{M} }
+\newcommand{\flash}{F}
+\newcommand{\blockmem}{M}
+\newcommand{\sblockmem}{\mathcal{S}}
+%\newcommand{\stack}{\mathcal{S}}
+
+\newcommand{\fcompname}{\textit{f}}
+
+\newcommand{\offset}{\delta}
+\newcommand{\dsize}{\textit{z}}
+\newcommand{\bytedata}{b}
+\newcommand{\bytearray}{\mathcal{B}}
+\def\blockno{m}
+\newcommand{\smd}{\mathcal{D}}
+\newcommand{\lens}{\nearrow}
+\newcommand{\binarize}{\searrow}
+
+
+\def\undefv{\bf{uninit}}
+\def\kwunallocated{\textrm{undefined}}
+\def\stacktag{\mathsf{stack}}
+\def\globaltag{\mathsf{heap}}
+\def\dynamictag{\mathsf{dynamic}}
+\def\stacktop{\texttt{:\!\!:} }
+\def\envletter{E}
+\def\lenvletter{L}
+\def\memcxt{\mathbf{M}}
+\def\lbr{[\mskip -2.8mu [} % evaluation context brackets
+\def\rbr{] \mskip -2.8mu ]}
+\def\lset{\{} % mathematical set brackets
+\def\rset{\}}
+\def\lc{\textup{\textbf{\{}}} % set brackets used in code
+\def\rc{\textup{\textbf{\}}}}
+%\def\mem{M}
+\def\mem{?}
+\def\mtmemcxt{\textrm{--}}
+\def\rv{r}
+\def\env#1#2{\envletter_{#1}[#2]}
+\def\lenv#1#2{\lenvletter_{#1}[#2]}
+% \def\renvletter{\mathbf{R}}
+% \def\renv#1#2{\mathbf{R}_{#1}\mathbf{[[} #2 \mathbf{]]}}
+% \def\lenvletter{\mathbf{L}}
+% \def\lenv#1#2{\mathbf{L}_{#1}\mathbf{[[} #2 \mathbf{]]}}
+\def\tsize#1{| #1 |}
+\def\codesize#1{|| #1 ||}
+\def\VAR{\textit{x} }
+
+\def\loc{\textit{loc}}
+\def\fetch{\textit{fetch}}
+\def\t{\tau }
+\def\s{\varsigma}
+
+\newcommand{\tlet}[3]{\kwtlet\ #1 \subtype #2 = #3}
+\newcommand{\xlet}[3]{#1\ #2\ =\ #3}
+\newcommand{\decl}{d}
+\newcommand{\decls}{\vect{\decl};}
+\newcommand{\subtype}{\preccurlyeq}
+\newcommand{\typet}[1]{\kwtypet[#1]}
+\newcommand{\texist}[2]{\exists #1 . #2}
+
+\newcommand{\binlocaldefs}{\textit{BM}}
+\newcommand{\binvar}{\textit{BV}}
+\newcommand{\binfun}{\textit{BF}}
+\newcommand{\bincode}{\textit{BC}}
+
+
+\def\t{\tau }
+
+
+
+\newcommand{\program}{\textit{PR}}
+
+\newcommand{\nescevents}{\textit{I}}
+\newcommand{\nesccommands}{\textit{E}}
+
+%\newcommand{\nescprovides}{\textit{ME}}
+\newcommand{\valueparts}{\overrightarrow{ \rv \margs{\overrightarrow{\rv}}}}
+\def\modcomp{\boxplus}
+\newcommand{\modwire}{\looparrowright}
+\newcommand{\wirings}{\textit{W}}
+\newcommand{\modulev}{\textit{MV}}
+
+%\newcommand{\fid}{\textit{f}}
+\newcommand{\localname}{\textit{ln}}
+
+
+\newcommand{\tpdecl}{\textit{T}}
+\newcommand{\vpdecl}{\textit{V}}
+\newcommand{\pdecl}{\textit{MP}}
+\newcommand{\treal}{\textit{TR}}
+\newcommand{\vreal}{\textit{VR}}
+\newcommand{\atomdecl}{\textit{AM}}
+\newcommand{\compdecl}{\textit{CM}}
+
+\newcommand{\idecl}{\textit{ITF}}
+\newcommand{\cdecl}{\textit{M}}
+\newcommand{\fdecl}{\textit{F}}
+\newcommand{\imports}{\iota}
+\newcommand{\parts}{\textit{P}}
+\newcommand{\exports}{\xi}
+\newcommand{\exportsty}{\varepsilon}
+\newcommand{\cname}{\textsf{mn}}
+\newcommand{\iname}{\textsf{itfn}}
+\newcommand{\structname}{\textsf{stn}}
+\newcommand{\TVAR}{\textit{t}}
+
+\newcommand{\fname}{\textsf{f}}
+\newcommand{\fdname}{\textsf{l}}
+%\newcommand{\mbody}{\textit{MB}}
+\newcommand{\fbody}{\textit{FB}}
+\newcommand{\op}{\ \textit{op}\ }
+\newcommand{\cmd}{\textit{cmd}}
+\newcommand{\prog}{\textit{prog}}
+\newcommand{\cmds}{\textit{cmds}}
+\newcommand{\lval}{\textit{lval}}
+\newcommand{\hexp}{\textit{eh}}
+
+\newcommand{\msort}{\textit{msort}}
+\newcommand{\mfdecl}{\textit{mfdecl}}
+\newcommand{\mcmd}{\textit{mcmd}}
+\newcommand{\mprog}{\textit{mprog}}
+\newcommand{\mexp}{\textit{me}}
+\newcommand{\mlval}{\textit{mlval}}
+
+\newcommand{\localfun}{\textit{lf}}
+\newcommand{\localvar}{\textit{lv}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% formats
+
+\newcommand{\codebox}[1]{
+\begin{center}
+\noindent\begin{minipage}[c]{\columnwidth} 
+\begin{center}
+\vskip 2ex
+\begin{tabular*}{\columnwidth}{c}\hline\end{tabular*}
+\vskip 1ex
+$
+\begin{array}{l}
+#1
+\end{array}
+$ 
+\vskip 1ex
+%\begin{tabular*}{\columnwidth}{c}\hline\end{tabular*}
+%\vskip 2ex
+\end{center}
+\end{minipage} 
+\end{center}
+\noindent
+}
+
+
+\newcommand{\figurebox}[1]{
+\begin{center}
+\noindent\begin{minipage}[c]{\columnwidth} 
+\begin{center}
+\vskip 2ex
+\begin{tabular*}{\columnwidth}{c}\hline\end{tabular*}
+\vskip 1ex
+#1
+\vskip 1ex
+\begin{tabular*}{\columnwidth}{c}\hline\end{tabular*}
+\vskip 2ex
+\end{center}
+\end{minipage} 
+\end{center}
+
+}
+
+
+\newcommand{\figureboxtwocol}[1]{
+\begin{center}
+\noindent\begin{minipage}[c]{\textwidth} 
+\begin{center}
+\vskip 2ex
+\begin{tabular*}{\textwidth}{c}\hline\end{tabular*}
+\vskip 1ex
+#1
+\vskip 1ex
+%\begin{tabular*}{\columnwidth}{c}\hline\end{tabular*}
+%\vskip 2ex
+\end{center}
+\end{minipage} 
+\end{center}
+
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% comments
+
+
+
+\long\def\snote#1{{\small \textbf{\textit{(#1 -- SS)}}}}
+\long\def\cnote#1{{\small \textbf{\textit{(*#1 -- Chris*)}}}}
+\long\def\dnote#1{{\small \ \ $\langle\langle\langle$\ \textbf{#1 -David}\
+    $\rangle\rangle\rangle$\ \ }}
+
+
+\long\def\omitthis#1{}
+\long\def\infloat#1{#1}
+\long\def\inlong#1{}
+\long\def\inshort#1{#1}
+%\def\nonotes{ % silence notes
+%\long\def\snote{\omitthis}
+%\long\def\dnote{\omitthis}
+%}
+
+
+\let\oldalign\align 
+\let\endoldalign\endalign 
+\expandafter\let\expandafter\oldalignstar
+  \csname align*\endcsname
+
+\expandafter\let\expandafter\endoldalignstar
+  \csname endalign*\endcsname
+
+
+\renewenvironment{align}{
+   \vskip -8ex
+   \vskip\baselineskip%
+   \ssp
+   \oldalign
+}
+{
+   \endoldalign
+   \vskip -2ex
+   \vskip\baselineskip%
+   \dsp \noindent
+}  
+
+\renewenvironment{align*}{
+   \vskip -8ex
+   \vskip\baselineskip%
+   \ssp
+   \oldalignstar
+}
+{
+   \endoldalignstar
+   \vskip -6ex
+   \vskip\baselineskip%
+   \dsp \noindent
+}  
+
+
+\newlength{\off}\setlength{\off}{2em}\newlength{\temp}
+
+\newlength{\laboff}\setlength{\laboff}{.5em}
+
+\newcounter{stepno}
+
+\newenvironment{pcode}[2][\arabic{stepno}:]{\setcounter{stepno}{0}
+
+        \paragraph{#2}\def\linelabel{#1}\begin{list}{}{\leftmargin\off\itemsep0pt
+
+        \topsep0pt\parsep0pt\partopsep0pt\labelsep0pt}}{\end{list}}
+
+\newcommand{\marg}[1][1em]{\end{list}\addtolength{\off}{#1}\begin{list}{}
+
+        {\leftmargin\off\itemsep0pt\topsep0pt\parsep0pt\partopsep0pt\labelsep0pt}}
+
+\newcommand{\step}[1][\linelabel]{\stepcounter{stepno}\settowidth{\temp}
+
+        {{\scriptsize#1}}\item[\hskip-\off\hskip\laboff{\scriptsize#1}\hskip-\laboff
+
+        \hskip-\temp\hskip\off]}
+        
+        
+\newcommand{\seq}[1]{\overrightarrow{#1}}
+\newcommand{\promote}{\ll}
+
+\newcommand{\vect}[1]{\overline{#1}}
+\newcommand{\tbindvec}[2]{\vect{#1} : \vect{#2}}
+\newcommand{\subtvec}[2]{\vect{#1} \subtype \vect{#2}}
+\newcommand{\defvec}[2]{\vect{#1} = \vect{#2}}
+\newcommand{\tdefvec}[3]{\vect{#1} : \vect{#2} = \vect{#3}}
+\newcommand{\mapvec}[2]{\vect{#1} \mapsto \vect{#2}}
+\newcommand{\ramvec}[3]{\vect{#1 : #2 = #3}}
+\newcommand{\rammapvec}[3]{\vect{#1 \mapsto \lb #2, #3 \rb}}
+\newcommand{\tmapvec}[2]{\vect{#1 \mapsto #2}}
+\newcommand{\subnvec}[2]{\vect{#1/#2}}
+\newcommand{\tasks}{P}
+\newcommand{\fv}{\text{fv}}
+\newcommand{\bootload}{\fundef{bootload}}
+\newcommand{\identifier}{\mathit{id}}
+\newcommand{\id}{\identifier}
+\newcommand{\instanceof}{\le}
+\newcommand{\subjudge}[3]{#1 \vdash #2 \subtype #3}
+\newcommand{\tenv}{G}
+\newcommand{\lvalue}{\ell e}
+\newcommand{\intaddr}[1]{\blockno^{#1}}
+\newcommand{\intstore}{\blockmem_{\mathbb{N}}}
+\newcommand{\bn}{\blockno}
+\newcommand{\bnv}[1]{\lfloor #1 \rfloor}
+\newcommand{\cval}[2]{\lfloor #1,#2 \rfloor}
+\newcommand{\ptr}[1]{\hat{#1}} % {\lfloor #1 \rfloor}
+\newcommand{\mv}{{\nu}}
+\newcommand{\anonfn}[2]{\mathbf{(}#1\mathbf{)} : #2}
+\newcommand{\nullp}{\bn^\undefv}
+\newcommand{\modty}{\fundef{sig}}
+\newcommand{\kwoffset}{\fundef{offset}}
+\newcommand{\bnoffset}[2]{\kwoffset(#1, #2)}
+\newcommand{\bnincr}[3]{#1 +_{\!#2} #3}
+\newcommand{\funalloc}{\fundef{alloc}}
+\newcommand{\arrayalloc}{\fundef{arrayalloc}}
+\newcommand{\structalloc}{\fundef{structalloc}}
+\newcommand{\lcompute}{\compute_\ell}
+\newcommand{\pluseq}{\rhd}
+\newcommand{\eite}[3]{\kwif\ (#1)\  #2\ \kwelse\ #3 }
+\newcommand{\ascript}{\fundef{ascript}}
+\newcommand{\ctype}[2]{(#1,#2)}
+\newcommand{\compatible}[2]{\mathit{compatible}(#1,#2)}
+\newcommand{\ser}[1]{\overset{\text{lift}}{\hookrightarrow}}
+%\newcommand{\ser}[1]{\overrightharp{flatten}}
+\newcommand{\serialize}{\mathrm{serialize}}
+\newcommand{\bm}{\blockmem}
+\newcommand{\codt}[1]{\llbracket #1 \rrbracket}
+\newcommand{\liftable}[1]{#1 : \mathrm{liftable}}
+\newcommand{\bootseq}[1]{\mathbf{boot}(#1)}
+\newcommand{\runseq}[1]{\mathbf{run}(#1)}
+
+
+\newtheorem{condition}{Condition}[section]
+%\newtheorem{definition}{Definition}[section]
+%\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{lemma}{Lemma}[section]
+\newtheorem{cor}{Corollary}[section]
+%\newtheorem{example}{Example}[section]
+
+%\newenvironment{proof}[1]{\noindent\textit{Proof.}\ #1}{\qed\medskip}
+
+\newenvironment{namerestate}[3]{
+\medskip
+\noindent #1 \ref{#2} (#3). \it
+}
+{
+\medskip
+}
+
+\newenvironment{restate}[2]{
+\medskip
+\noindent #1 \ref{#2}. \it
+}
+{
+\medskip
+}
+
+\newcommand{\defeq}{\triangleq}
+\newcommand{\interp}{\rho}
+\newcommand{\fjsec}{\text{FJ}_{\text{trace}}}
+\newcommand{\fjstack}{\text{FJ}_{\text{stack}}}
+\newcommand{\fjexn}{\text{FJ}_{\text{exn}}}
+\newcommand{\entails}{\Vdash}
+\newcommand{\satisfies}{\vdash}
+\newcommand{\gdesc}[1]{\text{\textit{#1}}}
+\def\squareforqed{\hbox{\rlap{$\sqcap$}$\sqcup$}}
+\def\qed{\ifmmode\squareforqed\else{\unskip\nobreak\hfil
+\penalty50\hskip1em\null\nobreak\hfil\squareforqed
+\parfillskip=0pt\finalhyphendemerits=0\endgraf}\fi}
+\newcommand{\fresh}[1]{#1 \text{ fresh}}
+\newcommand{\abstr}[1]{#1 \text{ abstract}}
+\newcommand{\Lb}{\left\{\!\!\right.}
+\newcommand{\Rb}{\left.\!\!\right\}}
+%\newcommand{\setdefn}[1]{\left\{#1\right\}}
+%\newcommand{\tt}[1]{\texttt{#1}}
+\renewcommand{\tt}[1]{\ensuremath{\mathtt{#1}}}
+\newcommand{\class}[3]{\tt{class\ #1\ extends\ #2\ \{#3 \}}}
+\newcommand{\gclass}[4]{\tt{class\ #1\langle #2\rangle\ extends\ #3\ \{#4 \}}}
+\newcommand{\gbounds}[2]{\ttvec{#1} <: {\ttvec{#2}}}
+\newcommand{\ttvec}[1]{{\tt{\bar{#1}}}}
+\newcommand{\tdecls}[2]{\ttvec{#1}\ \ttvec{#2}}
+\newcommand{\tdecl}[2]{\tt{#1}\ \tt{#2}}
+\newcommand{\fieldvec}[2]{\ttvec{#1}\ \ttvec{#2}}
+%\newcommand{\cname}[2]{\tt{#1}_{#2}}
+\newcommand{\super}{\tt{super}}
+\newcommand{\this}{\tt{this}}
+\newcommand{\return}[1]{\tt{return\ #1}}
+\newcommand{\gnew}[3]{\tt{new\ #1\langle#2\rangle(#3)}}
+\newcommand{\new}[3]{\tt{new\ #1(#2}}
+\newcommand{\init}[3]{\tt{#1(#2)\{ #3 \}}}
+\newcommand{\meth}[4]{\tt{#1\ #2(#3)\{ #4 \}}}
+\newcommand{\cast}[2]{\tt{(#1)#2}}
+\newcommand{\softlt}{\lessdot}
+\newcommand{\lt}{\tt{<:}}
+\newcommand{\treeltfin}{\preccurlyeq_{\text{fin}}}
+\newcommand{\treelt}{\preccurlyeq}
+\newcommand{\treesubtype}[2]{\tt{#1\, \treelt\, #2}}
+\newcommand{\nlt}{\tt{\nless:}}
+\newcommand{\hsubset}[2]{\tt{#1\, \treelt\, #2}}
+%\newcommand{\subtype}[2]{\tt{#1\, \lt\, #2}}
+\newcommand{\ssubtype}[2]{\tt{#1 \softlt #2}}
+\newcommand{\nsubtype}[2]{\tt{#1\ \nlt\ #2}}
+\newcommand{\object}{\tt{Object}}
+\newcommand{\fields}[1]{\mathit{fields}(\tt{#1})}
+\newcommand{\owner}[1]{\mathit{owner}(\tt{#1})}
+\newcommand{\effects}[1]{\mathit{effects}(\tt{#1})}
+\newcommand{\meths}{\mathit{meths}}
+%\newcommand{\sig}{\mathit{sig}}
+\newcommand{\mtype}[2]{\mathit{mtype}(\tt{#1}, \tt{#2})}
+\newcommand{\mbody}[2]{\mathit{mbody}(\tt{#1}, \tt{#2})}
+\newcommand{\nilvec}{\varnothing}
+\newcommand{\arrowt}[2]{\ttvec{#1}\rightarrow \tt{#2}}
+\newcommand{\arrowht}[3]{\ttvec{#1}\xrightarrow{\tt{#2}} \tt{#3}}
+\newcommand{\mut}[2]{\tt{\mu #1.#2}}
+\newcommand{\hcijudge}[5]{#1, #2, \tt{#3} \vdash_{W} \tt{#4} : \tt{#5}}
+\newcommand{\hcimjudge}[4]{#1, #2 \vdash_W \tt{#3} : \tt{#4}}
+\newcommand{\hciclassjudge}[3]{#1 \vdash_W \tt{#2} : #3}
+\newcommand{\hctjudge}[5]{#1, #2, \tt{#3} \vdash \tt{#4} : \tt{#5}}
+\newcommand{\hctclassjudge}[3]{#1 \vdash \tt{#2} : #3}
+\newcommand{\htjudge}[4]{#1,\tt{#2} \vdash \tt{#3} : \tt{#4}}
+\newcommand{\htmjudge}[4]{#1,#2 \vdash \tt{#3} : \tt{#4}}
+%\newcommand{\tjudge}[3]{#1 \vdash \tt{#2} : \tt{#3}}
+\newcommand{\absjudge}[1]{\tt{#1} \text{ is abstract}}
+%\newcommand{\absjudge}[1]{\vdash_{\mathit{abstract}} \tt{#1}}
+%\newcommand{\absjudgetl}[3]{\tt{#1} \vdash_{\mathit{abstract}} \tt{#2},#3}
+\newcommand{\tnames}{\mathcal{T}}
+\newcommand{\tti}[2]{\tt{#1}_{\text{$#2$}}}
+\newcommand{\select}[2]{\tt{#1.#2}}
+\newcommand{\send}[3]{\tt{#1.#2(#3)}}
+\newcommand{\mutate}[2]{\tt{#1 = #2}}
+\newcommand{\ok}[1]{#1\ \tt{OK}}
+\newcommand{\okin}[2]{#1\ \tt{OK\ IN\ } #2}
+\newcommand{\tbind}[2]{\tt{#1} : \tt{#2}}
+\newcommand{\acl}{\mathcal{A}}
+\newcommand{\chk}[1]{\tt{chk[#1]}}
+\newcommand{\ev}[1]{\tt{ev[#1]}}
+\newcommand{\sclass}[2]{\tt{#1\langle#2\rangle}}
+\newcommand{\ft}{\tt{\sqsubseteq}}
+\newcommand{\flowsto}[2]{\tt{#1 \sqsubseteq #2}}
+\newcommand{\enumobj}[4]{#4^{#1 \in #2,\ldots,#3}}
+\newcommand{\setobj}[3]{#3^{#1 \in #2}}
+\newcommand{\bindvec}[2]{\ttvec{#1} : \ttvec{#2}}
+\newcommand{\tbinds}[2]{\ttvec{#1} : \ttvec{#2}}
+\newcommand{\classtv}[2]{\tt{[#1\,#2]}}
+%\newcommand{\classt}[5]{\tt{[\tdecls{#2}{#1}\ \, \tdecls{#4}{#3}\ \,#5]}}
+\newcommand{\classt}[5]{\tt{[\bindvec{#1}{#2}\  \bindvec{#3}{#4}\ #5]}}
+\newcommand{\rclass}[2]{\tt{#1\ #2}}
+\newcommand{\tclass}[1]{\tt{[#1]}}
+\newcommand{\existsC}[2]{\exists \tt{#1} . #2}
+\newcommand{\sscheme}[3]{\tt{\forall #1}[#2]\tt{ . #3}}
+\newcommand{\ttscheme}[2]{\tt{\forall #1 . #2}}
+%\newcommand{\subn}{\tt{\theta}}
+\newcommand{\subn}{\tt{F}}
+%\newcommand{\dom}[1]{\mathit{dom}(#1)}
+\newcommand{\domain}[1]{\mathit{dom}(#1)}
+\newcommand{\signede}[2]{\tt{#1.#2}}
+\newcommand{\cod}[1]{\llbracket \tt{#1} \rrbracket}
+\newcommand{\sarrow}[1]{\stackrel{#1}{\rightarrow}}
+% Kind judgements.
+\newcommand{\kjudge}[1]{\vdash#1}
+\newcommand{\kind}[2]{#1:#2}
+% Kinds.
+\newcommand{\krowp}[2]{{\text{\emph{Row}}}(#1)_{#2}}
+\newcommand{\krow}[1]{\text{\emph{Row}}_{#1}}
+\newcommand{\kbody}[1]{\text{\emph{Body}}_{\tt{#1}}}
+\newcommand{\kfields}[1]{\text{\emph{Fields}}_{#1}}
+\newcommand{\kmeths}[1]{\text{\emph{Meths}}_{#1}}
+\newcommand{\kmeth}[2]{\text{\emph{Meth}}_{\tt{#1,#2}}}
+\newcommand{\khist}{\text{\emph{Eff}}}
+\newcommand{\ktyp}{\text{\emph{Type}}}
+\newcommand{\vset}[1]{\mathcal{V}_{#1}}
+\newcommand{\khtyp}{\text{\emph{Htype}}}
+\newcommand{\wfot}[2]{\tt{#1}\vdash\tt{#2}}
+\newcommand{\wfmt}[3]{\tt{#1},\tt{#2}\vdash\tt{#3}}
+\newcommand{\hextract}{\mathit{hextract}}
+\newcommand{\hextractC}{\mathit{hextract}_C}
+\newcommand{\ctrans}{\leadsto_\mathit{close}}
+\newcommand{\ctransctx}{\rightarrow_\mathit{close}}
+\newcommand{\close}{\mathit{close}}
+\newcommand{\hclose}{\mathit{hclose}}
+\newcommand{\bounds}{\mathit{bounds}}
+\newcommand{\HC}{{HC}}
+\newcommand{\reduce}{\rightarrow}
+\newcommand{\reducesto}{\reduce^\star}
+\newcommand{\hist}{\eta}
+\newcommand{\config}[2]{\tt{#1,#2}}
+\newcommand{\tree}{\varphi}
+\newcommand{\treepath}{\pi}
+\newcommand{\cut}[2]{#1\!\mid\!_{#2}}
+\newcommand{\sig}{\varsigma}
+\newcommand{\rankedclasstv}[2]{\classtv{\,\cdot}{#1}^{#2}}
+\newcommand{\rankedarrowht}[3]{\arrowht{\classtv{\,\cdot\,}{#1}}{\cdot}{\classtv{\,\cdot\,}{#2}}^{\,#3}}
+\newcommand{\rankedrowt}[2]{(\tbind{\ttvec{#1}}{\cdot})^{\,#2}}
+\newcommand{\cardinal}[1]{|#1|}
+\newcommand{\nat}{\mathbb{N}}
+\newcommand{\Trees}{\mathbb{T}}
+\newcommand{\declassify}[1]{\lfloor #1 \rfloor}
+\newcommand{\nobody}{\mathit{nobody}}
+\newcommand{\andeq}{=_\wedge}
+\newcommand{\cok}[1]{\vdash #1 : \mathit{ok}}
+\newcommand{\trace}{\theta}
+\newcommand{\Trace}{\Theta}
+\newcommand{\ltrans}[1]{\xrightarrow{#1}}
+\newcommand{\pinterp}{\Pi}
+\newcommand{\skalkanote}[1]{\textit{\textbf{Note: }#1 - skalka}}
+\newcommand{\CT}{{CT}}
+\newcommand{\fieldsig}[1]{\mathit{fieldsig\tt{#1}}}
+\newcommand{\exnize}{\mathit{exnize}}
+\newcommand{\simplify}{\mathit{simplify}}
+\newcommand{\stackify}{\mathit{stackify}}
+\newcommand{\stacked}[1]{\cdot #1 \cdot}
+\newcommand{\stack}{\varsigma}
+\newcommand{\emptystack}{\mathbf{nil}}
+\newcommand{\stackcons}[2]{#1::#2}
+\newcommand{\throw}{\tt{throw}}
+\newcommand{\catch}[1]{\tt{catch.#1}}
+\newcommand{\hvar}{\tt{h}}
+\newcommand{\metalet}[3]{\text{let }#1 = #2 \text{ in } #3}
+\newcommand{\metaite}[3]{\text{if }#1 \text{ then } #2 \text{ else } #3}
+\newcommand{\join}{\mathit{join}}
+\newcommand{\simptrans}{\rightarrow_{\mathit{simp}}}
+\newcommand{\framed}[1]{\cdot\tt{#1}\cdot}
+\newcommand{\try}[2]{\tt{try\{#1\}catch\{#2\}}}
+\newcommand{\htry}[2]{\tt{#1\! \Rsh\! #2}}
+\newcommand{\XZ}{\ensuremath{\mathit{XZ}}}
+\newcommand{\unroll}{\circlearrowleft}
+\newcommand{\exncod}[1]{\llbracket \tt{#1} \rrbracket_{\mathit{exn}}}
+\newcommand{\fjtcod}[1]{\mathit{expand}(#1)}
+\newcommand{\unitt}{\tt{Unit}}
+\newcommand{\hexpandfn}{\mathit{hexpand}}
+\newcommand{\hexpand}[1]{\hexpandfn(#1)}
+\newcommand{\restrict}[2]{#1\!\mid\!_{#2}}
+\newcommand{\Cset}[1]{\mathit{set}(#1)}
+\newcommand{\jmodval}{\mu}
+\newcommand{\jmodtcat}{\mu\!\tau}
+\newcommand{\jmodt}[2]{#1 \circ #2}
+% \newcommand{\jwire}[2]{\tt{wire\ #1, #2}}
+\newcommand{\jwire}[2]{#1 \ltimes #2}
+\newcommand{\jinst}[2]{\tt{#1\langle #2 \rangle}}
+\newcommand{\jimage}[1]{\tt{image}\ #1}
+\newcommand{\jtlet}[4]{\tt{typedef\ #1 <: #2 = #3\ in\ #4}}
+\newcommand{\jdef}[4]{\tt{def\ #1 : #2 = #3\ in\ #4}}
+\newcommand{\abbrvt}[3]{\tt{abbrvt\ #1 = #2\ in\ #3}}
+\newcommand{\jref}[2]{\tt{(}#1,\tt{#2)}}
+\newcommand{\jtexists}[3]{\tt{#1\ for\ some\ #2 <: #3}}
+\newcommand{\jstore}{ST}
+\newcommand{\sntag}[1]{\ensuremath{\tt{\ddot{#1}}}}
+\newcommand{\idx}[1]{[#1]}
+\newcommand{\abs}[1]{|#1|}
+\newcommand{\fml}{\ensuremath{\langle \text{ML} \rangle}}
+\newcommand{\fsub}{\ensuremath{F_\le}}
+\renewcommand{\code}[1]{\texttt{#1}}
+\newcommand{\context}[2]{#1\lc#2\rc}
+% color names found here: http://en.wikibooks.org/wiki/LaTeX/Colors
+% uses color with pdflatex only
+\usepackage{ifpdf}
+\def\scolor{}
+\def\ccolor{}
+\ifpdf{\def\scolor{\color{Plum}}\fi
+\ifpdf{\def\ccolor{\color{ForestGreen}}\fi
+\long\def\cnote#1{\marginpar{\ccolor CS}{\small \ \ $\langle\langle\langle$\ {\ccolor #1 - CS}\
+    $\rangle\rangle\rangle$\ \ }}
+\long\def\snote#1{\marginpar{\scolor SS}{\small \ \ $\langle\langle\langle$\ {\scolor #1 - SS}\
+    $\rangle\rangle\rangle$\ \ }}
+\long\def\pnote#1{\marginpar{PC}{\small \ \ $\langle\langle\langle$\
+{#1 - PC}\
+    $\rangle\rangle\rangle$\ \ }} 
+
+
+%
+% slight space saver - SS
+% \makeatletter
+% \renewcommand\section{\@startsection{section}{1}{\z@}%
+%                        {-10\p@ \@plus -4\p@ \@minus -4\p@}%
+%                        {8\p@ \@plus 4\p@ \@minus 4\p@}%
+%                        {\normalfont\large\bfseries\boldmath
+%                         \rightskip=\z@ \@plus 8em\pretolerance=10000 }}
+% \renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+%                        {-10\p@ \@plus -4\p@ \@minus -4\p@}%
+%                        {5\p@ \@plus 4\p@ \@minus 4\p@}%
+%                        {\normalfont\normalsize\bfseries\boldmath
+%                         \rightskip=\z@ \@plus 8em\pretolerance=10000 }}
+% \renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+%                        {-10\p@ \@plus -4\p@ \@minus -4\p@}%
+%                        {-0.5em \@plus -0.22em \@minus -0.1em}%
+%                        {\normalfont\normalsize\bfseries\boldmath}}
+% \makeatother
+\newcommand{\fmlcod}[1]{\lb #1 \rb}

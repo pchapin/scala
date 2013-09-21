@@ -1,0 +1,119 @@
+\section{Example: Authorization and Access Control}
+\label{section-application}
+
+In \cite{chapin-skalka-SpartanRPCTR} the SpartanRPC architecture for link-layer resource
+authorization in TinyOS-based WSNs is developed (as an extension of
+\cite{chapin-skalka-SpartanRPC}). In SpartanRPC, resources are accessed by link-layer remote
+procedure calls (RPC) which require authorization. Users are authorized by communicating
+credentials to the provider, expressed in an authorization logic based on RT \cite{Li:RRBTMF}
+and implemented using TinyECC \cite{Liu-Peng-TinyECC-2008} public key signatures. SpartanRPC
+supports an ``open world'' security model, allowing WSNs in different security domains to
+interact without sharing secrets \emph{a priori}. However, public key encryption and signature
+verification is very expensive in a WSN. Hence, session keys are negotiated for ongoing resource
+access (using a TinyECC-based Diffie-Hellman protocol).
+
+In this section we describe a re-implementation of the SpartanRPC protocol in Scalaness/nesT
+that addresses several shortcomings of SpartanRPC, and will thus serve to illustrate the power
+of Scalaness/nesT. The central idea, illustrated in \autoref{figure-spartanrpc}, is that
+responsibility for authorization on the basis of public key credentials is offloaded from the
+WSN to a Scalaness program running on a hub device or lab computer. We assume a WSN comprising
+two subnetworks under control of distinct security domains $A$ and $B$. Each domain also
+controls a lab or hub device which is in communication with WSN nodes in their domain, either
+prior to or during deployment. These devices are in communication with each other over the
+Internet, and exchange authorization credentials for their domain over that medium in the
+first-stage Scalaness program. Each device then confirms authorization for resource access
+according to their own domain's policies, and subsequently they negotiate session keys over the
+Internet. These keys are then used to specialize nesT code for imaging on WSN nodes. The overall
+architecture of this application represents a concrete realization of the ideas of
+\autoref{figure-scalaness}, and also expands on and implements the idealized example presented
+in \autoref{section-overview}.% In
+% particular, each node can be specialized with the keys it uses to access resources on
+% neighboring nodes, and the keys it requires for its own resource access.
+
+% Of course, whether nodes are programmed in the lab or over the air (OTA) \emph{in situ} from a
+% hub device is a signficant concern. In the latter case, it is clearly insecure to transmit
+% session key material over the air in plaintext. However, as we have already discussed, the
+% Deluge protocol can be used for OTA program dissemination, and extensions to Deluge for secure
+% OTA reprogramming have been developed \cite{XXX} that could be applied here.
+
+Note that our current implementation assumes nodes are programmed in the lab since we have no
+secure OTA program dissemination library; the Deluge protocol has such an extension
+\cite{Dutta:2006:SDN:1127777.1127826} that we plan on using in the future.
+
+\spartanrpcfig
+
+\paragraph{Evaluation on Snowcloud} To empirically evaluate the staged implementation of
+SpartanRPC in Scalaness/nesT, we have implemented and tested both the original SpartanRPC as
+well as the Scalaness/nesT staged version in our deployed Snowcloud WSN system architecture.
+% The sensor node software in this system is complex and uses virtually every available hardware
+% feature, so it is a good test setting.
+Mobile gateway devices as pictured in \autoref{figure-snowcloud} are provided to Snowcloud
+system users for data gathering, and are also used by system administrators for controlling
+sampling rates. The hardware for both of these so-called ``harvester'' devices, the same for
+users and administrators, is equipped with a mote for establishing network communication. When
+the device is introduced to the sensor network, the two together comprise a single network with
+two distinct security domains -- the sensor node subnetwork, and the subnetwork of the single
+device mote. The mote on harvester devices provided to system users is supplied with credentials
+for collecting data, but not modifying network control, whereas system administration harvester
+motes are supplied with stronger credentials for both functions.
+
+The original and Scalaness/nesT versions of this application can be compared both in terms of
+performance and user experience. In the unstaged version, the SpartanRPC protocol requires an
+initial network configuration period when credentials are exchanged and verified. Since a single
+TinyECC signature requires at least 90 seconds to verify on the Crossbow TelosB platform
+\cite{chapin-skalka-SpartanRPCTR} with a fully dedicated processor, there is an initial network
+``warmup'' period of at least a few minutes. Also, in the unstaged version, upon first
+invocation of an RPC service Diffie-Hellman is used in the network to negotiate a session key.
+In the staged version, credential exchange, validation, and session key negotiation are all
+performed on the high-powered hub. For this reason, mote code size in ROM is significantly
+reduced. There are differences in RAM usage as well, due to authorization overhead in the
+unstaged version and also the storage of key material in RAM vs.~ROM, since specialization of
+code with key material in the staged version allows the latter. Note that this difference is
+intensified by scale and the number of keys (i.e.~RPC services) needed by an application. Lower
+RAM and ROM usage can have significant performance impacts on deployed code. In the following
+table we summarize RAM and ROM usage for the harvester and sensor node images for three software
+versions: one with no security mechanisms in place, one with unstaged SpartanRPC protocols in
+place, and one generated by Scalaness evaluation in our staged version of the SpartanRPC
+protocol. \medskip
+
+\noindent
+\hspace{-5pt}
+{\small
+\begin{tabular}{r@{\ }r}
+ & 
+\begin{tabular}{|r||c|c|c|c|}
+\hline
+& & & & \\[-7pt]
+\phantom{RAM} & Unsecured & Unstaged & Staged & Savings\\
+\hline\hline
+\end{tabular}
+\\
+\emph{Sensor:} & 
+\begin{tabular}{|r||c|c|c|c|}
+& \phantom{Unsecured} & \phantom{Unstaged} & \phantom{Staged} & \phantom{Savings}\\[-7pt]
+ROM & 36254 & 48616 & 36596 & 25\% \\
+RAM & 2868 & 5417 & 3038 & 44\%\\
+\end{tabular}
+\\[2mm]
+\emph{Harvester:} & 
+\begin{tabular}{|r||c|c|c|c|}
+\hline
+%& & & \\[-2.5mm]
+% & Unsecured & Unstaged & Staged \\
+%\hline
+%\hline
+& \phantom{Unsecured} & \phantom{Unstaged} & \phantom{Staged} &\phantom{Savings}\\[-7pt]
+ROM & 24316 & 35834 & 24436 & 32\%\\
+RAM & 2274 & 4771 & 2402 & 50\%\\
+\hline
+\end{tabular}
+\end{tabular}}
+\medskip
+\medskip
+
+The ``Savings'' are the percent reduction from unstaged to staged secure implementation, and
+these numbers show the potential for saving both RAM and ROM space is significant. From the
+perspective of user experience, the staged version of this application is more convenient, since
+no initial authorization period is needed when the harvester is first introduced to the network.
+The staged version also exposes the system to fewer bugs and failures that would be obstacles to
+the primary goal of data collection.

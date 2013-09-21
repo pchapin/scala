@@ -1,0 +1,225 @@
+> I am unsure how often the targeted deployment model will hold: the
+> authors assume a bunch of motes with a hub that has a full fledged
+> computer (able to run a Scala JVM!). This seems rather specialized.
+> When this is not the case, and all the code generation is done ahead
+> of time, the case for the proposal is weaker.
+
+DONE (Chris). I clarified wording and added a sentence to intro.
+
+**** CHRIS
+
+Should mention about some of the hubs that exist which run Linux,
+Java, etc for cheap.  This guy must not be very up to date on the
+hardware.
+
+> (3) It's strange to combine Scala with a ML-like system, such as
+> <ML>: the resulting system is irregular, and IMHO this is the root of
+> problem (2). The paper should explain why it uses Scala instead of,
+> say, Ocaml.
+
+DONE (Peter). I reworded and expanded the first few paragraphs of section six.
+
+**** PETER (and SCOTT on second pass)
+
+I (Chris) think that Peter made the initial arguments for Scala
+(vs. OCaml, as Chris wanted), so he should have a sentence or two to 
+say here.
+
+Also, <ML> was the basis for the theory, but besides that the ideas
+will work in any kind of PL.  So its not like we had a big commitment
+to ML in that toy language.
+
+> (4) This work should compare with relevant related work from the
+> Scala community, which is not even mentioned. Lightweight modular
+> staging (in short LMS; Rompf and Odersky, 2010) supports staging,
+> and Scalable component abstractions (Odersky and Zenger 2005)
+> supports a module system of related power (though first-class types
+> are absent). A lot of work was born from LMS including Delite,
+> supporting also heterogeneous platforms like GPUs (see for instance
+> Brown et al. (2011), or work by Tiark Rompf and
+> collaborators). While the focus of this work is different, it would
+> for instance support transforming Scala code to nesC code.  Such
+> systems can't represent staged modules, but modules having staged
+> members seem good enough for the applications presented.  Dynamic
+> mixin composition is not supported in those systems, but can be
+> implemented using macros
+> (http://stackoverflow.com/questions/10373318/mixing-in-a-trait-dynamically
+> - I'm sorry I can't Google a better reference, I fear you'll need to
+> ask on the Scala mailing lists).  I believe using such techniques
+> would be a promising alternative to use Scala for this, and would
+> provide a more regular language; a formalization might however be
+> harder.
+
+**** PETER (and SCOTT on 2nd pass)
+
+Should add some of this to the related work.
+
+DONE (Peter). I added a couple of sentences about LMS. The main drawback to it,
+as far as I can see, is that it doesn't allow dynamic type construction.
+
+> (a2) to embed session keys within the binary image itself, it seems
+> one simply needs to generate a nesC file whose core is (using the
+> key from the examples on websites):
+>
+>  uint8_t key  [16 ]  = { 95 , 103 , 195 , 78 , 10 , 28 , 130 , 181 , 250 , 97 , 242 , 252 , 255 , 210 , 73 , 83  };
+>
+> (plus some boilerplate). One can certainly use advanced
+> metaprogramming technology for this, but on such a small example that
+> seems no better than assembling strings together:
+>
+>  (key: String) => key.map(_.toInt).mkString("uint8_t key = {\n", ", ", "};")
+>
+> The generated file should then be linked together with the remaining
+> code on hubs. I expect this approach to generate essentially the
+> same binary code as using Scalaness, hence to introduce no
+> performance difference. Hence, it's IMHO not fair to say that the
+> footprint is reduced thanks to staging - or at the very least,
+> staging is overkill for doing just this. Hence, I believe the claim
+> in the abstract ("Implementation of a staged public-key cryptography
+> calculation shows the sensor memory footprint can be significantly
+> reduced by staging") is misleading.
+
+**** PETER (SCOTT in 2nd pass, he has a lot of thoughts on this)
+
+I think we should address this point.  The reviewer is not comparing
+the quality and reusability of the code produced.  Basically,
+everything you would want to naturally stage has to be pulled out
+manually.  For this example he is correct that it would not be hard
+but there could be many other extensions added onto it, and eventually
+the code will get hard to maintain in the manually staged form.
+
+> (c) nesT has its own form of binding, but can one define module
+>  types in a @ModuleType annotation and use them in another one? This
+>  would be required for the examples.
+
+DONE(Chris). Added a abbrvt binder to scalaness syntax and updated text
+appropriately. Michael and Peter, take note for examples.
+
+**** CHRIS 
+
+MICHAEL has added type abbreviations to Scalaness. PETER or MICHAEL,
+what is up with online repository and examples, will they be updated?
+
+
+> Moreover, it seems that one needs to write code in one language
+> (Scala) if it must run on the hub, and another language (nesC) if it
+> must run on the motes. Hence, moving code across stages requires a
+> complete rewriting, even for code which can be written in the same
+> way - like code operating over an existing buffer. This is at the
+> very least atypical for staging systems.  Since existing work
+> defines subsets of Scala which can be compiled to run on either GPUs
+> or CPUs (see work on LMS and Delite), it seems unlikely that having
+> two separate languages is necessary - there is a subset of Scala not
+> using memory allocation, though it might be very restrictive.
+
+**** PETER and/or CHRIS
+
+I'll let you guys deal with this one, I didn't pick Scala :-)
+
+Seriously, I think we can write something about how attempts to unify
+the languages that have such different memory models make syntax that
+might look similar, but will be misleadingly similar in that the
+behavior will be very different in some cases.  Objects for example
+are very difficult to make a basis if there is no dynamic allocation.
+So we felt a clean break was better.
+
+Chris: Also, reviewer is missing the point that there is a vast TOS
+libary we can leverage by using nesC as 2nd stage target. I guess this
+should be stressed somewhere, but honestly I feel like we already
+address this issue in the text.
+
+
+> Minor Fixes Below Here
+
+**** CHRIS/SCOTT/PETER/MICHAEL
+
+Anyone can pick off any of these, please note when each one is done.
+
+> The paper, as currently written, seems to expect readers to be
+> familiar with WSN. This expectation seems not justified for
+> GPCE. Specifically, terms like "mote" are never introduced (more
+> examples below).
+
+> Is line 1 nesT code? I guess so by comparison with line 19, but I
+> have no way of telling otherwise. Moreover, why say darker to mean
+> simply bold?
+
+DONE (Peter). I made no changes. The first paragraph of the section says
+"The example is written in DScalaness/DnesT," so I don't see the
+problem here. I also think "darker" vs "lighter" sounds better than
+"bold" vs "not bold."
+
+> What is nesC? Is it C-inspired? (In fact yes, according to its
+> website.) It would be useful to say explicitly that you assume
+> familiarity with C for understanding the nesT snippets, to avoid
+> explaining what's uint8_t and so on. That would be useful already in
+> Sec. 2, while it is only mentioned in Sec.3. Moreover, the syntax of
+> typedef would be illegal in C, though the one used is arguably
+> better.
+
+> What's tinyOS? It's mentioned twice without explanation in the
+> intro, and further later. Similarly for motes, WSN themselves and
+> all the related terminology: I neither know it, nor the paper
+> motivated their importance. (After research, I still don't know
+> whether one can embed files inside firmware images.)
+
+DONE (Peter). I added a sentence to the start of the introduction that
+defines wireless sensor networks and made a few more tweaks to clarify
+the terminology. I also added a citation to the TinyOS home page.
+
+> Looking at the code examples, it seems that both nesT and nesC are
+> much more C-like than shown in the paper - the paper however uses a
+> syntax which is different in irrelevant but confusing ways. I agree
+> this syntax is better, but IMHO you should make this difference
+> explicit.
+
+> In Sec. 2, the difference between the parameterization in radioT and
+> commT seems similar to the one between abstract type members and
+> type parameters, which are two standard Scala features. That could
+> be useful for explanation.
+
+> What about function return types in nesT? They are often omitted in the text.
+
+DONE (there is already an explanation in text).
+
+> End of Sec. 6.3: "nodeC.nt" in the text should be "authSend.nt".
+
+> What does it mean that "types may never be cast to a pointer" (I'd
+> guess that non-pointer values can't be cast to pointers)? What does
+> "posting tasks" mean? What are commands? What's the type uninit?
+
+> Why do you use def...in for variable declarations? Is this reduced
+> language a subset of Scalaness? Does Scalaness replace the syntax of
+> value definitions in Scala, is this a feature of DScalaness for some
+> reason?
+
+> What's X in fig. 5?
+
+> Page 5: you write that "In a wiring e1 'with' e2, the exports of e1
+> are wired to the imports of e2", but instead, it seems that exports
+> of e2 are wired to the imports of e1.
+
+> Sec. 6: "an egenvariable interpretation of the bound type variable
+> is sound and also consistent with standard existential type
+> interpretations." What's an 'egenvariable'? If you mean
+> 'Eigenvariable', a citation could be useful. I'm also not sure how
+> your existential types are different from the ones described by
+> Pierce (2002).
+
+> Sec. 7: The "Evaluation on Snowcloud" paragraph says "The hardware
+> *both* of these so-called ¡°harvester¡± devices". What does "both"
+> refer to? The sentence seems unfinished. What does the rest of the
+> paragraph refer to? The website distinguishes an Harvester program
+> and a SensorBox program.
+
+DONE (Michael) Clarified the sentence so that it acutally made sense.
+Was probably just a typo.
+
+> Remark: the etymology of the language names (nesT and Scalaness) is
+> not explained in the paper. Would be useful for readers from outside
+> the WSN world.
+
+DONE (Michael) The first mention of NesT clarifies it is a variation of 
+NesC with a stronger type system.  I tried adding a clarification of why
+Scalaness was called Scala"ness" but it interrupted the flow of the 
+paragraph and in my opinion is obvious enough to leave unsaid.

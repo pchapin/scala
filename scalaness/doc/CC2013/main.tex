@@ -1,0 +1,43 @@
+\documentclass[envcountsame,envcountsect,oribibl,runningheads]{llncs}
+% Remove `runningheads' option in final version.
+
+% All the \usepackages are now in macros file - SS
+\input{macros}
+\input{figures}
+
+\begin{document}
+\long\def\snote#1{}\long\def\cnote#1{}\long\def\pnote#1{}
+\input{frontmatter}
+
+\input{introduction}
+
+\input{nest}
+
+\input{scalaness}
+
+\input{implementation}
+
+\input{conclusion}
+
+\bibliographystyle{plain}
+%\hbadness=10000 % Don't tell us how bad the bibliography really looks.
+\bibliography{../references-General,../references-WSN,../references-Scala,../references-Meta}
+
+\newpage
+
+\input{appendix}
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+

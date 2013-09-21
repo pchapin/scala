@@ -1,0 +1,30 @@
+\title{Scalaness/nesT: Type Specialized Staged Programming for Sensor Networks}
+
+\author{
+Peter Chapin\inst{1} \and 
+Yu David Liu\inst{2} \and 
+Christian Skalka\inst{1} \and 
+Scott Smith\inst{3} \and 
+Michael Watson\inst{1}
+\institute{
+University of Vermont, \texttt{\{pchapin,skalka,mpwatson\}@cems.uvm.edu} \and
+SUNY Binghamton, \texttt{davidl@cs.binghamton.edu} \and
+The Johns Hopkins University, \texttt{scott@cs.jhu.edu}
+}
+}
+
+\maketitle
+
+\begin{abstract}
+  Building programs for constrained embedded device networks is challenging due to severe
+  limitations on processing speed, memory, and bandwidth. Staged programming can help bridge the
+  gap between high level code refinement techniques and device level programs by allowing a
+  first stage program to programmatically specialize device level code. Here we introduce a two
+  stage programming system for wireless sensor networks. The first stage program is written in
+  an extended dialect of Scala, called Scalaness, where components written in a type safe
+  dialect of nesC, called nesT, are composed and specialized. The residue of Scalaness program
+  evaluation is a TinyOS-compliant device image that can be compiled as a nesC program, but
+  enjoys additional type safety properties. Scalaness has been implemented through direct
+  modification and plugin extension of the Scala compiler.
+\end{abstract}
+

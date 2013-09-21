@@ -1,0 +1,132 @@
+\section{Conclusion}
+\label{section-conclusion}
+
+We have introduced Scalaness/nesT, a two stage programming system for wireless sensor networks.
+Our system provides a powerful programming environment for dynamically specializing and
+composing nesC modules in a type safe way; any type correct Scalaness program will generate only
+type correct residual programs.
+
+\subsection{Related Work}
+%\label{sec:related}
+%\label{section-related}
+We do not review the broader topic of sensor network programming here; the reader is referred to
+\cite{Mottola:2011:PWS:1922649.1922656} for a broader perspective.
+
+The potential of applying metaprogramming to sensor networks was explored in the functional
+sensor language Flask \cite{Mainland-Flask-2008}. The main motivation for designing Flask was to
+allow FRP-based
+%\cite{frp} -- trimmed this reference to save space
+stream combinators to be pre-computed before network deployment. The Flask designers did not
+focus on computing precise types for the object stage code at the meta stage, so cross-stage
+static type checking is not performed -- it is possible to generate ill-typed Flask object code.
+MetaML \cite{Taha-MetaML,DBLP:conf/icess/Taha04} and MetaHaskell \cite{mainland12} have each
+been promoted as effective foundations for embedded systems programming with type safety, but
+neither addresses type specialization or dynamic type construction. MetaHaskell does support
+heterogenous language staging, the lower stage language is defined by a plug-in and several
+instantiations have been defined including one for a low-level C-like language.
+%   Like our approach they guarantee type safety of all
+% lower-stage code produced.  They use a more traditional
+% metaprogramming model, however, not the process-separated model
+% needed for sensor metaprogramming and do not address the issues of
+% metaprogramming module composition and type specialization.
+\snote{Tweaked the above MetaHaskell remarks.}
+
+Actor based sensor metaprogramming has been studied in \cite{cheong07}; this work shares our
+focus on high level dynamic reprogrammability but is untyped. More broadly, meta programming is
+known to be useful for increasing the efficiency of systems applications. One example is Tempo
+\cite{289140}, a system that integrates partial evaluation and type specialization for
+increasing efficiency of systems applications. Ur \cite{UrPLDI10} allows for type safe meta
+programming for web applications. We refer readers to our $\lb \textrm{ML} \rb$ paper
+\cite{FramedML} for a more complete review of meta programming systems/calculi.
+
+%foundational meta programming calculi such as based on modal
+%logic \cite{pfenningjacm}, higher-order abstract syntax
+%\cite{guarded-xi}, and first-order abstract syntax with deBruijn
+%indices \cite{xi-metatypeful}. 
+
+The units of staged code composition in nesT programming are \emph{modules}. Countless different
+module systems exist, but they are primarily designed to achieve separate compilation and sound
+linking
+\cite{Cardelli-1997}. %\dnote{removed several words here}%, and to not be composed at runtime.
+Our different design goal leads to different design choices in nesT modules. For example, data
+crossing nesT module boundaries needs to conform to the property of process separation, a
+non-issue in standard module system designs. In addition, nesT modules allow values/types across
+the boundary of modules to be flexibly constructed, including dynamic construction of types, to
+achieve maximal flexibility of cross-stage specialization. Module systems such as ML modules
+\cite{macqueen84} %,ocaml-modules
+and Units \cite{flatt98units} allow types to be imported/exported as we also support; there are
+several features of ML modules including type hiding that we do not aim to
+support. % This feature can be encoded by
+% nesT modules: a Units-style type import can be encoded as a nesT
+% formal type parameter, and a type export as real arguments applied to
+% the module instantiation, and module linking as module instantiation.
+nesT modules are more expressive in their support of first class modules as values and the
+possibility of dynamic construction of ``type exports.'' That said, first class modules are not
+new \cite{99620,ancona01calculus}, % cut: lsecoop2004,Shields01first-classmodules,
+we only claim novelty in their application to program staging and the incorporation of dynamic
+type construction.
+%\snote{David, I reworded
+%  this pgph.  Please check to make sure I didn't falsify any claim.  I
+%  removed the details of how to do the units embedding, the committee members
+%  are more ML people anyway.}
+%\dnote{May need to talk about phase distinction of ML modules.}
+
+The type parametricity of System F and F$_\le$ \cite{Cardelli-1985}, and the practical type
+systems it inspired such as Java's generics, do not treat types as first class values as we do.
+C++ templates support types as meta values in template expansion, but type safety of generated
+code is not guaranteed without full template expansion. Concepts \cite{gregor06:_concepts}
+improves on this, but types are still not first class values.
+% space saving cut for CC here - SS
+%  Many systems with types as fully
+% first-class values are undecidable, and we wish to avoid that route
+% since systems programmers require decidable type systems. Type systems
+% with runtime type values can be decidable when various restrictions
+% are placed; examples of such systems include
+% \cite{Condit07dependenttypes,1375602}. %trimmed Harper95compilingpolymorphism
+
+
+% \snote{not sure why the following is necessary to mention, its all
+%   untyped stuff, right? -- Cite Macros. Felleisen + Flatt;
+%   Fully-parameterized, first-class modules with hygienic macros,
+%   dissertation by Martin Gasbichler,
+%   2006.
+% {}
+% }
+%Several authors have explored the interaction of program
+%staging and type dependence to support compiler construction
+%\cite{1173724} and interpreters \cite{Pasalic02taglessstaged}.  Also
+%related is work on program generation formalisms for compiler
+%construction that leverage first class types and intensional
+%polymorphism \cite{968395}.  Perhaps the system most closely related to
+%ours is Monnier and Shao's \cite{inlining-shao}, where type
+%abstraction as a language construct is supported in a staged program
+%calculus albeit following a standard System F$_\le$ style (i.e.~types
+%are not treated as expressions).  The integration of staging
+%abstractions and side effects is another dimension of our work that
+%has been considered by previous authors.  Kameyama et al.~have studied
+%staging in the presence of side effects as a way to optimize
+%algorithms that exploit mutation \cite{1480962}.  Moggi and Fagorzi
+%have established a monadic foundation for integrating staging with
+%arbitrary side effects in a highly general and mathematically rigorous
+%fashion \cite{DBLP:conf/fossacs/MoggiF03}.  But in addition to various
+%technical differences, these systems are contrasted with ours in that
+%none have considered embedded systems as an application space.
+
+% moved this cite to nest where it is briefly mentioned only. - SS
+%
+% Our formal definition of a ``safe C'' subset and proof of subject
+% reduction follows in the footsteps of other safe approaches to C
+% operational semantics \cite{Leroy-compcert-06,grossman03}.  Since we
+% are not interested in supporting pointer arithmetic we model the C
+% memory at a level abstracted from low-level details such as contiguous 
+% layout of arrays and structs.
+
+%Dynamic code update is a key component of our application.  This topic
+%has been well-studied (see e.g. \cite{hicks-dynamic-update06}), but
+%the primary focus in previous work has been on changing out
+%\emph{parts} of existing applications at run-time; here we have a more 
+%modest goal which involves rebooting the mote.  Changing just a part
+%of a mote program is very appealing since less code will need to be
+%sent over-the-air; our approach to this is to use an independent layer
+%to send over a binary difference -- only the changed code needs to be
+%sent.

@@ -1,0 +1,333 @@
+\section{The nesT language}
+\label{section-nest}
+ 
+\syntaxfig
+
+The nesT design aims to distill a production language, nesC, into its fundamental elements,
+yielding a language that is amenable to formal analysis but also practical. However, since our
+focus is on type safety, we enhance, and in some instances restrict, those fundamental elements
+to obtain a type safe language, as discussed below.
+
+\subsubsection{Notation.} \emph{Sequences} are notated $x_1,\ldots,x_n$, and are abbreviated
+$\vect{x}$; $\vect{x}_\mapidx{i}$ is the $i$-th element, $\emptyset$ denotes the empty sequence,
+and $\abs{\vect{x}}$ is the size. We write $x \in \vect{x}$ to denote membership in sequences,
+and $x\vect{x}$ denotes a sequence with head $x$ and tail $\vect{x}$. We denote append as
+$\vect{x}@\vect{y}$. For relational symbols $R \in \{ \subtype, =, : \}$, we use the
+abbreviation: $\vect{x}\, R\, \vect{y} = x_1\, R\, y_1, \ldots, x_n\, R\, y_n$. So for example,
+$\tbindvec{x}{\t} = x_1 : \t_1,\ldots,x_n : \t_n$.
+
+We also use the following naming conventions for various language constructs. We use
+metavariable $\fname$ (of set $\mathcal{F}$) for function names, $\fdname$ (of set
+$\mathcal{L}$) for field names, $\VAR$ (of set $\mathcal{V}$) for term variables, $\TVAR$ (of
+set $\mathcal{T}$) for type variables, $ \blockno$ (of set $\mathcal{M}$) for memory locations,
+$\neight$ (of set $\mathbb{Z}_{2^8}$) for 8-bit unsigned integers, and $\nsixtn$ (of set
+$\mathbb{Z}_{2^{16}}$) for 16-bit unsigned integers. We use $n$ to range over both types of
+integers when their type is irrelevant.
+
+\subsection{Syntax and Features of nesT} The syntax of nesT is presented in
+\autoref{figure-syntax}. It comprises a core language of expressions for defining computations,
+a language of declarations for defining variables and functions, and a language for defining
+modules.
+
+\semanticssyntaxfig
+
+\coresemanticsfig
+
+%\subsubsection{Expressions.}  headers elided to save space - SS
+The nesT language includes standard C-like constructs, such as conditional branching, looping,
+sequencing of expressions, and function calls, arrays, structs, numeric base datatypes (and
+operations on them). % Familiar syntax $e \idx e$ and
+% $e.\fdname$ is used for array indexing and struct field selection,
+% respectively.
+%For the purpose of this presentation,
+%array-out-of-bound access can happen.  
+A ``null'' value $\undefv$ is also provided. Function definitions and calls are available only
+in a limited nullary form to simplify our model, in particular the expression $\blok{e}$ is a
+function body. Since functions are not recursive there is no expressiveness lost, a global
+variable can be used to encode a function parameter. Memory locations $\blockno$ are program
+values (\emph{\'a la} pointers). As in all C dialects, assignment can only be performed on
+so-called \emph{l-values} $\lvalue$, a restricted subset of expression syntax.
+
+As in nesC, no dynamic memory allocation is possible; all memory layout is established by static
+variable declarations. Also, the core language we present here does not allow pointer arithmetic
+to support type safety. Type casting and array access have run time checks imposed, as we
+explain in \autoref{section-nestsemantics}.
+
+Also as in nesC, we provide a $\kwpost$ operation for posting tasks. Our semantics will account
+for tasks using the ``run-to-completion'' model of TinyOS. Interrupts are omitted from our
+language to avoid concurrency issues in the semantics. Typical WSN applications do not need
+interrupts; they are only needed in a few low level nesC libraries.
+
+%\subsubsection{Declarations.} 
+Programs in nesT may refer to declarations of values and functions which are scoped at the
+module level and establish the statically fixed memory layout of nesT.
+% More explanation than is needed - SS
+%  We provide a convenient form
+% for explicit initialization of array and struct values, though neither
+% arrays nor struct values may be treated anonymously (i.e.~they must be
+% declared and referred to by name).
+Besides convenience, declarations are useful to support serialization of program objects passed
+in from the Scala level in Scalaness, as we discuss in \autoref{section-serialization}.
+
+%\subsubsection{Modules.} 
+nesT Modules are written $\margs{\tpdecl; \vpdecl}\lc \imports; \decls \exports \rc $ with
+$\tpdecl$ and $\vpdecl$ being generic type and term parameters, $\vect{d}$ being module scope
+identifier declarations, including function definitions, and $\imports$ and $\exports$ being
+imports and exports. Exports are explicitly defind in the module. A ``runnable'' module -- one
+without imports or generic parameters -- defines an initial machine configuration. In
+\autoref{figure-example}, the wiring $\tt{ncode} \ltimes \tt{scode}$ on line \ref{l:image}
+yields a runnable module.
+
+\tasksemanticsfig
+
+%\declsemanticsfig
+
+\subsection{Semantics of nesT} 
+\label{section-nestsemantics}
+
+We define an operational semantics for nesT as a small step relation $\compute$ on dynamic
+configurations in \autoref{figure-semanticssyntax}. We decompose the semantics into several
+distinct $\compute$ relations; each computation ``sub-relation'' can be distinguished by the
+arity of the relevant configurations. The semantics for the non-module portions follows standard
+C-like language formalizations \cite{Leroy-compcert-06,grossman03}.
+
+\subsubsection{Semantics of Expressions.}
+% At the heart of nesT is a C-like 
+% language of expressions built from l- and r-values.  An
+% l-value is an object in memory that can be assigned to, in particular
+% a variable, a struct or array field, or a pointer. An r-value is a
+% value resulting from expression computation and may be a value
+% that is not in memory. 
+
+The nesT syntax for necessary dynamic entities is given in \autoref{figure-semanticssyntax}. In
+nesT, we represent computed values as pairs $\cval{\pi}{\mv}$, where $\mv$ is a base, pointer,
+array, or struct value, and $\pi$ is a tag indicating whether or not the value is in memory.
+Computed r-values not in memory are denoted $\cval{\circ}{\mv}$, e.g. $\cval{\circ}{2}$ is the
+result of computing 1 + 1. The l-value object $\cval{\bn}{\mv}$ indicates that the value $\mv$
+is in memory at location $\bn$.
+
+We model memories as sequences of definitions $\bn : \t = \mv$; observe that each memory
+location $\bn$ is typed at $\t$ and assigned a value $\mv$. We interpret memories as mappings,
+writing $\blockmem(\bn) = \mv$ when there exists some $\t$ such that $\bn : \t = \mv$ is the
+leftmost definition of $\bn$ in $\blockmem$, and writing $\blockmem[\bn \mapsto \mv]$ to denote
+$(\bn : \t = \mv)$ where $\bn : \t = \mv'$ is the leftmost definition of $\bn$ in
+$\blockmem$.% (this
+% latter notation is used when a memory location is updated with a new
+% value).
+
+Evaluation rules for selected expressions are given in \autoref{figure-coresemantics}. Here,
+computation is on pairs of memories and expressions.
+%We assume existence of a function
+%$\fundef{opsem}$ that interprets operations $\mathit{op}$. We also
+We assume existence of a function $\fundef{docast}$ which performs a casting conversion. We
+allow this function to be defined by users.
+% space saver - SS
+% , and in
+% certain cases may be a no-op (e.g.~casting pointers to arrays when the
+% latter are contiguous in memory). But in any case, i
+If $\docast{\t}{\mv}{\blockmem}$ is defined, we require that the cast
+conversion is type safe, in that the result must be of type $\t$.
+This is discussed more in \autoref{section-nesttyping}. 
+% space saver - SS
+%  Note that a
+% pointer is modeled by an object of the form $\cval{\pi}{\bn}$. The
+% operation $\kwstar\cval{\pi}{\bn}$ looks up the value at address $\bn$
+% in memory.  The operation $\&\cval{\bn}{\mv}$ returns the address
+% $\bn$ of the object in memory as an r-value. Functions are defined in
+% an assumed-given codebase $\flash$ with a lookup semantics defined
+% similarly to that for memories $\bm$.
+
+%\bootloadsemanticsfig
+
+\subsubsection{Semantics of Tasks.} NesC uses a simple scheduling model of serial,
+run-to-completion execution of queued \emph{tasks}. We thus supplement the base semantics of
+nesT with a corresponding \emph{task collection} $\tasks$ of the tasks yet to run, and define a
+single step transition relation on configurations extended with task collections. We leave
+undetermined the definition of task collections, and also how tasks are added and retrieved --
+this because it is unspecified whether tasks are treated in e.g.~a FIFO manner by the scheduler.
+We let $\addt(\tasks,\fname\blok{})$ denote $\tasks'$ which is $\tasks$ plus the task consisting
+of the function call $\fname\blok{}$, and let $\nextt(\tasks)$ denote a pair
+$\tasks',\fname\blok{}$ which comprises the ``next'' task $\fname\blok{}$ in $\tasks$, and
+$\tasks'$ which is $\tasks$ with $\fname\blok{}$ removed. We define the task semantics,
+integrated with the expression semantics defined previously, in \autoref{figure-tasksemantics}.
+As for expressions, we assume the existence of a given codebase $\flash$. When it is necessary
+to be explicit about which codebase is given for a computation, we will write $\flash \vdash
+\tasks, \bm, e \compute \tasks', \bm', e'$.
+
+\subsubsection{Semantics of Declarations.} The operational behavior of declarations is fairly
+straightforward.
+% Since sunction definitions may be declared, we must now add \emph{codebases} $\flash$ to the
+% execution model.
+Functions and first class mutable variables may be declared and initialized. At run time mutable
+variables are bound (via substitution) to an l-value $\cval{\bn}{\mv}$, where $\bn$ is the
+address of the variable. Thus, for base and function type declarations we have the following
+rules, respectively:
+$$
+\small{
+\inferrule[FDecl]
+{}
+{\flash, \tasks, \bm, (\fname : \t = \blok{e}) \vect{\decl} \compute 
+ (\fname : \t = \blok{e}) \flash, \tasks, \bm, \vect{\decl}}
+}
+$$
+$$
+\small{
+\inferrule[BaseInit]
+{\kappa = \cval{\bn}{\mv} \\ \bn \not\in \dom(\bm)}
+{\flash, \tasks, \bm,(\xlet{\t}{x}{\cval{\pi}{\mv}}) \vect{\decl} \compute 
+ \flash, \tasks, (\bn : \t = \mv)\bm, \vect{\decl}[\kappa/x]}
+}
+$$ A contextual evaluation rule for declarations allows variables to
+be initialized with arbitrary expressions. This is omitted for brevity but is similar to the
+expression \TirName{Context} rule, using a a notion of declaration evaluation contexts denoted
+$D$.
+%Two different initialization rules are given,
+%since since arrays and structs use special initialization syntax and
+%must be treated as special cases in the \TirName{StructInit} rule.
+%
+%There are some other subtleties involved with initialization of struct
+%and array variables. First, since array and struct fields are
+%l-values, we constrain the syntax of array and struct values in memory
+%as follows.
+%\begin{definition}
+%Given any $\arr{\vect{\kappa}}$ or $\{\vect{\fdname} = \vect{k}\}$ and 
+%$\kappa\in\vect{\kappa}$, we have $\kappa = \cval{\bn}{\mv}$ for some $\bn$ and
+%$\mv$.
+%\end{definition}
+%Given this requirement, we see that no base values can be inlined in
+%array and struct initializations, rather only bound variables can be
+%used. This is awkward in practice but simplifies our formal
+%presentation, and is easily relaxed in our implementation.
+
+\subsubsection{Semantics of Boot and Run Time.}
+
+In the nesT machine model, a top level program execution is obtained by loading and running a
+fully instantiated module. The codebase, memory layout, and initial machine configuration is
+generated at load time by evaluating the declarations in the module. The top level program is
+then started at the \texttt{main} entry point.
+
+To differentiate load/boot and run segments of a computation we define $\bootseq{}$ and
+$\runseq{}$ constructors to inject declarations and expressions into a uniform datatype. Top
+level computation is then defined as a single step reduction relation $\compute$ on
+configurations $\flash,\tasks,\bm,X$, where $X$ is of the form $\bootseq{\vect{d}}$ or
+$\runseq{e}$ depending on whether the machine is booting or running.
+\begin{definition}
+  A module of the form $\margs{\varnothing; \varnothing }\lc ; \vect{\decl}; \exports\rc$ is
+  \emph{runnable}, and we define:
+$$\bootload(\margs{\varnothing; \varnothing }\lc ; \vect{\decl}; \exports\rc) =
+\exports,\varnothing,\varnothing, \bootseq{\vect{\decl}}$$
+\end{definition}
+
+Now, for all computation relations we define $\compute^*$ to be the reflexive, transitive
+closure of $\compute$. The concern for our type analysis is to rule out modules which, when
+bootloaded, will evaluate to semantically ill-formed configurations. In the context of nesT this
+is defined as follows. It is important to stipulate that failing casts and out-of-bound array
+access are not stuck cases, since run time checks in place with enable graceful failurex.
+\begin{definition}
+  A configuration $\bm, e$ \emph{fails a run time check} iff $e$ is of the form
+  $\castto{\t}{\kappa}$ and $\docast{\t}{\kappa}{\blockmem}$ is undefined, or $e$ is of the form
+  $\cval{\bn}{\mv}\idx{\cval{\pi}{n}}$ and $n\ge\abs{\vect{\mv}}$.
+\end{definition}
+
+\begin{definition}
+\label{def-runnable}
+A configuration $\flash, \tasks, \bm, \ell$ is \emph{stuck} iff it is irreducible and $\ell$ is
+neither of the form $\runseq{\context{E}{e}}$ nor $\bootseq{\context{D}{e}}$ where $\bm, e$
+fails a run time check. A runnable module $\mu$ \emph{goes wrong} iff $\bootload(\mu)
+\compute^\star \flash, \tasks, \bm, \ell $ where $\flash, \tasks, \bm, \ell$ is stuck.
+\end{definition}
+
+\subjudgefig
+
+\coretypingfig
+
+\declmodtypingfig
+
+\subsection{nesT Typing} 
+\label{section-nesttyping}
+
+The typing rules for nesT combine a standard procedural language typing approach with subtyping
+techniques adapted from previous foundational work \cite{FramedML,Ghelli199875}. Our goal here
+is to specify the typing algorithm used in our Scalaness implementation.
+
+\subsubsection{Subtyping.} At the heart of our system is a decidable subtyping judgement
+$\subjudge{\tpdecl}{\t_1}{\t_2}$, where $\tpdecl$ in the context of typing is called a
+\emph{coercion} and defines a system of upper bounds for type variables.
+% space saver - SS
+% We do not allow recursive
+% type bounds definitions. 
+%
+% more space savers - SS
+% We implement subtyping with an algorithm
+% based on a classic technique \cite{Ghelli199875}
+% , with straightforward
+% extensions to accommodate structs and arrays as defined in
+% \autoref{figure-subjudge}
+A subtyping relation typically called \emph{promotion} is also central to our approach; given a
+set of subtyping coercions $\tpdecl$ and a type variable $t$, promotion will return the least
+upper bound of $t$ which is also a structured type, i.e.~not a type variable.
+\begin{definition}
+The relation $\ll$ \emph{promotes} a type variable:
+\begin{mathpar}
+\figsize
+\inferrule
+{\tpdecl \vdash \tpdecl(t) \ll \tau}
+{\tpdecl \vdash t \ll \tau}
+
+\inferrule
+{\neg\exists t . \tau = t}
+{\tpdecl \vdash \tau \ll \tau}
+\end{mathpar}
+\end{definition} 
+It is important to observe how promotion and subtyping are used differently in our system. Since
+any sort of l-value can be written to via assignment, subtyping invariance \emph{must} be
+imposed on l-values occuring in write positions to maintain type soundness. Therefore type
+subsumption is allowed only at program points where read-only control flow occurs -- for example
+when an r-value is directly assigned to an l-value.
+
+\subsubsection{Type Environments and Checking} Our typing algorithm for source code expressions
+is based on judgements $\tenv,\tpdecl \vdash e : \t$, where $\tenv$ is an environment of free
+term variable typings, syntactically defined equivalent to value parameters $\vpdecl$ and
+imports $\imports$. We also endow type environments with the same lookup semantics as memories
+and codebases. Representative typing rules for selected expressions are given in
+\autoref{figure-coretyping}. The derivation of any judgement $\tenv,\tpdecl \vdash e : \t$ can
+be interpreted as an algorithm where both $\tenv$ and $\tpdecl$ are given as arguments and $\t$
+is returned as a result.
+
+Note that type casting is only statically allowed if the types involved are \emph{compatible} as
+specified in rule \TirName{TypeT}. This relation, formalized as $\tpdecl \vdash
+\compatible{\t_1}{\t_2}$, is left abstract and user defined, but typical examples include
+casting structs to arrays in contiguous memory, and provable lack of pointers in types.
+Recalling that the semantics of nesT relies on a $\fundef{docast}$ function that implements cast
+conversions, any implementation must be type safe, which allows us to rule out run time cast
+failures in well typed programs. Informally, $\fundef{docast}$ is type safe iff the resulting
+expression has the type of the cast. We refer the reader to \cite{FramedML} for a thorough
+formal discussion of type safety for this style of casting.
+
+\subsubsection{Declaration and Module Typings.} At the module level, we need to first type check
+and generate typing environments from declarations, as specified in
+\autoref{figure-declmodtyping} (rules for array and struct declarations omitted for brevity).
+Given this, a module typing is obtained by type checking module exports, using a coercion
+obtained from the module type parameters and a typing environment obtained from a combination of
+module value parameters, imports, and variable type declarations. Module type checking is also
+specified in \autoref{figure-declmodtyping}. Our type safety conjecture for nesT can then be
+stated as follows.
+
+\begin{conject}[nesT Type Safety]
+  If $\mu : \jmodtcat$ is valid and $\mu$ is runnable, then $\mu$ does not go wrong.
+\end{conject}
+Here is an example nesT typing. In this and other examples we will take narrative liberties with
+function definitions, assuming they can be non-nullary as in \autoref{figure-example}.
+\begin{exmp}
+\label{example-nesttyping}
+The module $\tt{nodeC}$ of \autoref{figure-example} can be assigned the type:
+$$
+\begin{array}{l}
+\margs{\tt{adt} \subtype \tt{uint}; \tt{self : uint}, \tt{neighbor : uint} \tt}\\
+\ \ \ \ \lc
+\tt{error\_t\ \ send}(\tt{s : adt}, \tt{d : adt}, \tt{uint8[] : data});\ \ 
+\tt{error\_t\ \  main()} 
+\rc
+\end{array}
+$$
+\end{exmp}

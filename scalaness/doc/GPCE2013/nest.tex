@@ -1,0 +1,133 @@
+\section{The nesT Language Distilled}
+\label{section-nest}
+
+In this section we summarize a \textit{D}istilled version of nesT, called DnesT, that isolates
+novel elements of nesT, specifically parametric types, subtyping, type safety, and modules.
+DnesT serves as a formal specification for the nesT implementation---given the novel type theory
+a specification is crucial as a guide for the implementation.
+% space saver cut SS
+% , and DnesT also serves as documentation for the language design.
+Due to limited space we summarize only the top-level structure of DnesT modules and our type
+checking algorithm, in order to focus more on the more central technical issues of module
+composition, instantiation, and typing at the Scalaness level.
+% space saver, this point made in next pgph. SS
+% The DnesT language syntax is a reduced version of C
+% which is largely standard.
+
+The goal of nesT is to be a type-safe variant of nesC, and DnesT serves as the specification for
+how type safety is achieved. Our approach is another species of ``safe C'' language design
+projects such as \cite{ccured02}. In particular, in DnesT all array bound accesses are checked
+at run-time, and pointer arithmetic and casting are restricted to safe forms only. We have
+developed a new type checking algorithm that incorporates subtyping, which supports bounded type
+parameters in DnesT module definitions and a more accurate static analysis of Scalaness code in
+the presence of type construction and nesT module instantiation.
+
+\subsection{Syntax and Semantics of DnesT}
+
+Module definitions rely on a notion of lists aka sequences of syntactic entities, so we begin
+with a definition of relevant notation.
+
+\paragraph{Notation and identifiers.} \emph{Sequences} are notated $x_1,\ldots,x_n$, and are
+abbreviated $\vect{x}$; $\vect{x}_\mapidx{i}$ is the $i$-th element, $\emptyset$ denotes the
+empty sequence, and $\abs{\vect{x}}$ is the size. We write $x \in \vect{x}$ to denote membership
+in sequences, and $x\vect{x}$ denotes a sequence with head $x$ and tail $\vect{x}$. We denote
+append as $\vect{x}@\vect{y}$. For relational symbols $R \in \{ \subtype, =, : \}$, we use the
+abbreviation: $\vect{x}\, R\, \vect{y} = x_1\, R\, y_1, \ldots, x_n\, R\, y_n$. So for example,
+$\tbindvec{x}{\t} = x_1 : \t_1,\ldots,x_n : \t_n$.
+% space saver SS
+%
+%Syntactic sorts of identifiers are partitioned as follows. 
+We will use metavariable $\fname$ (of set $\mathcal{F}$) for function names, $\fdname$ (of set
+$\mathcal{L}$) for field names, $\VAR$ (of set $\mathcal{V}$) for term variables, $\TVAR$ (of
+set $\mathcal{T}$) for type variables.
+
+\modulesyntaxfig
+
+\paragraph{Module syntax.} The syntax of DnesT modules is defined in
+\autoref{figure-modulesyntax}. Modules $\mu$ are written $\margs{\tpdecl; \vpdecl}\lc \imports;
+\decls \exports \rc $ with $\tpdecl$ and $\vpdecl$ being generic type and term parameters,
+$\vect{d}$ being module scope identifier declarations, including function definitions, and
+$\imports$ and $\exports$ being imports and exports. In \autoref{section-overview} and elsewhere
+we use the keywords $\texttt{import}$ and $\texttt{export}$ as sugar indicating this
+categorization.
+% space saver, shunk this point SS
+% in module and module type
+% definitions that do not exist in the syntactic definition, but merely
+% make explicit the categorization of module elements.
+
+All type parameters are assigned an upper bound, and term parameters are explicitly typed.
+Imports and export types are sequences of imported and exported command type signatures. Exports
+are sequences of command definitions. Exports are defined in terms of expressions $e$, the
+syntax of which we omit here for brevity. Declarations $\decls$ are a sequence of typed variable
+declarations. Base values, arrays (in brackets $\arr{\!\cdot\!}$), structs (in braces
+$\{\cdot\}$), and commands may all be declared, and the scope of declared variable names is
+restricted to the module. Declarations are important to include in DnesT, as they support
+serialization of value parameters during Scalaness instantiation as we describe in
+\autoref{section-serialization}.
+
+While we have elided the specifics of DnesT syntax from this shortened presentation, we now give
+a high-level summary of its largely standard features. Expressions include standard C-like
+conditional branching, looping, sequencing of expressions, function calls, arrays, structs,
+numeric base data types and basic arithmetic operations. As in nesC, no dynamic memory
+allocation is possible; all memory layout is established by static variable declarations. DnesT
+disallows pointer arithmetic, to support stronger type safety guarantees. Type casting and array
+access have run time checks imposed: types may never be cast to a pointer, and array accesses
+are always checked to be in bounds at runtime. As in nesC, DnesT includes a $\kwpost$ operation
+for posting tasks, although we make no syntactic distinction between tasks and commands. The
+meaning of $\kwpost$ corresponds to the ``run-to-completion'' model of TinyOS tasks. Interrupts
+are omitted from DnesT since they do not significantly affect the typing issues we are concerned
+with here.
+
+\paragraph{Module semantics} A ``runnable'' module---one without imports or generic
+parameters---is the DnesT model of a node OS image. The declarations in the module defines a
+\emph{load sequence} establishing an initial machine configuration, and the application entry
+point is defined in a required command $\tt{main}$.
+\begin{definition}
+\label{def-runnable}
+A module of the form $\margs{\varnothing; \varnothing }\lc ;
+\vect{\decl}; \exports\rc$,  where $\tt{main}() : \undefv \in 
+\exports$, is \emph{called runnable}.
+\end{definition}
+This model is consistent with nesC, where an application is defined as a top-level component
+that establishes an initial configuration through variable declarations, and requires user
+definition of an entry point (an event handler called $\tt{Booted}$). Formally speaking, type
+safety in nesT is a dynamic property of runnable modules.
+
+\subsection{Type Checking and Subtyping}
+\label{section-netttyping}
+
+The type system for DnesT combines a standard procedural language typing approach with subtyping
+techniques adapted from previous foundational work \cite{FramedML,Ghelli199875}.
+
+At the heart of our system is a decidable subtyping judgment $\subjudge{\tpdecl}{\t_1}{\t_2}$,
+where $\tpdecl$ is a \emph{coercion} and defines a system of upper bounds for type variables.
+This establishes a subtype ordering on base types, and also allows for width subtyping of
+records. The relation is defined in \autoref{figure-subjudge}. Algorithms for deciding the
+relation and integrating it with dynamic type construction and other Scalaness (stage 1) type
+features was a central topic of \cite{FramedML}.
+
+\subjudgefig
+
+The type checking algorithm for DnesT expressions is a combination of standard procedural type
+systems and standard subtyping systems. Module typing is obtained by type checking module
+exports, using a coercion obtained from the module type parameters and a typing environment
+obtained from a combination of module value parameters, imports, and variable type declarations.
+A valid module type checking judgment is written as:
+\begin{mathpar}
+\margs{\tpdecl, \vpdecl}\lc \imports; \vect{\decl}; \exports \rc : 
+  \margs{\tpdecl, \vpdecl}\lc \imports; \exportsty \rc
+\end{mathpar}
+Where $\exportsty$ is just the type signatures of $\exports$, and each of the command bodies in
+$\exports$ is proven to respect its type signature.
+
+\begin{exmp}
+\label{example-nesttyping}
+The module $\tt{authSend}$ defined in \autoref{section-overview} code line \ref{l:authsend} can
+be assigned the following type in DnesT:
+\end{exmp}
+\vspace{-2mm}
+\lstset{numbers=none, basicstyle=\ttfamily} 
+\lstset{escapeinside={(*@}{@*)}}\begin{lstlisting}
+ < mt (*@$\subtype$@*) mesgT(uint); sendk : uint8[] >  
+  { import radio_x(mt*), export send(mt*) }
+\end{lstlisting}

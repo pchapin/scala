@@ -1,0 +1,93 @@
+%\documentclass[preprint]{sigplanconf}
+\documentclass{sigplanconf}
+
+% All the \usepackages are now in macros file - SS
+\input{macros}
+\input{figures}
+
+% hack to get four names on one line in title - SS
+\makeatletter
+\def \@maketitle {%
+  \begin{center}
+  \@settitlebanner
+  \let \thanks = \titlenote
+  {\leftskip = 0pt plus 0.25\linewidth
+   \rightskip = 0pt plus 0.25 \linewidth
+   \parfillskip = 0pt
+   \spaceskip = .7em
+   \noindent \LARGE \bfseries \@titletext \par}
+  \vskip 6pt
+  \noindent \Large \@subtitletext \par
+  \vskip 12pt
+  \ifcase \@authorcount
+    \@latex@error{No authors were specified for this paper}{}\or
+    \@titleauthors{i}{}{}\or
+    \@titleauthors{i}{ii}{}\or
+    \@titleauthors{i}{ii}{iii}\or
+    \@titleauthorsiv{i}{ii}{iii}{iv}\or
+    %\@titleauthors{i}{ii}{iii}\@titleauthors{iv}{}{}\or
+    \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{v}{}\or
+    \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{v}{vi}\or
+    \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{v}{vi}%
+                  \@titleauthors{vii}{}{}\or
+    \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{v}{vi}%
+                  \@titleauthors{vii}{viii}{}\or
+    \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{v}{vi}%
+                  \@titleauthors{vii}{viii}{ix}\or
+    \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{v}{vi}%
+                  \@titleauthors{vii}{viii}{ix}\@titleauthors{x}{}{}\or
+    \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{v}{vi}%
+                  \@titleauthors{vii}{viii}{ix}\@titleauthors{x}{xi}{}\or
+    \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{v}{vi}%
+                  \@titleauthors{vii}{viii}{ix}\@titleauthors{x}{xi}{xii}%
+  \else
+    \@latex@error{Cannot handle more than 12 authors}{}%
+  \fi
+  \vspace{1.75pc}
+  \end{center}}
+
+\def \@titleauthorsiv #1#2#3#4{%
+    \noindent \@setauthor{10.5pc}{#1}{\@false}\hspace{0pc}%
+              \@setauthor{10.5pc}{#2}{\@false}\hspace{0pc}%
+              \@setauthor{10.5pc}{#3}{\@false}\hspace{0pc}%
+              \@setauthor{10.5pc}{#4}{\@true}\par
+    \relax
+  \vspace{20pt}}
+\makeatother
+% end hack
+
+\begin{document}
+% \long\def\snote#1{}\long\def\cnote#1{}\long\def\pnote#1{}
+
+\input{frontmatter}
+
+\input{introduction}
+
+\input{overview}
+
+\input{nest}
+
+\input{scalaness}
+
+\input{insights}
+
+\input{implementation}
+
+\input{application}
+
+\input{conclusion}
+
+% We recommend abbrvnat bibliography style.
+\bibliographystyle{abbrvnat}
+
+\bibliography{../references-General,../references-AccessControl,../references-WSN,../references-Scala,../references-Meta}
+%\bibliography{squashed}
+% The bibliography should be embedded for final submission.
+%
+%\begin{thebibliography}
+%  \softraggedright
+%  ...
+%\end{thebibliography}
+
+
+\end{document}

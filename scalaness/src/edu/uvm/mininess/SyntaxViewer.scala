@@ -582,8 +582,8 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         sink.print("}\n")
 
       // The NULL token is used as a placeholder to allow multiple nodes to replace a single
-      // node when a tree is transformed. All of it's children should be treated as if they are
-      // it siblings.
+      // node when a tree is transformed. All of its children should be treated as if they are
+      // its siblings.
       //
       case MininessLexer.NULL =>
         t.children.foreach(rewrite)

@@ -1,0 +1,249 @@
+\section{Introduction}
+
+Programming wireless sensor networks (WSNs) and other small embedded devices presents multiple
+challenges due to severe resource constraints. This paper describes a programming language
+system supporting type safe dynamic code generation for WSNs. It features programming
+abstractions for specializing sensor code, allowing on-the-fly adaptation to current WSN
+deployment conditions that can achieve greater
+efficiency. % The system has been implemented as an extension to Scala \cite{PiS2},
+ % through modification of the Scala compiler. 
+% everyone knows Scala -SS
+%Scala is a powerful
+% functional and object oriented hybrid language for the Java Virtual
+% Machine .
+
+Our system targets a scenario where a relatively powerful hub device can automatically combine
+dynamically specialized libraries and deploy them to a WSN. We use a restricted form of
+\emph{staging} \cite{Taha-MetaML,DBLP:conf/icess/Taha04,289140} to achieve well founded dynamic
+program generation. \emph{First stage} code is written in an extended version of Scala, called
+Scalaness, which is programmer friendly and suitable for running on powerful hubs. Scalaness
+program execution yields a residual \emph{second stage} WSN node program written in nesT, a type
+safe variant of the popular nesC WSN programming language \cite{Gay-nesC-2003}. The second stage
+program is constructed from module components treated as first class values, which may be type
+and value specialized during the course of first stage computation.
+
+A central contribution of Scalaness is static type safety. The Scalaness implementation
+incorporates a type checking algorithm ensuring that typeable Scalaness programs will always
+generate type safe nesT code. Since type generalization is allowed to be cross-stage, our
+technology supports a novel form of cross-stage type specialization. In existing strongly typed
+staged sensor programming environments the type correctness of second stage programs must be
+verified after execution of first stage code \cite{Mainland-Flask-2008}, and could in fact error
+which would invalidate the deployment. Such type errors are always caught at first stage
+compilation time in our system. Our previous work on the staged programming calculus $\langle
+\text{ML} \rangle$ \cite{FramedML} provides a theoretical foundation for Scalaness/nesT type
+safety.
+
+\subsection{Scalaness/nesT Implementations}
+
+The goal of our work is to build a practical programming system for writing real WSN
+applications. Here we present language designs and proof-of-concept implementations that are
+contributions in this direction. Scala is an appropriate choice as a basis for our Scalaness
+first stage language because its compiler is open source and easy to modify and maintain, and
+the Scala language offers a flexible and user friendly feature set.
+% Commented out bits about Scalas formal foundation, its not
+%  verified so seems best to keep silent as its not a major selling
+%   point. - SS
+%
+%  Scala also has a strong formal foundation. In particular,
+% although full Scala has not been formally proven type safe in the
+% manner of its Java subset (via Featherweight Java \cite{XXX}), its
+% type checking algorithm has been formalized and shown to be decidable
+% \cite{XXX}. 
+Our nesT WSN language is implemented by translation into nesC,
+which can in turn be compiled for TinyOS platforms.
+% nesC characterized previously - SS
+%  This is an appropriate
+% choice due to the popularity of TinyOS in WSN settings, and the domain
+% specificity of nesC.
+% We also allow nesT code to reference nesC libraries in our
+% implementation. 
+nesT type checking has been implemented from the ground up since it attains stronger type safety
+guarantees than nesC. Scalaness can compose and specialize nesT modules programmatically, and
+the compiler integrates type checking for nesT. nesT is by necessity a lower level language than
+Scala, arguably a required gap since sensors are too small to support VMs or automated memory
+management.
+
+\subsection{Overview of Scalaness/nesT Design}
+
+We introduce our system through an informal discussion of its novel features, illustrated by the
+example in \autoref{figure-example}. This toy example highlights how staged programming
+techniques can reduce WSN energy consumption by allowing network node messaging code to be
+specialized on the hub. In particular, we focus on how radio packets can be specialized; since
+each bit of transmission is known to consume energy similar to 800 instructions \cite{tag}, this
+can lead to big savings. The example is written in a user friendly form that is a minor
+variation on the formal abstract syntax of Scalaness and nesT that we subsequently present.
+
+In the example, the Scalaness function \tt{node\_specialize} configures a simple application to
+be run on individual sensor nodes-- to tell a one-hop neighbor ``hello''. To support
+configuration of the the application for a variety of node platforms, the function is abstract
+wrt the nesT radio module \tt{radioC} which defines the physical layer interface, although the
+required type signature \tt{radioT} of any particular radio module is known. The nesT \tt{sendC}
+module is explicitly defined, which implements a message send abstraction on the node, as is the
+nesT \tt{nodeC} module which implements the top level node application. The
+\tt{node\_specialize} code instantiates the \tt{nodeC} module with source and destination
+addresses, as well as an address type \tt{adt} which is determined dynamically based on the
+value \tt{nmax} which is a neighborhood size; we assume \emph{a priori} that the address space
+size is bounded by \tt{nmax}. Hence, instantiation of \tt{nodeC} enables a type specialization
+to use the minimal needed bit sizes.
+% (note that all addresses are appropriately type cast leading to
+% reduced space consumption for those parameters). 
+%As a first
+%approximations, TinyOS pracitioners can view Scalaness programs as a
+%significantly enriched form of nesC module configuration.
+
+\subsubsection{Modules as Staging Elements.}
+
+In Scalaness, nesT modules can be treated as data to be composed, following traditional staged
+programming languages \cite{Taha-MetaML}. The so-called ``runnable'' modules -- ones without
+imports or generic parameters -- define an initial machine configuration. This supports a TinyOS
+mote reprogramming model, where the entire OS is recompiled and target nodes are reimaged and
+rebooted. We define an \tt{image} operation (invoked in line \ref{l:image} of the example) which
+asserts its argument to be runnable and dumps the module code for subsequent sensor deployment.
+
+nesT modules specify a list of imported function signatures, and a list of exported functions
+implemented by the module. Module genericity is obtained via a sequence of type and value
+parameter definitions. For example, as specified in \autoref{figure-example}, any module
+\tt{radioC} satisfying \tt{radioT} has an address type parameter \tt{adt} which specializes the
+message type declared in the exported \tt{radio} function.
+%, whereas
+%\tt{sendC} imports a \tt{radio} function and exports a \tt{send}
+%function.  
+All generic type parameters are assigned an upper
+\emph{type bound} via the subtyping symbol $\subtype$. 
+%The \tt{nodeC}
+%module additionally has value parameters \tt{self} and \tt{neighbor},
+%which are type cast during the call to the imported \tt{send}
+%function. 
+(The concrete syntax used in \autoref{figure-example} precedes each import/export definition
+with keyword $\tt{import}$/$\tt{export}$ for a more readable presentation; this is not part of
+the formal nesT syntax.)
+  
+The other Scalaness operations on nesT modules are instantiation and composition. In line
+\ref{l:lift}, module \tt{nodeC} is instantiated with arguments \tt{adt}, \tt{self}, and
+\tt{neighbor}. In lines \ref{l:scode} and \ref{l:image}, modules are composed using the
+$\ltimes$ operator. The semantics of module composition $\mu_1 \ltimes \mu_2$ is standard
+\cite{Cardelli-1997}; imports of one module are connected to exports of the other. nesT module
+composition is analogous to nesC \emph{configuration
+  wiring}.% In \autoref{example-scalanesssemantics}
+% we describe these semantics in detail.
+\begin{fpfig*}[t]{An Example \tt{Scalaness}/{\bf \texttt{nesT}} Program; fonts distinguish the two grammars}{figure-example}
+\lstset{numbers=left, numberstyle=\tiny, stepnumber=1, numbersep=5pt, basicstyle=\ttfamily} 
+%\lstset{classoffset=1, 
+%morekeywords={post, typedef,image,uint,uint8,uint4,uint16,uint64,error_t,import,export,def,val},keywordstyle=\color{black}\bfseries, classoffset=0}
+\lstset{moredelim=*[is][\color{red}]{(((}{)))}} 
+\lstset{escapeinside={(*@}{@*)}}
+
+{\scriptsize\bf
+$$
+\tt{radioT} \defeq \texttt{<adt $\subtype$ uint> \{ export error\_t radio ({src:adt; dest:adt; data:uint8[]})\}} 
+$$
+\begin{lstlisting}
+ (*@\tt{sendC\ \  =}@*)  <adt (*@$\subtype$@*) uint>  
+           { import error_t radio( {src:adt; dest:adt; data: uint8[]} );       
+             export error_t send (adt s, adt d, uint8[] data) 
+               { radio({src = s, dest = d, data = data}); (*@\label{l:struct}@*) }
+           }
+ 
+ (*@\tt{nodeC\ \  =}@*) < adt (*@$\subtype$@*) uint, uint self, uint neighbor>.
+          { import error_t send (adt s, adt d, uint8[] data); 
+            export error_t main() 
+              { call send((adt)self, (adt)neighbor, "hello"); }   
+          }
+ 
+ (*@\tt{def\ nodeSpecialize(self: uint, neighbor: uint, nmax: uint16, radioC: radioT)}@*) {
+   (*@\tt{typedef\ adt <: uint16 =\ if\ (nmax <= 256)\ uint8\ else\ uint16;}@*)  (*@\label{l:typedef}@*)   
+   (*@\tt{val\ scode = \jinst{sendC}{adt} \ltimes\ \jinst{radioC}{adt};}@*)  (*@\label{l:scode}@*)    
+   (*@\tt{val\ ncode = \jinst{nodeC}{adt, self, neighbor};}@*) (*@\label{l:lift}@*)    
+   (*@\tt{image(ncode  \ltimes scode);}@*) (*@\label{l:image}@*)   
+ }
+\end{lstlisting}}%small
+\end{fpfig*}
+
+
+\subsubsection{Typing.} 
+
+The most novel feature of our type system is dynamic type construction. We allow dynamic
+construction of nesT types at the Scalaness level for module instantiation and specialization.
+On line \ref{l:typedef} in \autoref{figure-example}, the address type \tt{adt} is dynamically
+constructed via a conditional expression.
+
+% Scalaness incorporates two distinct type checking algorithms-- one for the first stage
+% extended Scala language, and one for nesT code.
+Scalaness type checking is an extension of Scala type checking; we introduce a new module type
+form to the Scala type language, and add type checking cases for the three module operations:
+instantiation, composition, and imaging. No other part of Scala type checking needs to be
+modified. NesT type checking is defined as a standalone type system, and yields first stage
+module types.
+
+% stuff about soundness cut, was already mentioned in intro and is in
+% scalaness section below as well. SS
+%
+% Scala type checking has been formally studied and shown to be
+% decidable \cite{Cremet:2006:CCS:2135978.2135980}.
+% % , and in this work it
+% % is also conjectured that Scala enjoys type safety.
+% % no need to say - SS
+% % , which is supported
+% % by practical experience
+% The typing rules we add to accommodate staged module
+% operations are based on our previous foundational work
+% \cite{FramedML}, lending strong support for the safety of Scalaness typing.
+% % Not sure what this review of nesT is doing here, nesT was already
+% % briefly described earlier. - SS
+% %
+% % The nesT type system is a
+% % mostly standard procedural language type system, but with type safety
+% % restrictions on features (e.g.~no pointer arithmetic) and bounded
+% % subtyping polymorphism for greater precision of the analysis.  We
+% % illustrate nesT and Scalaness type checking in
+% % \autoref{example-nesttyping} and \autoref{example-scalanesstyping},
+% % respectively.
+
+
+
+%\subsubsection{TinyOS Compliant Programming Model.} 
+%
+%Like nesC, the nesT langage comprises a subset of the C language of
+%expressions and statements to define sequential computations. The
+%model also includes pseudo-concurrent task postings with a
+%run-to-completion semantics. Indeed, all nesT code has an
+%interpretation in nesC, and residual nesT code is translated to nesC
+%by the Scalaness compiler for subsequent compilation and deployment.
+%
+%Although Scalaness is intended for real applications, in this document
+%and in our implementation we have focused on a minimal language to
+%isolate fundamental issues and simplify implementation details. Thus
+%for example, our module language does not separate interfaces and
+%module implementations as in nesC. Nevertheless it is an adequate
+%``featherweight'' representation of the nesC module language and
+%integrates naturally with the TinyOS programming model.
+%
+%Since it is not realistic (or convenient) to imagine that all TinyOS
+%libraries can be recreated in nesT, it is essential to be able to use
+%nesC libraries as needed. In \autoref{section-libraries} we describe a
+%nesT mechanism in the implementation for importing nesC modules.
+
+\subsubsection{Cross-Stage Migration of Types and Values.} 
+
+A crucial feature of our programming model is \emph{process separation} between stages
+\cite{FramedML}. Since first and second stage code are to be run on separate devices, state is
+not shared between these stages. Thus, serialization may be required when modules are
+instantiated. Furthermore, types and base values may be represented differently on the first and
+second stages, requiring some sort of transformation during module instantiation. An example
+transformation is discussed in \autoref{section-serialization}.
+
+\subsection{Remainder of the Paper} 
+
+In this paper we specify the features of Scalaness/nesT and to report on its implementation. We
+develop core calculi for nesT in \autoref{section-nest} and for Scalaness in
+\autoref{section-scalaness}.
+% which is  
+% a characteristic subset of Scalaness suitable for formal
+% consideration, in the style of Featherweight Java. In
+% \autoref{section-nest} we describe the nesT syntax, semantics, and
+% type checking discipline. In \autoref{section-scalaness} we describe
+% the first stage Scalaness language in featherweight form, including
+% its syntax, semantics, and type checking discipline. 
+In \autoref{section-implementation} we describe our implementation. We conclude with remarks on
+related work in \autoref{section-conclusion}.
+

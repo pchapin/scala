@@ -1,0 +1,61 @@
+
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+\conferenceinfo{GPCE~'13}{October 27--28, 2013, Indianapolis, Indiana, USA} 
+\copyrightyear{2013} 
+\copyrightdata{978-1-4503-2373-4/13/10} 
+\doi{2517208.2517217}
+% The full doi URL is: http://dx.doi.org/10.1145/2517208.2517217
+% However, the template document seems to indicate a format of 7 digits dot 7 digits.
+
+% Uncomment one of the following two, if you are not going for the 
+% traditional copyright transfer agreement.
+
+\exclusivelicense                % ACM gets exclusive license to publish, 
+                                 % you retain copyright
+
+%\permissiontopublish             % ACM gets nonexclusive license to publish
+                                  % (paid open-access papers, 
+                                  % short abstracts)
+
+%\titlebanner{banner above paper title}        % These are ignored unless
+%\preprintfooter{short description of paper}   % 'preprint' option specified.
+
+\title{Scalaness/nesT: Type Specialized Staged Programming for Sensor Networks}
+
+\authorinfo{Peter Chapin}{University of Vermont}{pchapin@cs.uvm.edu}
+\authorinfo{Christian Skalka\thanks{This author's work was supported by a YIP grant from the 
+Air Force Office of Scientific Research (AFOSR).}}{University of Vermont}{skalka@cs.uvm.edu}
+\authorinfo{Scott Smith}{The Johns Hopkins University}{scott@cs.jhu.edu}
+\authorinfo{Michael Watson}{University of Vermont}{mpwatson@cs.uvm.edu}
+
+\maketitle
+
+\begin{abstract}
+  Programming wireless embedded networks is challenging due to severe limitations on processing
+  speed, memory, and bandwidth. Staged programming can help bridge the gap between high level
+  code refinement techniques and efficient device level programs by allowing a first stage
+  program to specialize device level code. Here we introduce a two stage programming system for
+  wireless sensor networks. The first stage program is written in our extended dialect of Scala,
+  called Scalaness, where components written in our type safe dialect of nesC, called nesT, are
+  composed and specialized. Scalaness programs can dynamically construct TinyOS-compliant nesT
+  device images that can be deployed to motes. A key result, called cross-stage type safety,
+  shows that successful static type checking of a Scalaness program means no type errors will
+  arise either during programmatic composition and specialization of WSN code, or later on the
+  WSN itself. Scalaness has been implemented through direct modification of the Scala compiler.
+  Implementation of a staged public-key cryptography calculation shows the sensor memory
+  footprint can be significantly reduced by staging.
+\end{abstract}
+
+%\category{CR-number}{subcategory}{third-level}
+\category{D.3.4}{Programming Languages}{Processors}---Compilers
+
+% general terms are not compulsory anymore, 
+% you may leave them out
+%\terms
+%term1, term2
+
+\keywords
+Staged programming; Scala; nesC

@@ -1,0 +1,170 @@
+\section{An Example: Authenticated Messaging}
+\label{section-overview}
+
+In this section we provide a high-level overview of Scalaness/nesT usage and applications via an
+example. (This example is written in DScalaness/DnesT, a simplified formalization of the
+implemented Scalaness/nesT, which is defined later in this paper.) The example illustrates both
+the type and value specializations that can occur in our system. This example needs to be very
+small to fit in this overview which means it alone is not complete evidence of the advantage of
+mote code staging, but it should point the reader to the promise of the approach.
+% added disclaimer above to address reviewer 2's criticism - SS
+
+\paragraph{Program description.} To illustrate type specialization, we refine address size. It
+is well-known that minimizing address space size in WSN message packets can obtain significant
+energy savings by reducing message sizes, since each bit of transmission is known to consume
+energy similar to 800 instructions \cite{tag}. However, WSNs are ``ad hoc'' precisely in the
+sense that positions and densities of nodes in space are unpredictable, so ``minimal'' address
+space is an environmental property, where minimality may need to be determined \emph{in situ}.
+
+To illustrate value specialization, we define a DnesT code template that can be instantiated
+with specific session keys for secure communication in a WSN. We imagine that the template is
+instantiated on high powered hub or lab device, where session keys are generated. In previous
+work it has been shown how symmetric key signatures can be used to support language based
+resource authorization in WSNs \cite{chapin-skalka-SpartanRPC,chapin-skalka-SpartanRPCTR}. In
+particular, communication between security domains in a WSN is mediated by credentials
+implemented as keys, and nodes lying at domain frontiers can use different keys to send (to the
+other domain) and receive (from the other domain) over secured link layer channels. Since it is
+unpredictable where nodes will be physically distributed in space, appropriate keys for each
+node need to be established \emph{in situ}. Defining node functionality using generic code that
+must be instantiated with specific keys allows adaptation to a deployment environment, and
+allows expensive computations for establishing session keys to be offloaded from the WSN to a
+higher powered device. Experience with an actual implementation of this application is discussed
+\autoref{section-application}.
+
+\paragraph{The Code.} To distinguish Scalaness and nesT code in examples we will use a darker
+font for Scalaness code and a lighter font for nesT code, and line numbers for reference. We
+begin with the definition of a parameterized type $\tt{mesgT(t)}$ using the Scalaness
+$\tt{abbrvt}$ binder, where an instance $\tt{mesgT}(\t)$ denotes the ground type obtained by
+substituting $\t$ for $\tt{t}$ in the definition of $\tt{mesgT}$.
+
+\lstset{numbers=left,
+  numberstyle=\tiny, firstnumber=1, stepnumber=1, numbersep=0pt,
+  basicstyle=\ttfamily} \lstset{escapeinside={(*@}{@*)}} {\scriptsize
+\begin{lstlisting}
+ (*@\tt{abbrvt\ mesgT(t)\  =}@*) { src : (*@\tt{t}@*); dest : (*@\tt{t}@*); data : uint8[] };  (*@\label{l:mesgt}@*)
+\end{lstlisting}
+}
+\noindent Next, we define a type $\tt{radioT}$,
+which is the type of nesT modules that provide an API to the radio. 
+\lstset{numbers=left, numberstyle=\tiny, firstnumber=2, stepnumber=1,
+  numbersep=0pt, basicstyle=\ttfamily}
+\lstset{escapeinside={(*@}{@*)}}
+{\scriptsize
+\begin{lstlisting}
+ (*@\tt{abbrvt\ radioT\  =}@*) < mt (*@$\subtype$@*) (*@\tt{mesgT}@*)(uint) > (*@\label{l:radiot}@*)
+                 { export radio_x(mt*); 
+                   import handle_radio_r(mt*); };
+\end{lstlisting}
+}
+\noindent The nesT module language is a simplified version of the nesC component language. In
+this example, any module of type $\tt{radioT}$ exports a $\tt{radio\_x}$ function for sending
+messages, and imports a $\tt{handle\_radio\_r}$ function that allows received messages to be
+handled in a user-defined manner. Both functions take message references as
+arguments\footnote{For brevity the return type on all commands is omitted. In all cases it is
+  the TinyOS error type $\tt{error\_t}$ }. Furthermore, the module is parameterized by the type
+of messages $\tt{mt}$, where the address type is upper-bounded by 32-bit unsigned integer. Thus,
+any module of type $\tt{radioT}$ can be dynamically specialized to a 32, 16, or 8 bit address
+space by type instantiation. Module type parameters are always defined with brackets
+$\tt{<...>}$.
+ 
+Now we define another type $\tt{commT}$ which is the type of modules providing a QOS layer over
+a specialized radio.
+\lstset{numbers=left, numberstyle=\tiny, firstnumber=5, stepnumber=1,
+  numbersep=0pt, basicstyle=\ttfamily}
+\lstset{escapeinside={(*@}{@*)}}
+{\scriptsize
+\begin{lstlisting}
+ (*@\tt{abbrvt\ commT\  =}@*) (mt (*@$\subtype$@*) (*@\tt{mesgT}@*)(uint)) (*@$\circ$@*)  
+                 < > (*@\label{l:commt}@*)
+                 { export send(mt*); 
+                   import handle_receive(mt*); };
+\end{lstlisting}} 
+\noindent Although this type is also parameterized by a bounded message type $\tt{mt}$, as is
+$\tt{radioT}$, the parameterization is subtly different syntactically and semantically, since
+$\tt{commT}$ expects a program context where the radio has been specialized. Thus, in
+$\tt{commT}$, $\tt{mt}$ is understood as being ``some'' type with an upper bound of
+$\tt{mesgT(uint)}$ which occurs in the module signature, whereas the module itself has no
+parameters to be instantiated-- note the empty instance parameter brackets $\tt{< >}$ in the
+module type after the $\circ$ delimiter. This sort of type is needed in the presence of
+\emph{dynamic type construction}, a useful Scalaness feature we exemplify below.
+
+Next we define modules for sending and receiving messages that provide a layer of authentication
+security over the radio.
+\lstset{numbers=left, numberstyle=\tiny, firstnumber=9, stepnumber=1,
+  numbersep=0pt, basicstyle=\ttfamily}
+\lstset{escapeinside={(*@}{@*)}} {\scriptsize
+\begin{lstlisting}
+ (*@\tt{authSend\ \  =}@*) < mt (*@$\subtype$@*) (*@\tt{mesgT}@*)(uint);(*@\label{l:authsend}@*) sendk : uint8[],>  
+             { import radio_x(mt*);
+               export send(m : mt*) 
+                      { radio_x(AES_sign(m, sendk)); } };
+
+ (*@\tt{authRecv\ \  =}@*) < mt (*@$\subtype$@*) (*@\tt{mesgT}@*)(uint);(*@\label{l:authrecv}@*) recvk : uint8[] >  
+             { import handle_recv(mt*);
+               export handle_radio_r(m : mt*) 
+                      { if AES_signed(m, recvk) 
+                         handle_recv(m); } }; 
+\end{lstlisting}
+}
+Observe that in the implementation of $\tt{send}$ in module \tt{auth\-Send}, messages are
+signed with a key $\tt{sendk}$, whereas when messages are received they must be signed with a
+possibly different key $\tt{recvk}$ before being passed on to the user's receive handler, as
+specified in module \tt{authRecv}. These modules are parameterized by a message type $\tt{mt}$,
+and also the $\tt{sendk}$ and $\tt{recvk}$ key values.
+
+To generalize a technique for composing these modules with a radio to yield a module of type
+\tt{commT}, that is abstract wrt neighborhood sizes, radio implementations, and session key
+material, we define the Scalaness $\tt{authSpecialize}$ function as follows:
+\lstset{numbers=left, numberstyle=\tiny, firstnumber=19, stepnumber=1,
+  numbersep=0pt, basicstyle=\ttfamily}
+\lstset{escapeinside={(*@}{@*)}} {\scriptsize
+\begin{lstlisting}
+ (*@\tt{def\ authSpecialize}@*) (*@\label{l:authspecialize}@*)
+  (*@ \tt{(nmax : uint16, radioM : radioT, keys : uint8[][]) : commT }@*) { (*@\label{l:args}@*)
+     (*@\tt{typedef\ adt \subtype uint = \ if\ (nmax  \le 256)\ uint8\ else\ uint16;}@*)  (*@\label{l:typedef}@*) 
+     (*@\tt{val\ sendM = \jinst{authSend}{mesgT(adt); keys[0]};}@*)  (*@\label{l:inst1}@*)
+     (*@\tt{val\ recvM = \jinst{authRecv}{mesgT(adt); keys[1]};}@*)  (*@\label{l:inst2}@*)    
+     (*@\tt{(sendM \ltimes \jinst{radioM}{mesgT(adt)}) \ltimes recvM;}@*) (*@\label{l:wire}@*)
+    }
+\end{lstlisting}} 
+
+The first-class status of nesT modules in Scalaness is apparent here. On line \ref{l:args} the
+function is specified to take a module parameter $\tt{radioM}$ of type $\tt{radioT}$ among its
+arguments, and to return a module of type $\tt{commT}$ as a result. It also takes an array of
+keys as an argument, and on lines \ref{l:inst1} and \ref{l:inst2} it instantiates
+$\tt{sendMesg}$ and $\tt{recvMesg}$ with the keys in the array. It also uses the type $\tt{adt}$
+in the instantiations, which in line \ref{l:typedef} is dynamically constructed on the basis of
+the input variable $\tt{nmax}$ which defines the needed address space size and bound using the
+Scalaness $\tt{typedef}$ construct. This illustrates a key novelty of our system, the ability to
+\emph{dynamically} set a type to use on a mote based on a decision made in the Scalaness
+runtime. Since the value of $\tt{nmax}$ cannot be statically determined, the type analysis only
+knows that $\tt{adt}$ is some subtype of $\tt{uint}$. Finally, on line \ref{l:wire} the
+instantiated radio module is composed with the instantiated send and receive modules via the
+Scalaness $\ltimes$ operator. The semantics of module composition here is standard
+\cite{Cardelli-1997}; in a composition aka wiring $\mu_1 \ltimes \mu_2$, the exports of $\mu_2$
+are connected to imports of $\mu_1$. The function result is a module of type \tt{commT}.
+
+To obtain a module defining a mote OS image in a program context where neighborhood size is
+known, a radio implementation has been provided, and session keys have been computed. We can
+then compose the results of an \tt{authSpecialize} function with modules specifying top-level
+message send and receive behaviors, and a \texttt{main} application entry point as follows (here
+we assume it is known that address sizes can be limited to 8 bits, so \tt{nmax} < 256). At line
+\ref{l:image} a closed module is defined and a binary mote image can be produced by a call to
+\tt{image}. \lstset{numbers=left, numberstyle=\tiny, firstnumber=26, stepnumber=1,
+  numbersep=0pt, basicstyle=\ttfamily}
+\lstset{escapeinside={(*@}{@*)}} {\scriptsize
+\begin{lstlisting}
+ (*@\tt{appMR\ =}@*) 
+  < > { export handle_recv(m : (*@\tt{mesgT}@*)(uint8)*) {(*@\ldots@*)} }; 
+ (*@\tt{appM\ =}@*) 
+  < > { import send((*@\tt{mesgT}@*)(uint8)*); export main() {(*@\ldots@*)} };  
+ (*@\tt{image(appM \ltimes (authSpecialize(nmax, radioM, keys) \ltimes appMR)); } @*) (*@\label{l:image}@*)  
+\end{lstlisting}}
+\noindent In DScalaness, \tt{image} is an assertion that its argument is a \emph{runnable}
+module, with no unresolved parameters or imports. In the Scalaness implementation, this is the
+point where nesT source code is actually generated.
+% As future work, this is also a natural point to integrate automated code deployment in the
+% Scalaness runtime.
+Successful Scalaness/nesT type checking (which occurs during stage 1 compilation as per
+\autoref{figure-scalaness}) statically guarantees that specialized code generated at the point
+of \tt{image} will run in a type-safe manner when it is eventually loaded and run on a mote.

@@ -270,7 +270,7 @@ postfix_expression_modifier
 
 call_kind
     :    CALL
-    |    POST;   // Do we really want to allow tasks in Mininess?
+    |    POST;
         
 argument_expression_list
     :    assignment_expression (','! assignment_expression)*;

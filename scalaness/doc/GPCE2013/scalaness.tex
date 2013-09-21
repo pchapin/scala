@@ -1,0 +1,352 @@
+\section{The Scalaness Language Distilled}
+\label{section-scalaness}
+
+Scalaness serves as the language for nesT module composition in the same manner as nesC
+configurations serve to compose nesC modules, but Scalaness is a much more powerful metalanguage
+since modules are treated as a new category of first class values in Scalaness. Instantiation,
+composition (aka wiring), and imaging of modules are defined as operations on module values.
+Because instantiation of modules with both types and values is allowed, types and values may
+migrate from the Scalaness level to the nesT level after programmatic refinement, realizing a
+disciplined form of code specialization.
+
+%\snote{Scalaness formalized vs Scalaness implemented was not clear,
+%  reworded this to bring out the difference.  May need some polishing,
+%  take a pass at it.}  
+Our goal in this Section is to describe the Scalaness syntax and semantics realized in our
+implementation. Since Scala is too large to easily formalize, we define here a \emph{D}istilled
+Scalaness, DScalaness, that extends a core typed object-oriented language to include syntax and
+semantics for defining and composing DnesT modules. The particular object-oriented core calculus
+we use is a combination of two Featherweight Java variants: Featherweight Generic Java (FGJ)
+\cite{FJ} and Assignment Featherweight Java (AFJ) \cite{AFJ}.
+% The generic class types of FGJ are needed to model type
+% construction, and the mutation in AFJ is essential to consider since
+% one of our main concerns is nesT code specialization. A formalized
+% core calculus and type analysis for Scala exists
+% \cite{Cremet:2006:CCS:2135978.2135980}, but our FGJ/AFJ route is
+% simpler and the missed features are not relevant to the concerns here.
+% should be obvious to readers, space saver cut - SS
+%
+% Furthermore, since Scala subsumes Java, definitions that include FGJ/AFJ features can be
+% trivially ported to a Scala context.
+
+% % %  subset of Scala
+% % % expressed as an extension of Featherweight Java \cite{FJ}, a core
+% % % calculus subsumed by Scala. A formalized core calculus and type
+% % % analysis for Scala exists \cite{Cremet:2006:CCS:2135978.2135980}, but
+% % % FJ is adequate and simpler.  We thus elide many features of Scala in
+% % % the Scalaness formalization, but we adapt all Scala features unchanged
+% % % in our Scalaness implementation.  Here we primarily focus on the
+% % % module metaprogramming operations that we add.  The presentation here
+% % % ``cleans up'' some implementation details, but is otherwise an
+% % % accurate description of the module operation semantics and especially
+% % % the module operation typing rules.
+
+% Scalaness type checking is grounded in a previous foundational work, as discussed in
+% \autoref{section-framedml}. The type checking algorithm presented here statically supports
+% type safety at both programmatic levels, i.e.~if a Scalaness program type checks, then running
+% it will not cause a type failure, \emph{and} residual nesT code will also be type-safe when
+% run on its own.
+
+\subsection{Syntax of DScalaness}
+
+\scalanesssyntaxfig
+
+The DScalaness language syntax is presented in \autoref{figure-scalanesssyntax}.
+% % %  To represent an adequate core
+% % % calculus of Scala, it subsumes two Featherweight Java variants:
+% % % Featherweight Generic Java (FGJ) \cite{FJ} and Assignment Featherweight Java
+% % % (AFJ) \cite{AFJ}. The generic class types of FGJ are needed to model
+% % % type construction, and the mutation in AFJ is essential to consider
+% % % since one of our main concerns is nesT code specialization; nesT
+% % % programs are run in a separate process space, so specialization with
+% % % stateful values, a likely common idiom in a Scala setting, presents a
+% % % challenge.
+We refer the reader to \cite{FJ,AFJ} for details on the FGJ and AFJ object oriented calculi,
+which are represented in the languages of class definitions, constructors, methods, and the
+first line of expression forms defined in \autoref{figure-scalanesssyntax}. DScalaness extends
+these features with a typed variable declaration form $\jdef{x}{T}{e_1}{e_2}$ where the scope of
+$\ttt{x}$ is $\tt{e_2}$, a dynamic type construction form $\jtlet{x}{T}{e_1}{e_2}$ with similar
+scoping rules (although this is defined as syntactic sugar in \autoref{def-metatype}). For
+programmer convenience a simple parameterized type abbreviation binder $\tt{abbrvt}$ is also
+provided. We include DnesT modules $\jmodval$ in the DScalaness expression and value spaces:
+instantiation is obtained via the form $\jinst{e_1}{\ttvec{e}_1; \ttvec{e}_2}$, where
+$\ttvec{e}_\tt{1}$ are type parameters and $\ttvec{e}_\tt{2}$ are value parameters. Wiring of
+modules is denoted $\jwire{\tt{e_1}}{\tt{e_2}}$. Imaging of modules, denoted $\jimage{\tt{e}}$,
+ensures that $\tt{e}$ computes to a runnable DnesT module.
+
+\subsection{Semantics of DScalaness}
+
+The semantics of DScalaness is an extension of the semantics of AFJ and FGJ to incorporate DnesT
+modules and operations. Computations assume a fixed class table $\CT$ allowing access to class
+definitions via class names, which always decorate an object's type. A \emph{store} $\jstore$ is
+a function from memory locations $\tt{p}$ to object representations. Objects are represented in
+memory by lists of object references $\ttvec{l}$, which refer to the locations of the objects
+stored in mutable field values. A reference $\tt{l}$ is a pair $\jref{\tt{p}}{N}$ where $\tt{p}$
+is the memory location of an object representation and $\tt{N}$ is the nominal type of the
+object, including its class name. Hence, given an object reference
+$\jref{\tt{p}}{\jinst{C}{\ttvec{T}}}$, we can access and mutate its fields $\ttvec{l} =
+\jstore(\tt{p})$, and access and use its methods via the definition $\CT(\tt{C})$.
+
+Following AFJ, the semantics of DScalaness is defined as a \emph{labeled transition system},
+where transitions are of the form $\tt{e} - \lc s = \jstore, s' = \jstore' \rc \rightarrow
+\tt{e}' $. Intuitively, this denotes that given an initial store $\jstore$ and expression
+$\tt{e}$, one step of evaluation results in a modified store $\jstore'$ and contractum
+$\tt{e}'$. We write $\tt{e} \rightarrow \tt{e}'$ as an abbreviation when the store is not
+altered.
+% space saver - SS
+%  When discussing the
+% semantics of module operations in DScalaness we will use this
+% abbreviated form, since they are purely functional.
+
+% We refer the reader to \cite{XXX} for details on the semantics of AFJ
+% and FGJ subsumed by DScalaness.
+The primary novelty of DScalaness is the formal semantics of type and module construction. We
+begin with type construction, which is provided to allow programmers to dynamically construct
+module type instances. The appropriate behavior is obtained by treating dynamically constructed
+types as extensions of a basic class of objects, and declarations of DnesT level types via a
+\tt{typedef} construct as syntactic sugar for ordinary object construction. We define a
+\tt{LiftableType} class as the supertype of all types of objects that can be used to instantiate
+a module, and dynamically constructed types are defined as instances of a generic \tt{MetaType}
+class.
+\begin{definition}
+\label{def-metatype}
+Any DScalaness class table $\CT$ comprises the following definitions:
+$$
+\hspace{-4pt}
+\begin{array}{l}
+\CT(\tt{LiftableType}) = \\
+\ \ \gclass{\tt{LiftableType}}{}{Object}{\ldots}\\
+\CT(\tt{MetaType}) = \\
+\ \ \gclass{\tt{MetaType}}{\tt{X <: LiftableType}}{Object}{ \ldots }
+\end{array}
+$$
+And we take as given the following syntactic sugar:
+$$
+\jtlet{x}{T}{e_1}{e_2}\ \defeq\ \jdef{x}{\jinst{MetaType}{T}}{e_1}{e_2}
+$$
+Class type $\tt{MetaType}$ is generalized on a single type variable. For brevity of notation, we
+define:
+$$
+\jinst{\tt{MetaType}}{\ttvec{T}}\quad \defeq \quad \overline{\jinst{MetaType}{T}}
+$$
+\end{definition}
+A crucial fact of DScalaness type construction is that any dynamically constructed type cannot
+be treated as a type at the DScalaness level. This is a more restrictive mechanism than
+envisioned in our foundational model \cite{FramedML}, however it allows us to define DScalaness
+as a straightforward extension to Scala, especially in terms of type checking.
+
+Module instantiation, shown in \autoref{figure-jmodsemantics}, is the only point where
+specialization of DnesT modules is allowed.
+% , since non-local variables are disallowed in module
+% definitions
+Since DScalaness and DnesT are two different language spaces, some sort of transformation must
+occur when values migrate from DScalaness to DnesT via module instantiation. This \emph{lifting}
+transformation involves both data mapping and serialization since the process spaces also
+differ. We aim to be flexible and allow the user to specify how values are lifted and how types
+are transformed. We only require that lifting and type transformation are coherent, in the sense
+that the lifting of an object should be typeable at the object's type transformation. We
+formalize this in the following definition.% Note that lifting is defined on references,
+% since this is how objects are referred to at run-time and we never
+% want to allow lifting of modules.
+\begin{definition}
+\label{def-lifting}
+We assume given a relation $\ser{\jstore}$ which transforms a DScalaness reference $\tt{l}$ into
+DnesT declarations $\vect{d}$ and expression $e$. We also assume given a DScalaness-to-DnesT
+transformation of types $\codt{\cdot}$. To preserve type safety, we require in all cases that
+$\jref{p}{N} \ser{\jstore} \vect{d}, e$ implies both of the following for some type environment
+$G$:
+$$
+\varnothing, \varnothing \vdash \vect{d} : \tenv \qquad \text{ and} \qquad
+ \tenv, \varnothing \vdash e : \codt{\tt{N}} 
+$$
+\end{definition}
+The full definition of serialization and an example are given and discussed below in
+\autoref{section-serialization}.
+% \snote{check that cut here is OK, just trying to save space.}
+%  In brief, when a
+% module $\mu$ is instantiated, serialization will bind the value
+% parameters of $\mu$ to the lifted values of their instances in a
+% series of declarations that are added to its own. This is specified in
+% the \TirName{ModInst} rule in \autoref{figure-jmodsemantics}. Another
+% important detail of the \TirName{ModInst} rule is that only type
+% information in type parameters is used, and migrates into the module
+% via type transformation and ordinary substititution.  
+
+\jmodsemanticsfig
+
+Module wiring is given a standard component composition semantics. We only allow wiring of
+instantiated modules, which is consistent with nesC and simpler to implement. In a wiring
+$\jwire{\tt{e}_1}{\tt{e}_2}$, the exports of $\tt{e}_2$ are wired to the imports of $\tt{e}_1$.
+This is specified in the \TirName{ModWire} rule in \autoref{figure-jmodsemantics}, which relies
+on the following auxiliary definition of operations for combining mappings.
+% space saver - SS
+%  of various
+% sorts (e.g.~lists of imports and exports)
+\begin{definition}[Special Mapping Operations]
+  Let $m$ range over vectors with mapping interpretations, in particular~$\tpdecl$, $\vpdecl$,
+  $\imports$, and $\exports$. Binary operator $m_1\maploosemerge m_2$ represents (non-exclusive)
+  map merge, i.e.~$m_1 \maploosemerge m_2 = m_1 @ m_2$ with the requirement that $\identifier\in
+  \dom(m_1)\cap\dom(m_2)$ implies $m_1(\identifier) = m_2(\identifier)$.
+%Binary operator $\mu_1\uplus\mu_2$
+%represents mutually exclusive map merge; for this operation to be
+%defined it must be that $\dom(\mu_1)\cap\dom(\mu_2) = \emptyset$.
+%Given $\vect{\mu} = [\mu_1,\ldots,\mu_n]$ we write
+%$\maploosemerge\vect{\mu}$ to denote $\mu_1 \maploosemerge \cdots
+%\maploosemerge \mu_n$, similarly $\uplus\vect{\mu}$. 
+  The mapping $m / S$ is the same as $m$ except undefined on domain elements in set $S$, and the
+  mapping $\restrict{m}{S}$ is the same as $m$ except undefined on elements not in ${S}$.
+\end{definition}
+Finally, the $\TirName{ModImage}$ rule in \autoref{figure-jmodsemantics} shows that imaging it
+is an assertion requiring its arguments to be a runnable module.
+
+% lots of space saving on example formatting SS
+%
+\begin{exmp}
+\label{example-scalanesssemantics}
+Given code definitions in \autoref{section-overview} and an invocation
+$\tt{authSpecialize}(\tt{50},\ \tt{radioM},\ \arr{\tt{k_1,k_2}})$, where $\tt{radioM: radioT}$,
+and $\tt{k_1,k_2}$ are keys, the evaluation of the expression on line \ref{l:wire}, $\tt{sendM
+  \ltimes \jinst{radioM}{mesgT(adt)}}$, will evaluate to the following module:
+\end{exmp}
+\vspace{-3mm}
+\lstset{numbers=none, numberstyle=\tiny, firstnumber=5, stepnumber=1,
+  numbersep=0pt, basicstyle=\ttfamily}
+\lstset{escapeinside={(*@}{@*)}}
+{\small
+\begin{lstlisting}
+ < > ( { import handle_radio_r((*@\tt{mesgT}@*)(uint8)*); ...;
+         export send(m : (*@\tt{mesgT}@*)(uint8)*) 
+                { radio_x(AES_sign(m, (*@$\tt{k_1}$@*))); } }
+\end{lstlisting}} 
+\emph{where the elided declarations include a definition of a command
+\textup{\texttt{radio\_x}} imported from \tt{radioM} also with argument type
+$\tt{mesgT}\textup{\texttt{(uint8)*}}$.}
+
+
+\subsection{Serialization and Lifting}
+\label{section-serialization}
+
+Serialization generates a flattened DnesT source code version of a DScalaness object in memory.
+At the top level, serialization binds the value parameters of a module to the results of
+flattening, aka lifting, via a sequence of declarations. Here is the precise definition.
+\begin{definition}[Serialization]
+\label{def-serialization}
+Assume given a store $\jstore$ which is implicit in the following definitions. We define
+serialization of DScalaness references as follows, along with an extension of the user defined
+lifting relation to sequences of references:
+\begin{mathpar}
+\inferrule
+{}
+{\varnothing \ser{\jstore} \varnothing, \varnothing}
+
+\inferrule%[Serialize]
+{\vect{\tt{l}} \ser{\bm} \vect{\decl},\vect{e}}
+{\serialize(\vect{x}, \vect{\t}, \vect{\tt{l}}) = \vect{\decl} @\ {\vect{\t}\ \vect{x} = \vect{e}}}
+\ \ \ \ \inferrule
+{\tt{l} \ser{\jstore} \vect{d}, e \\ \ttvec{l} \ser{\jstore} \vect{d'}, \vect{e}}
+{\tt{l}\vect{\tt{l}} \ser{\jstore} \vect{d} @ \vect{d'}, e\vect{e}}
+\end{mathpar}
+\end{definition}
+Although lifting is user defined, a standard strategy is to introduce a new declared variable
+for each memory reference in the lifted object, and bind the variable to the lifted referent.
+Hence, lifting will typically be defined recursively. In our implementation, we have adapted a
+``default'' lifting which follows this strategy, and also transforms objects by just
+transforming the fields into a representative struct, and ignoring methods. We will illustrate
+this with an example in \autoref{section-implementation}.
+% , which also shows how base values such 
+% as integers are lifted
+We can formally capture the essence of this transformation with the following definitions. It is
+easy to see that these definitions will satisfy the requirements of \autoref{def-lifting}.
+\begin{exmp} In this example we allow lifting of any object references, and transform the object
+  $o$ into a structure containing the transformed fields of $o$. Methods are disregarded by the
+  transformation. Here is the specification of the type transformation:
+\begin{mathpar}
+\inferrule {\CT(\ttt{C}) =
+  \gclass{C}{\gbounds{X}{S}}{N}{\fieldvec{R}{f};\ K\ \ttvec{M}}}
+          {\codt{\jinst{C}{\ttvec{T}}} = \lc \vect{\ttt{f}} :
+            \codt{\ttvec{R}[\ttvec{T}/\ttvec{X}]} \rc}
+\end{mathpar}
+and here is the specification of lifting.
+\begin{mathpar}
+\inferrule
+{\jstore(\tt{p}) = \ttvec{l} \\ \fields{C} = \tdecls{T}{f} \\ 
+ \ttvec{l} \ser{\jstore} \vect{d}, \vect{e} \\ x \ \text{ fresh}} 
+{\jref{p}{\jinst{C}{\ttvec{R}}} \ser{\jstore} \vect{\decl} 
+   @ (\xlet{\codt{\jinst{C}{\ttvec{R}}}}{x}{\lc \vect{\ttt{f}} = \vect{e}\rc}) , x}
+\end{mathpar}
+\end{exmp}
+
+
+\subsection{DScalaness Type Checking}
+\label{section-typing}
+
+The primary novelty of DScalaness are the rules for DnesT module typing and composition, and
+that is the focus of this section.
+% boilerplate cut to save space - SS
+% The DScalaness Type judgements are of the form $\Gamma \vdash \tt{e} :
+% \tt{T}$, where $\Gamma$ is a free variable typing environment and
+% judgement validity is obtained via a deduction system. 
+We adopt the typing rules of FGJ in their entirety, and refer the reader to \cite{FJ} for
+relevant details. % Since type construction via
+% \tt{typedef} is syntactic sugar for normal object construction, 
+% that is covered by those rules as well.
+
+
+%\begin{theorem}[AFGJ Type Safety]
+%If $\varnothing \vdash \tt{e} : \tt{N}$ and $\tt{e} \rightarrow^*
+%\tt{e}'$ with $\tt{e}'$ irreducible\footnote{This is defined as ``normal
+%form'' in \cite{XXX}.}, then $\tt{e}'$ is either a
+%reference $\jref{\tt{p}}{N'}$ with $\tt{N'} <: \tt{N}$, or an
+%expression containing $(\tt{N}')\tt{\jref{\tt{p}}{N''}}$ where
+%$\tt{N''}\not<:\tt{N}'$.
+%\end{theorem}
+
+DScalaness syntax for expressing DnesT module types is $\jmodt{\tpdecl}{\jmodtcat}$, where
+$\jmodtcat$ is a DnesT module type. The $\tpdecl$ in this form represents the type bounds of
+dynamically constructed types that have been used to instantiate the module; we refer to this
+part of the type as the \emph{instance coercion}. Because these types are dynamically
+constructed, their identity is not known statically, hence the need to treat them as
+upper-bounded type names in the static type analysis. This subtle technical point of our type
+system is discussed at more length in \autoref{section-framedml}. It is important to note that
+the type names in $\tpdecl$ will be fully resolved at run time, so that any module generated by
+a DScalaness program execution will have a fully reified DnesT type. Throughout this paper, we
+abbreviate $\jmodt{\emptyset}{\jmodtcat}$ as $\jmodtcat$ for brevity.
+
+This is reflected in the \TirName{ModT} rule in \autoref{figure-scalanesstyping}, which connects
+the DnesT typing system with the DScalaness type system. Since in this case we are typing an
+uninstantiated module definition its instance coercion is empty. An instance coercion in a
+module type is directly populated when a module is instantiated, as in the \TirName{ModInstT}
+rule. Here, the type instances $\ttvec{e}_1$ are all dynamically constructed, so they define the
+upper bounds of the instantiated module's instance coercion. We also expect all type and value
+parameters to respect the typing bounds specified in the module definition.
+%A subtle but significant detail in this rule is the
+%consequence of dynamically constructed types having no meaning ``as
+%types'' at the DScalaness level. This means that no DScalaness value of
+%that type can be constructed, so dynamically constructed type names do
+%not occur in the typings of value parameters. This detail is of
+%practical importance, and will be discussed at greater length in
+%\autoref{section-futurework}.
+The \TirName{ModWireT} typing rule for module wiring is a straightforward reflection of the
+operational rule for module wiring, as is the \TirName{ModImageT} rule for module runnability
+imaging.
+\begin{exmp}
+\label{example-scalanesstyping}
+Returning to the code and type examples in \autoref{section-overview}, we may assign the
+following typing:
+$$
+  G \vdash \tt{authSpecialize}(\tt{50},\ \tt{radioM},\ \arr{\tt{k_1,k_2}}) \ : \tt{commT}\  
+$$
+Given $\tt{radioM : radioT, k_1 : uint8[], k_2 : uint8[]} \in G$.  
+%and
+%$$    
+%  G \vdash \jinst{sendC}{adt} \ltimes \jinst{radioC}{adt}\ :\   
+%    \jmodt{\tt{adt} \subtype \tt{int32}}{\margs{}\lc \ 
+%      ;\,
+%      \tt{error\_t\ send(\tt{adt\ s}, \tt{adt\ d}, \tt{data\ uint8[\,]})} \rc}
+%$$
+%$$
+%\text{where}\ \t = \lc \tt{src : adt}; \tt{dest : adt}; \tt{data : uint8[\,]} \rc 
+%$$
+\end{exmp}
+
+\scalanesstypingfig

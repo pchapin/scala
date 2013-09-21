@@ -1,0 +1,114 @@
+\section{Scalaness/nesT Foundations} 
+\label{section-framedml}
+
+The Scalaness/nesT type system design is based on principles studied in the foundational
+calculus \fml\footnote{Pronounced ``framed ML.''} \cite{FramedML}. \fml\ comprises \fsub, state,
+dynamic type construction, and staging features. In this section we describe how the design of
+modules and module operations in Scalaness can be modeled in \fml. Although the correspondence
+is informal, these models directed the design of Scalaness semantics and type checking, and
+provide confidence in its soundness. While our choice of modules as the basic unit of nesT code
+is based on obvious software engineering concerns and the need for a tight relation with nesC,
+Scalaness modules are well correlated with certain structures in \fml\ and so are also
+technically appealing.
+
+\paragraph{The model of a module.} Code as a datatype is available in \fml\ as expressions of
+the form $\langle e \rangle$. While code as a datatype is a standard feature of
+staged/generative programming, \fml\ has adapted staged programming to a setting where different
+code levels are intended for execution on different machines with distinct process spaces. In
+particular, values, including code values, must be closed. If a type or term variable occurs
+free in $\fmlcod{e}$, it must be $\Lambda$ or $\lambda$ bound, respectively, for closure. Hence,
+if a type variable $t$ is free in $\fmlcod{e}$, then $\Lambda t \subtype \t . \fmlcod{e}$ binds
+it, and provides parametric subtyping polymorphism for \fml\ terms.
+
+If the term variable $x$ is free in $\fmlcod{e}$, then $\lambda x : \t. \fmlcod{e}$ binds it.
+Furthermore, the type $\t$ in the term $\lambda x : \t. \fmlcod{e}$ \emph{must} be of the form
+$\fmlcod{\s}$, because the type discipline requires that $x$ is of code type, since it occurs
+within code. If the programmer wishes to pass a value residing at the current execution stage to
+such a function, it must be explicitly ``lifted'' in the now-standard style of
+\cite{Taha-MetaML}. However, in \fml, lifting a value entails serialization of it, which is
+non-trivial in case the value is stateful.
+
+We use \fml\ type and term bindings to model Scalaness type and term parameters. This is a
+standard strategy, in fact FGJ typing \cite{FJ} is based on it as well. Hence the basic analog
+of a module is:
+$$
+\Lambda t \subtype \t . \lambda x : \fmlcod{\s} . \fmlcod{e}
+$$
+where $t$ is a bounded type parameter and $x$ is a value parameter.
+
+\paragraph{The model of instantiation.} Most of the interesting parts of Scalaness typing happen
+at instantiation. Given the above model of a module, the \fml\ analog of instantiation is a term
+of the form:
+$$
+(\Lambda t \subtype \t . \lambda x : \fmlcod{\s} . \fmlcod{e})(\t')(\text{lift}\ v)
+$$
+where all parameters are instantiated. Note in particular that the value parameter $v$ must be
+explicitly lifted, since the model must reflect that values passed in to modules are always
+constructed at the first stage in a Scalaness program. This means that $v$ must be assumed to
+not be a code value, while the type annotation on $x$ requires that it be lifted. There is no
+explicit lift operation in Scalaness, but the DSCalaness semantics
+(\autoref{figure-jmodsemantics}) specifies that serialization is always implicit at module
+instantiation. Scalaness typing of instantiation thus treats value instantiation as $\lambda$
+application with implicit lifting of the argument, and type instantiation as $\Lambda$
+application, i.e.~a form of bounded $\forall$-elimination.
+
+\emph{Type construction and variable escape.} A central technical novelty and core feature of
+DScalaness is dynamic type construction for module instantiation. As we discussed in
+\autoref{section-overview}, this feature is technically challenging since constructed types can
+escape their scope of declaration. Similarly, in \fml, types may be dynamically constructed that
+can escape their declaration scope, in particular if they are used as function type annotations.
+An $\exists$ type binder was introduced in \fml\ for this purpose; intuitively a type of the
+form $\exists t \subtype \t . \s$ is a type containing a dynamically constructed type term $t$
+with upper bound $\t$. \fml\ includes a ``tlet'' expression form for constructing types, so for
+example:
+\begin{eqnarray*}
+&\text{tlet\ } t \subtype \finttwo = \metaite{e}{\fintone}{\finttwo} 
+\text{\ in\ }(\lambda x : t . x) \ \ : \\
+&\exists t \subtype \finttwo . t \rightarrow t
+\end{eqnarray*}
+Here a type $t$ is dynamically constructed to be either $\fintone$ or $\finttwo$, and then used
+in the type annotation of a type-specialized identity function. Furthermore, $t$ escapes its
+declaration scope since it annotates a function argument. Since $e$ is some arbitrary
+computation, we cannot statically predict what $t$ will be, other than ``some type with upper
+bound $\finttwo$''. Note also that since $t$ can appear in contravariant positions, it is
+unsound to perform a covariant substitution of $\finttwo$ for $t$, so the $\exists$ bound is
+needed. Although this usage of $\exists$ types is somewhat non-standard, an eigenvariable
+interpretation of the bound type variable is sound and also consistent with standard existential
+type interpretations.
+
+Inspired by these foundations, in DScalaness the type form:
+$$
+\jmodt{\tpdecl_1}{\margs{\tpdecl_2;\vpdecl}\{\imports;
+  \exportsty\}}
+$$ 
+captures the same typing mechanisms, in particular the instance coercion $\tpdecl_1$ is the
+analog of $\exists$ bound type variables, in contrast to the type parameters $\tpdecl_2$ which
+are implicitly $\forall$ bound, as discussed above. The static semantics of $\tpdecl_1$ and
+$\tpdecl_2$ are distinguished appropriately, especially in the treatment of the typing rules for
+module instantiation and module wiring in \autoref{figure-scalanesstyping}.
+
+%For example, putting together the pieces of parametric polymorphism
+%and dynamic type construction discussed above, let $\mu$ be a 
+%module defined as follows:
+%$$
+%\margs{t \subtype \intt; x : \intt}\{ \mathit{id} : t = \blok{(t)x}\}
+%$$
+%The following typing can then be assigned in DScalaness:
+%$$
+%\mu \quad : \quad \jmodt{\varnothing}{\margs{t \subtype \intt; x : \intt}\{\varnothing; \mathi%t{id} : \blok{t}\}}
+%$$ where $t$ is here serving a similar purpose to the $\Lambda$-bound
+%$t$ in the \fml\ example above.  Then, the following module
+%instantiation could be performed with a dynamically constructed type:
+%$$
+%\jtlet{t}{\inttwo}{e}{\mu\margs{t;1}}
+%$$ Assuming that $e$ is a (well-typed) DScalaness expression which
+%chooses a type, this whole expression can be assigned the following
+%type:
+%$$
+%\jmodt{t \subtype \inttwo}{\margs{\varnothing; \varnothing}\{\varnothing; \mathit{id} : \blok{%t}\}}
+%$$ Observe that the type and value parameters are eliminated in this
+%typing due to the module instantiation. But an instance coercion $t
+%\subtype \inttwo$ is introduced, to represent the type of the
+%dynamically constructed type instance which in this case is more
+%refined than the type parameter bound (since $\inttwo \subtype
+%\intt$), though it must always be at least as refined.

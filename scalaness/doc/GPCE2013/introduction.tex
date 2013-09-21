@@ -1,0 +1,102 @@
+\section{Introduction}
+
+A wireless sensor network (WSN) is a network of small nodes, also called \textit{motes},
+equipped with sensors or actuators, and that communicate with each other via short range radio
+links. Programming WSNs is challenging because the nodes are severely resource constrained in
+terms of memory and processor speed. This paper describes a programming language designed to
+support the automatic generation of runtime-efficient code for WSN nodes. The language enables
+\emph{dynamic specialization} of node code on a nearby hub or other more resource-rich device,
+allowing adaptation to properties of a node's deployment environment such as neighborhood
+characteristics, network interference factors, \emph{etc}.
+
+Our system supports dynamic generation of programs for the TinyOS operating system
+\cite{TinyOS}, a popular platform for WSNs. It features programming abstractions for
+specializing WSN code, allowing on-the-fly adaptation to current WSN deployment conditions. We
+use a restricted form of \emph{staging} \cite{Taha-MetaML,DBLP:conf/icess/Taha04,289140} to
+achieve well founded dynamic program generation. \emph{First stage} code is written in an
+extended version of Scala \cite{PiS2}, called Scalaness. Scalaness program execution yields a
+residual \emph{second stage} WSN node program written in nesT, a variant of the popular nesC
+programming language \cite{Gay-nesC-2003} with a stronger type checking analysis. The second
+stage program is constructed from module components treated as first class values, which may be
+\emph{type and value specialized} during the course of first stage computation to yield more
+compact and efficient code. A code rewriting strategy in the implementation transforms nesT code
+into nesC code, which can be compiled using standard TinyOS tools.
+
+While staging is well-studied and has been explored in a WSN context \cite{Mainland-Flask-2008},
+our work is novel in that we achieve stronger static safety guarantees than previous work. At
+the point of Scalaness program compilation, our compiler can statically verify that any nesT
+program produced by the Scalaness runtime will be statically type-safe when deployed and run on
+a network node, even if module parameters are specialized during the course of nesT module
+composition. We call this property \emph{cross-stage type safety}, which has been previously
+studied in a foundational language context \cite{FramedML}. In this paper we apply these
+concepts to the more practical Scalaness/nesT language, and illustrate how they support the
+implementation of efficient real-life WSN applications.
+
+\subsection{Application Setting and Contributions}
+
+\scalanessfig
+
+The diagram in \autoref{figure-scalaness} provides an overview of the Scalaness/nesT language
+architecture. Scalaness source code is compiled in a modified Scala compiler to Java bytecode,
+and run in a standard JVM. At runtime this Scalaness program may generate nesT code, which is
+subsequently rewritten to nesC and compiled using the standard TinyOS compiler. The resulting
+image can then be installed on nodes in a WSN.
+% space saving cut. SS
+%
+% Observe that more than one code image can be generated during program execution, so code can
+% be specialized for each node in a network, or a single Scalaness program can refine and
+% redeploy network code, allowing programmatic specification of evolving network behavior.
+
+Another interesting feature of our intended application setting, captured in
+\autoref{figure-scalaness}, is the physical platform on which different elements of the
+Scalaness/nesT ``workflow'' may be executed. Scalaness source code will typically be compiled in
+the lab, prior to deployment. There are two distinct deployment scenarios where compiled
+bytecode execution, TinyOS image generation, and mote (re)programming (the rightmost two boxes
+in \autoref{figure-scalaness}) can occur. Clearly these activities can take place in the lab,
+where WSN motes can be easily imaged over e.g.~USB connections prior to deployment. But the more
+interesting scenario we aim to support is generation of TinyOS images on a ``hub'' device
+\emph{in situ}, and then to automatically reprogram WSN nodes over the air (OTA) from that hub.
+
+In WSN applications such as our Snowcloud snow telemetry system
+\cite{moeser-walker-skalka-frolik-wsc11,frolik-skalka-realwsn13}, sensor motes report data to
+higher powered hubs, pictured in \autoref{figure-snowcloud}. The hub device in the figure uses a
+low-powered embedded Linux platform that supports a JVM, and is in direct radio communication
+with the sensor network via a physically attached mote. These types of devices are readily
+available and cheap. Such a system can execute compiled Scalaness code, and compile and deploy
+generated TinyOS images to nearby motes. Since the hub is in communication with the network,
+Scalaness/nesT is uniquely positioned to evolve network behavior based on a global view of
+observed data, a technique called \emph{backcasting} \cite{Willett:2004:BAS:984622.984641} when
+used specifically for network control. In this context the benefit of cross-stage type safety is
+clear: type-checked Scalaness compilation in the lab ensures type safety of bytecode execution
+on the hub, \emph{and} type-safety of dynamically generated TinyOS image execution on the WSN.
+Manual correction of type errors in generated TinyOS images in this scenario is infeasible since
+these systems run automatically in remote settings.
+
+\snowcloudfig
+
+\paragraph{Paper Outline.} The main contributions of the work presented here are the
+specification, implementation, and proto\-type application of the Scalaness and nesT languages,
+including their syntax, semantics, and type analysis. In \autoref{section-overview} we summarize
+Scalaness/nesT via discussion of an extended example. Formal specifications of the nesT and
+Scalaness languages are presented in \autoref{section-nest} and \autoref{section-scalaness},
+respectively. Their semantics and type theory possess several novel and challenging features,
+which we show in \autoref{section-framedml} are grounded in principles studied in a previous
+foundational setting \cite{FramedML}. We describe our implementation and present an extended
+example application of our system to resource access control in WSNs in
+\autoref{section-implementation} and \autoref{section-application}, along with some empirical
+results demonstrating efficiency benefits of our approach. We conclude with remarks on related
+work in \autoref{section-conclusion}
+
+% following gets in the way of flow in the intro. If its important could be put in conclusion,
+% but I think its OK to just leave out -SS
+%
+% Note that certain elements of \autoref{figure-scalaness} are not addressed in our current
+% implementation, in particular we have not integrated OTA reprogramming nor a WSN communication
+% API into the Scalaness runtime. However, these are more routine engineering challenges outside
+% the scope of this paper.
+%
+% the more text we write on a shortcoming the worse reviewers conclude it really is -SS
+% , since existing TinyOS Java
+% APIs for WSN communcation can easily be integrated, and protocols for
+% OTA reprogramming in WSNs are well-studied \cite{XXX}.
+

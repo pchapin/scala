@@ -1,0 +1,179 @@
+\section{Implementation}
+\label{section-implementation}
+
+Scalaness is implemented as a modification to the open source Scala compiler. Scala was chosen
+as a basis for our first stage language because the Scala compiler supported a plug-in
+architecture, and we originally envisioned implementing Scalaness as a plug-in. We also wanted
+to create a practical programming system, and Scala's easy access to Java libraries and broad
+community support were attractive.
+
+Keeping the Scala and Scalaness type checking well separated in the implementation had useful
+software engineering benefits as well. It simplifies the problem of tracking the evolving Scala
+compiler. It also promotes a clear separation of first and second stage concerns in the mind of
+the Scalaness programmer. Unfortunately we found that the needed modifications to the type
+checker could only be made by direct modification of the compiler code base.
+
+In addition to type checking, runtime support is needed to implement Scalaness module
+operations. Also, facilities are required to read nesT modules from the file system and parse
+them into ASTs, and to write TinyOS image source code files defined by constructed nesT modules
+at \tt{image} invocations.
+
+\subsection{Online Repository and Examples}
+
+The Scalaness/nesT compiler and several code examples, including applications discussed in
+\autoref{section-overview} and \autoref{section-application}, are available for download from 
+% Space saver - SS
+%a GitHub repository, accessible via an
+%informative webpage at 
+the following URL:
+\vspace{0.8em}
+
+\centerline{\texttt{http://tinyurl.com/a85z8cu}}
+
+% presentation allows perusal of Scalaness and nesT code examples,
+% without the need to build the compiler.
+
+\subsection{nesT Type Checking and Program Transformation}
+
+The nesT language is treated by two major components in the implementation, the type checker and
+the nesT-to-nesC rewriting transformation. The nesT type checker was written from the ground up,
+in contrast to the Scalaness type checker which was defined as an extension to the Scala type
+checker. The rewriting transformation yields TinyOS2-compliant source code, which can be
+separately compiled.
+
+The nesT language is defined as a subset of the nesC language. An AST yielded by parsing is type
+checked by our algorithm, which incorporates subtyping and other features not present in nesC
+type checking. This algorithm is a nearly direct encoding of the type discipline described in
+\autoref{section-nest}. Following type checking, the AST is submitted to a rewriting
+transformation that imposes semantic disciplines discussed in \autoref{section-nest}, in
+particular type safe casting and array bounds checks, also in nesC. For example, a statement of
+the form $\tt{x = a[e]}$ will be rewritten to:
+\begin{Verbatim}[fontfamily=cmtt,fontsize=\scriptsize]
+    int _x = e; if (_x >= a_SIZE) fail(); x = a[_x];  
+\end{Verbatim}
+where $\tt{a\_SIZE}$ is an automatically generated variable containing the size of $\tt{a}$ and
+$\tt{fail}$ is some user-defined function that handles array bounds check
+failure. % The expression $\tt{e}$ is bound to
+% $\tt{x}$ to ensure that it is evaluated only once in case of side effects.
+
+Source code for nesT module definitions is written in separate files that are included in
+Scalaness code, as discussed below. This separation is mainly for software engineering purposes,
+to avoid modifying the Scala compiler to parse intermingled Scala and nesT syntax.
+
+\subsection{Scalaness Module Language Syntax}
+
+In order to limit modifications of the Scala compiler and reduce engineering problems in our
+implementation, we have avoided modifying Scala syntax to represent Scalaness features. Hence,
+modules are represented as class instances, which must satisfy the following trait:
+\begin{Verbatim}[fontfamily=cmtt,fontsize=\scriptsize]
+  trait NesTModule {
+    def image(): Unit    // Generates residual nesC program.
+    def +>(m: NesTModule): NesTModule    // Wires this to m.
+  }
+\end{Verbatim}
+This trait is implemented by a \tt{NesTModule} class that provides the appropriate semantics for
+wiring and TinyOS image generation, including translation to nesC and file output. This class
+also manages parsing and storage of nesT ASTs from source code files, and type checking of nesT
+ASTs.
+
+Any nesT module definition is a subclass of \tt{NesTModule}. Some subtleties are involved in
+supporting first class \emph{generic} modules. Instantiation is implemented by method call, but
+since type and value parameters vary per module, particular modules must define their own
+parameters and instantiation methods. For example, we would represent the \tt{authSend}
+component definition from \autoref{section-overview}, line \ref{l:authsend} as follows:
+\begin{Verbatim}[fontfamily=cmtt,fontsize=\scriptsize]
+ class authSend extends NesTModule {
+   var mt     : MetaType[LiftableType] = _
+   var sendk  : LiftableType = _
+   def instantiate(m: MetaType[LiftableType], k: LiftableType) =
+     { val result=new authSend; result.mt=m; result.sendk=k }
+   "authSend.nt"
+ }
+\end{Verbatim}
+Although the \tt{instantiate} method and parameter fields must be defined in the implementation
+at the time of this writing, compiler generation of these definitions is a topic for future
+work; any modules instantiate method can be easily inferred from its type annotation. Note that
+the types at which parameters are declared are as general as possible (e.g.~\tt{s} and \tt{n}
+are not declared as \tt{uint}s but as \tt{LiftableType}s). This is because class definitions
+support the semantics of Scalaness, not Scalaness type checking (discussed below), and declaring
+generic parameters at a maximally general type removes interference related to Scala type
+checking. Finally, note the string literal \tt{``authSend.nt"} at the end of the definition.
+This is the file containing the nesT source code definition of the module. The Scala compiler
+has been modified to input and parse the specified source code when this literal is encountered
+during the Scala type checking phase.
+
+%Here is an example usage of these constructs, which is an inlining of
+%the invocation described in \autoref{example-scalanesssemantics}. In
+%this snippet we assume \tt{scode} has already been defined
+%appropriately, and for clarity we omit the type annotations described
+%in the following section:
+%\begin{Verbatim}[fontfamily=cmtt,fontsize=\scriptsize]
+%  val nodeM = new NodeC
+%  typedef adt <: uint8 = new MetaType[uint8]()
+%  val ncode = nodeM.instantiate(adt, 1, 2)
+%  (ncode +> scode).image()
+%\end{Verbatim}
+%Evaluation of this code will generate a TinyOS node image, written in
+%nesC, supporting the application defined by the wiring of \tt{scode}
+%to \tt{ncode}.
+
+\subsection{Type Annotation and Checking}
+
+Scalaness typing relies on native Scala syntax for terms, specifically Scala annotations and
+singleton types are utilized. Scala annotations allow metadata to be associated with
+definitions. A module type annotation is of the form \tt{@ModuleType(\tt{``}\jmodtcat\tt{"})},
+where $\jmodtcat$ is defined using the syntax of \autoref{figure-modulesyntax}. The
+compiler-defined \tt{ModuleType} class automatically associates the type with the identifier
+immediately following it. In the case of module class definitions, the type is assigned as a
+class field. In the case of variable definitions, the type is assigned as a Scala singleton type
+of the object. For example, the declaration of \tt{authSend} on line \ref{l:authsend} in as in
+\autoref{section-overview} would be preceded by such an annotation where $\jmodtcat$ is the type
+specified in \autoref{example-nesttyping}, and \tt{sendM} as on line \ref{l:inst1} would be
+annotated with an instance of that type. Similarly, annotations are required on method parameter
+and result types, if those methods expect nesT modules as arguments or return them, as for the
+\tt{radioC} parameter of the \tt{authSpecialize} method defined in \autoref{section-overview},
+and the method's \tt{commT} return type. These requirements reflect the type discipline in
+Scalaness as specified in \autoref{section-scalaness}, which requires module type annotations at
+these points.
+
+Scalaness type checking has been implemented as an analysis of these annotations during Scala
+type checking, piggybacking on that process. When type checking a class that extends
+\tt{NesTModule}, the compiler uses its type annotation to perform nesT type checking on the
+underlying AST representation of the module. When type checking module operations (i.e.~at
+invocations of \tt{instantiate}, \verb!+>!, or \tt{image}), the Scala compiler has been modified
+to examine operand types for Scalaness type annotations, and to decorate resultant singleton
+types of these operations with new Scalaness annotations, reflecting the typing rules in
+\autoref{figure-scalanesstyping}. A type checking exception is raised in case this analysis
+fails. Scalaness type checking does not modify Scala type checking in any other way, so it is a
+conservative extension of Scala typing.
+
+%\begin{verbatim}
+%@ModuleType("""{ countType <: UInt32 }
+%               < ; >
+%               { set_count(x: countType): Void;
+%                 configure(): Void }""")
+%\end{verbatim}
+
+
+\subsection{Importing nesC Libraries}
+\label{section-libraries}
+
+Our preliminary experiments with nesT show that it is expressive enough to write useful program
+components. However, any realistic application will need to interact with various libraries
+written in nesC. One library of critical importance is the TinyOS operating system itself. Our
+current solution is to allow non-generic nesC components to be treated as nesT modules as long
+as they only \tt{use} or \tt{provide} commands, which are interpreted as nesT imports and
+exports. Support for specializable generic nesC library components is a topic for future work.
+Events can be accessed through ``shim'' modules provided by the user, since used or provided
+events are really just syntactic sugar for provided or used commands respectively. A library
+component defined in a file \tt{LibraryC.nc} can be defined as a nesT module as follows:
+\begin{Verbatim}[fontfamily=cmtt,fontsize=\scriptsize]
+ object LibraryC extends NesTModule { external("LibraryC.nc") }
+\end{Verbatim}
+Note that nesC code imported in this way is not type checked by the Scalaness/nesT compiler,
+since nesT is a strict subset of nesC. Rather, the programmer type annotates the shimmed module
+using a $\tt{@ModuleType}$ annotation as for other module definitions, and the compiler trusts
+that the annotation is correct. This introduces a possibility for type safety failure in our
+system, if the imported code contains a type error. A possible long term goal would be a
+complete re-write of TinyOS in nesT, yielding full type safety of all sensor code, but this is
+well beyond our current scope.
