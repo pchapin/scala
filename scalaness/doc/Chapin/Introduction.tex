@@ -5,24 +5,26 @@ A \newterm{wireless sensor network} (WSN) is a network composed of small sensors
 that are connected by way of short hop wireless links. Often, but not always, such networks
 include one or more base stations with wider connectivity that serve as an interface between the
 sensor network and external systems. WSNs are an area of intense study with many envisioned
-applications ranging from X to Y \cite{XXX}.
+applications ranging from environment, asset, and structural monitoring to emergency response
+\cite{Culler:2004:GEI:1018015.1018072,1038146}.
 
-Sensor networks, like any small embedded system, present difficult programming challenges. For
-reasons of size, power consumption, disposability, or some combination of these things, sensor
-network nodes are often highly resource constrained. A typical node might have only 48~KiB of
-program ROM, 8~KiB of RAM (or less), and be using a small, 16~bit microcontroller running at
-only 8~MHz \cite{tmotesky-datasheet}. Yet WSN applications are increasing in complexity. In
-addition to application logic, such systems are now expected to support various network protocol
-stacks \cite{XXX}, elaborate security services \cite{XXX}, and etc \cite{XXX}.
+Sensor networks, like any small embedded system, present difficult programming challenges
+\cite{Mottola:2011:PWS:1922649.1922656}. For reasons of size, power consumption, disposability,
+or some combination of these things, sensor network nodes are often highly resource constrained.
+A typical node might have only 48~KiB of program ROM, 8~KiB of RAM (or less), and be using a
+small, 16~bit microcontroller running at only 8~MHz \cite{tmotesky-datasheet}. Yet WSN
+applications are increasing in complexity. In addition to application logic, such systems are
+now expected to support facilities such as IPv6 \cite{Hui:2008:IDL:1460412.1460415} and
+elaborate security services \cite{perrig-2004}.
 
 My interest is in discovering how to effectively program these limited devices to meet high
 level security goals. While there has been a great deal of research on security in sensor
-networks much of that work has focused on low level concerns such as link layer security
-\cite{XXX}, key distribution \cite{XXX}, and secure network protocols \cite{1049776,XXX}.
-Systems such as TinySec \cite{karlog-tinysec-2004} and MiniSec \cite{luk-minisec-2007} are based
-on shared secrets and generally assume that an entire network comprises a single security
-domain. Furthermore, these systems support confidentiality and integrity properties, but not
-access control, aka authorization.
+networks much of that work has focused on low level concerns such as link layer security, key
+distribution \cite{camtepe-bulent-05}, and secure network protocols
+\cite{1049776,fouladgar-3tls-2006}. Systems such as TinySec \cite{karlog-tinysec-2004} and
+MiniSec \cite{luk-minisec-2007} are based on shared secrets and generally assume that an entire
+network comprises a single security domain. Furthermore, these systems support confidentiality
+and integrity properties, but not access control, aka authorization.
 
 The purpose of my work is, rather, to support high level authorization policies that allow a
 network in one security domain to grant selective access to its resources by nodes in a
@@ -60,9 +62,9 @@ Staging is a widely researched topic
 \cite{Taha-MetaML,Sheard-TemplateHaskell,Mainland-Flask-2008,FramedML}. \note{Probably should
   only mention the seminal papers here.} Many of these systems are quite general and allow an
 arbitrary number of stages where each stage can manipulate small fragments of next-stage code.
-Furthermore most existing systems \note{except\ldots} use the same language in all stages.
-Finally the type correctness of the stage $n+1$ programs are normally checked during their
-compilation or during the execution of the stage $n$ programs that produce them.
+Furthermore most existing systems use the same language in all stages. Finally the type
+correctness of the stage $n+1$ programs are normally checked during their compilation or during
+the execution of the stage $n$ programs that produce them.
 
 I focus here on the specific problem of using staged programming to improve the general
 efficiency of node level programs for wireless sensor networks. In such an environment the first
