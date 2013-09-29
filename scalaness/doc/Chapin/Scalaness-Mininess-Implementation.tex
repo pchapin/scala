@@ -8,7 +8,7 @@ Scalaness type checking with a minimum of disruption to the the compiler's exist
 functionality.
 
 \section{Mininess}
-\label{section-mininess}
+\label{section-mininess-implementation}
 
 \lstset{language=nesC}
 \lstMakeShortInline!
@@ -232,14 +232,16 @@ example where the final result module is runnable. In \autoref{figure-full-wire}
 symbol is the Scalaness wiring operator.
 
 \singlespace
-\vspace{1.0ex}
+\begin{fpfig}[tbhp]{Wiring Mininess Components}{figure-full-wire}
+{
 \begin{lstlisting}[language=scalaness]
 @ModuleType("""{ checksumType <: UInt32 }<;>
                { ; }""")
 val resultModule =
   LibraryIC +> formattingModule +> checkingModule +> LibraryEC
 \end{lstlisting}
-\vspace{1.0ex}
+}
+\end{fpfig}
 \primaryspacing
 
 Although it is not possible to use Scalaness to compose external library components directly,
@@ -479,7 +481,7 @@ in most cases it will restart the node after, perhaps, attempting to log the pro
 \lstDeleteShortInline!
 
 \section{Scalaness}
-\label{section-scalaness}
+\label{section-scalaness-implementation}
 
 \lstset{language=scalaness}
 \lstMakeShortInline!

@@ -22,8 +22,8 @@ encryption for TinyOS 2.1, so all of my tests were performed on real hardware. I
 motes, with 16Kb of RAM, 48Kb of ROM and an 8MHz MSP430 microcontroller running TinyOS 2.1.2
 \cite{tinyos}.
 
-I exercised my system using both small test programs and using our implementation of the
-directed diffusion example described in \autoref{section-example}. The small test programs
+I exercised my system using both small test programs and a simple implementation of the directed
+diffusion algorithm \cite{intanagonwiwat-2003} over several nodes. The small test programs
 consisted of a simple client/server pair where the client repeatedly sent a message containing a
 single 16~bit value to the server. The purpose of these tests was to explore the overhead
 induced by my system with minimal obscuring effects from application logic. The percentage
@@ -33,6 +33,7 @@ long-running setting. It serves as a demonstration that my system is feasible in
 allowed me to exercise my system in a multi-mote, multi-hop network environment.
 
 \subsection{Memory Overhead for Security Features}
+\label{section-sprocket-memory-performance}
 
 The \Sprocket\ run time system uses several memory caches to hold key material, credential
 information, and the minimum model implied by the set of known credentials. These caches are
@@ -142,7 +143,8 @@ memory usage numbers scale to denser neighborhoods and extended RPC services.
 
 % The directed diffusion application consumes 27826 bytes of ROM and 3105 bytes of RAM.
 
-\subsection{Transient and Steady State Processor Overhead} 
+\subsection{Transient and Steady State Processor Overhead}
+\label{section-sprocket-cpu-performance}
 
 The execution performance of my system displays two distinct behaviors. The first is a transient
 behavior that occurs after a node boots when certificates are exchanged and session keys are
@@ -242,9 +244,9 @@ initial transient state when credentials are verified and session keys are negot
 Subsequently, the network enters a steady state during which the main cost is a 32\% reduction
 in \emph{maximal} message send rates due to hardware AES encryption. In order to evaluate the
 performance of my system in a realistic application, I therefore quantified the transient state
-times of the secure directed diffusion application described in \autoref{section-example}. In my
-experiments I elected a single node to repeatedly express an interest and observed how long was
-required for that interest to flood the network. This time depends on three major factors:
+times of a simple secure directed diffusion application. In my experiments I elected a single
+node to repeatedly express an interest and observed how long was required for that interest to
+flood the network. This time depends on three major factors:
 \begin{enumerate}
 \item The number of certificates transferred.
 \item The number of neighbors for each node.

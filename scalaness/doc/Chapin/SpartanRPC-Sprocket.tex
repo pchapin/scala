@@ -98,10 +98,8 @@ call-and-return to a remote node would significantly impede performance in the b
 cause deadlock in the worst. In order to minimally impact the nesC programming model, SpartanRPC
 defines RPC invocation as a form of \emph{remote task}. Local tasks are units of
 programmer-defined asynchronous computation in nesC, so treating remote computational services
-as remote tasks fits well in this paradigm. Remote tasks can be invoked on one-hop neighbors,
-providing a link layer service on which network layer services can be built. For example in
-\autoref{section-example} we illustrate how a secure multi-hop data collection protocol can be
-built using our link layer service.
+as remote tasks fits this paradigm. Remote tasks can be invoked on one-hop neighbors, providing
+a link layer service on which network layer services can be built.
 
 \paragraph{PK-Based Authorization Policies} SpartanRPC provides language-level abstractions for
 specifying RPC authorization policies. The $RT_0$ trust management system allows network
@@ -147,8 +145,7 @@ invoked, or is \emph{remotable} in the sense formalized in \autoref{section-remo
 remotable interface provided by a component must be specified as !remote! in its provides
 specification. The first code sample in \autoref{figure-duty-usage} shows an !LEDControllerC!
 component that provides the !LEDControl! interface remotely i.e.~that allows remote nodes to
-control LED status lights on a board. A more extended example of duty implementation and usage
-is provided in \autoref{section-example}.
+control LED status lights on a board.
 
 A module on the client node that wishes to use a remote interface simply posts the duty in the
 same manner as tasks are posted. The use of !post! emphasizes the asynchronous nature of the
@@ -278,8 +275,7 @@ interface ComponentManager {
 
 A \emph{component manager} is a component that provides the !ComponentManager! interface defined
 at the bottom of \autoref{figure-componentmanager}. It dynamically specifies a set of component
-IDs that ultimately serve as dynamic wiring endpoints. An example component manager is discussed
-in detail \autoref{section-example}.
+IDs that ultimately serve as dynamic wiring endpoints.
 
 As a simple example, consider the component manager !RemoteSelectorC! as shown in
 \autoref{figure-example-componentmanager}. This component manager always returns a component set
@@ -433,7 +429,6 @@ represents. When an invocation is made the entity $B$ mentioned in the !as! clau
 dynamic wire is used in the request. The !as! clause is optional; if it is omitted a
 distinguished \newterm{default entity} is used for the invocation.
 
-\begin{comment}
 \subsection{Example}
 \label{section-security-example}
 
@@ -475,6 +470,9 @@ In order to invoke this service the wiring as shown in \autoref{figure-secure-wi
 made on the client side. Note the activation of the necessary credentials, as well as the
 specification of client identity as !NetB!.
 
+\begin{fpfig}[t]{Security Enabled Dynamic Wire}{figure-secure-wire}
+{
+\singlespace
 \begin{lstlisting}
 enable
   "WSNAdmin.control <- NetB.control, 
@@ -482,12 +480,9 @@ enable
 for 
   ClientC.SamplingRate -> [RemoteSelectorC];
 \end{lstlisting}
-\end{textbox}
-\caption{Security Enabled Dynamic Wire}
-\label{figure-secure-wire}
-\end{figure}
-
-\end{comment}
+\primaryspacing
+}
+\end{fpfig}
 
 \section{The SpartanRPC Implementation}
 \label{section-implementation}
@@ -594,13 +589,13 @@ is not received within 750 ms of the previous fragment, the partial certificate 
 the assumption that the expected fragment was lost.
 
 Verification of \RT\ certificates is the most computationally expensive component of the system
-as I discuss in \autoref{section-empirical-results}. Thus, it is important to minimize the
-amount of effort spent on verification. To this end, a 16-bit Fletcher checksum is appended to
-each certificate to ensure integrity over unreliable channels. Also, nodes maintain a database
-of certificate checksums, to quickly check whether a certificate has already been received and
-verified. Fletcher checksums are commonly used in wireless sensor networks since their error
-detection properties are almost as good as CRCs with significantly reduced computational cost
-\cite{fletcher-1982}.
+as I discuss in \autoref{section-sprocket-cpu-performance}. Thus, it is important to minimize
+the amount of effort spent on verification. To this end, a 16-bit Fletcher checksum is appended
+to each certificate to ensure integrity over unreliable channels. Also, nodes maintain a
+database of certificate checksums, to quickly check whether a certificate has already been
+received and verified. Fletcher checksums are commonly used in wireless sensor networks since
+their error detection properties are almost as good as CRCs with significantly reduced
+computational cost \cite{fletcher-1982}.
 
 Currently certificates carry no lifetime information and are considered to be valid forever.
 This is not ideal since a certificate issuer may eventually change her policy but currently has

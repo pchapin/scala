@@ -173,10 +173,9 @@ module implementations as in nesC. Nevertheless it is an adequate ``featherweigh
 representation of the nesC module language and integrates naturally with the TinyOS programming
 model.
 
-Since it is not realistic (or convenient) to imagine that all TinyOS libraries can be recreated
-in nesT, it is essential to be able to use nesC libraries as needed. In
-\autoref{section-libraries} I describe a nesT mechanism in the implementation for importing nesC
-modules.
+Since it is not realistic (or convenient) to recreate all TinyOS libraries in nesT, it is
+essential to be able to use nesC libraries as needed. In \autoref{section-external-libraries} I
+describe a mechanism in the implementation for importing nesC modules.
 
 \subsection{Cross-Stage Migration of Types and Values.} 
 
@@ -188,7 +187,7 @@ second stages, requiring some sort of transformation during module instantiation
 transformation is discussed in \autoref{section-serialization}.
 
 \section{The nesT language}
-\label{section-nest}
+\label{section-nest-theory}
  
 \syntaxfig
 
@@ -488,7 +487,7 @@ $$
 
 
 \section{The Scalaness Language}
-\label{section-scalaness}
+\label{section-scalaness-theory}
 
 Scalaness serves as the language for nesT module composition in the same manner as nesC
 configurations serve to compose nesC modules, but Scalaness is a more powerful metalanguage
@@ -699,7 +698,7 @@ and here is the specification of lifting.
 
 
 \subsection{Scalaness Type Checking}
-\label{section-typing}
+\label{section-scalaness-typing}
 
 \scalanesstypingfig
 
@@ -729,8 +728,7 @@ expected to respect the typing bounds specified in the module definition.
 A subtle but significant detail in this rule is the consequence of dynamically constructed types
 having no meaning ``as types'' at the Scalaness level. This means that no Scalaness value of
 that type can be constructed, so dynamically constructed type names do not occur in the typings
-of value parameters. This detail is of practical importance, and will be discussed at greater
-length in \autoref{section-futurework}.
+of value parameters. \note{Discuss the practical significance of this?}
 
 The \TirName{ModWireT} typing rule for module wiring is a straightforward reflection of the
 operational rule for module wiring, as is the \TirName{ModImageT} rule for module runnability
