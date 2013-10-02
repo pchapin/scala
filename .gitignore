@@ -64,9 +64,4 @@ classes
 scaladoc
 
 # eclipse stuff
-/src/eclipse/continuations-library/.cache
-/src/eclipse/partest/.cache
-/src/eclipse/reflect/.cache
-/src/eclipse/scala-compiler/.cache
-/src/eclipse/scala-library/.cache
-/src/eclipse/scalap/.cache
+.cache
