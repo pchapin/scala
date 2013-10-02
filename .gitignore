@@ -51,6 +51,9 @@
 # The material below was added as part of the Scalaness project
 ######
 
+# Used to hold redirected error messages.
+errors.txt
+
 *.jar
 *~
 /src/library/library.properties

@@ -5,7 +5,7 @@
 \note{I need a little more introduction.} The Scalaness compiler parses the component
 specification of the external component and unwraps the interfaces used and provided by that
 component. For each such interface the Scalaness compiler generates a shim module that forwards
-Mininess commands to the full nesC interface. When generic interfaces are used by the external
+nesT commands to the full nesC interface. When generic interfaces are used by the external
 component these shim modules are themselves generic.
 
 \autoref{figure-shim-modules} shows the shims generated for a library component
@@ -79,7 +79,7 @@ implementation {
 \primaryspacing
 
 In effect the Scalaness compiler automatically converts an external library component into a
-Mininess component that can be manipulated by the first stage program. The Scalaness compiler
+nesT component that can be manipulated by the first stage program. The Scalaness compiler
 extracts a module type for the component, based on its imports and exports, as usual. The
 component can then participate in the process of component composition allowed by the Scalaness
 language.
@@ -91,7 +91,7 @@ application and to its overall configuration.
 
 % So it's possible to use an external generic component that fails for certain instantiations
 % and Scalaness won't notice that. Fixing this would entail extending the type system to cover
-% full nesC since the contents of the external components are \emph{not} Mininess.
+% full nesC since the contents of the external components are \emph{not} nesT.
 
 As I've described so far each external library component is wrapped in a separate configuration.
 However, a programmer could create a larger configuration of library components manually and
@@ -101,4 +101,3 @@ library components are specified and composed. In some applications it may make 
 entire subsystem of library components to be configured into a single entity ahead of time. In
 other applications the programmer may wish to control library configuration as part of the first
 stage execution.
-
