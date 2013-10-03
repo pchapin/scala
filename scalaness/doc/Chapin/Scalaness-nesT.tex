@@ -13,8 +13,8 @@ existing functionality.
 \lstset{language=nesC}
 \lstMakeShortInline!
 
-\note{Talk about nesT type rules and type checking? I need to reference Michael's thesis in here
-  somewhere.}
+% \note{Talk about nesT type rules and type checking? I need to reference Michael's thesis in
+% here somewhere.}
 
 NesT is the name give to the second stage language used by the implementation. Roughly speaking
 nesT is the practical realization of DnesT. In particular, nesT uses the syntax of nesC to the
@@ -220,8 +220,9 @@ object LibraryEC extends MininessComponent {
 
 The module type of external components can't be determined by examining their definitions since
 they are not in nesT. However, as with all nesT modules they must be annotated with their module
-type in the Scalaness program as shown in \autoref{figure-external-components}. For external
-modules this annotation is accepted without question by the Scalaness compiler.
+type in the Scalaness program as shown in \autoref{figure-external-components} and discussed
+further in \autoref{section-module-type}. For external modules this annotation is accepted
+without question by the compiler.
 
 The !LibraryIC! and !LibraryEC! objects are then manipulated in the usual way by the Scalaness
 program. Because !LibraryIC! has only imports and !LibraryEC! has only exports it is normal for
@@ -674,9 +675,72 @@ class MetaType[+Tau <: Liftable]
 Objects of type !MetaType! contain a representation of a nesC type. They are covariently
 parameterized by an upper bound type. Note that !MetaType!'s type parameter is a Scala type that
 is liftable to nesT. However the value it wraps is a representation of the already lifted type.
-Thus !MetaType! objects form a bridge between the Scala and nesC sides of the system. \note{Is
-  it possible for wrappedType to not be a subtype of Tau? It would seem so. What happens in that
-  case?}
+Thus !MetaType! objects form a bridge between the Scala and nesC sides of the system.
+
+% TODO: Is it possible for wrappedType to not be a subtype of Tau? It would seem so. What
+% happens in that case?
+
+\subsection{Module Type Annotations}
+\label{section-module-type}
+
+Values definitions, method parameters, and method results that are intended to manipulate nesT
+component values must be explicitly decorated with a module type annotation. In this way nesT
+type information can be made known to the Scalaness compiler without modifying the Scala parser
+to understand an extended type language directly. Module type annotations are string literals
+that obey the syntax in \autoref{figure-module-type-syntax}.
+
+\singlespace
+\begin{fpfig}[tbhp]{Module Type Syntax}{figure-module-type-syntax}
+{
+\begin{Verbatim}
+module-type ::= '{' existential-binders? '}'
+                '<' type-parameters? ';' value-parameters? '>'
+                '{' imports? ';' exports? '>'
+
+existential-binders ::= existential-binder (',' existential-binder)*
+existential-binder  ::= ID '<:' type
+type-parameters  ::= type-parameter (',' type-parameter)*
+type-parameter   ::= ID '<:' type
+value-parameters ::= value_parameter (',' value-parameter)*
+value-parameter  ::= ID  ':' type
+\end{Verbatim}
+}
+\end{fpfig}
+\primaryspacing
+
+The imports and exports in \autoref{figure-module-type-syntax} are nesT declarations written in
+a Scala-like syntax using !Array! and !PointerTo! type constructors to define array and pointer
+types. Structure types are specified using \{ \ldots \} syntax to enclose the declarations of
+structure members and are prefixed by the structure name.
+
+The following shows a sample of a !SendC! component parameterized by an integer type suitable
+for use as a network address. The component imports a command !radio! that takes a parameter
+!message! of structure type. The component exports a command !send! that returns the TinyOS
+standard error type !error_t! which has built in support in module type annotations.
+
+\singlespace
+\begin{lstlisting}[language=scalaness]
+@ModuleType(
+  """{}
+     < addrT <: UInt32; >
+     { radio(message:
+         MessageType{src: addrT, dest: addrT, data: Array[UInt8,64]}): ErrorT;
+       send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT }""" )
+class SendC extends MininessComponent { ...
+\end{lstlisting}
+\primaryspacing
+
+Annotations, such as above, that are placed on class or object definitions are checked against
+the nesT code that implements that component---except for external library components as
+described in \autoref{section-external-libraries}. Method parameters, method results, and !val!
+and !var! definitions also need to be explicitly annotated; Scalaness does not support type
+inference of nesT types. This does place a considerable burden on the programmer. However, a
+type abbreviation scheme is being developed to alleviate this burden
+\cite{watson-masters-2013}.
+
+In places where module types are required to be annotated, the annotated type is checked against
+the actual type derived by the Scalaness type rules in \autoref{section-XXX}. Type errors are
+reported as necessary.
 
 \subsection{Component Declarations}
 \label{section-component-declarations}
@@ -780,16 +844,14 @@ class SendC extends MininessComponent {
   def instantiate(
     Adt: MetaType[UInt32],
     MessageT: MetaType[AbstractMessage],
-    self : ?);
+    self : UInt32);
 
   "SendC.nc"
 }
 \end{lstlisting}
 \primaryspacing
 
-\note{What's up with this example? It doesn't seem expressible with the current system.}
-
-%\note{I have to talk about ModuleType annotations somewhere!}
+% TODO: Talk about the significance of having to declare self as UInt32 instead of as Adt.
 
 \subsection{Runtime Support}
 \label{section-runtime-support}
