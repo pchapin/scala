@@ -87,11 +87,11 @@ dialect of nesC called \newterm{nesT}. One novel feature of Scalaness is that th
 Scala has been extended so that a well-typed Scalaness program will always generate a well-typed
 nesT program \cite{chapin-GPCE-2013}.
 
-\autoref{figure-scalaness} provides an overview of the Scalaness/nesT language
-architecture. Scalaness source code is compiled in a modified Scala compiler to Java bytecode,
-and run in a standard JVM. At runtime this Scalaness program may generate nesT code, which is
-subsequently rewritten to nesC and compiled using the standard TinyOS compiler. The resulting
-image can then be installed on sensor network nodes.
+\autoref{figure-scalaness} provides an overview of the Scalaness/nesT language architecture.
+Scalaness source code is compiled in a modified Scala compiler to Java bytecode, and run in a
+standard Java virtual machine (JVM). At runtime this Scalaness program may generate nesT code,
+which is subsequently rewritten to nesC and compiled using the standard TinyOS compiler. The
+resulting image can then be installed on sensor network nodes.
 
 \begin{fpfig*}[t]
   {Scalaness/nesT Compilation and Execution Model}

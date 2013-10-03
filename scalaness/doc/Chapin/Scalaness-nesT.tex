@@ -486,16 +486,17 @@ in most cases it will restart the node after, perhaps, attempting to log the pro
 
 Scalaness is implemented as a modified Scala compiler based on the development Scala compiler on
 GitHub \cite{scalaness-home}. The Scala compiler has a plug-in architecture and originally I
-hoped that Scalaness could be implemented as a compiler plug-in. That would have made Scalaness
+hoped Scalaness could be implemented as a compiler plug-in. That would have made Scalaness
 easier to use and maintain and thus enhanced the systems practicability.
 
-Unfortunately, implementing Scalaness as a compiler plug-in met with difficulties. The main
-problem was with extending the typing rules of Scala to accommodate the Scalaness type system.
-The plug-in approach required a complete reimplementation of Scala typing inside the plug-in.
-This is because plug-ins can only gain control either before Scala typing has occurred or after
-it has completed. Thus the implementation of the nesT typing rules couldn't easily benefit from
-the logic in the existing type checker. In contrast building Scalaness as a modified compiler
-allowed me to ``piggyback'' nesT type information on the existing type checker infrastructure.
+Unfortunately, implementing Scalaness as a plug-in met with difficulties. The main problem was
+with extending the type checker of Scala to accommodate the Scalaness type system. The plug-in
+approach required a complete reimplementation of Scala typing inside the plug-in. This is
+because plug-ins can only gain control either before Scala typing has occurred or after it has
+completed. Thus the implementation of the nesT typing rules couldn't easily benefit from the
+logic in the existing type checker. In contrast building Scalaness as a modified compiler
+allowed me to ``piggyback'' Scalaness type information on the existing type checker
+infrastructure.
 
 Yet in order to facilitate keeping Scalaness synchronized with future developments of the main
 Scala compiler every attempt was made to implement Scalaness in the least invasive way possible.
@@ -504,10 +505,10 @@ packages away from the main body of the compiler code base. The places where it 
 insert Scalaness specific code into, for example, the existing type checker, have been kept to a
 minimum.
 
-I should also note that making radical changes to Scala syntax was not seriously considered. I
+Making radical changes to Scala syntax was not seriously considered. For reasons of simplicity I
 didn't want to modify \emph{both} the parser and the type checker. Fortunately Scala has a
 general mechanism for adding arbitrary information to declarations, namely
-\newterm{annotations}. Thus I used Scala annotations to express nesT module types as strings
+\newterm{annotations}, and I used Scala annotations to express nesT module types as strings
 using a syntax of my choosing.
 
 My work is based on Scala 2.10. This version of Scala also provides an extensive reflection API
@@ -524,7 +525,7 @@ possible to implement some or all of Scalaness as a macro library.
 The Scala compiler is organized as a number of \newterm{phases} that rewrite the input in
 successive steps lowering it to JVM bytecode. The precise phases used can be listed with the
 command \texttt{scalac -Xshow-phases}. Of primary significance to Scalaness are the first four
-phases used by the stock Scala compiler. These phases are shown below.
+phases used by the stock Scala compiler as shown below.
 
 \singlespace
 \begin{Verbatim}
@@ -536,14 +537,14 @@ typer
 \end{Verbatim}
 \primaryspacing
 
-The bulk of the modifications made by Scalaness are in the typer phase. There hooks where added
+The bulk of the modifications made by Scalaness are in the typer phase. There hooks were added
 at critical points that call into Scalaness specific code in package !uvm.edu.scalaness!. In
-addition a new phase was added between the parser and namer phases. This new phase,
-\texttt{scalanesspostparser}, is responsible for augmenting certain Scalaness constructs with
-their necessary runtime support. This is done by inserting new material in the AST produced by
-the parser. In principle that material could have been manually written by the programmer but
-instead is automatically generated as a convenience. It is this postparser phase that could
-potentially be eliminated by type macros when they become available.
+addition a new phase was added between the parser and namer phases. This new phase is
+responsible for augmenting certain Scalaness constructs with their necessary runtime support.
+This is done by inserting material in the AST produced by the parser. In principle that material
+could have been manually written by the programmer but instead is automatically generated as a
+convenience. It is this ``post-parser'' phase that could potentially be eliminated by type
+macros when they become available.
 
 \subsection{Liftable Types}
 \label{section-liftable-types}
@@ -630,8 +631,8 @@ provided it additionally obeys the following inductive rules.
 
 In this case $C$ is said to be a \textit{liftable class}. Except for the rules mentioned here
 there are no restrictions on the definition or use of liftable classes. In particular, they are
-able to have convenience methods, although the methods of a liftable class have no manifestation
-in the generated nesT code.
+able to have methods, although the methods of a liftable class have no manifestation in the
+generated nesT code and would exist only as a convenience to the Scalaness programmer.
 
 For example, consider the following Scalaness code:
 
@@ -677,8 +678,8 @@ Thus !MetaType! objects form a bridge between the Scala and nesC sides of the sy
   it possible for wrappedType to not be a subtype of Tau? It would seem so. What happens in that
   case?}
 
-\subsection{Component Definition}
-\label{section-component-definition}
+\subsection{Component Declarations}
+\label{section-component-declarations}
 
 Components in nesT can be parameterized by types and values and instantiated multiple times.
 These properties are closely modeled by Scala classes. Thus the representation of a nesT
@@ -790,208 +791,148 @@ class SendC extends MininessComponent {
 
 %\note{I have to talk about ModuleType annotations somewhere!}
 
-\subsection{Component Operations}
-\label{section-component-operations}
+\subsection{Runtime Support}
+\label{section-runtime-support}
 
-\note{This section needs to be overhauled. I'm not sure how much detail I really should go into
-  here.}
+In addition to compile-time analysis and type checking, Scalaness programs require support for
+nesT module composition (aka ``wiring'') at runtime. In this section I give an overview of how
+this runtime support works. Full details can be found in the documented source code of Scalaness
+\cite{scalaness-home}. I note that the current implementation of Scalaness composes nesT modules
+and rewrites those modules to nesC in a single, integrated processing step. The runtime system
+emits nesC directly without the need for any explicit nesT-to-nesC rewriting.
 
-In this section I describe how the Scalaness-level operations on nesT components are
-implemented. There are two basic operations to consider: component composition and component
-instantiation.
+There are two operations to consider: component composition and component instantiation.
 
 \subsubsection{Composition}
 \label{section-composition}
 
-\textit{blah, blah, blah}
-
-Before delving into the details of how the conversion to nesC works, I will start with a simple
-example. Below is the Scalaness runtime representation of three nesT components, each as an
-instance of class NamedProgramComponent.
+Each Scalaness class that represents a nesT component is augmented by the Scalaness compiler to
+contain a hidden field that represents a nesC configuration wrapping that single component.
+\autoref{figure-checksum-class} shows an example of a Scalaness class representing a nesT
+component that provides a command for computing checksums on a given array of bytes. This
+component is parameters by the type used for the checksum and by the size of the arrays that it
+processes.
 
 \singlespace
+\begin{fpfig}[tbhp]{Generated Runtime Support for Composition}{figure-checksum-class}
+{
 \begin{lstlisting}[language=scalaness]
-val A = new NamedProgramComponent(
-  name            = "A",
-  typeParameters  = Set(),
-  valueParameters = Set(),
-  imports         = Set("c1", "c2"),
-  exports         = Set())
+@ModuleType(
+  """{}
+     < checksumType <: UInt32; size: UInt16 >
+     { ; compute_checksum(data: Array[UInt8]): checksumType }""")
+class ChecksumC extends MininessComponent {
 
-val B = new NamedProgramComponent(
-  name            = "B",
-  typeParameters  = Set(),
-  valueParameters = Set(),
-  imports         = Set(),
-  exports         = Set("c1"))
-
-val C = new NamedProgramComponent(
-  name            = "C",
-  typeParameters  = Set(),
-  valueParameters = Set(),
-  imports         = Set("c1"),
-  exports         = Set("c2"))
-\end{lstlisting}
-\primaryspacing
-
-The parameters, imports, and exports are all represented (for now) as sets of strings. In this
-example A uses commands c1 and c2, B provides command c1, etc.
-
-These components can be composed as follows:
-
-\singlespace
-\begin{lstlisting}[language=scalaness]
-val composedComponent1 =
-  A.toProgramComponent + B.toProgramComponent
-
-val composedComponent2 =
-  composedComponent1 + C.toProgramComponent
-
-composedComponent2.display(outputFile)
-\end{lstlisting}
-\primaryspacing
-
-The code above is plain Scala. The Scalaness programmer would use a more convenient syntax but
-the compiler, essentially, rewrites that syntax into the above. The first stage program executes
-with a Scalaness runtime support library that provides the necessary classes and related
-infrastructure to make such code work as intended.
-
-A, B, and C are NamedProgramComponents. These are the components defined by the Scalaness
-programmer. Internally, however, all operations on components are done using anonymous
-components from class ProgramComponent. I describe the reasons for this more fully below. The
-method toProgramComponent is a conversion operator. The method '+' is overloaded here to do
-component composition.
-
-In the example above the material that is written to the outputFile is:
-
-\singlespace
-\begin{lstlisting}[language=nesC]
-configuration AppC {
-    provides c1;
-    provides c2;
-}
-implementation {
-    components A, B, C;
-    A.c1 -> B.c1;
-    A.c2 -> C.c2;
-    C.c1 -> B.c1;
+  /////////
+  // Code generated by the Scalaness compiler.
+  /////////
+  val configuration =
+    new ProgramComponentWrapper(new NamedProgramComponent(
+      name            = "ChecksumC",
+      enclosingObject = this,
+      typeParameters  = Set("checksumType"),
+      valueParameters = Set("size"),
+      imports         = extractImports(abstractSyntax),
+      exports         = extractExports(abstractSyntax),
+      abstractSyntax  = abstractSyntax))
+    
+  def getTypeMap  = Map("checksumType" -> sclnsChecksumType)
+  def getValueMap = Map("size" -> sclnsSize)
+  ////////
+  // END of Scalaness generated code.
+  //////// 
+           
+  "ChecksumC.nc"
 }
 \end{lstlisting}
+}
+\end{fpfig}
 \primaryspacing
 
-There are two kinds of components: those with names and those that are anonymous. Anonymous
-components are the result of component composition and can contain a collection of named
-components embedded inside of them. The imports and exports of a component are maps that
-associate the name of the import or export with the embedded named component that uses or
-provides it, respectively. A conversion exists from named to anonymous components. That
-conversion returns an anonymous component that has the (one) named component embedded inside of
-it.
+The code marked in \autoref{figure-checksum-class} as being generated by the compiler is not
+legal Scala as shown but is presented as an aid to understanding. The compiler actually inserts
+during compiliation a type correct AST of the necessary code into the AST of the enclosing
+class. The Scalaness runtime library, specifically methods in the inherited !MininessComponent!,
+makes use of the generated code during component composition.
 
-The types used to represent imports and exports are as shown below.
+In particular, the generated field !configuration! holds a reference to an object representing a
+nesC configuration that wraps the nesT component. The imports and exports of that component are
+extracted from the abstract syntax tree of the nesT code which is parsed by the runtime system
+and is represented by !abstractSyntax! in \autoref{figure-checksum-class}. Note that the nesT
+code has already been syntax checked and type checked by the Scalaness compiler during the
+compilation of the Scalaness program. The reparsing done at runtime is thus guaranteed to
+succeed.
 
-\singlespace
-\begin{lstlisting}[language=scalaness]
-type ImportsType =
-  Map[String, List[NamedProgramComponent]]
+The named component wrapped by the configuration is made aware of the names of the type and
+value parameters. Furthermore the Scalaness compiler augments the class with methods
+!getTypeMap! and !getValueMap! that return maps associating those names with additional hidden
+fields (the definitions of which are not shown in \autoref{figure-checksum-class}) holding the
+runtime representation of the type and value arguments actually used. This information is used
+during component instantiation as described in \autoref{section-instantiation}.
 
-type ExportsType =
-  Map[String, NamedProgramComponent]
+The method !+>! inherited from !MininessComponent! combines the configurations in its operands
+to return a new program component representing the overall nesC configuration. It is in the !+>!
+method where the operational semantics of wiring is implemented. The program component returned
+from !+>! is flattened in the sense that it is a single configuration that wires all the named
+program components (nesT modules) it contains; a hierarchy of configurations is not created.
 
-type WireType =
-  (String, NamedProgramComponent, NamedProgramComponent)
-\end{lstlisting}
-\primaryspacing
-
-The ImportsType maps an overall import name to a list of NamedProgramComponents because, after
-composition the same import might be used by more than one embedded component. That is not the
-case for exports since exports are combined with a mutually exclusive map merge. Each overall
-export can thus be provided by exactly one embedded component.
-
-The type WireType is used to represent the "wires" between embedded components. It is a triple
-where the first element is the name of the command being wired and the other two elements are
-the wire endpoints (user first).
-
-In addition each (anonymous) ProgramComponent contains a ProgramConfiguration member. This
-configuration describes the embedded components and the nesC wiring used to connect them.
-
-ProgramComponents are immutable instances from the following class
-
-\singlespace
-\begin{lstlisting}[language=scalaness]
-class ProgramComponent(
-  private val typeParameters: Set[String],
-  private val termParameters: Set[String],
-  private val imports       : ImportsType,
-  private val exports       : ExportsType,
-  private val configuration : ProgramConfiguration) { ...
-\end{lstlisting}
-\primaryspacing
+An !image! method in the !ProgramComponent! class writes the nesC configuration implied by the
+current program component and then iterates over all the named components serializing their
+abstract syntax trees to nesC. During this serialization the nesT to nesC transformations, for
+example array bounds checks, etc., as described in \autoref{section-nest-implementation} are
+also done.
 
 \subsubsection{Instantiation}
 \label{section-instantiation}
 
-A module such as
+A class representing a nesT component can be instantiated using Scala's operator !new! like any
+other class. However, such an instance still has an uninstantiated module type. Instantiation of
+a component at the nesT level is done in Scalaness by invoking a compiler generated
+!instantiate! method, an example of which is shown in \autoref{figure-checksum-instantiate}.
 
 \singlespace
+\begin{fpfig}[tbhp]{Generated Instantiate Method}{figure-checksum-instantiate}
+{
 \begin{lstlisting}[language=scalaness]
-class BlinkC[A <: Int32](period: A) extends NesCComponent {
-  "BlinkC.nc"
-}
-\end{lstlisting}
-\primaryspacing
+@ModuleType(
+  """{}
+     < checksumType <: UInt32; size: UInt16 >
+     { ; compute_checksum(data: Array[UInt8]): checksumType }""")
+class ChecksumC extends MininessComponent {
 
-Is modified by the Scalaness plug-in to hold some additional fields and methods
-
-\singlespace
-\begin{lstlisting}[language=scalaness]
-class BlinkC[A <: Int32](period: A) extends NesCComponent {
   /////////
   // Code generated by the Scalaness compiler.
   /////////
-  var AType: MetaType[Int32] = null
-  def getTypeMap  = Map("A" -> AType)
-  def getValueMap = Map("period" -> period)
+  private var sclnsChecksumType: MetaType[UInt32] = null
+  private var sclnsSize: UInt16 = null
+
+  def instantiate(checksumType: MetaType[UInt32], size: UInt16) = {
+    val result = new ChecksumC
+    result.sclnsChecksumType = checksumType
+    result.sclnsSize = size
+    result
+  }
   ////////
   // END of Scalaness generated code.
-  ////////
-
-  "BlinkC.nc"
+  //////// 
+           
+  "ChecksumC.nc"
 }
 \end{lstlisting}
-\primaryspacing
-
-The generated field !AType! holds a reference to the type used to instantiate the module. In
-Scalaness this type can only be known at runtime. The methods !getTypeMap! and !getValueMap! are
-used during module specialization. The method that does so is inherited from !NesCComponent! but
-it calls these methods through their abstract interface.
-
-Notice that at the Scala level the type parameter must be some type that extends
-!LiftableTypes.Int32! (in this example). However, when the module is instantiated the Scalaness
-programmer might provide a variable of type !MetaType[Int32]!. For example
-
-\singlespace
-\begin{lstlisting}[language=scalaness]
-val desiredType: MetaType[Int32] = ...
-val blinkModule = new BlinkC[desiredType](new Int8(100))
-\end{lstlisting}
-\primaryspacing
-
-The Scala parser will accept this construction but the Scala type checker will reject the use of
-a val as a type argument. Thus expressions involving component instantation are rewritten during
-the post-parser phases into
-
-\singlespace
-\begin{lstlisting}[language=scalaness]
-val blinkModule = {
-  val temp = new BlinkC[Int32](new Int8(100))
-  temp.AType = desiredType
-  temp
 }
-\end{lstlisting}
+\end{fpfig}
 \primaryspacing
 
-Unfortunately this rewritting is difficult because of the minimal amount of information
-available to the plug-in immediately after parsing.
+As for \autoref{figure-checksum-class} the code shown as generated by the compiler is for
+illustration only. The compiler inserts during compilation the AST of the appropriate code into
+the AST of the enclosing class.
+
+The !instantiate! method is provided module type parameters as Scala !MetaType! values, and
+module value parameters, all of which must have liftable types. The method creates a fresh Scala
+instance of the class and stores the module parameters into hiddent fields where they are
+subsequently used (during imaging) to specialize the module's body. A single instance of the
+Scala class could thus create many different specializations of the nesT module by way of
+separate invocations of !instantiate! with potentially different parameters.
 
 \lstDeleteShortInline!
 
