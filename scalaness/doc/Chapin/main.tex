@@ -1,10 +1,20 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FILE    : main.tex
 % AUTHOR  : (C) Copyright 2013 by Peter C. Chapin
-% SUBJECT : Dissertation
+% SUBJECT : Master document of my dissertation
 %
-% Based on the dissertation template here:
-%      http://www.uvm.edu/~gss/?Page=templates.html
+% The format used here is based on the dissertation format by Yan Zhang, 2008. It includes
+% elements developed
+%
+%   by Yan Zhang at UVM (dedication page, show coadvisors' names), and
+%   by Like Gao at UVM, and
+%   by David Van Horn at UVM (most of cover pages}, and
+%   by John Carpenter at UIUC (most of skeleton stuff), and
+%   by John Shumway <john_shumway@nrel.gov> (most of the LaTeX stuff), and
+%   by John Pitney <john@pitney.org> (most of the PDF creation stuff).
+%
+% I have made whatever adjustments seemed necessary to suit my purposes and current formatting
+% requirements.
 %
 % Send comments or bug reports to:
 %
@@ -14,24 +24,8 @@
 %    Burlington, VT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% This is the main file to be complied by LaTex This is the dissertation which should meet the
-% formatting requirements for the Graduate College at the University of Vermont
-%
-% By Yan Zhang, for 2008 Summer
-%
-% It includes elements developed
-% by Yan Zhang at UVM (dedication page, show coadvisors' names), and
-% by Like Gao at UVM, and
-% by David Van Horn at UVM (most of cover pages}, and
-% by John Carpenter at UIUC (most of skeleton stuff), and
-% by John Shumway <john_shumway@nrel.gov> (most of the LaTeX stuff), and
-% by John Pitney <john@pitney.org> (most of the PDF creation stuff).
-
-% We use the standard 'report' document class from LaTeX 2e
 \documentclass[11pt]{report}
-
-% uvmdis.sty makes some adjustments to the report class to meet formatting requirements
-\usepackage{uvmdis}
+\usepackage{uvm-dissertation}
 
 % chicago is the required citation style by UVM.
 \usepackage{chicago}
@@ -80,7 +74,6 @@
 \include{dedication}
 \include{acknowledgments}
 
-
 % Single space the lists, as recommended
 \singlespace
 
@@ -98,10 +91,8 @@
 % A list of symbols can go here, if any. Handle it like the Acknowledgements.
 %\include{notation}
 
-% Switch back to the primary spacing.
-\primaryspacing
-
 % Body of dissertation begins here.
+\primaryspacing
 \pagenumbering{arabic}
 
 \input{Introduction}
@@ -119,8 +110,7 @@
 %\include{nesT-Types}
 %\clearpage
 
-% This is a workaround to make "References" appear with leader dots and the page number in the
-% TOC.
+% This workaround makes "References" appear with leader dots and the page number in the TOC.
 \addcontentsline{toc}{chapter}{\bibname}
 
 %\singlespace or \doublespace for the references? Need to check with Graduate College
