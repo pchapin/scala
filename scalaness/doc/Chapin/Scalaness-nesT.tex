@@ -13,8 +13,8 @@ existing functionality.
 \lstset{language=nesC}
 \lstMakeShortInline!
 
-% \note{Talk about nesT type rules and type checking? I need to reference Michael's thesis in
-% here somewhere.}
+% TODO: Talk about nesT type rules and type checking?
+% I need to reference Michael's thesis in here somewhere.
 
 NesT is the name give to the second stage language used by the implementation. Roughly speaking
 nesT is the practical realization of DnesT. In particular, nesT uses the syntax of nesC to the
@@ -29,6 +29,10 @@ memory access and safe casting. Thus while nesT programs are syntactically ident
 semantically similar to programs written in nesC, nesT programs are more robust than equivalent
 nesC programs.
 
+NesT type checking is largely straight forward and follows nesC's type rules to the greatest
+extent possible with changes to account for subtyping. The details of how nesT type checking was
+implemented is given in \cite{watson-masters-2013}.
+
 NesT is implemented as a rewritting to nesC. Because of nesT's special relationship with nesC
 this rewriting is largely trivial. However, the implementation of the special features of nesT
 are described in more detail in this section.
@@ -36,6 +40,8 @@ are described in more detail in this section.
 The description that follows assumes the reader is familiar with nesC.
 
 % TODO: I need to describe the nesT subset somewhat exhaustively and carefully.
+% ... or do I? This isn't really a nesT reference manual, after all.
+
 \subsection{Component Specifications}
 \label{section-component-specifications}
 
@@ -45,6 +51,7 @@ exports are implemented as nesC commands that are ``provided'' by the component.
 events are not part of nesT but can be simulated using commands.
 
 % TODO: The citation below should really be to the nesC specification.
+% It's hard to find an appropriate citation for the specification, however (that isn't ancient).
 
 NesT does not provide separate interfaces as nesC does. Instead all interaction with other
 components is done by way of separately declared commands. These bare commands can be wired
@@ -77,7 +84,7 @@ implementation {
 The example in \autoref{figure-example-mininess} also shows the use of an undeclared type !T!
 and value !x!. Such types and values are instead declared as parameters of the module in the
 Scalaness program. The Scalaness compiler first adds these parameters to the appropriate
-environments before it type checks the nesT module.
+environments before it type checks the nesT module \cite{watson-masters-2013}.
 
 A nesT code base consists of a collection of unspecialized nesT modules. These modules do not by
 themselves constitute a complete program. It is the job of the first stage Scalaness program to
@@ -584,8 +591,8 @@ means existing libraries that, for example, manipulate Scala !Char! objects won'
   likely be put to very different uses than values of ordinary Scala types. In fact, letting the
   Scala type system catch inadvertant mixing of ordinary primitives and liftable primitives
   could be seen as a desirable feature.
-\item Conversions (including implicit conversions) can be easily added by the Scalaness
-  programmer if desired using the normal facilities of Scala.
+\item Implicit conversions can be easily added by the Scalaness programmer if desired using the
+  normal facilities of Scala.
 \end{enumerate}
 
 To facilitate the second point, explicit conversion methods from each liftable type to its
@@ -649,13 +656,65 @@ class TimeStampedHeader
 \primaryspacing
 
 Here !nodeIDType! is a previously defined liftable class type. Consequently both of these
-classes are liftable and have representations as nesT structure types. \note{Figure out how to
-  properly model Scala's inheritance system in this context.}
+classes are liftable and have representations as nesT structure types.
+
+% TODO: Figure out how to properly model Scala's inheritance system in this context.
 
 \subsection{Lifting}
 \label{section-lifting}
 
-\note{Talk about how lifting is actually done.}
+When nesT modules are specialized by values, the Scala values used to make those specialization
+are lifted into the nesT code. For primitive types occurrences of the value parameter in the
+nesT code is simply replaced by a constant representing the actual value used to specialize the
+module.
+
+Values with array or structure (class) types are handled differently. In that case the Scalaness
+compiler writes a global declaration into the nesT module that defines the value along with an
+initializer constructed from the Scala value used to specialize the module.
+
+As an example, consider the following Scalaness class representing a nesT module that does
+encryption. The module is parameterized by a key value.
+
+\singlespace
+\begin{lstlisting}[language=scalaness]
+@ModuleType(
+  """{}
+     < ; key: Array[UInt8] >
+     { ; encrypt(data: Array[UInt8]): Void }""")
+class EncryptorC extends MininessComponent {
+  "EncryptorC.nc"
+}
+\end{lstlisting}
+\primaryspacing
+
+When this module is instantiated as described in \autoref{section-instantiation} a Scala array
+of !UInt8! values is provided. The Scalaness compiler will output, at second stage generation
+time, nesT code such as
+
+\singlespace
+\begin{lstlisting}[language=nesC]
+module EncryptorC {
+  provides void encrypt(uint8_t data[]);
+}
+implementation {
+  // Added by the Scalaness compiler.
+  uint8_t key[] = { 1, 2, 3, 4 };
+
+  // Uses of 'key' as before.
+\end{lstlisting}
+\primaryspacing
+
+Here !{ 1, 2, 3, 4}! is the value of the key parameter used to instantiate the module. The nesT
+programmer does not declare the global variable !key! in the nesT module but nevertheless uses
+the name !key! freely in the module. In effect the nesT programmer is using the parameter
+declaration (in the Scalaness code) to guide her work. This follows the behavior of the nesT
+type checker.
+
+The example above shows the result before the final translation to nesC. During that translation
+the Scalaness compiler will also augment the parameter list of !encrypt! to include an
+additional size parameter for the array as described in \autoref{section-array-operations}.
+
+% TODO: Describe also how types are lifted.
 
 \subsection{MetaType}
 \label{section-metatype}
@@ -667,18 +726,24 @@ wrapper generic class !MetaType[T]! to represent any liftable type that is a sub
 \singlespace
 \begin{lstlisting}[language=scalaness]
 class MetaType[+Tau <: Liftable]
-  (val wrappedType: TypeRepresentation)
-    extends Liftable
+  (val wrappedType: TypeRepresentation) extends Liftable
 \end{lstlisting}
 \primaryspacing
 
-Objects of type !MetaType! contain a representation of a nesC type. They are covariently
-parameterized by an upper bound type. Note that !MetaType!'s type parameter is a Scala type that
-is liftable to nesT. However the value it wraps is a representation of the already lifted type.
-Thus !MetaType! objects form a bridge between the Scala and nesC sides of the system.
+Values in the Scalaness program that are intended to hold nesT types that are a subtype of
+$\tau$ have a Scala type of !MetaType[Tau]!. A variance annotation is used to ensure that
+!MetaType! is covariant in its type parameter. This allows flexibility since, for example, a
+!MetaType[UInt16]! value should be usable where a !MetaType[UInt32]! is expected. This is sound
+since the subtype relation is transitive and, for example, any type that is a subtype of
+!UInt16! is also a subtype of !UInt32!.
 
-% TODO: Is it possible for wrappedType to not be a subtype of Tau? It would seem so. What
-% happens in that case?
+Objects of type !MetaType! contain a \emph{representation} of a nesC type. While !MetaType!'s
+type parameter is a Scala type that is liftable to nesT, the value it wraps is a representation
+of the already lifted type. Thus !MetaType! objects form a bridge between the Scala and nesC
+sides of the system.
+
+% TODO: Is it possible for wrappedType to not be a subtype of Tau? It would seem so.
+% What happens in that case?
 
 \subsection{Module Type Annotations}
 \label{section-module-type}
@@ -687,7 +752,7 @@ Values definitions, method parameters, and method results that are intended to m
 component values must be explicitly decorated with a module type annotation. In this way nesT
 type information can be made known to the Scalaness compiler without modifying the Scala parser
 to understand an extended type language directly. Module type annotations are string literals
-that obey the syntax in \autoref{figure-module-type-syntax}.
+that obey the abbreviated syntax in \autoref{figure-module-type-syntax}.
 
 \singlespace
 \begin{fpfig}[tbhp]{Module Type Syntax}{figure-module-type-syntax}
@@ -697,12 +762,9 @@ module-type ::= '{' existential-binders? '}'
                 '<' type-parameters? ';' value-parameters? '>'
                 '{' imports? ';' exports? '>'
 
-existential-binders ::= existential-binder (',' existential-binder)*
-existential-binder  ::= ID '<:' type
-type-parameters  ::= type-parameter (',' type-parameter)*
-type-parameter   ::= ID '<:' type
-value-parameters ::= value_parameter (',' value-parameter)*
-value-parameter  ::= ID  ':' type
+existential-binder ::= IDENTIFIER '<:' type
+type-parameter  ::= IDENTIFIER '<:' type
+value-parameter ::= IDENTIFIER  ':' type
 \end{Verbatim}
 }
 \end{fpfig}
@@ -768,16 +830,17 @@ class SendC
 \end{lstlisting}
 \primaryspacing
 
-This defines a Scalaness component using Scala syntax for representing type and value
-parameters. The body of the component, however is written in nesT. Unfortunately this can't be
-supported without modifying the Scala parser to accept nesT as well as Scala. It was my
-intention to avoid this complication.
+This intends to define a Scalaness component using Scala syntax for representing type and value
+parameters with the body of the component written in nesT. Unfortunately this can't be supported
+without modifying the Scala parser to accept nesT as well as Scala. It was my intention to avoid
+this complication.
 
-One way to work around the problem is presented in \cite{Garcia-Scala-Query} where the alien
-language is included as a string literal. The Scala typer will treat the nesT program as having
-type String but the additional Scalaness type checking code could parse the string's contents
-(provided it is required to be a literal) and impose additional typing rules on those contents.
-However, this approach leads to a rather ungainly programming style:
+One way to work around the problem of mixed language syntax is presented in
+\cite{Garcia-Scala-Query} where the ``alien'' language is included as a string literal. The
+Scala type checker will treat the nesT program as having type String but the additional
+Scalaness type checking code could parse the string's contents (provided it is required to be a
+literal) and impose additional typing rules on those contents. However, this approach leads to a
+rather ungainly programming style:
 
 \singlespace
 \begin{lstlisting}[language=scalaness]
@@ -823,8 +886,8 @@ type and value parameters as provided to the Scalaness class.
 Using Scala's syntax for specifying type and value parameters as shown above is attractive but
 unfortunately it does not work for Scalaness. There are two problems.
 \begin{enumerate}
-\item NesT components can be passed around in a Scalaness program in an uninstantiated state. In
-  contrast Scala classes are not first class values in Scala.
+\item I wanted to allow nesT components to be passed around in a Scalaness program in an
+  uninstantiated state. In contrast Scala classes are not first class values in Scala.
 \item NesT components can have parameters involving dynamically constructed types. In contrast
   Scala class parameters must involve only types that are fully statically specified.
 \end{enumerate}
