@@ -58,41 +58,59 @@ $
 \figsize
 $$
 \begin{array}{lc@{\ }l@{\hspace{-5mm}}r}
-\s, \t & \defassign & \TVAR\ \mid \top \mid \intone\ \mid \inttwo  \mid \intt \mid \undefv \mid & \textit{types} \\
-&  & \lc\tbindvec{\fdname}{\t}\rc \mid \t \idx{} \mid
-\t \kwstar  \mid \blok \t \\ %\mid \texist{\tpdecl}{\tau} \mid \margs{\tpdecl; \vpdecl}\lc  \imports; \exportsty \rc  & \\
-e & \defassign &  v \mid \lvalue \mid 
-  e \op e   \mid \castto{\t}{e} \mid \fname\blok{} \mid \lvalue = e \mid %e \pluseq e \mid 
-  \& \lvalue \mid & \textit{expressions} \\
- & &   \kwif\ (e)\  e\ \kwelse\ e \mid \kwwhile\ (e)\  e \mid e;
-e \mid \kwpost\ \fname\blok{} &\\
-\lvalue &\defassign& x \mid e\idx{e} \mid e.\fdname 
- \mid \kwstar e & \textit{l-values} \\
-v & \defassign &    \neight \mid \nsixtn \mid \undefv & \textit{base values} \\
+\s, \t & \defassign &
+   \TVAR\ \mid \top \mid \intone\ \mid \inttwo \mid \intt \mid \undefv \mid & \textit{types} \\
+       &            &
+   \lc\tbindvec{\fdname}{\t}\rc \mid \t \idx{} \mid \t \kwstar \\
+
+e      & \defassign &
+    v \mid \lvalue \mid e \op e \mid \castto{\t}{e} \mid \fname\blok{\,\vect{e}\,} \mid \lvalue = e \mid \mid \& \lvalue \mid e \rhd e \mid & \textit{expressions} \\
+       &            &
+    \kwif\ (e)\  e\ \kwelse\ e \mid \kwwhile\ (e)\  e \mid e; e \mid \kwpost\ \fname\blok{\,} &\\
+
+\lvalue & \defassign &
+    x \mid e\idx{e} \mid e.\fdname \mid \kwstar e & \textit{l-values} \\
+
+v       & \defassign &
+    \neight \mid \nsixtn \mid \undefv & \textit{base values} \\
 % \mv &\defassign& v \mid  
 %  \arr{\vect \bn} \mid \lc \vect{\fdname = \bn} \rc & 
 %\textit{values in memory}\\ 
-\mathit{op} & \defassign & + \mid \kwstar \mid \texttt{\&\&} \mid \texttt{==} \ldots & \textit{operations} \\
-\id &\defassign& \fname \mid x & \textit{identifiers}\\
-d &\defassign& \xlet{\t}{x}{e} \mid \xlet{\t}{x}{\arr{\vect{e}}} \mid \xlet{\t}{x}{\lc \defvec{\fdname}{e} \rc} \mid \fname : \t =  \blok{e} & \textit{declarations} \\[3mm]
-\tpdecl & \defassign & \subtvec{\TVAR}{\t} \qquad \vpdecl  \defassign  \tbindvec{\VAR}{\t} & \textit{type and value parameters} \\
-\imports & \defassign & \tbindvec{\fname}{\t}\qquad  \ \ \,\exports  \defassign  
-  \tbindvec{\fname}{\t} = \vect{\blok{e}}& \textit{imports and exports} \\
-\exportsty & \defassign & \tbindvec{\fname}{\t} & \textit{export signatures} \\
-\mu & \defassign &  \margs{\tpdecl; \vpdecl}\lc  \imports; \decls \exports \rc  & \textit{module definitions}\\
-\jmodtcat & \defassign & \margs{\tpdecl; \vpdecl}\lc \imports; \exportsty \rc & \textit{module signatures}
-%\localname & \defassign & \fname\ \mid \blockno \qquad \identifier \defassign \localname \mid x & \textit{export names and identifiers} 
-%\fname & \in & \mathcal{F} & \textit{function name} \\
-%\fdname & \in & \mathcal{L} & \textit{field name} \\
-%\VAR & \in & \mathcal{V} & \textit{term variable} \\
-%\TVAR & \in & \mathcal{T} & \textit{type variable} \\
-%\blockno & \in & \mathcal{M} & \textit{memory location} \\
-%\neight & \in & \mathbb{Z}_{2^8}& \textit{8-bit unsigned integer} \\
-%\nsixtn & \in  & \mathbb{Z}_{2^{16}}& \textit{16-bit unsigned integer} \\
+
+\mathit{op} & \defassign &
+    + \mid \kwstar \mid \texttt{\&\&} \mid \texttt{==} \mid \,\ldots & \textit{operations} \\
+
+\id         & \defassign &
+    \fname \mid x & \textit{identifiers} \\
+
+c           & \defassign & \fname(\vpdecl\,) : \t = \{ e \}& \textit{command definition}\\
+
+s           & \defassign & \fname(\vpdecl\,) : \t & \textit{command signature}\\
+
+d           & \defassign &
+    \xlet{\t}{x}{e} \mid \xlet{\t}{x}{\arr{\vect{e}}} \mid \xlet{\t}{x}{\lc \defvec{\fdname}{e} \rc} \mid c & \textit{declarations} \\
+
+\tpdecl     & \defassign & \subtvec{\TVAR}{\t} & \textit{type parameters} \\
+
+\vpdecl     & \defassign & \tbindvec{\VAR}{\t} & \textit{value parameters} \\
+
+\imports    & \defassign & \vect{s} & \textit{imports} \\
+
+\exports    & \defassign & \vect{c} & \textit{exports} \\
+
+\exportsty  & \defassign & \vect{s} & \textit{export signatures} \\
+
+\mu         & \defassign &
+    \margs{\tpdecl; \vpdecl}\lc  \imports; \decls \exports \rc  & \textit{module definitions}\\
+
+\jmodtcat   & \defassign &
+    \margs{\tpdecl; \vpdecl}\lc \imports; \exportsty \rc & \textit{module signatures}
+
 \end{array} 
 $$
 \end{fpfig*}
 }
+
 
 \newcommand{\semanticssyntaxfig}
 { 
@@ -100,31 +118,22 @@ $$
 \figsize
 $$
 \begin{array}{rcl@{\!\!}r}
-\pi &\defassign& \bn \mid \circ & \textit{l/r tags} \\
-\kappa &\defassign& \cval{\pi}{\mv} & \textit{dynamic objects}\\ 
-\lvalue &\defassign& \cdots \mid \cval{\bn}{\mv} \\
-e &\defassign& \cdots \mid \kappa \\
-\mv &\defassign& v \mid \bn \mid   
-\arr{\vect{\kappa}} \mid \lc \defvec{\fdname}{\kappa} \rc & 
- \textit{dynamic values}\\ 
-\flash & \defassign & \tdefvec{\fname}{\t}{\blok{e}} \qquad
- \blockmem \defassign \tdefvec{\blockno}{\t}{\mv} & \textit{codebase 
-and memory} \\
+\pi        & \defassign & \bn \mid \circ & \textit{l/r tags} \\
+\kappa     & \defassign & \cval{\pi}{\mv} & \textit{dynamic objects}\\ 
+\lvalue    & \defassign & \cdots \mid \cval{\bn}{\mv} \\
+e          & \defassign & \cdots \mid \kappa \\
+\mv        & \defassign & v \mid \bn \mid \arr{\vect{\kappa}} \mid \lc \defvec{\fdname}{\kappa} \rc &  \textit{dynamic values}\\ 
+\flash     & \defassign & \tdefvec{\fname}{\t}{\blok{e}} & \textit{codebase} \\
+\blockmem  & \defassign & \tdefvec{\blockno}{\t}{\mv} & \textit{memory} \\
 %\rv & \defassign & \lb \mem,v\rb & \textit{runtime values} \\ 
 %e & \defassign & \cdots \mid \rv & \textit{runtime expressions} \\ 
-\envletter & \defassign & \context{}{} \mid \envletter; e \mid \kappa \idx{E} \mid E\idx{e} \mid E.\fdname 
- \mid   \kappa = \envletter \mid \envletter = e \mid 
- \castto{\t}{\envletter} \mid 
-%\bn \pluseq \envletter \mid 
-& \textit{evaluation\ contexts}\\
-& & \kwstar \envletter \mid \&\envletter \mid \envletter \ \emph{op} \ e\ \mid 
- \kappa\ \emph{op}\ \envletter \mid \kwif\ (\envletter)\ e\ \kwelse\ e\ \mid
- \kwwhile\ (E)\  e  \\ 
+\envletter & \defassign & \context{}{} \mid \envletter; e \mid \kappa \idx{E} \mid E\idx{e} \mid E.\fdname  \mid   \kappa = \envletter \mid \envletter = e \mid a \castto{\t}{\envletter} \mid & \textit{evaluation\ contexts}\\
+           &            & \kwstar \envletter \mid \&\envletter \mid \envletter \ \emph{op} \ e\ \mid \kappa\ \emph{op}\ \envletter \mid \kwif\ (\envletter)\ e\ \kwelse\ e\ \mid \kwwhile\ (E)\  e  \\ 
 %{D} & \defassign & 
 %    \xlet{\t}{x}{E} \mid 
 %    \xlet{\t}{x}{\arr{\vect{\kappa}; E; \vect{e}}} \mid  & \textit{decl evaluation contexts}\%\  
 % && \xlet{\t}{x}{\lc \defvec{f}{\kappa}; f = E; \defvec{f}{e}} \rc  \\ 
-\ell &\defassign& \bootseq{\vect{d}} \mid \runseq{e} & \textit{run levels} \\
+\ell       & \defassign & \bootseq{\vect{d}} \mid \runseq{e} & \textit{run levels} \\
 %\\
 %& & 
 % \tlet{t}{\t}{E}; \vect{\decl} \mid \xlet{\t}{x}{E}; \vect{\decl}
@@ -135,6 +144,7 @@ and memory} \\
 $$
 \end{fpfig*}
 }
+
 
 \newcommand{\coresemanticsfig}
 {\begin{fpfig*}[t]{Dynamic Semantics of Selected Expressions}{figure-coresemantics}

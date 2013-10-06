@@ -14,7 +14,10 @@
 \newtheorem{proposition}{Proposition}[section]
 \newtheorem{theorem}{Theorem}[section]
 
-\def\arr#1{\textup{\textbf{[}}\mskip -.5mu\textup{\textbf{|}}\, #1 \,\textup{\textbf{|}}\mskip -.5 mu\textup{\textbf{]}}}
+% The definition of \arr doesn't quite work. The vertical bars are typeset as horizontal.
+%\def\arr#1{\textup{\textbf{[}}\mskip -.5mu\textup{\textbf{|}}\, #1 \,\textup{\textbf{|}}\mskip -.5 mu\textup{\textbf{]}}}
+\def\arr#1{[\,#1\,]}
+
 \def\blockno{m}
 \def\blok#1{\textbf{(}#1\textbf{)}}
 \def\castto#1#2{(#1)\,#2}

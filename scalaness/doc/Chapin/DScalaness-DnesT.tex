@@ -88,6 +88,13 @@ parameterized type $\tt{mesgT(t)}$ using the DScalaness $\tt{abbrvt}$ binder, wh
 $\tt{mesgT}(\t)$ denotes the ground type obtained by substituting $\t$ for $\tt{t}$ in the
 definition of $\tt{mesgT}$.
 
+%\begin{fpfig}[t]{Example Component Manager}{figure-example-componentmanager}
+%{
+%\singlespace
+%\primaryspacing
+%}
+%\end{fpfig}
+
 % TODO: The formatting of this example could be improved (notice inconsistent font size).
 \singlespace
 \lstset{numbers=left,
@@ -321,7 +328,7 @@ $\tbindvec{x}{\t} = x_1 : \t_1,\ldots,x_n : \t_n$.
 I also use the following naming conventions for various language constructs. I use metavariable
 $\fname$ (of set $\mathcal{F}$) for function names, $\fdname$ (of set $\mathcal{L}$) for field
 names, $\VAR$ (of set $\mathcal{V}$) for term variables, $\TVAR$ (of set $\mathcal{T}$) for type
-variables, $ \blockno$ (of set $\mathcal{M}$) for memory locations, $\neight$ (of set
+variables, $\blockno$ (of set $\mathcal{M}$) for memory locations, $\neight$ (of set
 $\mathbb{Z}_{2^8}$) for 8-bit unsigned integers, and $\nsixtn$ (of set $\mathbb{Z}_{2^{16}}$)
 for 16-bit unsigned integers. I use $n$ to range over both types of integers when their type is
 irrelevant.
@@ -339,42 +346,49 @@ functions, and a language for defining modules.
 The DnesT language includes standard C-like constructs, such as conditional branching, looping,
 sequencing of expressions, and function calls, arrays, structs, numeric base datatypes (and
 operations on them). Familiar syntax $e \idx e$ and $e.\fdname$ is used for array indexing and
-struct field selection, respectively.
+structure field selection, respectively.
 
-A ``null'' value $\undefv$ is also provided. Function definitions and calls are available only
-in a limited nullary form to simplify the model, in particular the expression $\blok{e}$ is a
-function body. Since functions are not recursive there is no expressiveness lost, a global
-variable can be used to encode a function parameter. Memory locations $\blockno$ are program
-values (\emph{\'a la} pointers). As in all C dialects, assignment can only be performed on
-so-called \emph{l-values} $\lvalue$, a restricted subset of expression syntax.
+A ``null'' value $\undefv$ is also provided. Function definitions and calls allow multiple
+parameters as is usual in C-like languages. Memory locations $\blockno$ are program values
+(\emph{\'a la} pointers). As in all C dialects, assignment can only be performed on so-called
+\emph{l-values} $\lvalue$, a restricted subset of expression syntax.
 
 As in nesC, no dynamic memory allocation is possible; all memory layout is established by static
-variable declarations. Also, the core language we present here does not allow pointer arithmetic
-to support type safety. Type casting and array access have run time checks imposed, as I explain
-in \autoref{section-nestsemantics}.
+variable declarations. However, unlike nesC full pointer arithmetic is not supported for the
+sake of type safety. Instead an array increment operator $\rhd$ allows the suffix of an array to
+be computed based on an integral shift distance. Type casting and array operations have run time
+checks imposed, as I explain in \autoref{section-nestsemantics}.
 
-Also as in nesC, a $\kwpost$ operation is provided for posting tasks. The semantics will account
-for tasks using the ``run-to-completion'' model of TinyOS. Interrupts are omitted from our
-language to avoid concurrency issues in the semantics. Typical sensor network applications do
-not need interrupts; they are only needed in a few low level nesC libraries.
+Also as in nesC, a $\kwpost$ operation is provided for posting tasks. The semantics of tasks
+follow the ``run-to-completion'' model of TinyOS. Interrupts are omitted from the language to
+avoid concurrency issues in the semantics. Typical sensor network applications do not use
+interrupts directly; they are needed instead in low level libraries.
 
 \subsubsection{Declarations}
 
 Programs in DnesT may refer to declarations of values and functions which are scoped at the
-module level and establish the statically fixed memory layout of DnesT. A convenient form for
-explicit initialization of array and struct values is provided, though neither arrays nor struct
-values may be treated anonymously (i.e.~they must be declared and referred to by name). Besides
-convenience, declarations are useful to support serialization of program objects passed in from
-the Scala level in DScalaness, as we discuss in \autoref{section-serialization}.
+module level and establish statically the memory layout of a DnesT module. A convenient form for
+explicit initialization of array and struct values is provided, though there are no base values
+for either arrays or structures. Besides convenience, declarations are useful to support
+serialization of program objects passed in from DScalaness, as I discuss in
+\autoref{section-serialization}.
 
 \subsubsection{Modules}
 
-NesT Modules are written $\margs{\tpdecl; \vpdecl}\lc \imports; \decls \exports \rc $ with
+DnesT Modules are written $\margs{\tpdecl; \vpdecl}\lc \imports; \decls \exports \rc$ with
 $\tpdecl$ and $\vpdecl$ being generic type and term parameters, $\vect{d}$ being module scope
 identifier declarations, including function definitions, and $\imports$ and $\exports$ being
-imports and exports. Exports are explicitly defind in the module. A ``runnable'' module---one
-without imports or generic parameters---defines an initial machine configuration. In
-\autoref{figure-example}, the wiring $\texttt{ncode} \ltimes \texttt{scode}$ on line
+imports and exports. Exports are explicitly defined in the module.
+
+A ``runnable'' module---one without imports or generic parameters---is the DnesT model of a
+device image. The declarations in the module defines an initial machine configuration, and the
+application entry point is defined in a required command $\tt{main}$.
+\begin{definition}
+\label{def-runnable}
+A module of the form $\margs{\varnothing; \varnothing }\lc ; \vect{\decl}; \exports\rc$, where
+$\tt{main}() : \undefv \in \exports$, is \emph{called runnable}.
+\end{definition}
+In \autoref{figure-example}, the wiring $\texttt{ncode} \ltimes \texttt{scode}$ on line
 \ref{l:image} yields a runnable module.
 
 \subsection{Semantics of DnesT} 
@@ -391,13 +405,13 @@ C-like language formalizations \cite{Leroy-compcert-06,grossman03}.
 \subsubsection{Semantics of Expressions}
 
 At the heart of DnesT is a C-like language of expressions built from l- and r-values. An l-value
-is an object in memory that can be assigned to, in particular a variable, a struct or array
-field, or a pointer. An r-value is a value resulting from expression computation and may be a
-value that is not in memory.
+is an object in memory that can be the target of an assignment, in particular a variable, a
+structure field, an array member, or a dereferenced pointer. An r-value is a value resulting
+from expression computation and may be a value that is not necessarily in memory.
 
 The DnesT syntax for necessary dynamic entities is given in \autoref{figure-semanticssyntax}. In
 DnesT, computed values are represented as pairs $\cval{\pi}{\mv}$, where $\mv$ is a base,
-pointer, array, or struct value, and $\pi$ is a tag indicating whether or not the value is in
+pointer, array, or structure value, and $\pi$ is a tag indicating whether or not the value is in
 memory. Computed r-values not in memory are denoted $\cval{\circ}{\mv}$, e.g. $\cval{\circ}{2}$
 is the result of computing 1 + 1. The l-value object $\cval{\bn}{\mv}$ indicates that the value
 $\mv$ is in memory at location $\bn$.
@@ -430,19 +444,19 @@ that for memories $\bm$.
 \subsubsection{Semantics of Tasks}
 
 NesC uses a simple scheduling model of serial, run-to-completion execution of queued
-\emph{tasks}. The base semantics of DnesT are thus supplemented with a corresponding \emph{task
-  collection} $\tasks$ of the tasks yet to run, and defined with a single step transition
-relation on configurations extended with task collections. The definition of task collections is
-left undetermined, and also how tasks are added and retrieved---this because it is unspecified
-whether tasks are treated in e.g.~a FIFO manner by the scheduler. I let
-$\addt(\tasks,\fname\blok{})$ denote $\tasks'$ which is $\tasks$ plus the task consisting of the
-function call $\fname\blok{}$, and let $\nextt(\tasks)$ denote a pair $\tasks',\fname\blok{}$
-which comprises the ``next'' task $\fname\blok{}$ in $\tasks$, and $\tasks'$ which is $\tasks$
-with $\fname\blok{}$ removed. The task semantics, integrated with the expression semantics
-defined previously, are defined in \autoref{figure-tasksemantics}. As for expressions, the
-existence of a given codebase $\flash$ is assumed. When it is necessary to be explicit about
-which codebase is given for a computation, I will write $\flash \vdash \tasks, \bm, e \compute
-\tasks', \bm', e'$.
+\emph{tasks} where each task is defined by a parameterless function. The base semantics of DnesT
+are thus supplemented with a corresponding \emph{task collection} $\tasks$ of the tasks yet to
+run, and defined with a single step transition relation on configurations extended with task
+collections. The definition of task collections is left undetermined, and also how tasks are
+added and retrieved---this because it is unspecified how tasks are treated by the scheduler. I
+let $\addt(\tasks,\fname\blok{})$ denote $\tasks'$ which is $\tasks$ plus the task consisting of
+the function call $\fname\blok{}$, and let $\nextt(\tasks)$ denote a pair
+$\tasks',\fname\blok{}$ which comprises the ``next'' task $\fname\blok{}$ in $\tasks$, and
+$\tasks'$ which is $\tasks$ with $\fname\blok{}$ removed. The task semantics, integrated with
+the expression semantics defined previously, are defined in \autoref{figure-tasksemantics}. As
+for expressions, the existence of a given codebase $\flash$ is assumed. When it is necessary to
+be explicit about which codebase is given for a computation, I will write $\flash \vdash \tasks,
+\bm, e \compute \tasks', \bm', e'$.
 
 \tasksemanticsfig
 
@@ -471,7 +485,7 @@ $$
 $$
 A contextual evaluation rule for declarations allows variables to be initialized with arbitrary
 expressions. This is omitted for brevity but is similar to the expression \TirName{Context}
-rule, using a a notion of declaration evaluation contexts denoted $D$.
+rule, using a notion of declaration evaluation contexts denoted $D$.
 
 \declsemanticsfig
 
@@ -500,8 +514,8 @@ $$
 Now, for all computation relations I define $\compute^*$ to be the reflexive, transitive closure
 of $\compute$. The concern for type analysis is to rule out modules which, when bootloaded, will
 evaluate to semantically ill-formed configurations. In the context of DnesT this is defined as
-follows. It is important to stipulate that failing casts and out-of-bound array access are not
-stuck cases, since run time checks in place with enable graceful failurex.
+follows. Notice that failing casts and out-of-bound array access are not stuck cases, since run
+time checks enable graceful failure behavior.
 \begin{definition}
   A configuration $\bm, e$ \emph{fails a run time check} if and only if $e$ is of the form
   $\castto{\t}{\kappa}$ and $\docast{\t}{\kappa}{\blockmem}$ is undefined, or $e$ is of the form
@@ -526,12 +540,12 @@ is to specify the typing algorithm used in the DScalaness implementation.
 
 \subsubsection{Subtyping}
 
-At the heart of our system is a decidable subtyping judgement $\subjudge{\tpdecl}{\t_1}{\t_2}$,
+At the heart of the system is a decidable subtyping judgement $\subjudge{\tpdecl}{\t_1}{\t_2}$,
 where $\tpdecl$ in the context of typing is called a \emph{coercion} and defines a system of
 upper bounds for type variables. Recursive type bounds definitions are not allowed.
 
 The implementation of the subtyping algorithm is based on a classic technique
-\cite{Ghelli199875}, with straightforward extensions to accommodate structs and arrays as
+\cite{Ghelli199875}, with straightforward extensions to accommodate structures and arrays as
 defined in \autoref{figure-subjudge}.
 
 \subjudgefig
@@ -571,14 +585,13 @@ and $\tpdecl$ are given as arguments and $\t$ is returned as a result.
 \coretypingfig
 
 Note that type casting is only statically allowed if the types involved are \emph{compatible} as
-specified in rule \TirName{TypeT}. This relation, formalized as $\tpdecl \vdash
-\compatible{\t_1}{\t_2}$, is left abstract and user defined, but typical examples include
-casting structs to arrays in contiguous memory, and provable lack of pointers in types.
-Recalling that the semantics of DnesT relies on a $\fundef{docast}$ function that implements cast
-conversions, any implementation must be type safe, which allows us to rule out run time cast
-failures in well typed programs. Informally, $\fundef{docast}$ is type safe if and only if the
-resulting expression has the type of the cast. I refer the reader to \cite{FramedML} for a
-thorough formal discussion of type safety for this style of casting.
+specified in rule \TirName{CastT}. This relation, formalized as $\tpdecl \vdash
+\compatible{\t_1}{\t_2}$, is left abstract and user defined. Recall that the semantics of DnesT
+relies on a $\fundef{docast}$ function that implements cast conversions. Any implementation of
+$\fundef{docast}$ must be type safe, which allows us to rule out run time cast failures in well
+typed programs. Informally, $\fundef{docast}$ is type safe if and only if the resulting
+expression has the type of the cast. I refer the reader to \cite{FramedML} for a thorough formal
+discussion of type safety for this style of casting.
 
 \subsubsection{Declaration and Module Typings}
 
@@ -600,15 +613,16 @@ function definitions, assuming they can be non-nullary as in \autoref{figure-exa
 \begin{example}
 \label{example-nesttyping}
 The module $\texttt{nodeC}$ of \autoref{figure-example} can be assigned the type:
-$$
-\begin{array}{l}
-\margs{\tt{adt} \subtype \tt{uint}; \texttt{self : uint}, \tt{neighbor : uint}}\\
-\ \ \ \ \lc
-\texttt{error\_t\ \ send}(\texttt{s : adt}, \texttt{d : adt}, \texttt{uint8[] : data});\ \ 
-\texttt{error\_t\ \  main()} 
-\rc
-\end{array}
-$$
+\singlespace
+\lstset{numbers=none, basicstyle=\ttfamily} 
+\lstset{escapeinside={(*@}{@*)}}
+\begin{lstlisting}
+adt (*@$\subtype$@*) uint; self: uint, neighbor: uint
+  { error_t send(s: adt, d: adt, uint8[]: data);  error_t main() }
+\end{lstlisting}
+% < mt (*@$\subtype$@*) mesgT(uint); sendk : uint8[] >  
+%  { import radio_x(mt*), export send(mt*) }
+\primaryspacing
 \end{example}
 
 
