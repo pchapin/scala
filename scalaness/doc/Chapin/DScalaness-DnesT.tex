@@ -60,7 +60,7 @@ not exactly) a subset of nesC and shares with nesC many features appropriate for
 systems programming.
 
 To demonstrate DScalaness and DnesT I will show an example that illustrates both type and value
-specialzing DnesT modules. Although the example is small it nevertheless demonstrates the
+specialization of DnesT modules. Although the example is small it nevertheless demonstrates the
 essential features of the system in a suggestive manner.
 
 It is well-known that minimizing the number of bits used to represent a sensor node address can
@@ -75,98 +75,36 @@ secure communication. In previous work I showed how symmetric key message authen
 can be used to support resource authorization in sensor networks
 \cite{chapin-skalka-SpartanRPC,chapin-skalka-SpartanRPCTR}. In particular, communication between
 security domains in a sensor network can be mediated by credentials implemented as keys, with
-nodes lying at domain frontiers can use different keys to send (to the other domain) and receive
+nodes lying at domain frontiers using different keys to send (to the other domain) and receive
 (from the other domain) over secured links. Since it is unpredictable where nodes will be
 physically distributed in space, appropriate keys for each node need to be established \emph{in
   situ}. Defining node functionality using generic code that must be instantiated with specific
 keys allows adaptation to a deployment environment, and allows expensive computations for
 establishing session keys to be offloaded from the network nodes to a higher powered device.
 
-To distinguish DScalaness and DnesT code the example uses a darker font for DScalaness code and
-a lighter font for DnesT code, and line numbers for reference. We begin with the definition of a
+\autoref{figure-example} shows the complete example. We begin with the definition of a
 parameterized type $\tt{mesgT(t)}$ using the DScalaness $\tt{abbrvt}$ binder, where an instance
 $\tt{mesgT}(\t)$ denotes the ground type obtained by substituting $\t$ for $\tt{t}$ in the
 definition of $\tt{mesgT}$.
 
-%\begin{fpfig}[t]{Example Component Manager}{figure-example-componentmanager}
-%{
-%\singlespace
-%\primaryspacing
-%}
-%\end{fpfig}
-
 % TODO: The formatting of this example could be improved (notice inconsistent font size).
-\singlespace
-\lstset{numbers=left,
-  numberstyle=\tiny, firstnumber=1, stepnumber=1, numbersep=0pt,
-  basicstyle=\ttfamily}
-\lstset{escapeinside={(*@}{@*)}}
+\begin{fpfig}[!p]{DScalaness/DnesT Example}{figure-example}
 {
+\singlespace
+\lstset{numbers=left, numberstyle=\tiny, numbersep=0pt, basicstyle=\ttfamily}
+\lstset{escapeinside={(*@}{@*)}}
 \begin{lstlisting}
  (*@\tt{abbrvt\ mesgT(t)\  =}@*) { src : (*@\tt{t}@*); dest : (*@\tt{t}@*); data : uint8[] };  (*@\label{l:mesgt}@*)
-\end{lstlisting}
-}
-\primaryspacing
 
-Next, we define a type $\tt{radioT}$, which is the type of DnesT modules that provide an API to
-the radio.
-
-\singlespace
-\lstset{numbers=left, numberstyle=\tiny, firstnumber=2, stepnumber=1,
-  numbersep=0pt, basicstyle=\ttfamily}
-\lstset{escapeinside={(*@}{@*)}}
-{
-\begin{lstlisting}
  (*@\tt{abbrvt\ radioT\  =}@*) < mt (*@$\subtype$@*) (*@\tt{mesgT}@*)(uint) > (*@\label{l:radiot}@*)
                  { export error_t radio_x(mt*); 
                    import error_t handle_radio_r(mt*); };
-\end{lstlisting}
-}
-\primaryspacing
 
-The DnesT module language is a simplified version of the nesC component language. In this
-example, any module of type $\tt{radioT}$ exports a $\tt{radio\_x}$ function for sending
-messages, and imports a $\tt{handle\_radio\_r}$ function that allows received messages to be
-handled in a user-defined manner. Both functions take message references as argumentsa.
-Furthermore, the module is parameterized by the type of messages $\tt{mt}$, where the address
-type is upper-bounded by 32-bit unsigned integer. Thus, any module of type $\tt{radioT}$ can be
-dynamically specialized to a 32, 16, or 8 bit address space by type instantiation. Module type
-parameters are always defined with brackets $\tt{<...>}$.
- 
-Now we define another type $\tt{commT}$ which is the type of modules providing a QOS layer over
-a specialized radio.
-
-\singlespace
-\lstset{numbers=left, numberstyle=\tiny, firstnumber=5, stepnumber=1,
-  numbersep=0pt, basicstyle=\ttfamily}
-\lstset{escapeinside={(*@}{@*)}}
-{
-\begin{lstlisting}
- (*@\tt{abbrvt\ commT\  =}@*) (mt (*@$\subtype$@*) (*@\tt{mesgT}@*)(uint)) (*@$\circ$@*)  
-                 < > (*@\label{l:commt}@*)
+ (*@\tt{abbrvt\ commT\ \  =}@*) (mt (*@$\subtype$@*) (*@\tt{mesgT}@*)(uint)) (*@$\circ$@*) (*@\label{l:commt}@*)
+                 < >
                  { export error_t send(mt*); 
                    import error_t handle_receive(mt*); };
-\end{lstlisting}
-}
-\primaryspacing
 
-Although this type is also parameterized by a bounded message type $\tt{mt}$, as is
-$\tt{radioT}$, the parameterization is subtly different syntactically and semantically, since
-$\tt{commT}$ expects a program context where the radio has been specialized. Thus, in
-$\tt{commT}$, $\tt{mt}$ is understood as being ``some'' type with an upper bound of
-$\tt{mesgT(uint)}$ which occurs in the module signature, whereas the module itself has no
-parameters to be instantiated. This sort of type is needed in the presence of \emph{dynamic type
-  construction}, a useful DScalaness feature exemplified below.
-
-Next we define modules for sending and receiving messages that provide a layer of authentication
-security over the radio.
-
-\singlespace
-\lstset{numbers=left, numberstyle=\tiny, firstnumber=9, stepnumber=1,
-  numbersep=0pt, basicstyle=\ttfamily}
-\lstset{escapeinside={(*@}{@*)}}
-{
-\begin{lstlisting}
  (*@\tt{authSend\ \  =}@*) < mt (*@$\subtype$@*) (*@\tt{mesgT}@*)(uint);(*@\label{l:authsend}@*) sendk : uint8[],>  
              { import error_t radio_x(mt*);
                export error_t send(m : mt*) 
@@ -177,26 +115,7 @@ security over the radio.
                export error_t handle_radio_r(m : mt*) 
                       { if AES_signed(m, recvk) 
                          handle_recv(m); } }; 
-\end{lstlisting}
-}
-\primaryspacing
 
-Observe that in the implementation of $\tt{send}$ in module \tt{authSend}, messages are signed
-with a key $\tt{sendk}$, whereas when messages are received they must be signed with a possibly
-different key $\tt{recvk}$ before being passed on to the user's receive handler, as specified in
-module \tt{authRecv}. These modules are parameterized by a message type $\tt{mt}$, and also the
-$\tt{sendk}$ and $\tt{recvk}$ key values.
-
-To generalize a technique for composing these modules with a radio to yield a module of type
-\tt{commT}, that is abstract with respect to neighborhood sizes, radio implementations, and
-session key material, the DScalaness $\tt{authSpecialize}$ function is defined as follows:
-
-\singlespace
-\lstset{numbers=left, numberstyle=\tiny, firstnumber=19, stepnumber=1, numbersep=0pt,
-  basicstyle=\ttfamily}
-\lstset{escapeinside={(*@}{@*)}}
-{
-\begin{lstlisting}
  (*@\tt{def\ authSpecialize}@*) (*@\label{l:authspecialize}@*)
   (*@ \tt{(nmax : uint16, radioM : radioT, keys : uint8[][]) : commT }@*) { (*@\label{l:args}@*)
      (*@\tt{typedef\ adt \subtype uint = \ if\ (nmax  \le 256)\ uint8\ else\ uint16;}@*)  (*@\label{l:typedef}@*) 
@@ -204,22 +123,60 @@ session key material, the DScalaness $\tt{authSpecialize}$ function is defined a
      (*@\tt{val\ recvM = \jinst{authRecv}{mesgT(adt); keys[1]};}@*)  (*@\label{l:inst2}@*)    
      (*@\tt{(sendM \ltimes \jinst{radioM}{mesgT(adt)}) \ltimes recvM;}@*) (*@\label{l:wire}@*)
     }
-\end{lstlisting}
-}
-\primaryspacing 
 
-The first-class status of DnesT modules in DScalaness is apparent here. On line \ref{l:args} the
-function is specified to take a module parameter $\tt{radioM}$ of type $\tt{radioT}$ among its
-arguments, and to return a module of type $\tt{commT}$ as a result. It also takes an array of
-keys as an argument, and on lines \ref{l:inst1} and \ref{l:inst2} it instantiates
-$\tt{sendMesg}$ and $\tt{recvMesg}$ with the keys in the array. Finally it uses the type
-$\tt{adt}$ in the instantiations, which in line \ref{l:typedef} is dynamically constructed on
-the basis of the input variable $\tt{nmax}$.
+ (*@\tt{appMR\ =}@*) (*@\label{l:main}@*)
+  < > { export handle_recv(m : (*@\tt{mesgT}@*)(uint8)*) {(*@\ldots@*)} }; 
+ (*@\tt{appM\ =}@*) 
+  < > { import send((*@\tt{mesgT}@*)(uint8)*); export main() {(*@\ldots@*)} };  
+ (*@\tt{image(appM \ltimes (authSpecialize(nmax, radioM, keys) \ltimes appMR)); } @*) (*@\label{l:image}@*)  
+\end{lstlisting}
+\primaryspacing
+}
+\end{fpfig}
+
+
+Next, on line~\ref{l:radiot} we define a type $\tt{radioT}$, which is the type of DnesT modules
+that provide an API to the radio. The DnesT module language is a simplified version of the nesC
+component language. In this example, any module of type $\tt{radioT}$ exports a $\tt{radio\_x}$
+function for sending messages, and imports a $\tt{handle\_radio\_r}$ function that allows
+received messages to be handled in a user-defined manner. Both functions take message references
+as arguments. Furthermore, the module is parameterized by the type of messages $\tt{mt}$, where
+the address type is upper-bounded by 32-bit unsigned integer. Thus, any module of type
+$\tt{radioT}$ can be dynamically specialized to a 32, 16, or 8 bit address space. Module type
+parameters are always defined with brackets $\tt{<...>}$.
+ 
+Now on line~\ref{l:commt} we define another type $\tt{commT}$ which is the type of modules
+providing a QOS layer over a specialized radio. Although this type is also parameterized by a
+bounded message type $\tt{mt}$, as is $\tt{radioT}$, the parameterization is subtly different
+syntactically and semantically, since $\tt{commT}$ expects a program context where the radio has
+been specialized. Thus, in $\tt{commT}$, $\tt{mt}$ is understood as being ``some'' type with an
+upper bound of $\tt{mesgT(uint)}$ which occurs in the module signature, whereas the module
+itself has no parameters to be instantiated. This sort of type is needed in the presence of
+\emph{dynamic type construction}.
+
+Next on lines \ref{l:authsend} and \ref{l:authrecv} we define modules for sending and receiving
+messages that provide a layer of authentication security over the radio. Observe that in the
+implementation of $\tt{send}$ in module \tt{authSend}, messages are signed with a key
+$\tt{sendk}$, whereas when messages are received they must be signed with a possibly different
+key $\tt{recvk}$ before being passed on to the user's receive handler, as specified in module
+\tt{authRecv}. These modules are parameterized by a message type $\tt{mt}$, and also the
+$\tt{sendk}$ and $\tt{recvk}$ key values.
+
+To generalize a technique for composing these modules with a radio to yield a module of type
+\tt{commT}, that is abstract with respect to neighborhood sizes, radio implementations, and
+session key material, the DScalaness $\tt{authSpecialize}$ function is defined on
+line~\ref{l:authspecialize}. The first-class status of DnesT modules in DScalaness is apparent
+here. On line~\ref{l:args} the function is specified to take a module parameter $\tt{radioM}$ of
+type $\tt{radioT}$ among its arguments, and to return a module of type $\tt{commT}$ as a result.
+It also takes an array of keys as an argument, and on lines~\ref{l:inst1} and~\ref{l:inst2} it
+instantiates $\tt{sendMesg}$ and $\tt{recvMesg}$ with the keys in the array. Finally it uses the
+type $\tt{adt}$ in the instantiations, which in line~\ref{l:typedef} is dynamically constructed
+on the basis of the input variable $\tt{nmax}$.
 
 This illustrates a key novelty of the system, the ability to \emph{dynamically} set a type to
 use on a node based on a decision made during the execution of the DScalaness program. Since the
 value of $\tt{nmax}$ cannot be statically determined, the type analysis only knows that
-$\tt{adt}$ is some subtype of $\tt{uint}$. Finally, on line \ref{l:wire} the instantiated radio
+$\tt{adt}$ is some subtype of $\tt{uint}$. Finally, on line~\ref{l:wire} the instantiated radio
 module is composed with the instantiated send and receive modules via the DScalaness $\ltimes$
 operator. The semantics of module composition here is standard \cite{Cardelli-1997}; in a
 composition aka wiring $\mu_1 \ltimes \mu_2$, the exports of $\mu_2$ are connected to imports of
@@ -228,25 +185,10 @@ $\mu_1$. The function result is a module of type \tt{commT}.
 To obtain a module defining a mote OS image in a program context where neighborhood size is
 known, a radio implementation has been provided, and session keys have been computed. We can
 then compose the results of an \tt{authSpecialize} function with modules specifying top-level
-message send and receive behaviors, and a \texttt{main} application entry point as follows (here
-we assume it is known that address sizes can be limited to 8 bits, so \tt{nmax} < 256). At line
+message send and receive behaviors, and a \texttt{main} application entry point (here we assume
+it is known that address sizes can be limited to 8 bits, so \tt{nmax} < 256). At line
 \ref{l:image} a closed module is defined and a binary mote image can be produced by a call to
 \tt{image}.
-
-\singlespace
-\lstset{numbers=left, numberstyle=\tiny, firstnumber=26, stepnumber=1,
-  numbersep=0pt, basicstyle=\ttfamily}
-\lstset{escapeinside={(*@}{@*)}}
-{
-\begin{lstlisting}
- (*@\tt{appMR\ =}@*) 
-  < > { export handle_recv(m : (*@\tt{mesgT}@*)(uint8)*) {(*@\ldots@*)} }; 
- (*@\tt{appM\ =}@*) 
-  < > { import send((*@\tt{mesgT}@*)(uint8)*); export main() {(*@\ldots@*)} };  
- (*@\tt{image(appM \ltimes (authSpecialize(nmax, radioM, keys) \ltimes appMR)); } @*) (*@\label{l:image}@*)  
-\end{lstlisting}
-}
-\primaryspacing
 
 In DScalaness, \tt{image} is an assertion that its argument is a \emph{runnable} module, with no
 unresolved parameters or imports. In the Scalaness implementation, this is the point where nesT
@@ -384,7 +326,7 @@ A ``runnable'' module---one without imports or generic parameters---is the DnesT
 device image. The declarations in the module defines an initial machine configuration, and the
 application entry point is defined in a required command $\tt{main}$.
 \begin{definition}
-\label{def-runnable}
+\label{def-runnable-syntax}
 A module of the form $\margs{\varnothing; \varnothing }\lc ; \vect{\decl}; \exports\rc$, where
 $\tt{main}() : \undefv \in \exports$, is \emph{called runnable}.
 \end{definition}
@@ -523,7 +465,7 @@ time checks enable graceful failure behavior.
 \end{definition}
 
 \begin{definition}
-  \label{def-runnable}
+  \label{def-runnable-semantics}
   A configuration $\flash, \tasks, \bm, \ell$ is \emph{stuck} if and only if it is irreducible
   and $\ell$ is neither of the form $\runseq{\context{E}{e}}$ nor $\bootseq{\context{D}{e}}$
   where $\bm, e$ fails a run time check. A runnable module $\mu$ \emph{goes wrong} iff
