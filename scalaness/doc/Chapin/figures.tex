@@ -726,19 +726,20 @@ e \margs{\vect{\t},\vect{e}}
 
 \newcommand{\scalanesssyntaxfig}
 {
-\begin{fpfig*}[t]{The Syntax of Scalaness}{figure-scalanesssyntax}
+\begin{fpfig*}[t]{The Syntax of DScalaness}{figure-scalanesssyntax}
 $$
 \begin{array}{rcl@{\hspace{3mm}}r}
 \\[-4mm]%
-\tt{L} &::=& \gclass{C}{\gbounds{X}{N}}{N}{\fieldvec{T}{f};\ K\ \ttvec{M}} & \gdesc{class definitions}\\[1mm]
-\tt{K} &::=& \init{C}{\tdecls{T}{f}}{\super(\ttvec{f});\ \this.\ttvec{f}=\ttvec{f};} & \gdesc{constructors}\\[1mm]
-\tt{M} &::=& \meth{T}{m}{\tdecls{T}{x}}{\return{e};} & \gdesc{methods}\\[1mm]
-\tt{e} &::=& \tt{x} \mid \select{e}{f} \mid \send{e}{m}{\ttvec{e}} \mid \gnew{C}{\ttvec{T}}{\ttvec{e}}  \mid \cast{N}{e} \mid \mutate{\select{e}{f}}{e} \mid \tt{l} \mid  & \gdesc{expressions}\\
- & & \jdef{x}{T}{e}{e} \mid % \jtlet{x}{\tt{T}}{e}{e} \mid \\ & & 
-\jmodval \mid \jwire{\tt{e}}{\tt{e}} \mid \jinst{e}{\ttvec{e};\ttvec{e}} \mid \jimage{\tt{e}} \\[1mm]
-\tt{T} &::=& \tt{X} \mid \tt{N} \mid \jmodt{\tpdecl}{\jmodtcat} & \gdesc{scala level types} \\[1mm]
-\tt{N} &::=& \jinst{C}{\ttvec{T}} & \gdesc{class types}\\[1mm]
-\tt{l} &::=& \jref{\tt{p}}{N} & \gdesc{references}
+\tt{L} & ::= & \gclass{C}{\gbounds{X}{N}}{N}{\fieldvec{T}{f};\ K\ \ttvec{M}} & \gdesc{class definitions}\\[1mm]
+\tt{K} & ::= & \init{C}{\tdecls{T}{f}}{\super(\ttvec{f});\ \this.\ttvec{f}=\ttvec{f};} & \gdesc{constructors}\\[1mm]
+\tt{M} & ::= & \meth{T}{m}{\tdecls{T}{x}}{\return{e};} & \gdesc{methods}\\[1mm]
+\tt{e} & ::= & \tt{x} \mid \select{e}{f} \mid \send{e}{m}{\ttvec{e}} \mid \gnew{C}{\ttvec{T}}{\ttvec{e}}  \mid \cast{N}{e} \mid \mutate{\select{e}{f}}{e} \mid \tt{l} \mid  & \gdesc{expressions}\\
+       &     & \jdef{x}{T}{e}{e} \mid % \jtlet{x}{\tt{T}}{e}{e} \mid \\ & & 
+\jmodval \mid \jwire{\tt{e}}{\tt{e}} \mid \jinst{e}{\ttvec{e};\ttvec{e}} \mid \jimage{\tt{e}} \mid \\
+       &     & \abbrvt{X(\ttvec{X})}{T}{e} \\[1mm]
+\tt{T} & ::= & \tt{X} \mid \tt{N} \mid \jmodt{\tpdecl}{\jmodtcat} & \gdesc{scala level types} \\[1mm]
+\tt{N} & ::= & \jinst{C}{\ttvec{T}} & \gdesc{class types}\\[1mm]
+\tt{l} & ::= & \jref{\tt{p}}{N} & \gdesc{references}
 \end{array}
 $$
 \end{fpfig*}
@@ -746,7 +747,7 @@ $$
 
 \newcommand{\jmodsemanticsfig}
 {
-\begin{fpfig*}[t]{Scalaness Module Semantics}{figure-jmodsemantics}
+\begin{fpfig*}[t]{DScalaness Module Semantics}{figure-jmodsemantics}
 \begin{mathpar}
 \inferrule[ModInst]
 {
@@ -779,7 +780,7 @@ $$
 
 \newcommand{\scalanesstypingfig}
 {
-\begin{fpfig*}[t]{Scalaness Module Typing Rules}{figure-scalanesstyping}
+\begin{fpfig*}[t]{DScalaness Module Typing Rules}{figure-scalanesstyping}
 \begin{mathpar}
 \inferrule[ModT]
 {\jmodval : \jmodtcat \text{\ in\ nesT\ type\ checking}}
@@ -799,17 +800,21 @@ $$
 
 \inferrule[ModWireT]
 {
- \Gamma \vdash \tt{e}_1 : \jmodt{\tpdecl_1'}{\margs{\tpdecl_1; \vpdecl_1}\lc\imports_1; \exportsty_1 \rc}\\
- \Gamma \vdash \tt{e}_2 : \jmodt{\tpdecl_2'}{\margs{\tpdecl_2; \vpdecl_2}\lc\imports_2; \exportsty_2 \rc} \\
-\imports = (\imports_1 / \dom(\exportsty_2)) @ \imports_2 \\
+ \Gamma \vdash \tt{e}_1 : \jmodt{\tpdecl_1}{\margs{}\lc\imports_1; \exportsty_1 \rc}\\
+ \Gamma \vdash \tt{e}_2 : \jmodt{\tpdecl_2}{\margs{}\lc\imports_2; \exportsty_2 \rc} \\
+ \imports = (\imports_1 / \dom(\exportsty_2)) @ \imports_2 \\
 }
 {\Gamma \vdash \jwire{\tt{e}_1}{\tt{e}_2} : 
- \jmodt{\tpdecl_1' \maploosemerge \tpdecl_2'}{\margs{\tpdecl_1 \maploosemerge \tpdecl_2,\vpdecl_1 \maploosemerge \vpdecl_2} 
-    \lc  \imports; \exportsty_1 \rc}}
+ \jmodt{\tpdecl_1 \maploosemerge \tpdecl_2}{\margs{}\lc\imports; \exportsty_1 \rc}}
 
 \inferrule[ModImageT]
-{\Gamma \vdash \tt{e} : \jmodt{\tpdecl}{\margs{}\lc \imports; \exportsty \rc}}
-{\Gamma \vdash \jimage{\tt{e}} : \jmodt{\tpdecl}{\margs{}\lc \imports; \exportsty \rc}}
+{
+  \Gamma \vdash \tt{e} : \jmodt{\tpdecl}{\margs{}\lc \imports; \exportsty \rc} \\
+  \text{main}() : \t \in \exportsty
+}
+{
+  \Gamma \vdash \jimage{\tt{e}} : \jmodt{\tpdecl}{\margs{}\lc \imports; \exportsty \rc}
+}
 \end{mathpar}
 \end{fpfig*}
 }
