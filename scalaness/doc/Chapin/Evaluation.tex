@@ -3,7 +3,43 @@
 \label{chapter-evaluation}
 
 In this chapter I present results of evaluating the performance in both space and time of
-the two systems described previously.
+Sprocket and Scalaness/nesT. I do this in terms of both simple ``toy'' programs that explore
+specific issues in isolation and on a larger, realistic application that demonstrates the
+feasbility and applicability of the systems in real world scenarios.
+
+\section{Field Example}
+
+To evaluate the performance of SpartanRPC and Scalaness in a real application setting, I used
+both systems to implement secure versions of data collection and sampling control protocols in
+an environmental monitoring system. The Snowcloud system
+\cite{frolik-skalka-snowcloudtr,moeser-walker-skalka-frolik-wsc11} is a wireless sensor network
+developed at the University of Vermont for snow hydrology research applications. It is based on
+the MEMSIC TelosB mote platform running TinyOS, and has seen multiple field deployments. Typical
+deployed systems comprise 4-8 sensor nodes but the technology is scalable to arbitrary numbers
+of nodes. For data collection and sampling rate control, the system also includes a handheld
+``Harvester'' device. This device incorporates a TelosB mote to establish a network connection
+when in radio communication with the deployment. Users transport the device to and from
+deployment sites, and interact with the sensor node network by issuing commands from a simple
+push-button interface. A Harvester device and a deployed Snowcloud sensor tower are pictured in
+\autoref{figure-snowcloud}. The scheme described here has been implemented and tested in the UVM
+test network, which uses the same software and hardware platforms as in the active deployments.
+
+\snowcloudfig
+
+In the secured version of the Snowcloud system, the goal is to treat data collection and
+sampling rate control as protected resources requiring authorization. Furthermore, sampling rate
+modifications should require a higher, ``administrator'' level of authorization than data
+collection. That is, only system engineers should be able to perform control operations, whereas
+data end-users making field visits should be able to collect data. Snowcloud sensor node code in
+particular makes use of nearly every resource available on the mote---including timing, sensor
+I/O, radio messaging, and flash memory, not to mention CPU and main memory. Thus, it is a robust
+example of a realistically scaled application.
+
+The system described here is also informative since it can be easily ported to other similar
+application settings. That is, sensor network application settings wherein multiple users of
+various authorization levels need to interact with the same network in control or collection
+capacities, as mediated by security policy.
+
 
 \section{Overhead Analysis of \Sprocket}
 \label{section-sprocket-overhead}

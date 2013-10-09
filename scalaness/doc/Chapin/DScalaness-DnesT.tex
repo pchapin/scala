@@ -4,32 +4,61 @@
 
 % Theory from the CC and GPCE papers...
 
-This chapter describes a programming language system supporting type safe dynamic code
-generation for sensor networks. This system features programming abstractions for specializing
-sensor code and allowing on-the-fly adaptation to current sensor network deployment conditions.
-The system has been implemented as an extension to Scala \cite{PiS2}, through modification of
-the Scala compiler.
+In this chapter I describe a staged programming language system supporting type safe dynamic
+code generation for resource constrained embedded devices. This system features programming
+abstractions for specializing device code and allowing on-the-fly adaptation to current device
+deployment conditions. The system has been implemented as an extension to Scala \cite{PiS2},
+through modification of the Scala compiler.
 
-I consider scenarios where a relatively powerful hub device can automatically combine
-dynamically specialized libraries and deploy them to a sensor network. To this end a restricted
+I specifically consider scenarios where a relatively powerful hub device can automatically
+combine dynamically specialized libraries and deploy them to a wireless sensor network using
+some over-the-air deployment method such as Deluge \cite{deluge04}. To this end a restricted
 form of staging \cite{Taha-MetaML,DBLP:conf/icess/Taha04,289140} is used to achieve well founded
 dynamic program generation. \emph{First stage} code is written in an extended version of Scala,
 called Scalaness, which is programmer friendly and suitable for running on powerful hubs. The
 execution of a Scalaness program yields a residual \emph{second stage} node program written in
-nesT, a type safe variant of the nesC WSN programming language. The second stage program is
+nesT, a type safe variant of the nesC programming language. The second stage program is
 constructed from module components treated as first class values, which may be type and value
 specialized during the course of first stage computation.
 
-A central contribution of Scalaness is static type safety. The Scalaness implementation
-incorporates a type checking algorithm ensuring that typeable Scalaness programs will always
-generate type safe nesT code. Since type generalization is allowed to be cross-stage, the
-technology supports a novel form of cross-stage type specialization. In existing strongly typed
-staged sensor programming environments the type correctness of second stage programs must be
-verified after execution of first stage code \cite{Mainland-Flask-2008}, and could in fact
-produce an error which would invalidate the deployment. Such type errors are always caught at
-first stage compilation time with Scalaness. Previous work on the staged programming calculus
-$\langle \text{ML} \rangle$ \cite{FramedML} provides a theoretical foundation for Scalaness/nesT
-type safety.
+\autoref{figure-scalaness} provides an overview of the Scalaness/nesT language architecture.
+Scalaness source code is compiled in a modified Scala compiler to Java bytecode, and run in a
+standard Java virtual machine (JVM). At runtime this Scalaness program may generate nesT code,
+which is subsequently rewritten to nesC and compiled using the standard TinyOS compiler. The
+resulting image can then be installed on sensor network nodes.
+
+\begin{fpfig*}[t]
+  {Scalaness/nesT Compilation and Execution Model}
+  {figure-scalaness}
+  %\hspace{0mm}
+  \begin{center}
+    % \includegraphics[scale=.565]{scalaness}
+    \includegraphics[scale=.54]{Figures/scalaness.eps}
+  \end{center}
+\end{fpfig*}
+
+Since the Scalaness program has at its disposal the resources and features of the full Scala
+environment, including the JVM and its associated libraries, there are few limitations imposed
+on the first stage program. It could, at the programmer's option, generate separate images for
+each node on the sensor network or regenerate the node images at a later time to account for
+evolving network behavior.
+
+Another interesting feature of the architecture, captured in \autoref{figure-scalaness}, is the
+physical platform on which different elements of the Scalaness/nesT ``workflow'' may be
+executed. Scalaness source code will typically be compiled in the lab, prior to deployment but
+execution of the Scalaness program may be done on a separate device in the field where the user
+will not be in a position to fix type errors in the generated images.
+
+Consequently a central contribution of Scalaness is static type safety. In particular, the
+Scalaness type system ensures that typeable Scalaness programs will always generate type safe
+residual nesT program. Since type generalization is allowed to be cross-stage, the technology
+supports a novel form of cross-stage type specialization. In existing strongly typed staged
+sensor programming environments the type correctness of second stage programs must be verified
+after execution of first stage code \cite{Mainland-Flask-2008}, and could in fact produce an
+error which would invalidate the deployment. Such type errors are always caught at first stage
+compilation time with Scalaness. Previous work on the staged programming calculus $\langle
+\text{ML} \rangle$ \cite{FramedML} provides a theoretical foundation for Scalaness/nesT type
+safety.
 
 Both Scala and nesC are complex, industrial strength languages. Neither of them are fully
 formalized. Thus in order to effectively study the Scalaness/nesT staged programming system, it

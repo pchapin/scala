@@ -29,6 +29,35 @@
   url = {https://github.com/pchapin/scala}
 }
 
+@INPROCEEDINGS{chapin-GPCE-2013,
+  author = {Peter Chapin and Christian Skalka and Scott Smith and Michael Watson},
+  title = {Scalaness/{nesT}. Type Specialized Staged Programming for Sensor
+	Networks},
+  booktitle = {Proceedings of the 12th International Conference on Generative Programming:
+	Concepts and Experiences (GPCE '13)},
+  year = {2013},
+  month = {October},
+  abstract = {Programming wireless embedded networks is challenging due to severe
+	limitations on processing speed, memory, and bandwidth. Staged programming
+	can help bridge the gap between high level code refinement techniques
+	and efficient device level programs by allowing a first stage program
+	to specialize device level code. Here we introduce a two stage programming
+	system for wireless sensor networks. The first stage program is written
+	in our extended dialect of Scala, called Scalaness, where components
+	written in our type safe dialect of nesC, called nesT, are composed
+	and specialized. Scalaness programs can dynamically construct TinyOS-compliant
+	nesT device images that can be deployed to motes. A key result, called
+	cross-stage type safety, shows that successful static type checking
+	of a Scalaness program means no type errors will arise either during
+	programmatic composition and specialization of WSN code, or later
+	on the WSN itself. Scalaness has been implemented through direct
+	modification of the Scala compiler. Implementation of a staged public-key
+	cryptography calculation shows the sensor memory footprint can be
+	significantly reduced by staging.},
+  owner = {Peter C. Chapin},
+  timestamp = {2013-10-08}
+}
+
 @INPROCEEDINGS{UrPLDI10,
   author = {Adam Chlipala},
   title = {Ur: Statically-Typed Metaprogramming with Type-Level Record Computation},
@@ -208,6 +237,15 @@
   location = {Amsterdam, The Netherlands},
   numpages = {15},
   url = {http://doi.acm.org/10.1145/258993.259019}
+}
+
+@MASTERSTHESIS{watson-masters-2013,
+  author = {Michael Watson},
+  title = {FIX ME},
+  school = {University of Vermont},
+  year = {2013},
+  owner = {Peter C. Chapin},
+  timestamp = {2013-10-08}
 }
 
 @INPROCEEDINGS{Westbrook-Mint,
