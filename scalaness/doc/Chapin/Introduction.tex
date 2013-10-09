@@ -14,15 +14,15 @@ systems. Here \newterm{trust management} refers to a general approach for author
 resources in an environment where the identity of requesting principals is not known to the
 authorizer. A trust management system provides a way for the authorizer to define an access
 policy in terms of arbitrary certified attributes that the requester must possess. Many trust
-management systems have been described \cite{chapin-skalka-wang-acmcs08} that vary in
-complexity, expressiveness, and mathematical foundations. However, all attempt to provide a
-formalized, well structured approach to the problem of access control in widely distributed and
-dynamic environments.
+management systems have been described in the literature \cite{chapin-skalka-wang-acmcs08}, and
+they vary in complexity, expressiveness, and mathematical foundations. However, all attempt to
+provide a formalized, well structured approach to the problem of access control in widely
+distributed and dynamic environments.
 
 Trust management systems are typically designed for use by authorizers with resource rich
-machines such as is commonly used for file and web servers. Yet I envision embedded applications
+machines such as is commonly used for file and web servers. Yet there are embedded applications
 that could also benefit from trust management. For example, ``smart cars'' that communicate with
-each other about road conditions and traffic coordination
+each other about road conditions and for traffic coordination
 \cite{Seepold:2009:ESP:1641563.1641568}, or body area networks that provide medical monitoring
 and intervention features \cite{Shnayder:2005:SNM:1098918.1098979,Chen:2011:BAN:1968858.1968873}
 may encounter many unknown principals during their operation. The security and safety of these
@@ -41,28 +41,26 @@ applications. This is in contrast to each application being an ad-hoc constructi
 components with limited use beyond the application for which they were created.
 
 The value of formal foundations can not be overstated. In critical systems were safety or
-security is at stake, a rigorous understanding of the mechanisms being used is essential.
-Indeed, this is the reason I favor a language based approach, as opposed, in contrast, to a
-library based approach. In addition trust management systems that provide a precisely defined
-policy language are preferable to systems that use informally described methods for specifying
-access control.
+security is at stake, a rigorous understanding of the mechanisms being used is essential. For
+example, trust management systems that provide a precisely defined policy language are
+preferable to systems that use informally described methods for specifying access control.
 
 In this dissertation I focus on a kind of embedded system called a \newterm{wireless sensor
   network} (WSN). Such systems consist of a network of small sensors or actuators that are
 connected by way of short hop wireless links. Commonly such networks include one or more base
 stations, or ``hubs,'' with wider connectivity that serve as an interface between the sensor
-network and external systems. WSNs are an area of intense study with many envisioned
-applications ranging from environment, asset, and structural monitoring to emergency response
-\cite{Culler:2004:GEI:1018015.1018072,1038146}. Yet despite my use of sensor network
-environments to demonstrate the systems I describe, the techniques I use are applicable to a
-wide range of embedded applications.
+network and external systems. Wireless sensor networks are an area of intense study with many
+envisioned applications ranging from environment, asset, and structural monitoring to emergency
+response \cite{Culler:2004:GEI:1018015.1018072,1038146}. Yet despite my use of sensor networks
+to demonstrate the systems I describe, the techniques can be used with a wide range of embedded
+applications.
 
 I describe two approaches to solving the problem of providing trust management-style distributed
 authorization in resource constrained embedded systems. The first approach is based on a new RPC
 discipline called \textit{SpartanRPC}
 \cite{chapin-skalka-SpartanRPC,chapin-skalka-SpartanRPCTR}. In this method all authorization
 computations are done directly on the embedded devices. However, the complexity of the system is
-hidden from the programmer behind an easy to use extension of the widely used nesC programming
+hidden from the programmer behind a simple extension to the widely used nesC programming
 language \cite{Gay-nesC-2003}. My implementation of this \emph{direct} approach is a compiler
 called \textit{Sprocket} that takes an extended dialect of the nesC language as input and
 outputs an equivalent program in ordinary nesC. In addition Sprocket outputs the necessary
@@ -74,27 +72,26 @@ The second approach I present is based on \newterm{staged programming}
 a first stage program is used to compose and specialize a lower level, second stage program.
 Specialized code can often be considerably optimized. However, flexibility is retained because
 the first stage program can be re-executed at a later time to re-specialize the second stage
-code as needed.
+program as needed.
 
 Unlike many staging systems I am interested in the application of staging where the stages use
-different programming languages and execute on different machines. When applied to embedded
-systems, the second and final stage must be in an embedded systems language, whereas the first
-stage need not be as restricted.
+different programming languages and execute on different machines, i.e., in different address
+spaces. When applied to embedded systems, the second and final stage must be in an embedded
+systems language, whereas the first stage need not be as restricted.
 
 In this dissertation I also describe \newterm{Scalaness} \cite{chapin-GPCE-2013}, an extension
 of Scala \cite{PiS2} with features that allow the programmer to compose and specialize
 components written in a reduced dialect of nesC called \newterm{nesT}. An important novel
 feature of Scalaness is that it extends Scala's type system so that a well-typed Scalaness
 program will always generate a well-typed nesT program. Thus the type correctness of the program
-that ultimately runs on the embedded device is guarenteed by the first stage Scalaness compiler.
+that ultimately runs on the embedded device is guaranteed by the first stage Scalaness compiler.
 
 I chose Scala as the basis for my first stage language largely for pragmatic reasons. I wanted
 to build a practical system that could be used for real applications. Scala is a rich language
-that runs on the Java Virtual Machine (JVM) and thus has access to the Java ecosystem and
-libraries. Also the Scala compiler has a plugin architecture, and I had hoped to implement
-Scalaness as a compiler plugin. Unfortunately, as described in \autoref{chapter-scalaness-nest}
-that proved difficult and Scalaness was instead implemented as a direct modification to the
-Scala compiler itself.
+that runs on the Java Virtual Machine (JVM) and thus has access to the Java ecosystem. Also the
+Scala compiler has a plugin architecture, and I had hoped to implement Scalaness as a compiler
+plugin. Unfortunately, as described in \autoref{chapter-scalaness-nest} that proved difficult
+and Scalaness was instead implemented as a direct modification to the Scala compiler itself.
 
 \section{Dissertation Organization}
 
@@ -103,9 +100,9 @@ describe trust management systems in general, outlining the different features p
 common trust management systems and motivating their use. I also give special focus on the $RT$
 family of trust management systems used in my work. In \autoref{chapter-spartanrpc-sprocket} I
 describe the design of SpartanRPC and the details of its implementation in the \Sprocket\
-compiler. In particular, I describe how I added support for $RT_0$ trust management to the
-general RPC mechanism. In \autoref{chapter-dscalaness-dnest} I introduce Scalaness and nesT in
-more detail and then describe the foundations of both languages using simplified ``distilled''
+compiler. In particular, I describe how I added support for $RT_0$ trust management to a general
+RPC mechanism. In \autoref{chapter-dscalaness-dnest} I introduce Scalaness and nesT in more
+detail and then describe the foundations of both languages using simplified ``distilled''
 versions of those languages called \newterm{DScalaness} and \newterm{DnesT}. In
 \autoref{chapter-scalaness-nest} I describe the implementation of the practical Scalaness/nesT
 system, with examples, relating the features of the implementation to the earlier foundational

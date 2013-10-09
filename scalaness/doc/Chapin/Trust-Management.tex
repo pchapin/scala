@@ -10,25 +10,24 @@ resources and operates independently of other administrative domains. The proble
 specify and implement access control in such an environment has been a topic of considerable
 research. To address this problem the idea of trust management was introduced \cite{Blaze:DTM}.
 
-Many trust management systems have been described in the literature
-\cite{chapin-skalka-wang-acmcs08} and several have been applied to real applications. For
-example, the KeyNote system has been shown capable of enforcing the IPsec network protocol
+Many trust management systems have been described and several have been applied to real
+applications. The KeyNote system has been shown capable of enforcing the IPsec network protocol
 \cite{Blaze:TMIPS,Blaze:EKTMS}. SPKI/SDSI has been used to provide security in component based
 programming language design \cite{Liu:CSI}. Cassandra has been examined in the context of the
-United Kingdom's proposed nationwide electronic health records system \cite{Becker:CFTMAEHR}. In
-addition, the Extensible Access Control Markup Language (XACML) \cite{OASIS:XACMLTC} and the
-Security Assertion Markup Language (SAML) \cite{OASIS:SSTC}, both OASIS standards, define XML
-policy and assertion languages that makes use of many trust management concepts.
+United Kingdom's proposed nationwide electronic health records system \cite{Becker:CFTMAEHR}.
+The Extensible Access Control Markup Language (XACML) \cite{OASIS:XACMLTC} and the Security
+Assertion Markup Language (SAML) \cite{OASIS:SSTC}, both OASIS standards, define XML policy and
+assertion languages that makes use of many trust management concepts.
 
-Most existing sensor network applications entail only a single administrative domain that owns
-the network and all connected base stations. Security in that context is mostly concerned with
-preventing access by outsiders. However some applications have been described, such as scenarios
-involving emergency response \cite{1038146}, that could easily benefit from a facility that
-allowed multiple domains to interact in a controlled manner. As sensor networks become more
-pervasive situations where networks from multiple domains overlap will become more common.
-Sensor networks will then be motivated to use each other's resources in an effort to increase
-their efficiency, functionality, or lifetime. Thus the need for fine-grained application level
-access control will increase.
+Most existing embedded applications entail only a single administrative domain that owns the
+embedded devices. Security in that context is mostly concerned with preventing access by
+outsiders. However some applications have been described, such as scenarios involving emergency
+response \cite{1038146}, that could easily benefit from a facility that allowed multiple domains
+to interact in a controlled manner. As embedded systems in general, and sensor networks in
+particular, become more pervasive situations where multiple domains interact will become more
+common. Devices in several domains will then be motivated to use each other's resources in an
+effort to increase their efficiency, functionality, or lifetime. Thus the need for fine-grained
+application level access control will increase.
 
 At the heart of all trust management systems is the \emph{authorization procedure}, which
 determines whether access to a resource should be granted or not based on a number of
@@ -47,13 +46,13 @@ The latter addresses how to determine or verify the identity of principals in a 
 Authorization, on the other hand, is about what the principals can do once their identities are
 known. Although any real implementation of an authorization system will rely on authentication
 to establish identities, and key-to-identity bindings may even have an abstract representation
-in the system, authorization generally treats authentication and public key infrastructure as
+in the system, authorization generally treats authentication and (public) key infrastructure as
 orthogonal issues.
 
 Authorization in trust management systems is more expressive than in traditional access control
-systems such as role based access control (RBAC) \cite{Sandhu:RBACM}. In such simpler models, an
-assumption is made that all principals are known to the authorization procedure a priori. Access
-is based on the identities of authenticated principals. But in a distributed environment
+systems such as role based access control (RBAC) \cite{Sandhu:RBACM}. In those simpler models,
+an assumption is made that all principals are known to the authorization procedure a priori.
+Access is based on the identities of authenticated principals. But in a distributed environment
 creating a single, local database of all potential requesters is untenable. Where there are
 multiple domains of administrative control, no single authorizer can be expected to have direct
 knowledge of all users of the system. For example a sensor network owned by a university might
@@ -82,92 +81,14 @@ is necessary for access control decisions where some elements of access policies
 credentials used to prove authorization with those polices should not be arbitrarily disclosed.
 For example, in \cite{Winsborough:ATN} a scheme is proposed whereby access rights held by
 requesters are protected by their own policies, and both authorizers and requesters must show
-compliance with policies (i.e.~negotiate) during authorization.
+compliance with policies during authorization, i.e., they must negotiate.
 
 The importance of these other components notwithstanding, the discussion in this chapter focuses
 on authorization decisions. This is because the authorization decision is the basis of any trust
 management system. Furthermore, not all the systems proposed in the literature have been
 developed sufficiently to include certificate storage implementations or trust negotiation
-strategies. Finally the sensor network applications I describe do not use a formal approach for
-certificate handling nor any trust negotiation.
-
-% Do I need this glossary? I'm thinking no, but I'm not sure.
-
-%\subsection{Elements of Authorization: Glossary}
-%
-%To clarify the remaining presentation and identify fundamental elements of trust management
-%authorization decisions, we now provide a glossary of relevant terms. More in depth discussion
-%of these terms occurs throughout the rest of the paper, this section is intended as a succinct
-%reference.
-%
-%\medskip\emph{Entity}: an individual actor in a distributed system, also frequently called a
-%principal.
-%
-%\medskip\emph{Resource}: anything that a local system might regard as worthy of access control--
-%file access, database lookup, web browser display area, etc.
-%
-%\medskip\emph{Policy}: a specification of rules for accessing a particular resource. Policy is
-%usually defined locally at least in part, but TMSs sometimes allow policy to be defined
-%non-locally as well.
-%
-%\medskip\emph{Authorizer}: the local authority that protects a resource, by automatically
-%allowing access only after an appropriate proof of authorization has been shown. Authorizers
-%also specify policy.
-%
-%\medskip\emph{Requester}: an entity (usually non-local) seeking to access a resource.
-%
-%\medskip\emph{Attribute}: a property of interest in some security domain, for example a role
-%membership.
-%
-%\medskip\emph{Credential}: endows entities with certain attributes. Local policy usually
-%specifies that requesters must be endowed with certain attributes before resource access is
-%allowed, so credentials are essential to establish access rights to resources.
-%
-%\medskip\emph{Issuer}: the authority that issues a particular credential.
-%
-%\medskip\emph{Certificate}: a certified wire format representation of a credential.
-%
-%% \medskip\emph{Delegation}: the transmission of authority or rights from one entity to another.
-%
-%\medskip\emph{Certificate revocation}: the removal of a requester's credential, typically by the
-%issuer.
-%
-%\medskip\emph{Credential negation}: Policy languages sometimes allow policy makers to specify
-%that a credential \emph{not} be held. Logically, this is expressed as credential negation.
-%
-%\medskip\emph{Delegation of authority}: the (usually temporary) logical transfer of authority
-%over policy from one entity to another.
-%
-%\medskip\emph{Delegation of rights}: the (usually temporary) logical transfer of an access right
-%from one entity to another.
-%
-%\medskip\emph{Authorization decision}: the determination of whether a given requester possesses
-%the necessary attributes to access a particular resource as mediated by local policy, based on a
-%preferably well-defined semantics of policies and credentials.
-%
-%% \medskip\emph{Proof of compliance}: synonymous with authorization decision.
-%
-%\medskip\emph{Authorization mechanism}: the automated means by which an authorization decision
-%is reached. Depending on context this refers to an algorithm or a module of software executed by
-%the authorizer.
-%
-%\medskip\emph{Core authorization semantics}: the mathematically well-founded theory that
-%constitutes the meaning of authorization decisions.
-%
-%\medskip\emph{Role}: an attribute that requesters can activate when requesting authorization.
-%Authorization is often based on the role a requester is able to assume.
-%
-%\medskip\emph{Role membership}: an entity is said to be a member of a role if that entity is
-%among the group of entities that can activate the role.
-%
-%\medskip\emph{Threshold policy}: threshold policies require a minimum specified number of
-%entities to agree on some fact. Threshold policies usually support separation of duty
-%authorization schemes \cite{Li:DRBTMF}.
-%
-%\medskip\emph{Domain}: the security locality administered by a given authority.
-%
-%\medskip\emph{Name space}: the names defined in a particular domain.
-
+strategies. Finally the applications of trust management I describe in this dissertation do not
+use a formal approach for certificate handling nor any trust negotiation.
 
 \subsection{Structure of an Authorization Decision}
 \label{section-components-structure}
@@ -178,19 +99,19 @@ implementation, not just an abstract specification of the authorization semantic
 section I identify the components of a generic authorization decision and characterize its
 structure.
 
-In \autoref{figure-tmstruct} I illustrate the components of a generic authorization decision.
-This graphic is meant as a rough sketch, not a formal specification, and not all trust
-management systems contain all the components I describe. The graphic is read from top to
-bottom, and shows the flow of information through a particular authorization process, with
-output computed in response to an authorization request. The diagram is intentionally vague
-about the nature of the output: in the simplest case, the output is a simple ``yes'' or ``no''
-decision as to whether or not to grant resource access, but in systems that support \emph{trust
-  negotiation}, the output could be a partial answer that provides direction for additional
-input. Within the scope of this dissertation, I mainly consider the case where the output is a
-boolean value, hence the terminology authorization \emph{decision}. The core authorization
-semantics $L$ implement the authorization decision, and may be a specialized inference system,
-or a proof search in a generic programming logic such as Prolog, for example. The authorization
-semantics takes as input parameters from $C$, $P$, and $Q$, which I now describe in detail.
+In \autoref{figure-tmstruct} I illustrate the structure of an authorization decision. This
+graphic is meant as a rough sketch, not a formal specification, and not all trust management
+systems contain all the components I describe. The graphic is read from top to bottom, and shows
+the flow of information through a particular authorization process, with output computed in
+response to an authorization request. The diagram is intentionally vague about the nature of the
+output: in the simplest case, the output is a simple ``yes'' or ``no'' decision as to whether or
+not to grant resource access, but in systems that support trust negotiation, the output could be
+a partial answer that provides direction for additional input. Within the scope of this
+dissertation, I mainly consider the case where the output is a boolean value, hence the
+terminology authorization \emph{decision}. The core authorization semantics $L$ implement the
+authorization decision, and may be a specialized inference system, or a proof search in a
+generic programming logic such as Prolog, for example. The authorization semantics takes as
+input parameters from $C$, $P$, and $Q$, which I now describe in detail.
 
 \tmstructfig
 
@@ -206,29 +127,33 @@ trust management systems is their ability to extend local policies with credenti
 non-local authorities. This is realized as set of available certificates $C$ that are
 transformed by a function $T_C$ into credentials defined in terms understood by the core
 semantics. The transformation $T_C$ provides a level of indirection allowing systems to choose
-between various certificate wire formats and PKIs, though X.509 \cite{X509} or WS-Security
-\cite{OASIS:WSSTC} are obvious choices for Internet and Web Services settings.
+between various certificate wire formats and PKIs such as X.509 \cite{X509} or WS-Security
+\cite{OASIS:WSSTC}. When working with resource constrained embedded systems it is desirable to
+use certificate formats that are as compact as possible, as I describe in
+\autoref{section-certificate-format}, but that does not affect the behavior of the trust
+management system.
 
 The transformation $T_C$ also has special significance for the semantics of trust management
 systems, since it is often not a straight parsing or compilation procedure. Rather, certificates
 may be rejected, or their credential representations enhanced, by certificate validity
 information. Validity information is external to the authorization semantics in some systems,
 but internal to it in others, so I represent the certificate validation component of the
-authorization decision $V$ as dashed box. For example, any given certificate $c \in C$ almost
-always defines a finite lifetime for the certification, also called a validity interval
-\cite{winslett-adl97}. Some trust management systems such as PCA \cite{Bauer:GFACSW} support
-lifetime information in the authorization semantics, and in such a case $T_C$ can map the
-lifetime information in $c$ to its credential representation. However, other systems do not
-represent lifetimes in the authorization semantics per se (that is, in $L$), and in such cases
-the onus is on $T_C$ to filter out expired certificates. For example, SPKI provides a mechanism
-for certificates to be checked on-line to see if they have been revoked \cite{RFC-2693}, but
-this mechanism is not part of SPKI's formal structure. This means on the one hand SPKI's
-revocation policy cannot be expressed in the SPKI policy language itself, nor enforced by its
-authorization semantics. On the other hand it allows a SPKI implementation to apply a different
-revocation policy without changing their underlying logical structure, and in general the
-difficulties associated with formalizing certificate revocation
-\cite{Stubblebine:RSAERDS,Stubblebine:ALSSRR,Rivest:CWECRL} can be avoided, while a means for
-certificate revocation in the system is still available.
+authorization decision $V$ as a dashed box.
+
+For example, any given certificate $c \in C$ almost always defines a finite lifetime for the
+certification, also called a validity interval \cite{winslett-adl97}. Some trust management
+systems such as PCA \cite{Bauer:GFACSW} support lifetime information in the authorization
+semantics, and in such a case $T_C$ can map the lifetime information in $c$ to its credential
+representation. However, other systems do not represent lifetimes in the authorization semantics
+per se (that is, in $L$), and in such cases the onus is on $T_C$ to filter out expired
+certificates. For example, SPKI provides a mechanism for certificates to be checked on-line to
+see if they have been revoked \cite{RFC-2693}, but this mechanism is not part of SPKI's formal
+structure. This means on the one hand SPKI's revocation policy cannot be expressed in the SPKI
+policy language itself, nor enforced by its authorization semantics. On the other hand it allows
+a SPKI implementation to apply a different revocation policy without changing their underlying
+logical structure, and in general the difficulties associated with formalizing certificate
+revocation \cite{Stubblebine:RSAERDS,Stubblebine:ALSSRR,Rivest:CWECRL} can be avoided, while a
+means for certificate revocation in the system is still available.
 
 In addition to policy $P$ and certificates $C$, the authorization decision takes as input a
 question or goal $Q$ that is specialized for a particular access request. As an example, some
@@ -249,16 +174,16 @@ credentials that are missing and attempt to collect them. This functionality is 
 
 Whatever the specifics, it is clear that this functionality makes for a more flexible system in
 terms of certificate distribution and storage, but presents a significant challenge to system
-designers.
+designers, particularly in the embedded case where access to Internet resources may be severely
+limited.
 
 \section{Features of Trust Management Systems}
 \label{section-features}
 
 In this section I describe and discuss a number features relevant to many trust management
-systems. I do not intend this listing to be exhaustive, but rather focus on features that are
-generally considered important for trust management applications. Not all of these features are
-equally important for sensor network applications but it isn't difficult to imagine scenarios
-where each feature described could be useful in a sensor network context.
+systems and comment on their potential applicability to embedded systems. I do not intend this
+listing to be exhaustive, but rather focus on features that are generally considered important
+for trust management applications.
 
 \subsection{Formal Foundation}
 
@@ -270,19 +195,20 @@ database formalisms, and graph theory.
 
 In the case of trust management systems based on logic, the authorization problem is expressed
 in terms of finding a proof of a particular formula representing successful resource access,
-with a collection of suitable axioms representing policy. Credentials relevant to a particular
-decision become additional hypotheses to be used in the proof. Trust management systems based on
-database formalisms (e.g.~relational algebra) see the authorization decision as a query against
-a distributed database. The certificates issued by a principal contain, in effect, tuples from
-relations that a principal controls. Trust management systems based on graph theory define the
-authorization decision in terms of finding a path through a graph. The request is represented by
-a particular node in the graph. Principals are also graph nodes and the certificates they issue
-denote edges.
+with the policy represented as a collection of suitable axioms. Credentials relevant to a
+particular decision become additional hypotheses to be used in the proof. Trust management
+systems based on database formalisms (e.g.~relational algebra) see the authorization decision as
+a query against a distributed database. The certificates issued by a principal contain, in
+effect, tuples from relations that a principal controls. Trust management systems based on graph
+theory define the authorization decision in terms of finding a path through a graph. The request
+is represented by a particular node in the graph. Principals are also graph nodes and the
+certificates they issue denote edges.
 
 It is not unusual for a particular trust management system to be described by more than one
 formalism. In fact, some aspects of trust management are more naturally expressed using one
 formalism or another. Also, \datalog\ serves as both a database formalism and a programming
-logic, and several trust management systems have been specified in \datalog.
+logic, and several trust management systems, including $RT_0$ that I use this work, have been
+specified in \datalog \cite{Li:DCFTML}.
 
 \subsection{Authorization Procedure. Authorization Complexity}
 
@@ -294,16 +220,25 @@ foundation and implementation. However, some differences between systems result 
 differences in how authorization is computed even when the underlying formalism is the same, if
 certificate revocation is present in one system but not another for example. In some cases no
 authorization procedure is given; the details of computing authorization is entirely left to the
-implementors.
+implementers.
 
-The computational complexity of the authorization decision is clearly of practical interest.
-Authorization should be decidable and tractable, but there is a trade off between the
-expressiveness of the certificate and policy language and the complexity of the authorization
-decision. For example, the systems that use Datalog with constraints (\datalogc) can have
-various levels of computational complexity depending on the constraint domain used
-\cite{Li:DCFTML}. Yet even trust management systems with undecidable decision procedures can be
-potentially useful; realistic policies may be decidable even if the general policy language is
-not.
+The computational complexity of the authorization decision is clearly of practical interest,
+especially to developers of resource constrained systems. Ideally authorization should be
+decidable and tractable, but there is a trade off between the expressiveness of the certificate
+and policy language and the complexity of the authorization decision. For example, the systems
+that use Datalog with constraints (\datalogc) can have various levels of computational
+complexity depending on the constraint domain used \cite{Li:DCFTML}. Yet even trust management
+systems with undecidable decision procedures can be potentially useful; realistic policies may
+be decidable even if the general policy language is not. Furthermore practical implementations
+can time-out authorization decisions and return a failed access indication in order to avoid
+problems with non-termination.
+
+For constrained systems the resources required to make an authorization decision is a matter of
+critical importance. Implementing a full Prolog or \datalogc\ interpreter in small embedded
+device would seem to be prohibitively difficult. However, choosing a system that is sufficiently
+limited (while still allowing for sufficiently rich access policies) enables various
+optimizations that can bring the implementation cost into a reasonable range. This was a major
+factor in my choice of $RT_0$ for the work I describe here.
 
 \subsection{Public Key Infrastructure (PKI)}
 
@@ -344,10 +279,11 @@ In a large system with many principals it is often convenient to use role based 
 (RBAC) \cite{Ferraiolo:RBAC,Sandhu:RBACM}. In such a system \newterm{roles} are used to
 associate a group of principals to a set of permissions. The use of roles simplifies
 administration since the permissions granted to a potentially large group of principals are
-defined in a single place. RBAC is a conceptual foundation of modern authorization technologies.
+defined in a single place. RBAC is a conceptual foundation of many modern authorization
+technologies.
 
 Some trust management systems support RBAC by casting the access control decision as a role
-membership decision. Access will be granted if the requestor is a member of an appropriate role
+membership decision. Access will be granted if the requester is a member of an appropriate role
 but the precise meaning of the roles, in terms of the permissions that are connected to them, is
 defined outside the trust management environment. In contrast some trust management systems
 include a mechanism in their policy language to define permissions explicitly. In these systems
@@ -411,9 +347,9 @@ represented in credentials and taken into account in policy
 
 In other systems, certificate validity is defined externally and checked as part of the
 translation of certificates into credentials---the component $T_C$---and not formally reflected
-in the authorization semantics \cite{RFC-2693}. We note that it is a topic of lively debate
-whether authorizers \cite{Rivest:CWECRL} or certificate authorities \cite{McDaniel:RTCWECRL}
-should determine validity intervals for authorization decisions.
+in the authorization semantics \cite{RFC-2693}. We note that it is a topic of debate whether
+authorizers \cite{Rivest:CWECRL} or certificate authorities \cite{McDaniel:RTCWECRL} should
+determine validity intervals for authorization decisions.
 
 \subsection{Credential Negation}
 
@@ -426,7 +362,8 @@ nonmonotonic---as more credentials (facts) are added to the system, it is possib
 authorizations succeed. As noted in \cite{seamons-policy02}, this makes credential negation a
 generally undesirable feature, since nonmonotonic systems are potentially unsound in practice.
 For example, if a certificate is not discovered due to a network failure, access might be
-granted that would otherwise have been denied.
+granted that would otherwise have been denied. In the embedded environments I consider here,
+this is a major concern.
 
 Monotonicity also allows undecidable (or intractable) authorization logics to be used safely. An
 authorizer could simple abort an excessively long running computation and deny access. While
@@ -440,32 +377,33 @@ rights to be explicitly eliminated \cite{Rivest:CWECRL}. Like certificate validi
 implemented in the translation $T_C$ from certificates to credentials. For example, in SPKI/SDSI
 \cite{RFC-2693} online revocation lists can be defined that filter out revoked certificates
 prior to conversion to credentials for the authorization decision. At first glance it may appear
-that certificate revocation entails nonmonotonicity, as does credential negation. However, it
-has been demonstrated that certificate revocation can encoded monotonically in both the Proof
-Carrying Authorization framework \cite{Bauer:GFACSW} and a logic-based PKI infrastructure
-\cite{lbi-fc01}. The technique points out a relation between certificate revocation and
-certificate validity, in that monotonic revocation can be based on lifetimes and the requirement
-to renew certificates. Various high-level approaches to and nuances of certificate revocation
-are discussed in \cite{Rivest:CWECRL}.
+that certificate revocation entails nonmonotonicity. However, it has been demonstrated that
+certificate revocation can encoded monotonically in both the Proof Carrying Authorization
+framework \cite{Bauer:GFACSW} and a logic-based PKI infrastructure \cite{lbi-fc01}. The
+technique points out a relation between certificate revocation and certificate validity, in that
+monotonic revocation can be based on lifetimes and the requirement to renew certificates.
+Various high-level approaches to and nuances of certificate revocation are discussed in
+\cite{Rivest:CWECRL}.
 
 \subsection{Distributed Certificate Chain Discovery}
 
 Where do certificates for a particular access request come from? In common scenarios the
 requester presents all relevant certificates when requesting access. It is also easy to imagine
-settings in which authorizers maintain local databases of certificates. More generally,
-certificates could be stored anywhere in the network, as long as the local system has some way
-of finding them. Of course, given the potentially enormous number of certificates on the
-network, it is necessary to define some means of selectively retrieving only certificates that
-might pertain to a particular authorization decision. Formally well founded techniques for doing
-distributed certificate chain discovery have been described \cite{Li:DCDTM,Gunter:PDCR}.
+settings in which authorizers maintain local databases of certificates. In fact, these are the
+scenarios that I assume in my work.
+
+More generally, however, certificates could be stored anywhere in the network, as long as the
+local system has some way of finding them. Of course, given the potentially enormous number of
+certificates on the network, it is necessary to define some means of selectively retrieving only
+certificates that might pertain to a particular authorization decision. Formally well founded
+techniques for doing distributed certificate chain discovery have been described
+\cite{Li:DCDTM,Gunter:PDCR}.
 
 \section{Foundations of Authorization}
 \label{section-foundations}
 
-% Reference the BAN and ABLP papers?
-
-In this dissertation I focus specifically on a trust management system that uses a programming
-logic as its formal foundation. This approach has the advantage that a specification of the
+In this dissertation I focus specifically on trust management systems that use a programming
+logic as their formal foundation. This approach has the advantage that a specification of the
 system's semantics can also serve, in principle, as its implementation. In addition programming
 logics such as \prolog\ and \datalog\ are a well studied and well understood formalism.
 
@@ -520,50 +458,28 @@ polynomial time. In contrast, Prolog's top-down proof search can cause non-termi
 presence of cyclic dependencies. For example, if we added the certificate $\mathit{cert}(e,b)$
 to the above fact set, some queries would not terminate. This problem is resolved by
 \emph{tabling} as in XSB \cite{xsb-page}, but it has been argued that this solution adds too
-much size and complexity to the implementation for authorization decisions \cite{Li:DRBTMF}. And
-while Datalog is not capable of expressing structured data, Datalog with constraints
-(\datalogc), a restricted form of constraint logic programming \cite{jaffar-maher-jlp94}, has
-been shown sufficiently expressive for a wide range of trust management idioms \cite{Li:DCFTML}.
-
-Prolog is able to express negation-as-failure, and so-called Disjunctive Datalog is likewise
-able to express a restricted form of negation \cite{eiter-etal-tdbs97}. Therefore nonmonotonic
-authorization features such as credential negation can be provided in systems where programming
-logics are intended to serve as a basis for semantic interpretation or implementation
-\cite{woo93authorizations,bonatti-logicsforauth}. However, as discussed in
-\autoref{section-features}, nonmonotonicity in authorization semantics is generally considered
-undesirable. Also, while certificate revocation seems at first blush to entail nonmonotonicity,
-it has been shown to be definable monotonically with appropriately constructed logical inference
-rules \cite{lbi-fc01,Bauer:GFACSW}. Or, as discussed in \autoref{section-features}, revocation
-can be handled by components external to the authorization semantics (via component $T_C$ in
-\autoref{figure-tmstruct}), for example by filtering certificates through certificate revocation
-lists prior to authorization decisions as in SPKI/SDSI. For these reasons previous authors have
-argued that monotonic (subsets of) programming logics are adequate foundations for trust
-management applications, such as safe Datalog with constraint domains \cite{Li:DCFTML}.
-
-Recently, more expressive programming logics have been proposed to address restrictions in the
-Horn-clause formula languages of Datalog and Prolog. Relevant work has proposed use of the
-higher-order linear logic programming language LolliMon as a foundation for trust management
-systems \cite{polakow-skalka-plas06}. LolliMon is not restricted to a Horn-clause form, and the
-availability of hypothetical (vs. strictly literal) subgoals and linear assumptions in
-particular allow the formal modeling of distributed certificate chain discovery (component $D$
-in \autoref{figure-tmstruct}), as interleaved with the authorization semantics of a trust
-management system.
+much size and complexity to the implementation for authorization decisions in general
+\cite{Li:DRBTMF}, and for embedded systems especially. And while Datalog is not capable of
+expressing structured data, Datalog with constraints (\datalogc), a restricted form of
+constraint logic programming \cite{jaffar-maher-jlp94}, has been shown sufficiently expressive
+for a wide range of trust management idioms \cite{Li:DCFTML}.
 
 \section{The $\RT$ Trust Management System}
 \label{section-rt}
 
-In this section I give a detailed review of the $\RT$ trust management system \cite{Li:DRBTMF}.
-I used $\RT$ in both the direct and staged approaches described in
-\autoref{chapter-introduction}. Although the choice of $\RT$ was largely arbitrary I feel it
-offers an effective combination of expressivity, ease of use, and efficient implementability.
-Also $\RT$ has a strong formal foundation based on \datalog\ and its variants.
+In this section I give a detailed review of the $\RT$ family of trust management systems
+\cite{Li:DRBTMF}. I focus on $\RT$ because it is the trust management system used in my
+demonstration applications. Although the choice of $\RT$ was largely arbitrary I feel it offers
+an effective combination of expressivity, ease of use, and efficient implementability. Also
+$\RT$ has a strong formal foundation based on \datalog\ and its variants.
 
 $\RT$ is actually a trust management framework and not a single trust management system. The
 systems in the $\RT$ framework have varying expressiveness and complexity
-\cite{Li:DRBTMF,Li:DCDTM,Li:RRBTMF}. The base system, $\RT_0$, is similar to SDSI except that it
-limits extended names to one level of indirection and provides intersection roles. The
-limitation of linked roles to one level of indirection does not reduce the expressiveness of the
-language since additional indirections are possible by introducing intermediate roles.
+\cite{Li:DRBTMF,Li:DCDTM,Li:RRBTMF}. $\RT$ stands for ``role based trust management'' because it
+uses policy and credential statements to associate principals, called \newterm{entities} in the
+$\RT$ literature, to roles. The significance of the roles is defined externally. The base
+system, $\RT_0$, provides credential forms for simple role membership as well as indirection
+roles and intersection roles as described below.
 
 $\RT_1$ is an extension of $\RT_0$ providing parameterized roles. $RT_1^C$ further extends
 $RT_1$ to allow for the description of structured resources \cite{Li:DCFTML,Li:RRBTMF}. The
@@ -576,13 +492,12 @@ and role membership bounds \cite{Li:BPOCSATM}.
 
 \subsection{Features}
 
-The $\RT$ framework represents principals as public keys and does not attempt to formalize the
-connection between a key and an individual. The $\RT$ literature usually refers to these
-principals as \newterm{entities}. The $\RT$ framework allows each entity to define roles in a
-name space that is local to that entity. An authorizer associates permissions with a particular
-role; to access a resource a requester must prove membership in the role. In this way the $\RT$
-framework provides role based access control, but it does not deal with permissions directly in
-the trust management logic.
+The $\RT$ framework represents entities as public keys and does not attempt to formalize the
+connection between a key and an identity. The $\RT$ framework allows each entity to define roles
+in a name space that is local to that entity. An authorizer is expected to associate permissions
+with a particular role; to access a resource a requester must prove membership in the role. In
+this way the $\RT$ framework provides role based access control, but it does not deal with
+permissions directly in the trust management logic.
 
 To define a role, an entity issues credentials specifying the role's membership. Some of these
 credentials may be a part of private policy, others may be signed by the issuer and made
@@ -619,7 +534,9 @@ types:
 
 \end{enumerate}
 For all credential forms $\cred{A.r}{f}{}$, the principal $A$ is called the \emph{issuer} of the
-credential.
+credential. A credential is transformed into a certificate when it is signed by the issuer's
+private key. Recall that the entities are represented by their public keys directly, i.e., the
+$A$ and $E$ in $\cred{A.r}{E}{}$ are public keys.
 
 $\RT_1$ enhances $\RT_0$ by allowing roles to be parameterized. For example, the second
 credential form above is extended to $\cred{A.r(h_1, h_2, \ldots, h_n)}{B.s(k_1, k_2, \ldots,
@@ -653,9 +570,10 @@ a member of the $\mathit{Host}.p$ role with the port specified as a parameter.
 
 To accommodate threshold structures, representing agreement between a group of principals, the
 system $\RT^T$ interprets roles as sets of sets of entities, called \newterm{principal sets}.
-These principle sets can be combined with role product operators $\odot$ and $\otimes$.
+These principal sets can be combined with role product operators $\odot$ and $\otimes$.
 
 New credential forms are as follows:
+
 \begin{enumerate}
 
 \item $\cred{A.r}{B_1.r_1 \odot B_2.r_2 \odot \cdots \odot B_k.r_k}{}$ 
@@ -702,6 +620,10 @@ limit the delegation of authority by tracking the number of namespaces (administ
 such delegations cross. Delegation depth is also allowed to be unlimited, in which case $\RT+_0$
 degenerates to $\RT_0$.
 
+Although the work I present in this dissertation made use of $RT_0$ exclusively, supporting more
+advanced variations of the $RT$ framework, or indeed other trust management systems entirely,
+would be an interesting avenue for future development.
+
 \subsection{Example}
 
 Suppose Alice is a cancer patient at a hospital being treated by Bob, a doctor. Alice grants Bob
@@ -711,18 +633,18 @@ fit.
 Bob defines his team as a particular collection of individuals together with the people
 supporting them. A person supporting one of Bob's team members becomes a team member herself so
 Bob's definition is open ended and can potentially refer to a large number of people he does not
-know directly. Here we assume that Bob's team includes both medical and non-medical personnel
-(for example other doctors as well as receptionists). Bob then delegates his access to Alice's
-medical records to only the medical staff on his team and not the administrative staff.
+know directly. Here we assume that Bob's team includes both medical and non-medical personnel,
+e.g., other doctors as well as receptionists. Bob then delegates his access to Alice's medical
+records to only the medical staff on his team and not the administrative staff.
 
 Suppose further that Bob consults with another doctor, Carol, on Alice's condition. Bob modifies
 his policy to add Carol temporarily to his team. Carol orders some blood tests that are then
 analyzed by Dave, a lab technician and one of Carol's support people. The policy is intended to
 allow Dave to access Alice's medical records, for example to input the test results.
 
-Dave signs the test results when he uploads them to the hospital database. He
-also includes appropriate credentials so that the database will authorize his
-access. These credentials must include
+Dave signs the test results when he uploads them to the hospital database. He also includes
+appropriate credentials so that the database will authorize his access. These credentials must
+include
 \begin{itemize}
 
 \item Bob has delegated his access to Alice's medical records to people on his team who are
@@ -748,22 +670,27 @@ records. Observe also that Bob's team policy is recursive. A primary purpose of 
 systems is to provide language features and authorization semantics that support such complex
 policies.
 
-To express this example using $\RT$, only the facilities of $\RT_0$ are necessary. Alice defines
-a role \texttt{records} whose members are able to access her medical records. She creates the
-policy
+To express this example using $\RT$, only the facilities of $\RT_0$ are necessary. This shows
+that even the simplest member of the $\RT$ family can be used to express interesting policy
+statements. Alice defines a role \texttt{records} whose members are able to access her medical
+records. She creates the policy
+
 \begin{itemize}
 \item \texttt{Alice.records} $\leftarrow$ \texttt{Bob}
 \item \texttt{Alice.records} $\leftarrow$ \texttt{Bob.alice\_delegates}
 \end{itemize}
+
 The first rule grants her doctor, Bob, access to her records. The second rule allows Bob to
 further delegate that access by defining the membership of an \texttt{alice\_delegates} role.
 
 Bob's standing policy is
+
 \begin{itemize}
 \item \texttt{Bob.team} $\leftarrow$ \texttt{Bob.team.support}
 \item \texttt{Bob.alice\_delegates} $\leftarrow$
   \texttt{Hospital.medical\_staff} $\cap$ \texttt{Bob.team}
 \end{itemize}
+
 The first rule defines Bob's team as including all the support personnel specified by the
 members of his team. In the second rule, Bob uses an intersection role to specify that only the
 medical personnel on his team should have access to Alice's medical records.
@@ -788,6 +715,7 @@ The translation from $\RT_0$ to \datalog\ requires only a single predicate \text
 assert when a particular entity is a member of a particular role. The translation rules are
 shown below where \datalog\ variables are shown prefixed with `\textit{?}' to distinguish them
 from constants.
+
 \begin{enumerate}
 
 \item $\cred{A.r}{E}{}$
@@ -812,7 +740,8 @@ $\textit{isMember}(\textit{?x}, A, r) \leftarrow
  \textit{isMember}(\textit{?x}, B_n, s_n).$
 
 \end{enumerate}
-The authorizer associates a permission with a particular role, say $A.g$, called the
+
+The authorizer associates a permission with a particular role, say $A.g$, that I call the
 \newterm{governing role}. Access is granted to an entity $E$ if and only if the \datalog\ query
 $\textit{isMember}(E, A, g)$ succeeds.
 
@@ -838,15 +767,6 @@ The set-theory semantics for $\RT_0$ was developed primarily to provide theoreti
 a distributed credential chain discovery algorithm \cite{Li:DCDTM}. The set-theory semantics
 facilitate proving soundness and completeness of that algorithm.
 
-Another approach to the semantic specification of $\RT$ is taken by Polakow and Skalka, who
-propose the LolliMon linear logic programming language as a foundation
-\cite{polakow-skalka-plas06}. Like the set-theoretic specification, this approach has the
-advantage of being easily extended to the problem of distributed certificate chain discovery,
-while enjoying the additional benefit of scalability to the full $\RT$ framework. The encoding
-closely resembles the original \datalog\ \textit{isMember} predicate defined above, and the
-logic of certificate discovery can be expressed by additional clauses in LolliMon's rich formula
-language.
-
 \subsection{Implementation}
 
 Li et al.~describe an implementation strategy for $\RT_0$ in terms of a construct called a
@@ -860,20 +780,14 @@ credential graphs are sound and complete with respect to the set-theory semantic
 In addition Li et al.~describe a distributed credential chain discovery algorithm that finds a
 path in $\mathgraph{\creds}$ given initially incomplete credentials \cite{Li:DCDTM}. The
 algorithm assumes that either the issuer or subject of a credential can be contacted on-line and
-queried for more credentials on demand. In this way missing credentials can be found as needed
-to complete a proof of authorization. The algorithm can work either backward, starting at the
-governing role and following credentials from issuer to subject, or forward, starting at the
-entity representing the requester and following credentials from subject to issuer. In general
-both approaches are useful. In some cases a certificate authority will maintain a database of
-all credentials issued, making the backward discovery algorithm effective. In other cases
-credentials will be held by the subjects, making the forward discovery algorithm more
-appropriate. To ensure that searches always succeed when possible, a type system can be used to
-assign appropriate types to role names. These types restrict the way credentials can be formed
-and specify where credentials must be stored \cite{Li:DCDTM}.
+queried for more credentials on demand, an assumption that may not be true in an embedded
+systems context.
 
-The complexity of credential chain discovery in $\RT_0$ has been shown to be log-space
-$\mathcal{P}$-complete using a reduction from the monotone circuit value problem
-\cite{Li:DCDTM}.
+The most straightforward implementation of $RT_0$ is to simply compute the minimum model of the
+\datalog\ program implied by the union of policy statements and credentials provided by the
+requester. This can be done by updating role memberships repeatedly until a fixed point is
+reached, a process that is guaranteed to terminate in time polynomial in the total number of
+credentials \cite{Li:DCFTML}.
 
 %%% Local Variables: 
 %%% mode: LaTeX

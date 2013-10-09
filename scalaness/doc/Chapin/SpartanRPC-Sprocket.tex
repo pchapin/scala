@@ -31,12 +31,12 @@ body area network enters a region of space covered by a metropolitan network. Th
 have never encountered each other and yet wish to access sensitive functions, such as for
 medical monitoring and control.
 
-Trust management systems use public key cryptography to allow principals to authorize each other
-without prior introduction and require some system for evaluating authorization requests in the
-light of some access policy. Although the feasibility of using public key cryptography on sensor
-nodes has been shown by several authors
+Trust management systems use public key cryptography and require some mechanism for evaluating
+authorization requests in the light of an access policy (the $L$ in \autoref{figure-tmstruct}).
+Although the feasibility of using public key cryptography on sensor nodes has been shown by
+several authors
 \cite{1049776,Malan:2008:IPI:1387663.1387668,bertoni-2006,kumar-2006,4604657,Liu-Peng-TinyECC-2008,Szczechowiak:2008:NTL:1786014.1786040},
-combining this with the necessary authorization computations to support a full trust management
+combining this with the necessary authorization decision to support a full trust management
 system, and showing the feasibility and practicality of doing so on resource constrained
 devices, has not been previously demonstrated. As I will show in \autoref{chapter-evaluation}
 the \Sprocket\ runtime system exacts a significant performance penalty on the nodes,
@@ -47,27 +47,26 @@ be accomplished.
 \label{section-overview}
 
 The SpartanRPC language allows network administrators to define $RT_0$ policies that mediate
-access to specified resources on network nodes, and allows subnetworks with different security
-credentials to interact. A \emph{resource} in SpartanRPC is user-defined functionality
-programmed in an extension of nesC, and accessible in RPC style by client code programmed in the
-same extension of nesC. Thus, while previous systems have explored the problem of establishing
-multiple security domains in a wireless sensor network \cite{Claycomb:2011:NNL:1889383.1889450},
-and others have considered RPCs in sensor networks
+access to specified resources on network nodes. A \emph{resource} in SpartanRPC is user-defined
+functionality programmed in an extension of nesC, and accessible in RPC style by client code
+programmed in the same extension of nesC. Thus, while previous systems have explored the problem
+of establishing multiple security domains in a wireless sensor network
+\cite{Claycomb:2011:NNL:1889383.1889450}, and others have considered RPCs in sensor networks
 \cite{may-tinyrpc-2007,bergstrom-anycastrpc-2007,5766863}, SpartanRPC provides a
 readily-accessible mechanism that combines these features. Furthermore, SpartanRPC's use of
 $RT_0$ allows specification of fine-grained, decentralized security policies.
 
-Since the SpartanRPC is flexible and easily accessible to TinyOS programmers, these features can
-be used with a variety of applications. Consider a first-responder situation, in which multiple
-social entities must interact and cooperate on an ad-hoc basis. Recent work has shown the
-effectiveness of wireless sensor networks in such scenarios \cite{citeulike:4460555,1038146}, in
-their ability to coordinate multiple data collection and communication devices in an ad-hoc,
-easily deployable manner. However, data collection and communication in this scenario (and other
-similar ones) must be a secured resource, due to e.g.~HIPA requirements in the case of medical
-response. Furthermore, security must be coordinated on-site in a sensor network comprising
-subnetworks administered separately (police, medical units from different hospitals, etc.), and
-no prior coordination between administrations can generally be assumed. The SpartanRPC system is
-designed to address these types of scenarios.
+Since SpartanRPC is flexible and easily accessible to TinyOS programmers, these features can be
+used with a variety of applications. Consider a first-responder situation, in which multiple
+social entities must interact and cooperate. Recent work has shown the effectiveness of wireless
+sensor networks in such scenarios \cite{citeulike:4460555,1038146}, in their ability to
+coordinate multiple data collection and communication devices in an ad-hoc, easily deployable
+manner. However, data collection and communication in this scenario (and other similar ones)
+must be a secured resource, due to e.g.~HIPA requirements in the case of medical response.
+Furthermore, security must be coordinated on-site in a sensor network comprising subnetworks
+administered separately (police, medical units from different hospitals, etc.), and no prior
+coordination between administrations can generally be assumed. The SpartanRPC system is designed
+to address these types of scenarios.
 
 For example, if an EMT team deploys a sensor network to monitor patient locations and vital
 signs, a security policy can be imposed whereby responding police departments can deploy their
@@ -86,20 +85,19 @@ protocol. In particular, the FTSP protocol can be attacked by a single compromis
 injecting false timing information into the network \cite{Manzo:2005:TSA:1102219.1102238}, even
 when symmetric keys are used for secure information exchange. However, the threat model in this
 work treats all nodes in a network as equally compromisable. In cases where a connected
-sub-component of a network running an FTSP protocol is more resistant to compromise, due to
-e.g.~differences in hardware, a SpartanRPC policy can be established whereby only nodes in the
-most tamper-resistant sub-component of the network may function as roots, in a manner similar to
-that described for secure directed diffusion: FTSP time sync updates on any given node can be
-defined to require a root authorization level. This implies that nodes requiring secure time
-synchronization must be at most a single radio hop from a root node, but nodes willing to accept
-possibly corrupted time sync data can extend the network indefinitely. Note that in this
-scenario, SpartanRPC policies adapt to heterogeneity in network device hardware, vs.~network
-administration as in the previous example.
+sub-component of a network running an FTSP protocol is more resistant to compromise, due to,
+e.g., differences in hardware, a SpartanRPC policy can be established whereby only nodes in the
+most tamper-resistant sub-component of the network may function as roots. FTSP time sync updates
+on any given node can be defined to require a root authorization level. This implies that nodes
+requiring secure time synchronization must be at most a single radio hop from a root node, but
+nodes willing to accept possibly corrupted time sync data can extend the network indefinitely.
+Note that in this scenario, SpartanRPC policies adapt to heterogeneity in network device
+hardware, vs.~network administration as in the previous example.
 
 Other potential applications of this system include secure routing protocols in heterogeneous
 trust environments \cite{senroute-ahnj03}, transport and network layer protocols
 \cite{perillo-heinzelman-2005}, tracking protocols \cite{brooks-ramanathan-sayeed-2003}, and
-even mote-based web servers supporting secure channels \cite{1049776}.
+even node-based web servers supporting secure channels \cite{1049776}.
 
 \section{Technical Foundations}
 
@@ -117,26 +115,24 @@ supports whole-network (vs.~node-specific) programming. Secure RPC is well-studi
 traditional networking environment, and is a natural means of layering security over a
 distributed communication abstraction.
 
-It is necessary for RPC invocation in a WSN to be asynchronous, since synchronous
-call-and-return to a remote node would significantly impede performance in the best case and
-cause deadlock in the worst. In order to minimally impact the nesC programming model, SpartanRPC
-defines RPC invocation as a form of \emph{remote task}. Local tasks are units of
+It is necessary for RPC invocation in a wireless sensor network to be asynchronous, since
+synchronous call-and-return to a remote node would significantly impede performance in the best
+case and cause deadlock in the worst. In order to minimally impact the nesC programming model,
+SpartanRPC defines RPC invocation as a form of \emph{remote task}. Local tasks are units of
 programmer-defined asynchronous computation in nesC, so treating remote computational services
 as remote tasks fits this paradigm. Remote tasks can be invoked on one-hop neighbors, providing
 a link layer service on which network layer services can be built.
 
 \paragraph{PK-Based Authorization Policies} SpartanRPC provides language-level abstractions for
 specifying RPC authorization policies. The $RT_0$ trust management system allows network
-entities to communicate composable credentials for authorizing service invocations. Credentials
-are typically signed by certificate authorities which, as with all trust management systems, are
-ordinary principals, and yet do not require shared secrets to validate. In SpartanRPC these
+entities to communicate credentials for authorizing service invocations. In SpartanRPC these
 credentials are implemented with ECC public keys \cite{bertoni-2006}, which are validated during
-the initial authorization phase. ECC is significantly more tractable than RSA in a sensor
-network setting. Furthermore, following an initial authorization phase our protocol establishes
-a shared AES key for subsequent invocations of a given service by the same node. Since hardware
-AES is available on common radio chipsets, we obtain highly efficient performance for secure
-invocations following authorization. This is demonstrated with empirical results reported in
-\autoref{chapter-evaluation}.
+the initial authorization phase. ECC is significantly more tractable than RSA in a resource
+constrained setting. Furthermore, following an initial authorization phase my protocol
+establishes a shared AES key for subsequent invocations of a given service by the same node.
+Since hardware AES is available on common radio chipsets, I obtain highly efficient performance
+for secure invocations following authorization. This is demonstrated with empirical results
+reported in \autoref{chapter-evaluation}.
 
 \section{Duties and Remotability}
 \label{section-duties}
@@ -144,22 +140,26 @@ invocations following authorization. This is demonstrated with empirical results
 Because of the slow, unreliable nature of wireless communications it is unrealistic for RPC
 services in wireless sensor networks to be synchronous. Instead I believe that the semantics of
 tasks are a more appropriate abstraction. They are not quite right however, as RPC services will
-typically require arguments to be passed, and while the poster of a task defines it, an RPC
-service invokes remotely defined functionality. SpartanRPC therefore defines a new RPC
-abstraction called a \emph{duty}.
+typically require arguments to be passed---a feature not provided by nesC tasks---and while the
+poster of a task defines it, an RPC service invokes remotely defined functionality. SpartanRPC
+therefore defines a new RPC abstraction called a \emph{duty}.
 
 \subsection{Syntax and Semantics}
 \label{section-duties-syntax}
 
-Duties are declared in interfaces and syntactically resemble command declarations. Instead of
-using the reserved word !command! the new reserved word !duty! is used. Duties are allowed to
-take parameters (with restrictions as discussed below) but must return the type !void!. For
-example the following interface describes an RPC service for remotely controlling a collection
-of LEDs:
+Duties are declared in nesC interfaces and syntactically resemble nesC command declarations.
+Instead of using the reserved word !command! the new reserved word !duty! is used. Duties are
+allowed to take parameters (with restrictions as discussed below) but must return the type
+!void!. For example the following interface describes an RPC service for remotely controlling a
+collection of LEDs:
 
+\singlespace
 \begin{lstlisting}
-interface LEDControl { duty void setLeds(uint8_t ctl); }
+interface LEDControl {
+    duty void setLeds( uint8_t ctl );
+}
 \end{lstlisting}
+\primaryspacing
 
 Duties are defined in modules in a manner similar to the way tasks, commands, or events are
 defined. The reserved word !duty! is again used on the definition. Like commands and events the
@@ -170,16 +170,6 @@ remotable interface provided by a component must be specified as !remote! in its
 specification. The first code sample in \autoref{figure-duty-usage} shows an !LEDControllerC!
 component that provides the !LEDControl! interface remotely i.e.~that allows remote nodes to
 control LED status lights on a board.
-
-A module on the client node that wishes to use a remote interface simply posts the duty in the
-same manner as tasks are posted. The use of !post! emphasizes the asynchronous nature of the
-invocation. An example duty posting is illustrated in \autoref{figure-duty-usage}. The standard
-component semantics of nesC provide a natural abstraction of ``where'' the RPC call goes, just
-as a normal command invocation will go through a component interface that is disconnected from
-its implementation. Like a normal command invocation, configuration wirings determine where duty
-control flows. However, in SpartanRPC duty invocation control flows to a component residing on a
-different node. The invoking module must be connected to the remote modules by way of a dynamic
-wire as described in \autoref{section-dynamic-wires}.
 
 \begin{fpfig}[t]{Duty Implementation and Invocation Examples}{figure-duty-usage}
 {
@@ -203,8 +193,18 @@ implementation {
 }
 \end{fpfig}
 
+A module on the client node that wishes to use a remote interface simply posts the duty in the
+same manner as tasks are posted. The use of !post! emphasizes the asynchronous nature of the
+invocation. An example duty posting is illustrated in \autoref{figure-duty-usage}. The standard
+component semantics of nesC provide a natural abstraction of ``where'' the RPC call goes, just
+as a normal command invocation will go through a component interface that is disconnected from
+its implementation. Like a normal command invocation, configuration wirings determine where duty
+control flows. However, in SpartanRPC duty invocation flows to a component residing on a
+different node. The invoking module must be connected to the remote modules by way of a dynamic
+wire as described in \autoref{section-dynamic-wires}.
+
 When a duty is posted by a client it may run at some time in the future on the server node. The
-client node continues at once without waiting for the duty to start, i.e.~duty postings are
+client node continues at once without waiting for the duty to start, i.e., duty postings are
 asynchronous in the same manner that tasks are. Once posted the client has no direct way to
 determine the status of the duty. Also, due to the unreliability of the network a posted duty
 may not run at all. The success or failure of a duty posting is not signaled to the client in
@@ -216,12 +216,13 @@ must be implemented by the application developer.
 \label{section-remotable}
 
 SpartanRPC imposes certain requirements on RPC service definitions for ease of implementation.
-First, since WSN nodes do not share state passing references to duties is disallowed---such a
+First, since WSN nodes do not share state passing nesC pointers to duties is disallowed---such a
 reference would be meaningless on the receiving node. Thus remotable types are defined as
 follows:
-\begin{definition}A type is \emph{remotable} if and only if it satisfies the following inductive
-  definition: The nesC built-in arithmetic types, including enumeration types, are remotable,
-  and structures containing remotable types are remotable.
+\begin{definition}
+  A type is \emph{remotable} if and only if it satisfies the following inductive definition: The
+  nesC built-in arithmetic types, including enumeration types, are remotable, and structures
+  containing remotable types are remotable.
 \end{definition}
 Since a remotable interface describes RPC services, such interfaces are required to declare
 duties taking only arguments of remotable type; also, remotable interfaces can only contain
@@ -238,26 +239,27 @@ In an ordinary nesC program the ``wiring'' between components as defined by conf
 entirely static. The nesC compiler arranges for all connections and at run time the code invoked
 by each called command or signaled event is predetermined.
 
-In a remote procedure call system for wireless networks, this static arrangement is
-insufficient. A node can not, in general, know its neighbors at compilation time but rather must
-discover this information after deployment. In addition, the volatility of wireless links, and
-of the nodes themselves, means that a given node's set of neighbors will change over time. In
-this section I discuss the facility in SpartanRPC to allow \emph{dynamic wirings} for control
-flow from duty invocation via remotable interfaces to duty implementation, wherein the
-programmer has control over wiring endpoints and how they may change during program execution.
+In a remote procedure call system for distributed embedded environments, especially those
+communicating using radio links, this static arrangement is insufficient. A node can not, in
+general, know its neighbors at compilation time but rather must discover this information after
+deployment. In addition, the volatility of wireless links, and of the nodes themselves, means
+that a given node's set of neighbors will change over time. In this section I discuss the
+facility in SpartanRPC to allow \emph{dynamic wirings} for control flow from duty invocation via
+remotable interfaces to duty implementation, wherein the programmer has control over wiring
+endpoints and how they may change during program execution.
 
 \subsection{Component IDs, Component Managers}
 \label{section-componentmanager}
 
 I begin by discussing how remote components are identified for wiring. In order to uniquely
-identify components on the network, remotable components are specified via a two-element
-structure called a !component_id! defined on the left side of \autoref{figure-componentmanager}.
-The !node_id! member is the same node ID used by TinyOS and is set when the node is programmed
-during deployment. The local ID member is an arbitrary value defined by the programmer of the
-server node. Only components that are visible remotely need to have ID values assigned, however,
-the ID values must be unique \emph{on the node}. The !component_set! structure defined on the
-right side of \autoref{figure-componentmanager} wraps an arbitrary array of !component_id!
-values.
+identify components on a network of devices, remotable components are specified via a
+two-element structure called a !component_id! defined on the left side of
+\autoref{figure-componentmanager}. The !node_id! member is the same node ID used by TinyOS and
+is set when the node is programmed during deployment. The local ID member is an arbitrary value
+defined by the programmer of the server node. Only components that are visible remotely need to
+have ID values assigned, however, the ID values must be unique \emph{on the node}. The
+!component_set! structure defined on the right side of \autoref{figure-componentmanager} wraps
+an arbitrary array of !component_id! values.
  
 \begin{fpfig}[t]{Component Manager Interface and Type Definitions}{figure-componentmanager}
 {
@@ -302,13 +304,34 @@ at the bottom of \autoref{figure-componentmanager}. It dynamically specifies a s
 IDs that ultimately serve as dynamic wiring endpoints.
 
 As a simple example, consider the component manager !RemoteSelectorC! as shown in
-\autoref{figure-example-componentmanager}. This component manager always returns a component set
-containing a single component. The special SpartanRPC broadcast node ID is used (!0xFFFF!)
-indicating that all neighbors should be the target of the dynamic wire. The component ID on the
-neighbors is specified as !1! in this example. In a more complex example the component manager
-would compute the component set each time the dynamic wire is used, filling in an array of
-component IDs based on information gathered earlier in the node's lifetime.
+\autoref{figure-example-componentmanager}. This example component manager always returns a
+component set containing a single component. However in general multiple components on
+neighboring (one-hop) nodes could be selected. Thus dynamic wires are inherently a multi-cast
+communication channel. In a more complex example the component manager would compute the
+component set each time the dynamic wire is used, filling in an array of component IDs based on
+information gathered earlier in the node's lifetime.
 
+\begin{fpfig}[t]{Example Component Manager}{figure-example-componentmanager}
+{
+\singlespace
+\begin{lstlisting}
+module RemoteSelectorC {
+  provides interface ComponentManager;
+}
+implementation {
+  // 0xFFFF is the special broadcast address.
+  // Local component #1 on each node selected.
+  component_id  broadcast  = { 0xFFFF, 1 };
+  component_set broadcast_set = { 1, &broadcast };
+
+  command component_set ComponentManager.elements() {
+    return broadcast_set;
+  }
+}
+\end{lstlisting}
+\primaryspacing
+}
+\end{fpfig}
 
 \subsection{Syntax and Semantics}
 \label{section-wiringsyntax}
@@ -325,7 +348,7 @@ extended as follows:
 \primaryspacing
 
 Given a dynamic wiring of the form !C.I -> [RC].I!, I informally summarize its semantics as
-follows. First, I statically require that !RC! is a component manager, and that !I! is
+follows. First, !RC! is statically required to be a component manager, and !I! must be
 remotable. At run time, if control flows across this wire via posting of some duty !I.d! within
 !C!, the command !elements! in !RC! is called to obtain a set of component IDs. The duties !I.d!
 provided by those remote components will then be posted on the host nodes via an underlying link
@@ -337,7 +360,7 @@ For example, the programmer could wire the !LoggerC! component mentioned in
 \autoref{figure-duty-usage} to LED controller components on a dynamically changing subset of
 neighbors using a configuration such as:
 \begin{lstlisting}
-LoggerC.LEDControl -> [RemoteSelectorC];
+LoggerC.LEDControl -> [RemoteSelectorC].LEDControl;
 \end{lstlisting}
 
 The server's configuration does not need to wire anything to the remote interface explicitly.
@@ -345,58 +368,40 @@ The server's configuration does not need to wire anything to the remote interfac
 \subsection{Callbacks and First-Class IDs}
 
 I assume that the component IDs for well known services will be agreed upon ahead of time by a
-social process outside of our system. By broadcasting to a well known component ID, a node can
-use services on neighboring nodes without knowing their node IDs.
+social process outside of SpartanRPC. By broadcasting to a ``well known'' component ID, a node
+can use services on neighboring nodes without knowing their node IDs. The use of well known ID
+values is analogous to the use of well known TCP port numbers to provide easily accessible
+Internet services.
 
 If a node expects a reply from a service that it invokes, the invoking node must set up a
 component with a suitable remote interface to receive the service's result. In SpartanRPC remote
 invocations can only transmit information in one direction. Bidirectional data flow requires
 separate dynamic wires. This design provides a natural ``split-phase'' semantic wherein the
-invoker of a service can continue executing while waiting for the result of that service. For
-example, a service might require the client to provide the node ID and component ID of the
-component that will receive the service result as arguments to the service invocation. The
-server could store those values for use by a server-side component manager. It is permitted for
-a component to be its own component manager making it easy for a service to return a result by
-posting the appropriate duty.
+invoker of a service can continue executing while waiting for the result of that service, a
+common idiom for nesC programming. For example, a service might require the client to provide
+the node ID and component ID of the component that will receive the service result as arguments
+to the service invocation. The server could store those values for use by a server-side
+component manager. It is permitted for a component to be its own component manager making it
+easy for a service to return a result by posting the appropriate duty.
 
-\begin{fpfig}[t]{Example Component Manager}{figure-example-componentmanager}
-{
-\singlespace
+For example, assume that the LED controller on the server returns the old state of the LEDs
+whenever the LED value is changed. The server configuration would include an appropriate
+dynamic wire as follows
 \begin{lstlisting}
-module RemoteSelectorC {
-  provides interface ComponentManager;
-}
-implementation {
-  component_id  broadcast  = { 0xFFFF, 1 };
-  component_set broadcast_set = { 1, &broadcast };
-
-  command component_set ComponentManager.elements() {
-    return broadcast_set;
-  }
-}
+LEDControllerC.LEDResult -> [LEDControllerC].LEDResult;
 \end{lstlisting}
-\primaryspacing
-}
-\end{fpfig}
 
-% For example, assume that the LED controller on the server returns the old state of the LEDs
-% whenever the LED value is changed. The server configuration would include an appropriate
-% dynamic wire as follows
-% \begin{lstlisting}
-% LEDControllerC.LEDResult -> [LEDControllerC];
-% \end{lstlisting}
-%
-% The client must provide the LEDResult interface remotely to receive this result. In this
-% example the !LEDControllerC! component is its own component manager. This makes it easy for
-% the !elements! command to access global data that was recorded inside !LEDControllerC! when
-% the service it provides was previously invoked. This is a common SpartanRPC idiom.
+The client must provide the LEDResult interface remotely to receive this result. In this example
+the !LEDControllerC! component is its own component manager. This makes it easy for the
+!elements! command to access global data that was recorded inside !LEDControllerC! when the
+service it provides was previously invoked. This is a common SpartanRPC idiom.
 
 \section{Security Policy Specification}
 \label{section-security-extensions}
 
-In this section we discuss how to extend the language setting described previously with security
+In this section I discuss how to extend the language setting described previously with security
 features. The goal is a language framework where RPC services require authorization for use, and
-where authorization policies support collaboration between multiple social domains. Our
+where authorization policies support collaboration between multiple social domains. The
 authorization model can be viewed as a client-server interaction; respective sides of the
 interaction protocol are summarized separately as follows.
 
@@ -405,17 +410,18 @@ interaction protocol are summarized separately as follows.
 
 RPC service providers establish policy by assigning governing roles $A.g$ to remote interface
 implementations. Service providers also possess a set of assumed credentials $\creds$, which
-establish an authorization environment. As we will describe in detail, the set $\creds$ may grow
-as additional credentials are communicated to servers. Finally, in the presence of security,
-client invocations of any RPC service are not anonymous, but are performed on behalf of some
-entity $B$, which must be a member of the governing role $A.g$ to use the protected service.
+establish an authorization environment including, perhaps (but not necessarily), the access
+policy. As I will describe in detail, the set $\creds$ may grow as additional credentials are
+communicated to servers. Finally, in the presence of security, client invocations of any RPC
+service are not anonymous, but are performed on behalf of some entity $B$, which must be a
+member of the governing role $A.g$ to use the protected service.
 
 In summary, access to an RPC level is allowed if and only if the property $\creds \vdash B \in
 A.g$ holds, where:
 \begin{itemize}
-  \item $B$ is the identity of the RPC client
-  \item $A.g$ is the governing role of the RPC service
-  \item $\creds$ are the credentials known to the RPC host server
+  \item $B$ is the identity of the RPC client.
+  \item $A.g$ is the governing role of the RPC service.
+  \item $\creds$ are the credentials known to the RPC server.
 \end{itemize}
 RPC service programmers specify governing roles as part of module definitions---specifically at
 remote interface !provides! clauses. Hence, governing roles are associated with interface
@@ -434,19 +440,20 @@ the !requires! keyword.
 
 In order to use a secure remote module, RPC clients wire to it as for unsecured modules (see
 \autoref{section-wiringsyntax}), but with two additional capabilities: (1) the client specifies
-under what \RT\ entity the invocations will be performed, and (2) the client may also specify
+under what $\RT$ entity the invocations will be performed, and (2) the client may also specify
 credentials in their possession which are to be activated for use in the invocation. Syntax is
 as follows:
 \begin{lstlisting}[mathescape=true]
 enable "$C_1, \ldots, C_n$" as "$B$" for C.I -> [M].J
 \end{lstlisting}
 For any invocation made through this wiring the credentials $C_1, \ldots, C_n$ will be remotely
-added to the RPC server's database for the authorization decision, via a process detailed in
-\autoref{section-implementation}. Note that these credentials \emph{need not establish
-  authorization entirely by themselves}, rather they will be \emph{added} to the server's
-existing credentials, all of which will be used in the authorization decision. A special form of
-the !enable! clause using !"*"! for the list of credentials is also supported. This form
-indicates that all credentials known to the client should be communicated to the server.
+added to the RPC server's authorization environment for the authorization decision, via a
+process detailed in \autoref{section-implementation}. Note that these credentials \emph{need not
+  establish authorization entirely by themselves}, rather they will be \emph{added} to the
+server's existing credentials, all of which will be used in the authorization decision. A
+special form of the !enable! clause using !"*"! for the list of credentials is also supported.
+This form indicates that all credentials known to the client should be communicated to the
+server.
 
 Each node is deployed with a collection of ECC key pairs, one for each entity the node
 represents. When an invocation is made the entity $B$ mentioned in the !as! clause of the
@@ -461,15 +468,17 @@ which provides a means to control sampling rates through an interface !SamplingR
 since sampling rate modification is a sensitive operation, the network administrators require
 !NetA.control! authorization to use this component:
 
+\singlespace
 \begin{lstlisting}
 module SamplingRateC {
     provides remote interface SamplingRate requires "NetA.control";
 }
 \end{lstlisting}
+\primaryspacing
 
-\noindent Any node supporting this component will transparently receive \RT\ credentials from
-neighboring nodes and attempt to use those credentials to establish that each client entity is a
-member of the !NetA.control! role in the formal sense described above.
+Any node supporting this component will transparently receive $\RT$ credentials from neighboring
+nodes and attempt to use those credentials to establish that each client entity is a member of
+the !NetA.control! role in the formal sense described above.
 
 Suppose also that nodes in !NetA! are deployed with the credential
 \begin{displaymath}
@@ -482,10 +491,14 @@ a controller can control !NetA!.
 
 Suppose further that another subnet, called !NetB!, wishes to modify the sampling rate of
 !NetA!. A node in !NetB! might be imaged with the following credentials, among possibly others:
+
+\singlespace
 \begin{eqnarray}
 \code{WSNAdmin.control} & \leftarrow & \code{NetB.control} \\
 \code{NetB.control}     & \leftarrow & \code{NetB}
 \end{eqnarray}
+\primaryspacing
+
 Note that credential (1) is issued by the !WSNAdmin! authority, while credential (2) is issued
 by !NetB!. Critically, direct communication with !NetA! authorities to obtain these credentials
 is unnecessary.
@@ -500,9 +513,9 @@ specification of client identity as !NetB!.
 \begin{lstlisting}
 enable
   "WSNAdmin.control <- NetB.control, 
-    NetB.control    <- NetB" as "NetB"
+   NetB.control     <- NetB" as "NetB"
 for 
-  ClientC.SamplingRate -> [RemoteSelectorC];
+  ClientC.SamplingRate -> [RemoteSelectorC].SamplingRate;
 \end{lstlisting}
 \primaryspacing
 }
@@ -522,7 +535,7 @@ encapsulated, underlying security protocols for authorization of remote duty pos
 \label{section-underlying-protocols}
 
 \Sprocket\ implements SpartanRPC authorization using a combination of public and symmetric key
-cryptography. We use the TinyECC library \cite{Liu-Peng-TinyECC-2008} for public key
+cryptography. I used the TinyECC library \cite{Liu-Peng-TinyECC-2008} for public key
 functionality, and AES encryption for symmetric key functionality. TinyECC uses elliptic curve
 cryptography for more efficient public key operations in sensor networks. Using AES has the
 benefit of hardware support on many current embedded platforms, e.g.~those employing the Chipcon
@@ -530,11 +543,11 @@ CC2420 radio.
 
 There are three security protocols for authorized duty postings, illustrated in
 \autoref{figure-sprocketrt-protocol}, that operate asynchronously. First, a credential exchange
-protocol, wherein \RT\ credentials are communicated between nodes and authorization for various
+protocol, wherein $\RT$ credentials are communicated between nodes and authorization for various
 entities are computed, i.e.~the \emph{minimum model} as described in
 \autoref{section-security-extensions}. Second, a session key negotiation protocol, where
-symmetric keys for multiple authorized service invocations are computed between a duty client
-and server. And third, an authorized service invocation protocol, wherein duty posting requests
+symmetric keys for multiple authorized service invocations between a duty client and server are
+computed. And third, an authorized service invocation protocol, wherein duty posting requests
 are checked to ensure the appropriate authorizations. This decomposition of authorized service
 invocation into three protocols supports efficiency especially through the use of symmetric keys
 for multiple service invocations. Its asynchronous nature is also appropriate in an asynchronous
@@ -584,10 +597,10 @@ The certificate representation of an \RT\ credential contains the public keys de
 mentioned in the credential. Roles are identified by one byte numeric codes and are scoped by
 the entity defining the role. Credential forms are distinguished by numbers $\{ 1, 2, 3, 4 \}$.
 Certificates are also signed by their issuing authority. Conveniently, the issuing authority is
-always mentioned in a credential, e.g.~the issuing authority of $\cred{A.r}{B}{}$ is $A$, so the
-means to verify the certificate (i.e.~the relevant public key) is always included with it for
-free. This does not introduce a security problem. Since entities are identified directly by
-their keys, an attacker who creates a new key is simply creating a new entity.
+always mentioned in a credential (e.g.~the issuing authority of $\cred{A.r}{B}{}$ is $A$) so the
+public key required to verify the certificate is always included with it for free. This does not
+introduce a security problem. Since entities are identified directly by their keys, an attacker
+who creates a new key is simply creating a new entity.
 
 The over-the-air format for the intersection certificate is illustrated in
 \autoref{figure-certformats}. The other certificate forms are organized in a similar way.
@@ -596,7 +609,9 @@ intersection credential. This is larger than the maximum payload size limit of T
 Active Message packets as transported by IEEE 802.15.4 \cite{802.15.4,hui-tep125}. It is much
 larger than the default maximum payload size of 28 bytes used by TinyOS \cite{levis-tep111}.
 Consequently the certificates are fragmented into four messages requiring a maximum payload size
-of 43 bytes.
+of 43 bytes. Notice that SpartanRPC limits intersection roles to just two subroles and does not
+allow an arbitrary number of subroles as described in \autoref{section-rt}. This does not limit
+expressivity because intermediate roles can be defined if necessary.
 
 \begin{figure}[t]
   \input{Figures/Certificate-Formats}
@@ -606,20 +621,20 @@ of 43 bytes.
   \label{figure-certformats}
 \end{figure}
 
-The fragments are sent back to back with a 200 ms delay between each to allow the receiver time
-to assemble them. Fragments are sent in order with no fragment identifiers. To stay synchronized
-with the sender, receivers expect to receive all the fragments in a timely manner. If a fragment
-is not received within 750 ms of the previous fragment, the partial certificate is discarded on
-the assumption that the expected fragment was lost.
+Message fragments are sent back to back with a 200 ms delay between each to allow the receiver
+time to assemble them. Fragments are sent in order with no fragment identifiers. To stay
+synchronized with the sender, receivers expect to receive all the fragments in a timely manner.
+If a fragment is not received within 750 ms of the previous fragment, the partial certificate is
+discarded on the assumption that the expected fragment was lost.
 
 Verification of \RT\ certificates is the most computationally expensive component of the system
 as I discuss in \autoref{section-sprocket-cpu-performance}. Thus, it is important to minimize
 the amount of effort spent on verification. To this end, a 16-bit Fletcher checksum is appended
 to each certificate to ensure integrity over unreliable channels. Also, nodes maintain a
 database of certificate checksums, to quickly check whether a certificate has already been
-received and verified. Fletcher checksums are commonly used in wireless sensor networks since
-their error detection properties are almost as good as CRCs with significantly reduced
-computational cost \cite{fletcher-1982}.
+received and verified. Fletcher checksums are commonly used in sensor networks and other
+embedded systems since their error detection properties are almost as good as CRCs with
+significantly reduced computational cost \cite{fletcher-1982}.
 
 Currently certificates carry no lifetime information and are considered to be valid forever.
 This is not ideal since a certificate issuer may eventually change her policy but currently has
@@ -628,14 +643,14 @@ introduces non-monotonicity into the semantics of the authorization logic
 \cite{Li01nonmonotonicity,Rivest:1998:WEC:647502.728327}. Adding an expiration time to the
 certificates is more logically appealing but would require nodes to support real time services
 and some degree of time synchronization. This is a non-trivial extension of the basic system
-that is beyond the scope of my work.
+that was beyond the scope of my work.
 
 \subsubsection{Session Key Negotiation}
 
 Public key cryptography is much too computationally expensive to use for authorizing routine
 duty postings. Sprocket's run time system addresses this by negotiating session keys between the
-sender (client) and receiver (server) nodes. \autoref{figure-sessionkey-daemon} shows the
-session key processing architecture of a node.
+client and server nodes. \autoref{figure-sessionkey-daemon} shows the session key processing
+architecture of a node.
 
 \begin{figure}[htbp]
   \input{Figures/SessionKey-Daemon}
@@ -669,6 +684,7 @@ session key negotiation request. When a server receives a session key negotiatio
 message from a client node $N$ containing the public key $K_{cp}$ of the requesting entity (as
 mentioned in the !as! clause of the dynamic wire) and the $(C, I)$ address of the desired
 service, the following steps are taken:
+
 \begin{enumerate}
 \item Authorization of $K_{cp}$ for service $(C, I)$ is checked using the \RT\ minimum model
   computed by the certificate receiver. If authorization fails nothing more is done.
@@ -709,8 +725,8 @@ allowing a single message to invoke the same service on the servers. If the duty
 consume $d$ bytes of data, then invocation messages consume $2 + n + d + 4n$ bytes. In practice
 this puts significant restrictions on the amount of data that can be passed to duties.
 
-As we describe above our implementation uses a 43~byte message payload for sending certificate
-fragments. Our experience suggests that using the same payload size for invocation messages
+As I describe above my implementation uses a 43~byte message payload for sending certificate
+fragments. My experience suggests that using the same payload size for invocation messages
 allows for reasonable values of both $d$ and $n$.
 
 Alternatively an implementation could send multiple invocation messages with one for each
@@ -721,7 +737,8 @@ for each message.
 To conserve space in the invocation messages only a 32~bit MAC is used. Such a small MAC would
 not normally be considered secure. However, wireless sensor networks generate data so slowly
 that attacking even such a short MAC is not considered feasible
-\cite{karlog-tinysec-2004,luk-minisec-2007}.
+\cite{karlog-tinysec-2004,luk-minisec-2007}. However, in other environments a larger MAC may be
+necessary further increasing message size.
 
 
 \subsubsection{Security Properties}
@@ -758,8 +775,8 @@ $s$ on both nodes but that $B$ is not authorized for $s$ on $C$ and vice-versa. 
 session key were negotiated between $A$, $B$, and $C$ in this case, then $B$ could make
 unauthorized use of $C$'s version of $s$ and vice-versa. While a variety of techniques have been
 proposed to mitigate this problem \cite{canetti-1999}, most typically rely on very large
-multicast groups and are not applicable in our setting. Thus, we handle fan-out wirings using
-multiple MACs as described above.
+multicast groups and are not applicable in my setting. Thus, I handle fan-out wirings using
+multiple, independent MACs as described above.
 
 \subsection{Identifying Services Over the Air}
 
@@ -779,9 +796,9 @@ available on that node \cite{RFC-1833}. When a large number of RPC services are 
 node it becomes unreasonable to expect clients to have hard coded knowledge of the endpoint
 identifiers for all those services. Instead clients communicate with the single well known
 registry to obtain endpoint identifiers that were dynamically assigned. In contrast I assume
-this configuration information is known a priori to all interacting actors. It is unclear if
-sensor networks could benefit from a more sophisticated technique for defining and communicating
-endpoint identifiers, but it would be an interesting topic for future work.
+this configuration information is known a priori to all interacting actors. It is unclear how
+many embedded systems could benefit from a more sophisticated technique for defining and
+communicating endpoint identifiers, but it would be an interesting topic for future work.
 
 \subsection{Rewriting SpartanRPC to nesC}
 
@@ -789,7 +806,7 @@ There are five major features requiring SpartanRPC-to-nesC rewriting by \Sprocke
 definitions, call sites where remote services are invoked, duty definitions, dynamic wires, and
 server components providing remote interfaces. In addition \Sprocket\ generates a stub component
 for each dynamic wire, and a skeleton component for each remote interface. Finally \Sprocket\
-generates configurations that wrap server components. Here we summarize rewriting strategies for
+generates configurations that wrap server components. Here I summarize rewriting strategies for
 these features.
 
 % The implementation doesn't actually wrap server components yet. Instead wiring to skeletons is
@@ -830,8 +847,8 @@ authorization information is checked.
 The \texttt{AuthorizationClient} interface abstracts the details of how an authorized message is
 prepared before being sent. The \texttt{AuthorizationServer} interface abstracts the details of
 how authorized messages are processed after they are received. This design allows for pluggable
-authorization mechanisms. Future versions of \Sprocket\ could potentially support other
-authorization schemes than those described here, in a modular fashion.
+authorization mechanisms. Future versions of \Sprocket\ could support other authorization
+schemes than those described here, in a modular fashion.
 
 The authorization interfaces provide their services in a split-phase manner so that potentially
 long-running authorization computations can be performed while allowing the node to continue
@@ -841,11 +858,10 @@ communication takes place. On the server side it depends on the presence of a !r
 on the remotely provided interface.
 
 The full $RT_0$ mechanism is supported by client and server components !ACRT0C! and !ASRT0C!
-respectively (details about this mechanism are discussed in
-\autoref{section-security-extensions} and \autoref{section-security-protocols}). In addition a
-``null'' authorization is supported by client and server components !ACNullC! and !ASNullC!
-respectively. The null authorization components perform no operation. They are used for dynamic
-wires that do not require authorization and remote interfaces provided publicly by servers.
+respectively. In addition a ``null'' authorization is supported by client and server components
+!ACNullC! and !ASNullC! respectively. The null authorization components perform no operation.
+They are used for dynamic wires that do not require authorization and remote interfaces provided
+publicly by servers.
 
 \subsubsection{Dynamic Wires}
 
@@ -853,10 +869,10 @@ In the following, I use italics for metavariables that range over arbitrary iden
 reader is referred to the rewriting schema defined in \autoref{figure-dynamic-wire-rewriting}.
 Configurations containing dynamic wires are rewritten to configurations that statically wire the
 using component \code{\textit{ClientC}} to a stub \code{Spkt\_\textit{n}} that interacts with
-the appropriate component manager \code{\textit{SelectorC}} and that handles radio
-communication. Every stub generated by \Sprocket\ is uniquely identified over the scope of the
-entire program by an arbitrary integer $n$. The \code{\textit{AuthorizerC}} component is
-!ACNullC! in the case where no authorization is requested.
+the appropriate component manager \code{\textit{SelectorC}} and that handles the communication
+channel. Every stub generated by \Sprocket\ is uniquely identified over the scope of the entire
+program by an arbitrary integer $n$. The \code{\textit{AuthorizerC}} component is !ACNullC! in
+the case where no authorization is requested.
 
 \begin{fpfig}[t]{Dynamic Wire Rewriting}{figure-dynamic-wire-rewriting}
 {
