@@ -440,7 +440,7 @@ the !requires! keyword.
 
 In order to use a secure remote module, RPC clients wire to it as for unsecured modules (see
 \autoref{section-wiringsyntax}), but with two additional capabilities: (1) the client specifies
-under what $\RT$ entity the invocations will be performed, and (2) the client may also specify
+under what \RT\ entity the invocations will be performed, and (2) the client may also specify
 credentials in their possession which are to be activated for use in the invocation. Syntax is
 as follows:
 \begin{lstlisting}[mathescape=true]
@@ -476,7 +476,7 @@ module SamplingRateC {
 \end{lstlisting}
 \primaryspacing
 
-Any node supporting this component will transparently receive $\RT$ credentials from neighboring
+Any node supporting this component will transparently receive \RT\ credentials from neighboring
 nodes and attempt to use those credentials to establish that each client entity is a member of
 the !NetA.control! role in the formal sense described above.
 
@@ -543,7 +543,7 @@ CC2420 radio.
 
 There are three security protocols for authorized duty postings, illustrated in
 \autoref{figure-sprocketrt-protocol}, that operate asynchronously. First, a credential exchange
-protocol, wherein $\RT$ credentials are communicated between nodes and authorization for various
+protocol, wherein \RT\ credentials are communicated between nodes and authorization for various
 entities are computed, i.e.~the \emph{minimum model} as described in
 \autoref{section-security-extensions}. Second, a session key negotiation protocol, where
 symmetric keys for multiple authorized service invocations between a duty client and server are

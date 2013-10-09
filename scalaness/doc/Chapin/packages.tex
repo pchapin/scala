@@ -13,13 +13,15 @@
 \usepackage{fancyvrb}
 \usepackage[english]{fp-autoref}
 \usepackage{fp-frame}
-\usepackage{hyperref}  % See NOTES.txt for more information.
 \usepackage{ifthen}
 \usepackage{listings}
 \usepackage{mathpartir}
 \usepackage{stmaryrd}
 \usepackage{times}
 \usepackage{url}
+
+% Package hyperref wants to be the last package loaded.
+\usepackage[dvips]{hyperref}  % See NOTES.txt for more information.
 
 % =====================
 % Package configuration
@@ -72,3 +74,11 @@
   commentstyle=\ttfamily,
   xleftmargin=0.25in,
   showstringspaces=false}
+
+% This allows links to wrap and it makes the hyperlinks in the document invisible.
+% See NOTES.txt for more information.
+\hypersetup{
+  breaklinks=true,
+  colorlinks=false,
+  pdfborder={0 0 0},
+}
