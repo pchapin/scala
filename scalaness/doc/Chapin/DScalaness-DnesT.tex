@@ -357,16 +357,14 @@ $\tpdecl$ and $\vpdecl$ being generic type and term parameters, $\vect{d}$ being
 identifier declarations, including function definitions, and $\imports$ and $\exports$ being
 imports and exports. Exports are explicitly defined in the module.
 
-A ``runnable'' module---one without imports or generic parameters---is the DnesT model of a
-device image. The declarations in the module defines an initial machine configuration, and the
+A ``runnable'' module---one without imports or parameters---is the DnesT model of a device
+image. The declarations in the module defines an initial machine configuration, and the
 application entry point is defined in a required command $\tt{main}$.
 \begin{definition}
-\label{def-runnable-syntax}
+\label{definition-runnable}
 A module of the form $\margs{\varnothing; \varnothing }\lc ; \vect{\decl}; \exports\rc$, where
-$\tt{main}() : \undefv \in \exports$, is \emph{called runnable}.
+$\tt{main}() : \undefv \in \exports$, is called \emph{runnable}.
 \end{definition}
-In \autoref{figure-example}, the wiring $\texttt{ncode} \ltimes \texttt{scode}$ on line
-\ref{l:image} yields a runnable module.
 
 \subsection{Semantics of DnesT} 
 \label{section-nestsemantics}
@@ -480,9 +478,9 @@ configurations $\flash,\tasks,\bm,X$, where $X$ is of the form $\bootseq{\vect{d
 $\runseq{e}$ depending on whether the machine is booting or running.
 
 \begin{definition}
-\label{definition-runnable}
-  A module of the form $\margs{\varnothing; \varnothing }\lc ; \vect{\decl}; \exports\rc$ where
-  $\text{main}() : \undefv \in \exports$ is \emph{runnable}, and I define:
+\label{definition-runnable-semantics}
+For a runnable module of the form $\margs{\varnothing; \varnothing }\lc ; \vect{\decl};
+\exports\rc$ I define:
 $$
 \bootload(\margs{\varnothing; \varnothing }\lc ; \vect{\decl}; \exports\rc) =
 \exports,\varnothing,\varnothing, \bootseq{\vect{\decl}}
@@ -501,7 +499,7 @@ time checks enable graceful failure behavior.
 \end{definition}
 
 \begin{definition}
-  \label{definition-runnable-semantics}
+  \label{definition-stuck}
   A configuration $\flash, \tasks, \bm, \ell$ is \emph{stuck} if and only if it is irreducible
   and $\ell$ is neither of the form $\runseq{\context{E}{e}}$ nor $\bootseq{\context{D}{e}}$
   where $\bm, e$ fails a run time check. A runnable module $\mu$ \emph{goes wrong} iff

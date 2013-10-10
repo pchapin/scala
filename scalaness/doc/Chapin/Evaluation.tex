@@ -2,12 +2,13 @@
 \chapter{Evaluation}
 \label{chapter-evaluation}
 
-In this chapter I present results of evaluating the performance in both space and time of
-Sprocket and Scalaness/nesT. I do this in terms of both simple ``toy'' programs that explore
-specific issues in isolation and on a larger, realistic application that demonstrates the
-feasbility and applicability of the systems in real world scenarios.
+In this chapter I present results of evaluating the performance of Sprocket and Scalaness/nesT.
+I do this in terms of both simple ``toy'' programs that explore specific issues in isolation and
+on a larger, realistic application employing trust management authorization that demonstrates
+the applicability of the systems in real world scenarios.
 
 \section{Field Example}
+\label{section-field-example}
 
 To evaluate the performance of SpartanRPC and Scalaness in a real application setting, I used
 both systems to implement secure versions of data collection and sampling control protocols in
@@ -117,8 +118,7 @@ n_k = \left(\sum_{j = 1}^{m_i} n_{sj}\right) + m_i n_{si}
 where $n_{sj}$ represents the number of services on neighbor $j$. For example if $N_i$ had five
 neighbors each offering one service and if $N_i$ offered one service, the total number of
 session keys required would be 10. In my implementation I use this value presuming a small
-number of neighbors with a small number of services on each node. I feel this is reasonable
-because SpartanRPC is a one-hop link level communication system.
+number of neighbors with a small number of services on each node.
 
 The number of public keys is related to the complexity of the access policies used by the
 services. The intersection credential mentions three public keys so in the worst case the number
@@ -128,19 +128,19 @@ keys. This suggests an upper bound closer to $n_p = 2 n_c$.
 
 In real policies, however, it is necessary for the same public key to be mentioned in more than
 one credential. For example consider a simple credential chain such as $E_1.r_1 \leftarrow
-E_2.r_2, \ldots, E_i.r_i \leftarrow E_{i+1}.r_{i+1}, \ldots, E_n.r_n \leftarrow E_0$. In this
+E_2.r_2, \ldots, E_i.r_i \leftarrow E_{i+1}.r_{i+1}, \ldots, E_n.r_n \leftarrow E_{n+1}$. In this
 case the number of credentials is $n$ and the number of unique public keys is $n+1$. I feel it
 is reasonable to suppose that in realistic policies the number of credentials and the number of
-public keys are about the same. For this reason our implementation sets $n_p = n_c$.
+public keys are about the same. For this reason my implementation sets $n_p = n_c$.
 
 Harder to judge is the number of credentials involved in real-world authorization scenarios.
 Clearly this will be application specific and will vary widely. However, two or three
 credentials needed to establish authorization is a reasonable assumption, since most likely
-application designers will avoid complicated policies in a sensor network setting. Thus $n_c
-\approx 3 n_d$ where $n_d$ is the number of interacting domains, assuming each domain provides a
-single protected service. I assume only two other domains will be in the immediate vicinity of a
-node $N_i$ thus causing $n_d = 3$. I then set $n_c = 12$ to provide some space for the case when
-a neighboring domain offers more than once service.
+application designers will avoid complicated policies in a resource constrained setting. Thus
+$n_c \approx 3 n_d$ where $n_d$ is the number of interacting domains, assuming each domain
+provides a single protected service. I assume only two other domains will be in the immediate
+vicinity of a node $N_i$ thus causing $n_d = 3$. I then set $n_c = 12$ to provide some space for
+the case when a neighboring domain offers more than once service.
 
 If every entity defines the same roles and if the policies are such that every entity is in
 every role, then the number of model tuples required is $n_m = n_r n_p^2$ where $n_r$ is the
@@ -361,29 +361,28 @@ through the network. Certificates are broadcast and verified in parallel through
 upon system bootup, during the same time period required for the root's interest to propagate
 through the first and second hops.
 
-\subsection{SnowCloud with \Sprocket}
+\subsection{Snowcloud with \Sprocket}
 \label{section-snowcloud-sprocket}
 
-\textit{blah, blah, blah\ldots}
+To explore the real-world feasibility of using SpartanRPC and \Sprocket\ I enhanced the
+unsecured versions of the Harvester and sensor node programs described in
+\autoref{section-field-example} to use SpartanRPC for access control.
 
-\subsubsection{Security Policies}
-
-To specify and implement the security policies informally described in
-\autoref{chapter-introduction}, I consider the sensor network and the Harvester single node
-``network'' as separate security domains, each with their own set of credentials. The sensor
-network is always endowed with administrator-level credentials. If a Harvester is to be used by
-a system engineer, it is also endowed with administrator-level credentials, whereas a Harvester
-to be used by a data end-user is only endowed with user-level credentials. When a Harvester is
-introduced to the sensor network, its resource accesses are mediated by its authorization level.
-Since credentials are unforgeable, a user-level Harvester can never be used for sensor network
-control even if it is reprogrammed.
+To specify and implement the security policies informally described previously, I considered the
+sensor network and the Harvester single node ``network'' as separate security domains, each with
+its own set of credentials. The sensor network is always endowed with administrator-level
+credentials. If a Harvester is to be used by a system engineer, it is also endowed with
+administrator-level credentials, whereas a Harvester to be used by a data end-user is only
+endowed with user-level credentials. When a Harvester is introduced to the sensor network, its
+resource accesses are mediated by its authorization level. Since credentials are unforgeable, a
+user-level Harvester can never be used for sensor network control even if it is reprogrammed.
 
 Sensor nodes within the network possess four credentials, as follows. In these credentials the
 Snowcloud domain is abbreviated $\mathit{SC}$. Authority to collect data and control sensors in
 the network are governed by the roles $\mathit{SC.Col}$ and $\mathit{SC.Con}$, respectively.
-Credential (1) says that any node with control authority also has collection authority. (2) says
-that nodes in the Snowcloud domain have control authority. (3) says that any entity in a
-Snowcloud collaborator's $\mathit{Usr}$ role has collection authority. (4) says that the node
+Credential (1), below, says that any node with control authority also has collection authority.
+(2) says that nodes in the Snowcloud domain have control authority. (3) says that any entity in
+a Snowcloud collaborator's $\mathit{Usr}$ role has collection authority. (4) says that the node
 identified by $\mathit{Nid}$ is in the Snowcloud domain.
 \begin{mathpar}
 (1)\quad \cred{SC.Col}{SC.Con}{}
@@ -403,16 +402,20 @@ administration. This will provide that Harvester with collection and control aut
 domain. For Harvesters to be provided to collaborators, the Snowcloud administrators issue a
 credential establishing the institution as a collaborator, while the institution itself may
 define and manage policy for their $\mathit{Usr}$ role membership. For example, the University
-of New Hampshire ($\mathit{UNH}$) can be established as a collaborator with credential (5)
-issued by Snowcloud domain administration, and may specify role membership with the credential
-(6) issued by UNH domain administration:
+of New Hampshire ($\mathit{UNH}$) can be established as a collaborator with credential (5),
+below, issued by Snowcloud domain administration, and may specify role membership with the
+credential (6) issued by UNH domain administration:
 \begin{mathpar}
 (5)\quad \cred{SC.Collab}{{UNH}}{}
 
 (6)\quad \cred{{UNH}.Usr}{UsrID}{}
 \end{mathpar}
 These two credentials, along with the $\mathit{UsrID}$ private key, are imaged on Harvesters
-issued to UNH collaborators for data collection, but which remain unauthorized for control.
+used by UNH collaborators for data collection, but which remain unauthorized for control.
+Significantly UNH could program their own Harvester nodes without the Snowcloud domain being
+involved aside from providing credential (5) above. The policy set by UNH to decide who,
+exactly, is in the $\mathit{UNH.Usr}$ role is of no concern to the Snowcloud domain
+administrators.
 
 \subsubsection{Implementation}
 
@@ -423,20 +426,30 @@ Commands are communicated to the network over these channels, and different chan
 for different sorts of commands.
 
 In more detail, command broadcast services can be specified as a duty in a remotable interface:
-\begin{Verbatim}
-interface SpDisseminationUpdate { duty void change(command_t new_value); }
-\end{Verbatim}
+
+\singlespace
+\begin{lstlisting}[language=nesC]
+interface SpDissemUpdate {
+    duty void change( command_t new_value );
+}
+\end{lstlisting}
+\primaryspacing
+
 To implement e.g.~the control command channel, the following module can be defined and included
 on sensor nodes in the Snowcloud domain:
-\begin{Verbatim}
+
+\singlespace
+\begin{lstlisting}[language=nesC]
 module ControlDissemC {
-    provides remote interface SpDisseminationUpdate requires "SC.Con";
-    uses            interface SpDisseminationUpdate as NeighborUpdate;
+    provides remote interface SpDissemUpdate requires "SC.Con";
+    uses            interface SpDissemUpdate as NeighborUpdate;
     provides        interface ComponentManager;
 }
 implementation { ... }
-\end{Verbatim}
-In the implementation, the provided $\verb+SpDisseminationUpdate+$ interface accepts command
+\end{lstlisting}
+\primaryspacing
+
+In the implementation, the provided $\verb+SpDissemUpdate+$ interface accepts command
 invocations from neighbors, but requires them to be authorized for the $\mathit{SC.Con}$ role.
 Commands are relayed to all other neighbors (i.e.~disseminated) via the used
 $\verb+NeighborUpdate+$ interface; those neighbors are identified by the provided
@@ -445,11 +458,14 @@ $\verb+ComponentManager+$.
 To use this component, both sensor and Harvester nodes can configure it through the following
 component instantiation and wiring, where the component's $\verb+NeighborUpdate+$ interface is
 wired remotely to neighbors:
-\begin{Verbatim}
+
+\singlespace
+\begin{lstlisting}[language=nesC]
 components ControlDissemC as ControlChan;
 activate "*" for 
-  ControlChan.NeighborUpdate -> [ControlChan].SpDisseminationUpdate;
-\end{Verbatim}
+  ControlChan.NeighborUpdate -> [ControlChan].SpDissemUpdate;
+\end{lstlisting}
+\primaryspacing
 Note that a node must be endowed with the appropriate credentials for this wiring to be useful.
 
 This same code pattern can be used to implement a data collection request channel, protected by
@@ -465,85 +481,135 @@ As detailed in \autoref{section-sprocket-cpu-performance}, a one-time transient 
 imposed for initial credential exchange and session key negotiation when a Harvester is first
 introduced to the network. However, since data collection for a network after several months of
 deployment can take up to an hour, this overhead is relatively insignificant. And steady-state
-overhead is small, and does not significantly affect data collection rates. Further, subsequent
-field visits will not impose transient overhead since negotiated keys can be cached in
-non-volatile memory. Thus, authorized user experience is not significantly impacted by the
-addition of security.
+overhead is small, and does not significantly affect data collection rates. Thus, authorized
+user experience is not negatively impacted by the addition of security.
 
 From a quantitative perspective, the most important measurements to consider for this
-application, beyond the general ones already considered in
-\autoref{section-sprocket-evaluation}, are RAM and ROM consumption of the insecure and secured
-versions of the Harvester collection protocol. We have to consider whether layering SpartanRPC
-security over a realistic application will overrun the resources available to a mote platform.
-Relevant measurements are as follows.
+application are RAM and ROM consumption of the unsecure and secured versions of the Harvester
+collection protocol. We have to consider whether layering SpartanRPC security over a realistic
+application will overrun the resources available to a mote platform. Relevant measurements are
+shown in \autoref{table-sprocket-snowcloud}.
+
 \begin{table}[h]
-\centering \newcommand\T{\rule{0pt}{2.1ex}} \caption{RAM and ROM
-  consumption for Snowcloud versions} {
+\centering \newcommand\T{\rule{0pt}{2.1ex}}
+\caption{RAM and ROM comparison for SpartanRPC Snowcloud} {
 \begin{tabular}{|l|c|c|}
 \hline
 \emph{Program} \T       & \emph{RAM Bytes} & \emph{ROM Bytes} \\ \hline\hline
-Insecure Harvester \T   &             2274 &            24316 \\ \hline
+Unsecure Harvester \T   &             2274 &            24316 \\ \hline
 Secure Harvester \T     &             4771 &            35834 \\ \hline
-Insecure Sensor Node \T &             2868 &            36254 \\ \hline
+Unsecure Sensor Node \T &             2868 &            36254 \\ \hline
 Secure Sensor Node \T   &             5417 &            48616 \\ \hline
 \end{tabular}
 }
-\label{table-snowcloud}
+\label{table-sprocket-snowcloud}
 \end{table}
 
 Both RAM and ROM consumption are significantly increased by the addition of SpartanRPC security
-to this application. However, these numbers are within operating parameters, and the Sprocket
+to this application. However, these numbers are within operating parameters. Also the Sprocket
 implementation of SpartanRPC described in \autoref{section-implementation} has not yet been
-optimized for space efficiency in any way; improvements in this respect can be made but are out
-of scope for this work.
+optimized so additional improvements could likely be made.
 
 \section{Scalaness/nesT}
 
-\subsection{Overhead Analysis of Scalaness}
+The generality of Scalaness makes a full evaluation of the system difficult to interpret.
+However, in keeping with my desire to demonstrate trust management in embedded systems I applied
+Scalaness to the problem of supporting trust management in the Snowcloud application in a manner
+similar to that described in \autoref{section-snowcloud-sprocket}. It should be noted, however,
+that as a general staged programming system, Scalaness can be used for many purposes; building
+authorization systems is only one application. Furthermore Scalaness could be used to support
+authorization in various ways depending on the trade offs needed between node efficiency,
+deployment frequent, and system functionality.
 
-\note{Place holder for now\ldots}
+\subsection{Snowcloud with Scalaness}
 
-\subsection{SnowCloud with Scalaness}
+To demonstrate a staged solution to providing trust management in Snowcloud, I developed a
+Scalaness program called \newterm{Snowstorm} intended to be run by each security domain
+participating in a deployment. Snowstorm targets a conventional machine with Internet
+connectivity and arbitrary resources.
 
-\subsubsection{SnowStorm}
+\autoref{fig:running-snowstorm} shows two instances of Snowstorm running, $S_H$ and $S_N$, one
+by each of two administrative domains. $S_N$ is run by the sensor network administrators and is
+only interested in generating the sensor node application. $S_H$ is run by the collaborating
+domain and is only interested in generating the Harvester application. The two domains would
+probably run completely independent Scalaness programs, perhaps using a common library, but as a
+convenience during development I created a single program to serve the needs of both domains.
 
-I visualize a scenario where the administrative domain running the Harvester might be different
-from the administrative domain owning the sensor network. Each of these domains is its own
-$RT_0$ entity, called $H$ and $N$ respectively. $N$ defines the role \texttt{control}, the
-members of which are able to send commands to network nodes. Each node holds the following
-policy
-\begin{Verbatim}
-N.control <- H
-N.control <- N
-\end{Verbatim}
-
-It is necessary for $N$ to be made a member of $N.\textrm{control}$ so that commands can be
-forwarded from node to node during their dissemination. \note{Is there value in defining a more
-  interesting policy?}
-
-The Scalaness program, called SnowStorm, is able to generate both the Harvester and SensorBox
-applications. \autoref{fig:running-snowstorm} shows two instances of SnowStorm running, $S_H$
-and $S_N$, one by each administrative domain. $S_H$ is only interested in generating the
-Harvester application and $S_N$ is only interested in generating the SensorBox application.
-Conceptually the two domains might run completely independent Scalaness programs, but as a
-convenience during development and testing a single program was created to serve the needs of
-both domains.
-
-\begin{figure}[htbp]
+\begin{figure}[t]
   \input{Figures/SnowStorm}
   \centerline{\raise 1em\box\graph}
-  \caption{Running SnowStorm}
+  \caption{Running Snowstorm}
   \label{fig:running-snowstorm}
 \end{figure}
 
-$S_H$ and $S_N$ are assumed to both have Internet access and run continuously. $H$ requests
-authorization from $N$ and, if successful, session keys are negotiated over the Internet.
-SnowStorm provides a menu that allows an interactive user to control its operation and trigger
-the generation of the node level programs.
+$S_N$ reads the access policy from suitable configuration files (or as entered by the user)
+consisting of $RT_0$ credentials in a convenient syntax. $S_N$ and $S_H$ run continuously and
+communicate via the Internet. Both programs provide an interactive user interface with features
+for generating and managing keys, issuing credentials, and storing policy statements and
+credentials from its peers. As directed by its user $S_H$ requests access to node collection
+resources causing authorization and session key negotiation to all take place automatically.
+Once session keys are available, the user can direct Snowstorm to generate the appropriate node
+level program, with $S_N$ generating the sensor node program and $S_H$ generating the Harvester
+program. The nesT modules that will communicate during stage two execution are specialized with
+the previously computed session key values.
 
-Each instance of SnowStorm holds the private key of its domain and maintains a database of
-public keys ($RT$ entities) and certificates ($RT$ policy). Users are able to issue new
-certificates under their domain's key.
+The development of Snowstorm was a straight forward exercise in software engineering; most of
+the program is ordinary Scala. Snowstorm makes use of widely used third party Java libraries for
+Internet communication and ECC cryptographic operations. Thanks to the expressive power of the
+Scala language I was able to implement the core $RT_0$ authorization decision in just 90 lines.
+Furthermore, although Snowstorm has only a text-mode interface it would have been a simple
+matter to endow it with a fully fledged graphical interface if desired. A majority of Snowstorm
+development was done without any specialized knowledge of embedded systems development, a point
+of significance since embedded systems programming often requires different training and
+experience from that used by general application developers.
+
+When asked to generate their node level programs, Snowstorm specializes a few key nesT modules
+with key information and then composes those modules to form  fully functioning node programs.
+When deployed to the nodes, these programs behaved as did the original implementation.
+Anecdotally the Scalaness type system proved its worth several times during the development of
+Snowstorm. The compiler detected improper wirings as type errors, thus preventing nonsense
+compositions of nesT modules. 
+
+Snowstorm's implementation also made extensive use of external nesC libraries. In fact, the bulk
+of the original, tested sensor node and Harvester programs were wrapped as external libraries in
+the manner described in \autoref{section-external-libraries}. NesT modules were created
+primarily to hold key material and to interact with the AES encryption hardware on the CC2420.
+No significant changes were needed to the existing code base.
+
+\subsection{Memory Usage}
+
+To explore the efficiency of Scalaness generated programs, the memory consumption of the
+generated code was measured. \autoref{table-scalaness-snowcloud} shows the results with the
+memory values of the \Sprocket\ version shown in \autoref{table-sprocket-snowcloud} duplicated
+in the ``Unstaged'' column as a convenience.
+
+\begin{table}[h]
+\centering \newcommand\T{\rule{0pt}{2.1ex}}
+\caption{RAM and ROM comparison for Scalaness Snowcloud} {
+\begin{tabular}{|r||c|c|c|c|} \hline \hline
+              & Unsecured & Unstaged & Staged & Savings\\ \hline
+Sensor ROM    &     36254 &    48616 &  36596 & 25\% \\
+Sensor RAM    &      2868 &     5417 &   3038 & 44\% \\ \hline
+Harvester ROM &     24316 &    35834 &  24436 & 32\% \\
+Harvester RAM &      2274 &     4771 &   2402 & 50\% \\ \hline
+\end{tabular}
+}
+\label{table-scalaness-snowcloud}
+\end{table}
+
+The ``Savings'' are the percent reduction from unstaged to staged secure implementation, and
+these numbers show the potential for saving both RAM and ROM space is significant.
+Unsurprisingly the memory consumed by the Scalaness generated code is virtually identical to
+that used by the unsecured programs. The only overhead injected into the staged node programs is
+that required to interact with the AES encryption hardware and, of course, to hold the
+negotiated session key material.
+
+From the perspective of user experience, the staged version of this application is more
+convenient, since no initial authorization period is needed when the harvester is first
+introduced to the network. The staged version also exposes the system to fewer bugs and failures
+that would be obstacles to the primary goal of data collection. On the other hand the staged
+version requires the presence, somewhere in the deployment cycle, of a powerful machine on which
+the first stage program can be executed.
 
 %%% Local Variables: 
 %%% mode: LaTeX
