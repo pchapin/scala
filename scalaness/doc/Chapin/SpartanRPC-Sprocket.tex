@@ -76,9 +76,9 @@ to real-time constraints and lack of Internet connectivity in emergency situatio
 direct approach to managing access described in this chapter would be essential; a staged
 approach may not have sufficiently fast turn-around time.
 
-Time synchronization is another important WSN function that is security sensitive, since many
-higher-level protocols rely on it. A number of previous authors have considered secure time
-synchronization in the presence of ``insider'' attacks
+Time synchronization is another important sensor network function that is security sensitive,
+since many higher-level protocols rely on it. A number of previous authors have considered
+secure time synchronization in the presence of ``insider'' attacks
 \cite{Manzo:2005:TSA:1102219.1102238,Ganeriwal:2008:STS:1380564.1380571}, whereby nodes within
 the network may be compromised and function as malicious actors capable of corrupting the
 protocol. In particular, the FTSP protocol can be attacked by a single compromised ``root'' node
@@ -216,9 +216,9 @@ must be implemented by the application developer.
 \label{section-remotable}
 
 SpartanRPC imposes certain requirements on RPC service definitions for ease of implementation.
-First, since WSN nodes do not share state passing nesC pointers to duties is disallowed---such a
-reference would be meaningless on the receiving node. Thus remotable types are defined as
-follows:
+First, since sensor network nodes do not share state passing nesC pointers to duties is
+disallowed---such a reference would be meaningless on the receiving node. Thus remotable types
+are defined as follows:
 \begin{definition}
   A type is \emph{remotable} if and only if it satisfies the following inductive definition: The
   nesC built-in arithmetic types, including enumeration types, are remotable, and structures
