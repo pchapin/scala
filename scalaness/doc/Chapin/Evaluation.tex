@@ -461,19 +461,21 @@ protocol (TEP 123) to the Harvester.
 \subsubsection{Results}
 
 Results can be characterized according to both the user experience and to quantitative aspects.
-As detailed in \autoref{section-sprocket-overhead}, a one-time transient overhead is imposed for
-initial credential exchange and session key negotiation when a Harvester is first introduced to
-the network. However, since data collection for a network after several months of deployment can
-take up to an hour, this overhead is relatively insignificant. And steady-state overhead is
-small, and does not significantly affect data collection rates. Further, subsequent field visits
-will not impose transient overhead since negotiated keys can be cached in non-volatile memory.
-Thus, authorized user experience is not significantly impacted by the addition of security.
+As detailed in \autoref{section-sprocket-cpu-performance}, a one-time transient overhead is
+imposed for initial credential exchange and session key negotiation when a Harvester is first
+introduced to the network. However, since data collection for a network after several months of
+deployment can take up to an hour, this overhead is relatively insignificant. And steady-state
+overhead is small, and does not significantly affect data collection rates. Further, subsequent
+field visits will not impose transient overhead since negotiated keys can be cached in
+non-volatile memory. Thus, authorized user experience is not significantly impacted by the
+addition of security.
 
 From a quantitative perspective, the most important measurements to consider for this
-application, beyond the general ones already considered in \autoref{section-sprocket-overhead},
-are RAM and ROM consumption of the insecure and secured versions of the Harvester collection
-protocol. We have to consider whether layering SpartanRPC security over a realistic application
-will overrun the resources available to a mote platform. Relevant measurements are as follows.
+application, beyond the general ones already considered in
+\autoref{section-sprocket-evaluation}, are RAM and ROM consumption of the insecure and secured
+versions of the Harvester collection protocol. We have to consider whether layering SpartanRPC
+security over a realistic application will overrun the resources available to a mote platform.
+Relevant measurements are as follows.
 \begin{table}[h]
 \centering \newcommand\T{\rule{0pt}{2.1ex}} \caption{RAM and ROM
   consumption for Snowcloud versions} {

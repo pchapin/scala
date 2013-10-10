@@ -4,8 +4,8 @@
 
 % Theory from the CC and GPCE papers...
 
-In this chapter I describe a staged programming language system supporting type safe dynamic
-code generation for resource constrained embedded devices. This system features programming
+In this chapter I describe a staged programming system supporting type safe dynamic code
+generation for resource constrained embedded devices. This system features programming
 abstractions for specializing device code and allowing on-the-fly adaptation to current device
 deployment conditions. The system has been implemented as an extension to Scala \cite{PiS2},
 through modification of the Scala compiler.
@@ -15,7 +15,7 @@ combine dynamically specialized libraries and deploy them to a wireless sensor n
 some over-the-air deployment method such as Deluge \cite{deluge04}. To this end a restricted
 form of staging \cite{Taha-MetaML,DBLP:conf/icess/Taha04,289140} is used to achieve well founded
 dynamic program generation. \emph{First stage} code is written in an extended version of Scala,
-called Scalaness, which is programmer friendly and suitable for running on powerful hubs. The
+called Scalaness which is programmer friendly and suitable for running on powerful hubs. The
 execution of a Scalaness program yields a residual \emph{second stage} node program written in
 nesT, a type safe variant of the nesC programming language. The second stage program is
 constructed from module components treated as first class values, which may be type and value
@@ -23,9 +23,9 @@ specialized during the course of first stage computation.
 
 \autoref{figure-scalaness} provides an overview of the Scalaness/nesT language architecture.
 Scalaness source code is compiled in a modified Scala compiler to Java bytecode, and run in a
-standard Java virtual machine (JVM). At runtime this Scalaness program may generate nesT code,
-which is subsequently rewritten to nesC and compiled using the standard TinyOS compiler. The
-resulting image can then be installed on sensor network nodes.
+standard JVM. At runtime this Scalaness program may generate nesT code, which is subsequently
+rewritten to nesC and compiled using the standard TinyOS compiler. The resulting image can then
+be installed on sensor network nodes.
 
 \begin{fpfig*}[t]
   {Scalaness/nesT Compilation and Execution Model}
@@ -100,16 +100,14 @@ deployment, so the optimal data type used to represent node addresses is an envi
 property that may need to be determined \emph{in situ}.
 
 The example also value specializes DnesT modules with specific session keys for use during
-secure communication. In previous work I showed how symmetric key message authentication codes
-can be used to support resource authorization in sensor networks
-\cite{chapin-skalka-SpartanRPC,chapin-skalka-SpartanRPCTR}. In particular, communication between
-security domains in a sensor network can be mediated by credentials implemented as keys, with
-nodes lying at domain frontiers using different keys to send (to the other domain) and receive
-(from the other domain) over secured links. Since it is unpredictable where nodes will be
-physically distributed in space, appropriate keys for each node need to be established \emph{in
-  situ}. Defining node functionality using generic code that must be instantiated with specific
-keys allows adaptation to a deployment environment, and allows expensive computations for
-establishing session keys to be offloaded from the network nodes to a higher powered device.
+secure communication. In particular, as with SpartanRPC, communication between security domains
+in a sensor network can be mediated by credentials implemented as keys, with nodes lying at
+domain frontiers using different keys to send (to the other domain) and receive (from the other
+domain) over secured links. Since it is unpredictable where nodes will be physically distributed
+in space, appropriate keys for each node need to be established \emph{in situ}. Defining node
+functionality using generic code that must be instantiated with specific keys allows adaptation
+to a deployment environment, and allows expensive computations for establishing session keys to
+be offloaded from the network nodes to a higher powered device.
 
 \autoref{figure-example} shows the complete example. We begin with the definition of a
 parameterized type $\tt{mesgT(t)}$ using the DScalaness $\tt{abbrvt}$ binder, where an instance
@@ -162,7 +160,6 @@ definition of $\tt{mesgT}$.
 \primaryspacing
 }
 \end{fpfig}
-
 
 Next, on line~\ref{l:radiot} we define a type $\tt{radioT}$, which is the type of DnesT modules
 that provide an API to the radio. The DnesT module language is a simplified version of the nesC
@@ -233,7 +230,7 @@ programming languages \cite{Taha-MetaML}. The so-called ``runnable'' modules---o
 imports or generic parameters---define an initial machine configuration. This supports a TinyOS
 node reprogramming model where the entire OS is recompiled and target nodes are reimaged and
 rebooted. The \texttt{image} operation (invoked in line \ref{l:image} of the example) asserts
-its argument to be runnable and dumps the module code for subsequent sensor deployment.
+its argument to be runnable and dumps the module code for subsequent deployment.
 
 DnesT modules specify a list of imported function signatures, and a list of exported functions
 implemented by the module. Module genericity is obtained via a sequence of type and value
@@ -248,12 +245,14 @@ The concrete syntax used in \autoref{figure-example} precedes each import/export
 keyword $\texttt{import}$/$\texttt{export}$ for a more readable presentation; this is not part
 of the formal DnesT syntax.
   
-The other DScalaness operations on DnesT modules are instantiation and composition. In line
-\ref{l:lift}, module \texttt{nodeC} is instantiated with arguments \texttt{adt}, \texttt{self},
-and \texttt{neighbor}. In lines \ref{l:scode} and \ref{l:image}, modules are composed using the
-$\ltimes$ operator. The semantics of module composition $\mu_1 \ltimes \mu_2$ is standard
-\cite{Cardelli-1997}; imports of one module are connected to exports of the other. DnesT module
-composition is analogous to nesC \emph{configuration wiring}.
+The other DScalaness operations on DnesT modules are instantiation and composition. In lines
+\ref{l:inst1} and \ref{l:inst2}, the modules \texttt{authSend} and \texttt{authRecv} are
+instantiated with arguments specifying the type of message to be used, parameterized by a
+dynamically constructed type, and by the value of the desired key. In lines \ref{l:wire} and
+\ref{l:image}, modules are composed using the $\ltimes$ operator. The semantics of module
+composition $\mu_1 \ltimes \mu_2$ is standard \cite{Cardelli-1997}; imports of one module are
+connected to exports of the other. DnesT module composition is analogous to nesC
+\emph{configuration wiring}.
 
 \subsection{Typing} 
 
@@ -291,8 +290,8 @@ elements to obtain a type safe language, as discussed below.
 \emph{Sequences} are notated $x_1,\ldots,x_n$, and are abbreviated $\vect{x}$;
 $\vect{x}_\mapidx{i}$ is the $i$-th element, $\emptyset$ denotes the empty sequence, and
 $\abs{\vect{x}}$ is the size. I write $x \in \vect{x}$ to denote membership in sequences, and
-$x\vect{x}$ denotes a sequence with head $x$ and tail $\vect{x}$. We denote append as
-$\vect{x}@\vect{y}$. For relational symbols $R \in \{ \subtype, =, : \}$, we use the
+$x\vect{x}$ denotes a sequence with head $x$ and tail $\vect{x}$. I denote append as
+$\vect{x}@\vect{y}$. For relational symbols $R \in \{ \subtype, =, : \}$, I use the
 abbreviation: $\vect{x}\, R\, \vect{y} = x_1\, R\, y_1, \ldots, x_n\, R\, y_n$. So for example,
 $\tbindvec{x}{\t} = x_1 : \t_1,\ldots,x_n : \t_n$.
 
@@ -343,6 +342,13 @@ explicit initialization of array and struct values is provided, though there are
 for either arrays or structures. Besides convenience, declarations are useful to support
 serialization of program objects passed in from DScalaness, as I discuss in
 \autoref{section-serialization}.
+
+In the formal syntax and semantics of DnesT presented here, functions are nullary
+(i.e.~parameterless) as a simplification. This does not limit expressivity since DnesT does not
+permit recursion. Thus function parameters can be simulated in principle by way of module level
+declarations. The actual implementation of nesT allows functions to be parameterized as in nesC.
+Accordingly I will take syntactic liberties in the examples in this chapter and make use of
+non-nullary functions.
 
 \subsubsection{Modules}
 
@@ -437,7 +443,7 @@ The operational behavior of declarations is fairly straightforward and is shown 
 \autoref{figure-declsemantics}. Functions and first class mutable variables may be declared and
 initialized. At run time mutable variables are bound (via substitution) to an l-value
 $\cval{\bn}{\mv}$, where $\bn$ is the address of the variable. Thus, for base and function type
-declarations we have the following rules, respectively:
+declarations I have the following rules, respectively:
 $$
 \small{
 \inferrule[FDecl]
@@ -474,8 +480,9 @@ configurations $\flash,\tasks,\bm,X$, where $X$ is of the form $\bootseq{\vect{d
 $\runseq{e}$ depending on whether the machine is booting or running.
 
 \begin{definition}
-  A module of the form $\margs{\varnothing; \varnothing }\lc ; \vect{\decl}; \exports\rc$ is
-  \emph{runnable}, and I define:
+\label{definition-runnable}
+  A module of the form $\margs{\varnothing; \varnothing }\lc ; \vect{\decl}; \exports\rc$ where
+  $\text{main}() : \undefv \in \exports$ is \emph{runnable}, and I define:
 $$
 \bootload(\margs{\varnothing; \varnothing }\lc ; \vect{\decl}; \exports\rc) =
 \exports,\varnothing,\varnothing, \bootseq{\vect{\decl}}
@@ -494,7 +501,7 @@ time checks enable graceful failure behavior.
 \end{definition}
 
 \begin{definition}
-  \label{def-runnable-semantics}
+  \label{definition-runnable-semantics}
   A configuration $\flash, \tasks, \bm, \ell$ is \emph{stuck} if and only if it is irreducible
   and $\ell$ is neither of the form $\runseq{\context{E}{e}}$ nor $\bootseq{\context{D}{e}}$
   where $\bm, e$ fails a run time check. A runnable module $\mu$ \emph{goes wrong} iff
@@ -574,28 +581,11 @@ environment obtained from a combination of module value parameters, imports, and
 declarations. Module type checking is also specified in \autoref{figure-declmodtyping}. A type
 safety conjecture for DnesT can then be stated as follows.
 
-\declmodtypingfig
-
 \begin{conject}[DnesT Type Safety]
   If $\mu : \jmodtcat$ is valid and $\mu$ is runnable, then $\mu$ does not go wrong.
 \end{conject}
-Here is an example DnesT typing. In this and other examples I will take narrative liberties with
-function definitions, assuming they can be non-nullary as in \autoref{figure-example}.
-\begin{example}
-\label{example-nesttyping}
-The module $\texttt{nodeC}$ of \autoref{figure-example} can be assigned the type:
-\singlespace
-\lstset{numbers=none, basicstyle=\ttfamily} 
-\lstset{escapeinside={(*@}{@*)}}
-\begin{lstlisting}
-adt (*@$\subtype$@*) uint; self: uint, neighbor: uint
-  { error_t send(s: adt, d: adt, uint8[]: data);  error_t main() }
-\end{lstlisting}
-% < mt (*@$\subtype$@*) mesgT(uint); sendk : uint8[] >  
-%  { import radio_x(mt*), export send(mt*) }
-\primaryspacing
-\end{example}
 
+\declmodtypingfig
 
 \section{The DScalaness Language}
 \label{section-scalaness-theory}
@@ -646,7 +636,7 @@ instantiation is obtained via the form $\jinst{e_1}{\ttvec{e}_1; \ttvec{e}_2}$, 
 $\ttvec{e}_\texttt{1}$ are type parameters and $\ttvec{e}_\texttt{2}$ are value parameters.
 Wiring of modules is denoted $\jwire{\tt{e_1}}{\tt{e_2}}$. Imaging of modules, denoted
 $\jimage{\texttt{e}}$, ensures that $\texttt{e}$ computes to a runnable module, in the sense of
-\autoref{def-runnable}.
+\autoref{definition-runnable}.
 
 \subsection{Semantics of DScalaness}
 
@@ -665,7 +655,7 @@ Following AFJ, the semantics of DScalaness is defined as a \emph{labeled transit
 where transitions are of the form $\texttt{e} - \lc s = \jstore, s' = \jstore' \rc \rightarrow
 \texttt{e}' $. Intuitively, this denotes that given an initial store $\jstore$ and expression
 $\texttt{e}$, one step of evaluation results in a modified store $\jstore'$ and contractum
-$\texttt{e}'$. We write $\texttt{e} \rightarrow \texttt{e}'$ as an abbreviation when the store
+$\texttt{e}'$. I write $\texttt{e} \rightarrow \texttt{e}'$ as an abbreviation when the store
 is not altered.
 
 The primary novelty of DScalaness over FGJ/AFJ is the formal semantics of type and module
@@ -673,7 +663,7 @@ construction. I begin with type construction, which is provided to allow program
 dynamically construct module type instances. The appropriate behavior is obtained by treating
 dynamically constructed types as extensions of a basic class of objects, and declarations of
 DnesT level types via a \texttt{typedef} construct as syntactic sugar for ordinary object
-construction. We define a \texttt{LiftableType} class as the supertype of all types of objects
+construction. I define a \texttt{LiftableType} class as the supertype of all types of objects
 which can be used to instantiate a module, and dynamically constructed types are defined as
 instances of a generic \texttt{MetaType} class.
 \begin{definition}
@@ -685,7 +675,7 @@ $$
 \CT(\texttt{MetaType}) = \gclass{\texttt{MetaType}}{\texttt{X <: LiftableType}}{Object}{ \ldots }
 \end{array}
 $$
-And we take as given the following syntactic sugar:
+And I take as given the following syntactic sugar:
 $$
 \jtlet{x}{T}{e_1}{e_2}\ \defeq\ \jdef{x}{\jinst{MetaType}{T}}{e_1}{e_2}
 $$
@@ -704,8 +694,8 @@ Module instantiation, shown in \autoref{figure-jmodsemantics}, is the only point
 specialization of DnesT modules is allowed. Since DScalaness and DnesT are two different
 language spaces, some sort of transformation must occur when values migrate from DScalaness to
 DnesT via module instantiation. This \emph{lifting} transformation involves both data mapping
-and serialization since the process spaces also differ. We aim to be flexible and allow the user
-to specify how values are lifted and how types are transformed. We only require that lifting and
+and serialization since the process spaces also differ. I aim to be flexible and allow the user
+to specify how values are lifted and how types are transformed. I only require that lifting and
 type transformation are coherent, in the sense that the lifting of an object should be typeable
 at the object's type transformation. This is formalized in the following definition.
 \begin{definition}
@@ -747,20 +737,6 @@ for combining mappings.
 Finally, the \TirName{ModImage} rule in \autoref{figure-jmodsemantics} shows that imaging it is
 an assertion requiring its arguments to be a runnable module.
 
-\begin{example}
-\label{example-scalanesssemantics}
-Assume given the definitions in \autoref{figure-example}, a module $\texttt{radioC : radioT}$
-and an invocation $\texttt{nodeSpecialize}(1,2,50,\texttt{radioC})$. Then $\texttt{ncode}
-\ltimes \texttt{scode}$ will evaluate to the following module:
-$$
-\margs{}\lc\ ; \ldots; \texttt{error\_t\ \ main()} \lc \texttt{call}\ \ \texttt{send}((\texttt{uint8})1, (\texttt{uint8})2, "\texttt{hello}") \rc\rc
-$$  
-where the elided declarations include a specialized radio and message type:
-$$
-\texttt{error\_t\ \ radio(\lc \texttt{src : uint8}; \texttt{dest : uint8}; \texttt{data : uint8[\,]} \rc)} \lc \ldots \rc
-$$
-\end{example}
-
 \subsection{Serialization and Lifting}
 \label{section-serialization}
 
@@ -769,8 +745,8 @@ the top level, serialization binds the value parameters of a module to the resul
 flattening, aka lifting, via a sequence of declarations. Here is the precise definition.
 \begin{definition}[Serialization]
 \label{def-serialization}
-Assume given a store $\jstore$ which is implicit in the following definitions. We define
-serialization of DScalaness references as follows, along with an extension of the user defined
+Assume given a store $\jstore$ which is implicit in the following definitions. The serialization
+of DScalaness references is defined as follows, along with an extension of the user defined
 lifting relation to sequences of references:
 \begin{mathpar}
 \inferrule%[Serialize]
@@ -829,8 +805,8 @@ remains to define typing rules for DnesT modules and module operations.
 
 The DnesT module type form at the DScalaness level is $\jmodt{\tpdecl}{\jmodtcat}$, where
 $\jmodtcat$ is a DnesT module type. The $\tpdecl$ in this form represents the type bounds of
-dynamically constructed types that have been used to instantiate the module; we refer to this
-part of the type as the \emph{instance coercion}. Because these types are dynamically
+dynamically constructed types that have been used to instantiate the module; this part of the
+type is referred to as the \emph{instance coercion}. Because these types are dynamically
 constructed, their identity is not known statically, hence the need to treat them as
 upper-bounded type names in the static type analysis. It is important to note that the type
 names in $\tpdecl$ will be fully resolved at run time, so that any module generated by a
@@ -852,30 +828,6 @@ of value parameters.
 The \TirName{ModWireT} typing rule for module wiring is a straightforward reflection of the
 operational rule for module wiring, as is the \TirName{ModImageT} rule for module runnability
 imaging.
-\begin{example}
-\label{example-scalanesstyping}
-Returning to the code in \autoref{figure-example}, we may assign the following typing, where the
-relevant type environment $G$ contains typing for free variables within the function
-\texttt{nodeSpecialize}:
-$$
-  G \vdash \jinst{radioC}{adt}\ :\  
-    \jmodt{\texttt{adt} \subtype \texttt{int32}}{\margs{}\lc\ ;
-      \tt{error\_t\ radio(\t)} \rc }
-$$
-$$
-\text{where}\ \t = \lc \texttt{src : adt}; \texttt{dest : adt}; \texttt{data : uint8[\,]} \rc 
-$$
-%and
-%$$    
-%  G \vdash \jinst{sendC}{adt} \ltimes \jinst{radioC}{adt}\ :\   
-%    \jmodt{\texttt{adt} \subtype \texttt{int32}}{\margs{}\lc \ 
-%      ;\,
-%      \texttt{error\_t\ send(\texttt{adt\ s}, \texttt{adt\ d}, \texttt{data\ uint8[\,]})} \rc}
-%$$
-%$$
-%\text{where}\ \t = \lc \texttt{src : adt}; \texttt{dest : adt}; \texttt{data : uint8[\,]} \rc 
-%$$
-\end{example}
 
 \subsection{Foundational Insights and Type Safety} 
 \label{section-framedml}
@@ -906,9 +858,9 @@ for dynamically constructed types used to instantiate a module. This is directly
 $\exists$ type bindings in $\fml$ types, which statically define the upper bounds of dynamically
 constructed types.
 
-Observing that AFJ, FGJ, and \fml\ are all proven type safe, and that DScalaness is in essence an
-orthogonal composition of these three languages, we conjecture that type safety is maintained in
-this composition.
+Observing that AFJ, FGJ, and \fml\ are all proven type safe, and that DScalaness is in essence
+an orthogonal composition of these three languages, the following conjecture states that type
+safety is maintained in this composition.
 
 \begin{conject}[DScalaness Type Safety]
   If $\varnothing \vdash \texttt{e} : \texttt{T}$ and $\texttt{e} \rightarrow^* \jimage{\mu}$,
