@@ -278,7 +278,7 @@ second stages, requiring some sort of transformation during module instantiation
 transformation is discussed in \autoref{section-serialization}.
 
 \section{The DnesT language}
-\label{section-nest-theory}
+\label{section-dnest-theory}
  
 The DnesT design aims to distill a production language, nesC, into its fundamental elements,
 yielding a language that is amenable to formal analysis but also practical. However, since the
@@ -327,7 +327,7 @@ As in nesC, no dynamic memory allocation is possible; all memory layout is estab
 variable declarations. However, unlike nesC full pointer arithmetic is not supported for the
 sake of type safety. Instead an array increment operator $\rhd$ allows the suffix of an array to
 be computed based on an integral shift distance. Type casting and array operations have run time
-checks imposed, as I explain in \autoref{section-nestsemantics}.
+checks imposed, as I explain in \autoref{section-dnestsemantics}.
 
 Also as in nesC, a $\kwpost$ operation is provided for posting tasks. The semantics of tasks
 follow the ``run-to-completion'' model of TinyOS. Interrupts are omitted from the language to
@@ -367,7 +367,7 @@ $\tt{main}() : \undefv \in \exports$, is called \emph{runnable}.
 \end{definition}
 
 \subsection{Semantics of DnesT} 
-\label{section-nestsemantics}
+\label{section-dnestsemantics}
 
 The operational semantics for DnesT is defined as a small step relation $\compute$ on dynamic
 configurations in \autoref{figure-semanticssyntax}. The semantics are decomposed into several
@@ -404,7 +404,7 @@ $\fundef{docast}$ which performs a casting conversion. This function is allowed 
 users, and in certain cases may be a no-op (e.g.~casting pointers to arrays when the latter are
 contiguous in memory). In any case, if $\docast{\t}{\mv}{\blockmem}$ is defined, the cast
 conversion is required to be type safe, in that the result must be of type $\t$. This is
-discussed more in \autoref{section-nesttyping}.
+discussed more in \autoref{section-dnesttyping}.
 
 \coresemanticsfig
 
@@ -493,6 +493,7 @@ evaluate to semantically ill-formed configurations. In the context of DnesT this
 follows. Notice that failing casts and out-of-bound array access are not stuck cases, since run
 time checks enable graceful failure behavior.
 \begin{definition}
+  \label{definition-runtime-failure}
   A configuration $\bm, e$ \emph{fails a run time check} if and only if $e$ is of the form
   $\castto{\t}{\kappa}$ and $\docast{\t}{\kappa}{\blockmem}$ is undefined, or $e$ is of the form
   $\cval{\bn}{\mv}\idx{\cval{\pi}{n}}$ and $n\ge\abs{\vect{\mv}}$.
@@ -508,7 +509,7 @@ time checks enable graceful failure behavior.
 \end{definition}
 
 \subsection{DnesT Type Checking} 
-\label{section-nesttyping}
+\label{section-dnesttyping}
 
 The typing rules for DnesT combine a standard procedural language typing approach with subtyping
 techniques adapted from previous foundational work \cite{FramedML,Ghelli199875}. The goal here
@@ -586,7 +587,7 @@ safety conjecture for DnesT can then be stated as follows.
 \declmodtypingfig
 
 \section{The DScalaness Language}
-\label{section-scalaness-theory}
+\label{section-dscalaness-theory}
 
 DScalaness serves as the language for DnesT module composition in the same manner as nesC
 configurations serve to compose nesC modules, but DScalaness is a more powerful metalanguage
@@ -609,6 +610,7 @@ implementation details, but is otherwise an accurate description of the module o
 semantics and especially the module operation typing rules.
 
 \subsection{Syntax of DScalaness}
+\label{section-dscalaness-syntax}
 
 \scalanesssyntaxfig
 
@@ -637,6 +639,7 @@ $\jimage{\texttt{e}}$, ensures that $\texttt{e}$ computes to a runnable module, 
 \autoref{definition-runnable}.
 
 \subsection{Semantics of DScalaness}
+\label{section-dscalaness-semantics}
 
 The semantics of DScalaness is an extension of the semantics of AFJ and FGJ to incorporate DnesT
 modules and operations. Computations assume a fixed class table $\CT$ allowing access to class
