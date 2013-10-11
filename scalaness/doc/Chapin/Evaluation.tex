@@ -428,17 +428,20 @@ for different sorts of commands.
 In more detail, command broadcast services can be specified as a duty in a remotable interface:
 
 \singlespace
+\vspace{1.0ex}
 \begin{lstlisting}[language=nesC]
 interface SpDissemUpdate {
     duty void change( command_t new_value );
 }
 \end{lstlisting}
+\vspace{1.0ex}
 \primaryspacing
 
 To implement e.g.~the control command channel, the following module can be defined and included
 on sensor nodes in the Snowcloud domain:
 
 \singlespace
+\vspace{1.0ex}
 \begin{lstlisting}[language=nesC]
 module ControlDissemC {
     provides remote interface SpDissemUpdate requires "SC.Con";
@@ -447,6 +450,7 @@ module ControlDissemC {
 }
 implementation { ... }
 \end{lstlisting}
+\vspace{1.0ex}
 \primaryspacing
 
 In the implementation, the provided $\verb+SpDissemUpdate+$ interface accepts command
@@ -460,12 +464,15 @@ component instantiation and wiring, where the component's $\verb+NeighborUpdate+
 wired remotely to neighbors:
 
 \singlespace
+\vspace{1.0ex}
 \begin{lstlisting}[language=nesC]
 components ControlDissemC as ControlChan;
 activate "*" for 
   ControlChan.NeighborUpdate -> [ControlChan].SpDissemUpdate;
 \end{lstlisting}
+\vspace{1.0ex}
 \primaryspacing
+
 Note that a node must be endowed with the appropriate credentials for this wiring to be useful.
 
 This same code pattern can be used to implement a data collection request channel, protected by

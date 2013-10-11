@@ -351,9 +351,7 @@ conversion command. These conversion commands exist in a nesC interface !DoCast!
 \vspace{1.0ex}
 \begin{lstlisting}[language=nesC]
 token = (struct UserToken)user;
-
 // ... rewritten to ...
-
 token = (call DoCast.UserInfo_UserToken(user));
 \end{lstlisting}
 \vspace{1.0ex}
@@ -758,8 +756,8 @@ module EncryptorC {
 implementation {
   // Added by the Scalaness compiler.
   uint8_t key[] = { 1, 2, 3, 4 };
-
   // Uses of 'key' as before.
+}
 \end{lstlisting}
 \vspace{1.0ex}
 \primaryspacing
