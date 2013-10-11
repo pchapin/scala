@@ -97,7 +97,39 @@ and Scalaness was instead implemented as a direct modification to the Scala comp
 \section{Related Work}
 
 % From the Trust Management paper.
-% Isn't that entire paper just related work???
+
+The first trust management systems were inspired by early foundational work in authentication
+logics such as BAN \cite{Burrows:LA} and authorization logics such as ABLP \cite{Abadi:CACDS}.
+However, the concept of trust management as an independent area of study was first introduced
+with PolicyMaker \cite{Blaze:DTM,Blaze:CCPTMS}. PolicyMaker policies are implemented as
+arbitrary programs in a suitable ``safe'' programming language. This gives the system great
+flexibility but also introduces several forms of intractability.
+
+KeyNote \cite{RFC-2704} is a direct descendant of PolicyMaker. KeyNote restricts PolicyMaker by
+specifing a limited language for creating policies. However a full analysis of the policy
+language \cite{Li:DCFTML} shows that certain authorization problems nevertheless remain
+undecidable. KeyNote has been used to enforce IPsec security requirements
+\cite{Blaze:TMIPS,Blaze:EKTMS}
+
+SDSI/SPKI \cite{Rivest:SDSI-11,RFC-2693} provides a relatively simple, yet expressively
+interesting trust management language that is a precursor to the $RT_0$ system I used. The
+semantics of SDSI/SPKI have been analyzed by several authors
+\cite{Abadi:OSLLNS,Halpern:LSSLLNS,Howell:FSS,Li:LNSS,Clarke:CCDSS} making it one of the best
+studied trust management systems. SDSI/SPKI has been used to provide security in component based
+programming language design \cite{Liu:CSI}.
+
+QCM \cite{Gunter:DALSI,Gunter:GCR} and its successor SD3 \cite{Jim:STMSCE,Jim:DDQE} cast
+distributed authorization as a kind of distributed database problem. As a result these systems
+are able to leverage well-studied database techniques and abstractions. These systems reveal a
+deep and interesting connection between authorization logics and database theory that inspired
+later work with database query languages such as \datalog\ and \datalogc\ \cite{Li:DCFTML}.
+
+Other notable examples of trust management systems include Cassandra \cite{Becker:CFTMAEHR}, a
+system that has been studied in the context of the United Kingdom's proposed nationwide
+electronic health records system. The Extensible Access Control Markup Language (XACML)
+\cite{OASIS:XACMLTC} and the Security Assertion Markup Language (SAML) \cite{OASIS:SSTC}, both
+OASIS standards, define XML policy and assertion languages that make use of many trust
+management concepts.
 
 % From the TISSEC paper.
 
