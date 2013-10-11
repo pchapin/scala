@@ -4,10 +4,10 @@
 Embedded systems present difficult programming challenges
 \cite{Mottola:2011:PWS:1922649.1922656}. For reasons of size, power consumption, disposability,
 or some combination of these things, embedded devices are often highly resource constrained. For
-example, a typical device might have only 48~KiB of program ROM, 8~KiB of RAM (or less), and use
-a small, 16~bit microcontroller running at only 8~MHz \cite{tmotesky-datasheet}. Yet embedded
-applications are increasing in complexity and often provide mission-critical or even
-safety-critical services. Such systems need to be both efficient and correct.
+example, a typical device might have only 48~KiB of program ROM, 8~KiB of RAM, and use a small,
+16~bit microcontroller running at 8~MHz \cite{tmotesky-datasheet}. Yet embedded applications are
+increasing in complexity and often provide mission-critical or even safety-critical services.
+Such systems need to be both efficient and correct.
 
 My interest is in the use of distributed trust management in resource constrained embedded
 systems. Here \newterm{trust management} refers to a general approach for authorizing access to
@@ -15,19 +15,18 @@ resources in an environment where the identity of requesting principals is not k
 authorizer. A trust management system provides a way for the authorizer to define an access
 policy in terms of arbitrary certified attributes that the requester must possess. Many trust
 management systems have been described in the literature \cite{chapin-skalka-wang-acmcs08}, and
-they vary in complexity, expressiveness, and mathematical foundations. However, all attempt to
-provide a formalized, well structured approach to the problem of access control in widely
-distributed and dynamic environments.
+they vary in complexity, expressivity, and mathematical foundations. However, all attempt to
+provide a well structured approach to the problem of access control in widely distributed and
+dynamic environments.
 
 Trust management systems are typically designed for use by authorizers with resource rich
 machines such as is commonly used for file and web servers. Yet there are embedded applications
 that could also benefit from trust management. For example, ``smart cars'' that communicate with
-each other about road conditions and for traffic coordination
-\cite{Seepold:2009:ESP:1641563.1641568}, or body area networks that provide medical monitoring
-and intervention features \cite{Shnayder:2005:SNM:1098918.1098979,Chen:2011:BAN:1968858.1968873}
-may encounter many unknown principals during their operation. The security and safety of these
-applications will depend on their ability to distinguish trustworthy principals from unreliable
-or malicious ones.
+each other about road conditions \cite{Seepold:2009:ESP:1641563.1641568}, or body area networks
+that provide medical monitoring features
+\cite{Shnayder:2005:SNM:1098918.1098979,Chen:2011:BAN:1968858.1968873} may encounter many
+unknown principals during their operation. The security and safety of these applications will
+depend on their ability to distinguish trustworthy principals from unreliable or malicious ones.
 
 For reasons of space and time efficiency many embedded systems are programmed in low level
 languages such as C. Programming at that level is complicated and error prone. It is desirable,
@@ -43,7 +42,7 @@ components with limited use beyond the application for which they were created.
 The value of formal foundations can not be overstated. In critical systems were safety or
 security is at stake, a rigorous understanding of the mechanisms being used is essential. For
 example, trust management systems that provide a precisely defined policy language are
-preferable to systems that use informally described methods for specifying access control.
+preferable to systems that use informally described methods.
 
 In this dissertation I focus on a kind of embedded system called a \newterm{wireless sensor
   network} (WSN). Such systems consist of a network of small sensors or actuators that are
@@ -88,11 +87,59 @@ program will always generate a well-typed nesT program. Thus the type correctnes
 that ultimately runs on the embedded device is guaranteed by the first stage Scalaness compiler.
 
 I chose Scala as the basis for my first stage language largely for pragmatic reasons. I wanted
-to build a practical system that could be used for real applications. Scala is a rich language
-that runs on the Java Virtual Machine (JVM) and thus has access to the Java ecosystem. Also the
-Scala compiler has a plugin architecture, and I had hoped to implement Scalaness as a compiler
-plugin. Unfortunately, as described in \autoref{chapter-scalaness-nest} that proved difficult
-and Scalaness was instead implemented as a direct modification to the Scala compiler itself.
+to build a system that could be used for real applications. Scala is a rich language that runs
+on the Java Virtual Machine (JVM) and thus has access to the Java ecosystem. Also the Scala
+compiler has a plugin architecture, and I had hoped to implement Scalaness as a compiler plugin.
+Unfortunately, as described in \autoref{chapter-scalaness-nest} that proved difficult and
+Scalaness was instead implemented as a direct modification to the Scala compiler itself.
+
+\section{Motivation}
+
+To better understand the motivation behind my work in this section I will describe an example
+scenario related to wireless sensor networks. I describe the scenario in general terms; it could
+apply to a variety of sensor network applications, one of which I discuss in more detail in
+\autoref{chapter-evaluation}.
+
+\begin{fpfig*}[t]
+  {Motivational Scenario}
+  {figure-motivation}
+  %\hspace{0mm}
+  \begin{center}
+    \includegraphics[scale=.40]{Figures/spartanrpc.eps}
+  \end{center}
+\end{fpfig*}
+
+The lower part of \autoref{figure-motivation} shows two wireless sensor networks owned by
+separate administrative domains $A$ and $B$. Each node in the network is an example of a
+resource constrained embedded system. The two networks overlap in space so that nodes from the
+two networks can potentially communicate with each other.
+
+In some applications it may be desirable for the networks to share certain information while
+keeping other information private. As one example $A$ and $B$ may agree to use each other's
+nodes for accurate time synchronization to their mutual best interest without wanting to share
+any other functionality. Alternatively perhaps the networks are willing to carry data from
+foreign isolated nodes thus increasing each other's connectivity and enhancing their useful
+lifetimes, all without being able to access each other's primary functions.
+
+In other scenarios one of the networks, say $B$, may be reduced to a single mobile node that
+wanders into the field of an established network $A$. In that case $B$ may wish to query $A$ or
+otherwise interact with it, yet $A$ and $B$ may have no prior association.
+
+Trust management systems provide exactly the kind of flexible, policy-driven authorization
+control to address these situations. The ability to define access policy for unknown principals,
+the hallmark of trust management, is particularly important in the case of mobile embedded
+systems.
+
+SpartanRPC addresses this problem directly by providing a way for the embedded devices
+themselves to execute trust management logic. In that case no additional supporting
+infrastructure is needed but the nodes are required to do extensive computations.
+
+Scalaness, as a staged programming system, requires support beyond the nodes where the first
+stage program can execute. This additional support is shown on top of
+\autoref{figure-motivation} where Scalaness programs execute on the base stations of $A$ and $B$
+to compute node programs for deployment that are specialized with appropriate session keys. The
+Scalaness programs can communicate over the Internet to share credentials or other security
+tokens as required.
 
 \section{Related Work}
 
@@ -103,10 +150,10 @@ logics such as BAN \cite{Burrows:LA} and authorization logics such as ABLP \cite
 However, the concept of trust management as an independent area of study was first introduced
 with PolicyMaker \cite{Blaze:DTM,Blaze:CCPTMS}. PolicyMaker policies are implemented as
 arbitrary programs in a suitable ``safe'' programming language. This gives the system great
-flexibility but also introduces several forms of intractability.
+flexibility but also introduces intractability.
 
 KeyNote \cite{RFC-2704} is a direct descendant of PolicyMaker. KeyNote restricts PolicyMaker by
-specifing a limited language for creating policies. However a full analysis of the policy
+specifying a limited language for creating policies. However a full analysis of KeyNote's policy
 language \cite{Li:DCFTML} shows that certain authorization problems nevertheless remain
 undecidable. KeyNote has been used to enforce IPsec security requirements
 \cite{Blaze:TMIPS,Blaze:EKTMS}
@@ -241,10 +288,10 @@ new \cite{99620,ancona01calculus}, The novelty of nesT arises in its application
 staging and the incorporation of dynamic type construction.
 
 The type parametricity of System F and F$_\le$ \cite{Cardelli-1985}, and the practical type
-systems it inspired such as Java's generics, do not treat types as first class values as we do.
-C++ templates support types as meta values in template expansion, but type safety of generated
-code is not guaranteed without full template expansion. Concepts \cite{gregor06:_concepts}
-improves on this, but types are still not first class values.
+systems it inspired such as Java's generics, do not treat types as first class values. C++
+templates support types as meta values in template expansion, but type safety of generated code
+is not guaranteed without full template expansion. Concepts \cite{gregor06:_concepts} improves
+on this, but types are still not first class values.
 
 \section{Dissertation Organization}
 
@@ -257,10 +304,10 @@ describe how I added support for $RT_0$ trust management to a general RPC mechan
 Scalaness and nesT in more detail in \autoref{chapter-dscalaness-dnest}, and then describe the
 syntax and semantics of both languages using simplified ``distilled'' versions of those
 languages called \newterm{DScalaness} and \newterm{DnesT}. I describe the implementation of the
-practical Scalaness/nesT system in \autoref{chapter-scalaness-nest}, with examples, relating the
-features of the implementation to the earlier foundational presentation. I show an evaluation of
-both systems in \autoref{chapter-evaluation} using simple test programs and in the context of a
-realistic field example. Finally I conclude in \autoref{chapter-conclusion}.
+practical Scalaness/nesT system in \autoref{chapter-scalaness-nest} relating the features of the
+implementation to the earlier foundational presentation. I show an evaluation of both systems in
+\autoref{chapter-evaluation} using simple test programs and in the context of a realistic field
+example. Finally I conclude in \autoref{chapter-conclusion}.
 
 
 %%% Local Variables: 
