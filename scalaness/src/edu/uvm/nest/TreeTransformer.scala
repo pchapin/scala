@@ -1,15 +1,15 @@
 //-----------------------------------------------------------------------
 // FILE    : TreeTransformer.scala
-// SUBJECT : Object to manipulate Mininess ASTs
+// SUBJECT : Object to manipulate nesT ASTs
 // AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
-package edu.uvm.mininess
+package edu.uvm.nest
 
 import org.antlr.runtime.CommonToken
 import org.antlr.runtime.tree._
-import parser.MininessLexer
-import MininessLexer._
+import parser.NesTLexer
+import NesTLexer._
 
 /**
  * This object has methods for handling abstract syntax tree conversions and other high level AST
@@ -33,7 +33,7 @@ object TreeTransformer {
 
 
   /**
-   * Processes a Mininess AST and adds additional parameters to function declarations and calls
+   * Processes a nesT AST and adds additional parameters to function declarations and calls
    * to provide array size information.
    *
    * @param root The root of the AST to process.
@@ -82,7 +82,7 @@ object TreeTransformer {
           val argumentName = child.children(0).text
           val argumentType = Symbols.lookupVariable(root, argumentName)
           argumentType match {
-            case MininessTypes.Array(_, arraySize) =>
+            case NesTTypes.Array(_, arraySize) =>
               if (arraySize == "") {
                 val sizeVariable = "_sc_" + argumentName + "_SIZE"
                 rootNode ~~> Mini(RAW_IDENTIFIER, sizeVariable)
@@ -102,7 +102,7 @@ object TreeTransformer {
 
 
   /**
-   * Processes a Mininess AST and replaces cast operations with calls to an appropriate
+   * Processes a nesT AST and replaces cast operations with calls to an appropriate
    * conversion command.
    *
    * @param root The root of the AST to process.
@@ -123,7 +123,7 @@ object TreeTransformer {
         val castType      = if (isStructCast) children(1).children(0).text else children(1).text
         val valueType     = Symbols.lookupVariable(root,castTarget)
         val valTypeString = valueType match {
-          case MininessTypes.Structure(structName,structFields) => structName
+          case NesTTypes.Structure(structName,structFields) => structName
           case typeName => typeName
         }
         val castMethodString = valTypeString + "_" + castType
@@ -176,7 +176,7 @@ object TreeTransformer {
 
 
   /**
-   * Processes a Mininess AST and adds runtime array bounds checks were necessary.
+   * Processes a nesT AST and adds runtime array bounds checks were necessary.
    *
    * @param root The root of the AST to process.
    * @return A new AST with all the checks added.
@@ -233,13 +233,13 @@ object TreeTransformer {
     }
 
     def getStructMemberType(
-      structType: MininessTypes.Representation,
-      memberName: String): MininessTypes.Representation = {
+      structType: NesTTypes.Representation,
+      memberName: String): NesTTypes.Representation = {
 
       var returnType = structType
       var found = false
       val memberList = structType match {
-        case MininessTypes.Structure(_, mList) => mList
+        case NesTTypes.Structure(_, mList) => mList
         case _ => throw new Exception("Expected structure type.")
       }
       for (i <- 0 until memberList.size) {
@@ -277,7 +277,7 @@ object TreeTransformer {
                              getStructMemberType(Symbols.lookupVariable(root,structName),fieldName)
                            }
         val arraySize = arrayType match {
-          case MininessTypes.Array(_, aSize) => aSize
+          case NesTTypes.Array(_, aSize) => aSize
           case _ => throw new Exception("Unable to locate array size")
         }
         val isConstant =
@@ -368,8 +368,8 @@ object TreeTransformer {
           }
           else {
             val sizeType = Symbols.lookupVariable(root, arraySize)
-            if (!(MininessTypes.areSubtypes(sizeType, MininessTypes.Int32) || 
-                  MininessTypes.areSubtypes(sizeType, MininessTypes.UInt32)))
+            if (!(NesTTypes.areSubtypes(sizeType, NesTTypes.Int32) || 
+                  NesTTypes.areSubtypes(sizeType, NesTTypes.UInt32)))
               throw new Exception("Array size must be integer type")
             ASTNode(RAW_IDENTIFIER, arraySize, List(), Some(newNode2), symbolTable)
           }

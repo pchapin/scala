@@ -4,14 +4,14 @@
 // AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
-package edu.uvm.mininess
+package edu.uvm.nest
 
 import java.io.PrintStream
 import java.util.Stack
-import parser.MininessLexer
+import parser.NesTLexer
 
 /**
- * Provides a nice way to view Mininess abstract syntax trees. This code was ported from Java.
+ * Provides a nice way to view nesT abstract syntax trees. This code was ported from Java.
  *
  * @param sink The object into which the output is sent.
  * @param syntaxTree The tree that this viewer will use.
@@ -83,7 +83,7 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
       // it is easier to just include it here. Aside from making the output look a little funny,
       // the extra space is harmless in other cases.
       //
-      case MininessLexer.RAW_IDENTIFIER =>
+      case NesTLexer.RAW_IDENTIFIER =>
           sink.print(t.text)
           sink.print(" ")
 
@@ -96,34 +96,34 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
       // changed to throw an exception of some kind to indicate that an unexpected token was
       // encountered.
       //
-      case MininessLexer.CALL     |
-           MininessLexer.CHAR     |
-           MininessLexer.COMMAND  |
-           MininessLexer.CONST    |
-           MininessLexer.EVENT    |
-           MininessLexer.INT      |
-           MininessLexer.POST     |
-           MininessLexer.SHORT    |
-           MininessLexer.SIGNED   |
-           MininessLexer.TASK     |
-           MininessLexer.TYPEDEF  |
-           MininessLexer.UNSIGNED |
-           MininessLexer.VOID =>
+      case NesTLexer.CALL     |
+           NesTLexer.CHAR     |
+           NesTLexer.COMMAND  |
+           NesTLexer.CONST    |
+           NesTLexer.EVENT    |
+           NesTLexer.INT      |
+           NesTLexer.POST     |
+           NesTLexer.SHORT    |
+           NesTLexer.SIGNED   |
+           NesTLexer.TASK     |
+           NesTLexer.TYPEDEF  |
+           NesTLexer.UNSIGNED |
+           NesTLexer.VOID =>
         sink.print(t.text)
         sink.print(" ")
 
-      case MininessLexer.DECLARATION =>
+      case NesTLexer.DECLARATION =>
         indent()
         for (child <- t.children) {
           rewrite(child)
-          if (child.tokenType == MininessLexer.RAW_IDENTIFIER) sink.print(" ")
+          if (child.tokenType == NesTLexer.RAW_IDENTIFIER) sink.print(" ")
         }
-        if (t.children(0).tokenType != MininessLexer.FUNCTION_DEFINITION) {
+        if (t.children(0).tokenType != NesTLexer.FUNCTION_DEFINITION) {
           sink.print(";")
         }
         sink.print("\n")
 
-      case MininessLexer.DECLARATOR =>
+      case NesTLexer.DECLARATOR =>
         if (declaratorNestingLevels.peek() != 0) sink.print("(")
         value = declaratorNestingLevels.pop()
         declaratorNestingLevels.push(value + 1)
@@ -135,26 +135,26 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         declaratorNestingLevels.push(value - 1)
         if (declaratorNestingLevels.peek() != 0) sink.print(")")
 
-      case MininessLexer.DECLARATOR_ARRAY_MODIFIER =>
+      case NesTLexer.DECLARATOR_ARRAY_MODIFIER =>
         sink.print("[")
         if (t.children.length != 0) rewrite(t.children(0))
         sink.print("]")
 
-      case MininessLexer.DECLARATOR_LIST =>
+      case NesTLexer.DECLARATOR_LIST =>
         for (i <- 0 until t.children.length) {
           if (i != 0) sink.print(", ")
           rewrite(t.children(i))
         }
 
-      case MininessLexer.DECLARATOR_PARAMETER_LIST_MODIFIER =>
+      case NesTLexer.DECLARATOR_PARAMETER_LIST_MODIFIER =>
         sink.print("( ")
         rewrite(t.children(0))
         sink.print(" )")
 
-      case MininessLexer.ENUM =>
+      case NesTLexer.ENUM =>
         sink.print("enum ")
         currentChild = 0
-        if (t.children(currentChild).tokenType != MininessLexer.ENUMERATOR) {
+        if (t.children(currentChild).tokenType != NesTLexer.ENUMERATOR) {
           rewrite(t.children(currentChild))
           sink.print(" ")
           currentChild += 1
@@ -171,32 +171,32 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
           sink.print("} ")
         }
 
-      case MininessLexer.ENUMERATOR =>
+      case NesTLexer.ENUMERATOR =>
         rewrite(t.children(0))
         if (t.children.length > 1) {
           sink.print(" = ")
           rewrite(t.children(1))
         }
 
-      case MininessLexer.FUNCTION_DEFINITION =>
+      case NesTLexer.FUNCTION_DEFINITION =>
         for (child <- t.children) {
-          if (child.tokenType == MininessLexer.COMPOUND_STATEMENT) {
+          if (child.tokenType == NesTLexer.COMPOUND_STATEMENT) {
             sink.print("\n")
             indentationLevel += 1  // This is a hack.
           }
           rewrite(child)
-          if (child.tokenType == MininessLexer.COMPOUND_STATEMENT) {
+          if (child.tokenType == NesTLexer.COMPOUND_STATEMENT) {
             indentationLevel -= 1
           }
         }
 
-      case MininessLexer.IDENTIFIER_PATH =>
+      case NesTLexer.IDENTIFIER_PATH =>
         for (i <- 0 until t.children.length) {
             if (i != 0) sink.print(".")
             rewrite(t.children(i))
         }
 
-      case MininessLexer.INIT_DECLARATOR =>
+      case NesTLexer.INIT_DECLARATOR =>
         rewrite(t.children(0))
         if (t.children.length > 1) {
           sink.print(" = ")
@@ -205,7 +205,7 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
           }
         }
 
-      case MininessLexer.INITIALIZER_LIST =>
+      case NesTLexer.INITIALIZER_LIST =>
         sink.print("{ ")
         for (i <- 0 until t.children.length) {
           if (i != 0) sink.print(", ")
@@ -213,13 +213,13 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         }
         sink.print(" }")
 
-      case MininessLexer.PARAMETER =>
+      case NesTLexer.PARAMETER =>
         for (child <- t.children) {
           rewrite(child)
-          if (child.tokenType == MininessLexer.RAW_IDENTIFIER) sink.print(" ")
+          if (child.tokenType == NesTLexer.RAW_IDENTIFIER) sink.print(" ")
         }
 
-      case MininessLexer.PARAMETER_LIST =>
+      case NesTLexer.PARAMETER_LIST =>
         declaratorNestingLevels.push(0)
         for (i <- 0 until t.children.length) {
             if (i != 0) sink.print(", ")
@@ -227,15 +227,15 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         }
         declaratorNestingLevels.pop()
 
-      case MininessLexer.POINTER_QUALIFIER =>
+      case NesTLexer.POINTER_QUALIFIER =>
         sink.print("*")
         t.children.foreach(rewrite)
 
-      case MininessLexer.STRUCT =>
+      case NesTLexer.STRUCT =>
         sink.print(t.text)
         sink.print(" ")
         currentChild = 0
-        if (t.children(currentChild).tokenType != MininessLexer.DECLARATION) {
+        if (t.children(currentChild).tokenType != NesTLexer.DECLARATION) {
           rewrite(t.children(currentChild))
           sink.print(" ")
           currentChild += 1
@@ -255,7 +255,7 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
       // Statements
       // ----------
 
-      case MininessLexer.CASE =>
+      case NesTLexer.CASE =>
         // Outdent the case label.
         indentationLevel -= 1
         indent()
@@ -265,19 +265,19 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         indentationLevel += 1
         rewrite(t.children(1))
 
-      case MininessLexer.COMPOUND_STATEMENT =>
+      case NesTLexer.COMPOUND_STATEMENT =>
         // Outdent the braces.
         indentationLevel -= 1; indent(); sink.print("{\n"); indentationLevel += 1
         t.children.foreach(rewrite)
         indentationLevel -= 1; indent(); sink.print("}\n"); indentationLevel += 1
 
       // This handles 'default' in switch statements, but not in declarations.
-      case MininessLexer.DEFAULT =>
+      case NesTLexer.DEFAULT =>
         // Outdent the default label.
         indentationLevel -= 1; indent(); sink.print("default:\n"); indentationLevel += 1
         rewrite(t.children(0))
 
-      case MininessLexer.FOR =>
+      case NesTLexer.FOR =>
         indent()
         sink.print("for( ")
         // The loop header.
@@ -290,22 +290,22 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         rewrite(t.children(3))  // The controlled statement.
         indentationLevel -= 1
 
-      case MininessLexer.FOR_CONDITION =>
+      case NesTLexer.FOR_CONDITION =>
         enableExpressionParentheses = false
         if (t.children.length == 1) rewrite(t.children(0))
         enableExpressionParentheses = true
 
-      case MininessLexer.FOR_INITIALIZE =>
+      case NesTLexer.FOR_INITIALIZE =>
         enableExpressionParentheses = false
         if (t.children.length == 1) rewrite(t.children(0))
         enableExpressionParentheses = true
 
-      case MininessLexer.FOR_ITERATION =>
+      case NesTLexer.FOR_ITERATION =>
         enableExpressionParentheses = false
         if (t.children.length == 1) rewrite(t.children(0))
         enableExpressionParentheses = true
 
-      case MininessLexer.IF =>
+      case NesTLexer.IF =>
         indent()
         sink.print("if( ")
         enableExpressionParentheses = false
@@ -323,21 +323,21 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
           indentationLevel -= 1
         }
 
-      case MininessLexer.RETURN =>
+      case NesTLexer.RETURN =>
         indent()
         sink.print("return ")
         if (t.children.length == 1) rewrite(t.children(0))
         sink.print(";\n")
 
       // Expression statements are handled here.
-      case MininessLexer.STATEMENT =>
+      case NesTLexer.STATEMENT =>
         indent()
         enableExpressionParentheses = false
         if (t.children.length == 1) rewrite(t.children(0))
         enableExpressionParentheses = true
         sink.print(";\n")
 
-      case MininessLexer.SWITCH =>
+      case NesTLexer.SWITCH =>
         indent()
         sink.print("switch( ")
         enableExpressionParentheses = false
@@ -348,7 +348,7 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         rewrite(t.children(1))
         indentationLevel -= 1
 
-      case MininessLexer.WHILE =>
+      case NesTLexer.WHILE =>
         indent()
         sink.print("while( ")
         enableExpressionParentheses = false
@@ -363,35 +363,35 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
       // -----------
 
       // All binary infix operators are handled the same way.
-      case MininessLexer.AMP          |
-           MininessLexer.AND          |
-           MininessLexer.ASSIGN       |
-           MininessLexer.BITANDASSIGN |
-           MininessLexer.BITOR        |
-           MininessLexer.BITORASSIGN  |
-           MininessLexer.BITXOR       |
-           MininessLexer.BITXORASSIGN |
-           MininessLexer.COMMA        |
-           MininessLexer.DIVASSIGN    |
-           MininessLexer.DIVIDE       |
-           MininessLexer.EQUAL        |
-           MininessLexer.GREATER      |
-           MininessLexer.GREATEREQUAL |
-           MininessLexer.LESS         |
-           MininessLexer.LESSEQUAL    |
-           MininessLexer.LSHIFT       |
-           MininessLexer.LSHIFTASSIGN |
-           MininessLexer.MINUS        |
-           MininessLexer.MINUSASSIGN  |
-           MininessLexer.MODULUS      |
-           MininessLexer.MODASSIGN    |
-           MininessLexer.NOTEQUAL     |
-           MininessLexer.OR           |
-           MininessLexer.PLUS         |
-           MininessLexer.PLUSASSIGN   |
-           MininessLexer.RSHIFT       |
-           MininessLexer.RSHIFTASSIGN |
-           MininessLexer.STAR =>
+      case NesTLexer.AMP          |
+           NesTLexer.AND          |
+           NesTLexer.ASSIGN       |
+           NesTLexer.BITANDASSIGN |
+           NesTLexer.BITOR        |
+           NesTLexer.BITORASSIGN  |
+           NesTLexer.BITXOR       |
+           NesTLexer.BITXORASSIGN |
+           NesTLexer.COMMA        |
+           NesTLexer.DIVASSIGN    |
+           NesTLexer.DIVIDE       |
+           NesTLexer.EQUAL        |
+           NesTLexer.GREATER      |
+           NesTLexer.GREATEREQUAL |
+           NesTLexer.LESS         |
+           NesTLexer.LESSEQUAL    |
+           NesTLexer.LSHIFT       |
+           NesTLexer.LSHIFTASSIGN |
+           NesTLexer.MINUS        |
+           NesTLexer.MINUSASSIGN  |
+           NesTLexer.MODULUS      |
+           NesTLexer.MODASSIGN    |
+           NesTLexer.NOTEQUAL     |
+           NesTLexer.OR           |
+           NesTLexer.PLUS         |
+           NesTLexer.PLUSASSIGN   |
+           NesTLexer.RSHIFT       |
+           NesTLexer.RSHIFTASSIGN |
+           NesTLexer.STAR =>
         val oldExpressionParentheses = enableExpressionParentheses
         if (enableExpressionParentheses) sink.print("( ")
         enableExpressionParentheses = true
@@ -403,12 +403,12 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         enableExpressionParentheses = oldExpressionParentheses
         if (enableExpressionParentheses) sink.print(" )")
 
-      case MininessLexer.ADDRESS_OF =>
+      case NesTLexer.ADDRESS_OF =>
         sink.print("( &")
         rewrite(t.children(0))
         sink.print(" )")
 
-      case MininessLexer.ARGUMENT_LIST =>
+      case NesTLexer.ARGUMENT_LIST =>
         sink.print("( ")
         for (i <- 0 until t.children.length) {
           if (i != 0) sink.print(", ")
@@ -416,20 +416,20 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         }
         sink.print(" )")
 
-      case MininessLexer.ARRAY_ELEMENT_SELECTION =>
+      case NesTLexer.ARRAY_ELEMENT_SELECTION =>
         sink.print("[")
         rewrite(t.children(0))
         sink.print("]")
 
-      case MininessLexer.ARROW =>
+      case NesTLexer.ARROW =>
         sink.print("->")
         rewrite(t.children(0))
 
-      case MininessLexer.BITCOMPLEMENT =>
+      case NesTLexer.BITCOMPLEMENT =>
         sink.print("~")
         rewrite(t.children(0))
 
-      case MininessLexer.CAST =>
+      case NesTLexer.CAST =>
         sink.print("(")
         for (i <- 1 until t.children.length) {
           rewrite(t.children(i))
@@ -439,57 +439,57 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         sink.print(" )")
 
       // The AST distinguishes this use of '*' from multiplication. How nice.
-      case MininessLexer.DEREFERENCE =>
+      case NesTLexer.DEREFERENCE =>
         sink.print("( *")
         rewrite(t.children(0))
         sink.print(" )")
 
-      case MininessLexer.DOT =>
+      case NesTLexer.DOT =>
         sink.print(".")
         rewrite(t.children(0))
 
-      case MininessLexer.MINUSMINUS =>
+      case NesTLexer.MINUSMINUS =>
         sink.print("--")
 
-      case MininessLexer.NOT =>
+      case NesTLexer.NOT =>
         sink.print("!")
         rewrite(t.children(0))
 
-      case MininessLexer.PLUSPLUS =>
+      case NesTLexer.PLUSPLUS =>
         sink.print("++")
 
-      case MininessLexer.POSTFIX_EXPRESSION =>
+      case NesTLexer.POSTFIX_EXPRESSION =>
         t.children.foreach(rewrite)
 
-      case MininessLexer.PRE_DECREMENT =>
+      case NesTLexer.PRE_DECREMENT =>
         sink.print("--")
         rewrite(t.children(0))
 
-      case MininessLexer.PRE_INCREMENT =>
+      case NesTLexer.PRE_INCREMENT =>
         sink.print("++")
         rewrite(t.children(0))
 
       // Perhaps the AST does not need to distinguish between these cases.
-      case MininessLexer.SIZEOF_TYPE |
-           MininessLexer.SIZEOF_EXPRESSION =>
+      case NesTLexer.SIZEOF_TYPE |
+           NesTLexer.SIZEOF_EXPRESSION =>
         sink.print("sizeof( ")
         t.children.foreach(rewrite)
         sink.print(" )")
 
-      case MininessLexer.UNARY_MINUS =>
+      case NesTLexer.UNARY_MINUS =>
         sink.print("-")
         rewrite(t.children(0))
 
-      case MininessLexer.UNARY_PLUS =>
+      case NesTLexer.UNARY_PLUS =>
         sink.print("+")
         rewrite(t.children(0))
 
       // Large Scale Structure
       // ---------------------
 
-      case MininessLexer.FILE =>
+      case NesTLexer.FILE =>
         for (child <- t.children) {
-          if (!suppressRewriting || child.tokenType == MininessLexer.LINE_DIRECTIVE)
+          if (!suppressRewriting || child.tokenType == NesTLexer.LINE_DIRECTIVE)
             rewrite(child)
         }
 
@@ -498,7 +498,7 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
       // that references a header file, further rewriting is turned off... until we encounter a
       // line directive that references the main .nc file again.
       //
-      case MininessLexer.LINE_DIRECTIVE =>
+      case NesTLexer.LINE_DIRECTIVE =>
         val fileNameWithQuotes = t.children(0).text
         if (fileNameWithQuotes.endsWith(".h\"") || fileNameWithQuotes.endsWith(".h>")) {
           if (!suppressRewriting) {
@@ -533,30 +533,30 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
           suppressRewriting = false
         }
 
-      case MininessLexer.IMPLEMENTATION =>
+      case NesTLexer.IMPLEMENTATION =>
         sink.print("implementation {\n")
         indentationLevel += 1
         for (child <- t.children) {
-          if (!suppressRewriting || child.tokenType == MininessLexer.LINE_DIRECTIVE)
+          if (!suppressRewriting || child.tokenType == NesTLexer.LINE_DIRECTIVE)
             rewrite(child)
         }
         indentationLevel -= 1
         sink.print("}\n")
 
-      case MininessLexer.INTERFACE =>
+      case NesTLexer.INTERFACE =>
         // This is correct for 'interface' as it appears in specifications.
         indent()
         sink.print("interface ")
         rewrite(t.children(0))
         sink.print(";\n")
 
-      case MininessLexer.MODULE =>
+      case NesTLexer.MODULE =>
         sink.print("module ")
         rewrite(t.children(0))  // Name of the module.
         rewrite(t.children(1))  // Specification.
         if (t.children.length == 3) rewrite(t.children(2))  // Implementation.
 
-      case MininessLexer.PROVIDES =>
+      case NesTLexer.PROVIDES =>
         indent()
         sink.print("provides {\n")
         indentationLevel += 1
@@ -565,14 +565,14 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
         indent()
         sink.print("}\n")
 
-      case MininessLexer.SPECIFICATION =>
+      case NesTLexer.SPECIFICATION =>
         sink.print(" {\n")
         indentationLevel += 1
         t.children.foreach(rewrite)
         indentationLevel -= 1
         sink.print("}\n")
 
-      case MininessLexer.USES =>
+      case NesTLexer.USES =>
         indent()
         sink.print("uses {\n")
         indentationLevel += 1
@@ -585,7 +585,7 @@ class SyntaxViewer(private val sink: PrintStream, private val syntaxTree: ASTNod
       // node when a tree is transformed. All of its children should be treated as if they are
       // its siblings.
       //
-      case MininessLexer.NULL =>
+      case NesTLexer.NULL =>
         t.children.foreach(rewrite)
 
       // Is it right to have this default case? It is useful during development because it shows

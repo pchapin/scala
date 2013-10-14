@@ -7,7 +7,7 @@
 package edu.uvm.scalaness
 
 import java.io.{File, PrintStream}
-import edu.uvm.mininess.{ASTNode, Symbols, SyntaxViewer, TreeTransformer}
+import edu.uvm.nest.{ASTNode, Symbols, SyntaxViewer, TreeTransformer}
 
 /**
  * Immutable class to represent a named program component during first stage execution. These
@@ -25,7 +25,7 @@ import edu.uvm.mininess.{ASTNode, Symbols, SyntaxViewer, TreeTransformer}
  */
 class NamedProgramComponent(
   val name           : String,
-  val enclosingObject: MininessComponent,
+  val enclosingObject: NesTComponent,
   val typeParameters : Set[String],
   val valueParameters: Set[String],
   val imports        : Set[String],

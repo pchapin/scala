@@ -1,10 +1,10 @@
 //-----------------------------------------------------------------------
 // FILE    : NameGenerator.scala
-// SUBJECT : Object to generate temporary names for Mininess code.
+// SUBJECT : Object to generate temporary names for nesT code.
 // AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
-package edu.uvm.mininess
+package edu.uvm.nest
 
 object NameGenerator {
   var currentIndex = 0

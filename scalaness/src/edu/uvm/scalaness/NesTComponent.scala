@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------
-// FILE    : MininessComponent.scala
+// FILE    : NesTComponent.scala
 // SUBJECT : Trait to mark classes that represent second stage components.
 // AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
@@ -10,11 +10,11 @@ import java.io.{BufferedInputStream, BufferedOutputStream, FileInputStream, File
 import language.implicitConversions
 
 /**
- * Marker trait so that Scala types that are intended to represent nesC components are indicated
+ * Marker trait so that Scala types that are intended to represent nesT components are indicated
  * as such. Note that this trait is used to mark both modules and configurations. A module is
  * represented as a "trivial" configuration consisting of a single component.
  */
-trait MininessComponent {
+trait NesTComponent {
   
   // The compiler has to analyze the object/class that extends this trait and fill in this val
   // as appropriate. It's only needed to support the image() method in this trait which, in
@@ -28,7 +28,7 @@ trait MininessComponent {
    * 
    * @param other The other component to compose with 'this' component.
    */
-  def +>(other: MininessComponent) = this.configuration wireTo other.configuration
+  def +>(other: NesTComponent) = this.configuration wireTo other.configuration
   
   /**
    * This method is used by the Scalaness programmer to compose a declared Mininess module with
@@ -95,6 +95,6 @@ trait MininessComponent {
 }
 
 
-object MininessComponent {
-  implicit def toProgramComponent(mc: MininessComponent) = mc.configuration
+object NesTComponent {
+  implicit def toProgramComponent(nc: NesTComponent) = nc.configuration
 }

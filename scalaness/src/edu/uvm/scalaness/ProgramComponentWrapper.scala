@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // FILE    : ProgramComponentWrapper.scala
-// SUBJECT : Class representing components of the generated Mininess program.
+// SUBJECT : Class representing components of the generated nesC program.
 // AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
