@@ -10,7 +10,7 @@
 package edu.uvm.snowstorm
 
 import edu.uvm.scalaness.{ProgramComponentWrapper, MininessComponent, ModuleType, NamedProgramComponent, Parser}
-import edu.uvm.mininess.Declarations
+import edu.uvm.nest.Declarations
 import java.io.File
 
 @ModuleType("""{}

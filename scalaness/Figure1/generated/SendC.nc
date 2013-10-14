@@ -1,7 +1,7 @@
 #include "MessageType.h"
 module SendC  {
     provides {
-        command error_t send  ( uint8_t  s  , uint8_t  d  , uint8_t data  [] , uint16_t _sc_data_SIZE   ) ;
+        command error_t send  ( uint16_t  s  , uint16_t  d  , uint8_t data  [] , uint16_t _sc_data_SIZE   ) ;
     }
     uses {
         command error_t radio  ( struct MessageType  message   ) ;
@@ -11,7 +11,7 @@ module SendC  {
     }
 }
 implementation {
-    command error_t send  ( uint8_t  s  , uint8_t  d  , uint8_t data  [] , uint16_t _sc_data_SIZE   ) 
+    command error_t send  ( uint16_t  s  , uint16_t  d  , uint8_t data  [] , uint16_t _sc_data_SIZE   ) 
     {
         int i  ;
         struct MessageType  message  ;
