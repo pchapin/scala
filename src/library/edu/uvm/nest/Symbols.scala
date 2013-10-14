@@ -4,17 +4,17 @@
 // AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
-package edu.uvm.mininess
+package edu.uvm.nest
 
-import parser.MininessLexer
+import parser.NesTLexer
 
 /**
  * Class to store symbol information for symbols declared in the same scope.
  */
 case class Symbols(
-  structureNames: Map[String, MininessTypes.Representation],
-  typeNames     : Map[String, MininessTypes.Representation],
-  variableNames : Map[String, MininessTypes.Representation]
+  structureNames: Map[String, NesTTypes.Representation],
+  typeNames     : Map[String, NesTTypes.Representation],
+  variableNames : Map[String, NesTTypes.Representation]
 )
 
 object Symbols {
@@ -26,26 +26,26 @@ object Symbols {
   
   /**
    * Look in the symbol table of the current node and its parents for the type associated with a
-   * variable name. This method returns MininessTypes.Uninit in cases where the symbol is not
+   * variable name. This method returns NesTTypes.Uninit in cases where the symbol is not
    * found. Are those cases ruled out by the parser? Should an exception be thrown instead?
    * 
    * @param node The ASTNode where the search begins.
    * @param name The name of the variable to locate.
    * @return The type representation of the specified variable. If the variable is not declared
    * in the scope of the given node, the parent scope will be searched recursively to the top
-   * level. If the symbol is not found MininessTypes.Uninit is returned.
+   * level. If the symbol is not found NesTTypes.Uninit is returned.
    */
-  def lookupVariable(node: ASTNode, name: String): MininessTypes.Representation = {
+  def lookupVariable(node: ASTNode, name: String): NesTTypes.Representation = {
     val ASTNode(_, _, _, parent, symbols) = node
     
     (parent, symbols) match {
       // No symbols and nowhere else to search.
-      case (None, None) => MininessTypes.Uninit
+      case (None, None) => NesTTypes.Uninit
         
       // We are at the top level symbol table. If it's not here there is nowhere else to search.
       case (None, Some(symbolTable)) =>
         symbolTable.variableNames.get(name) match {
-          case None               => MininessTypes.Uninit
+          case None               => NesTTypes.Uninit
           case Some(variableType) => variableType
         }
         
@@ -61,17 +61,17 @@ object Symbols {
     }
   }
   
-  def lookupTypeVariable(node: ASTNode, name: String): MininessTypes.Representation = {
+  def lookupTypeVariable(node: ASTNode, name: String): NesTTypes.Representation = {
     val ASTNode(_, _, _, parent, symbols) = node
     
     (parent, symbols) match {
       // No symbols and nowhere else to search.
-      case (None, None) => MininessTypes.Uninit
+      case (None, None) => NesTTypes.Uninit
         
       // We are at the top level symbol table. If it's not here there is nowhere else to search.
       case (None, Some(symbolTable)) =>
         symbolTable.typeNames.get(name) match {
-          case None               => MininessTypes.Uninit
+          case None               => NesTTypes.Uninit
           case Some(typeName) => typeName
         }
         
@@ -87,17 +87,17 @@ object Symbols {
     }
   }
   
-  def lookupStructVariable(node: ASTNode, name: String): MininessTypes.Representation = {
+  def lookupStructVariable(node: ASTNode, name: String): NesTTypes.Representation = {
     val ASTNode(_, _, _, parent, symbols) = node
     
     (parent, symbols) match {
       // No symbols and nowhere else to search.
-      case (None, None) => MininessTypes.Uninit
+      case (None, None) => NesTTypes.Uninit
         
       // We are at the top level symbol table. If it's not here there is nowhere else to search.
       case (None, Some(symbolTable)) =>
         symbolTable.structureNames.get(name) match {
-          case None               => MininessTypes.Uninit
+          case None               => NesTTypes.Uninit
           case Some(structureName) => structureName
         }
         
@@ -122,7 +122,7 @@ object Symbols {
    */
   def decorateAST(node: ASTNode) {
     node match {
-      case ASTNode(MininessLexer.DECLARATION, text, children, parent, symbolTable) =>
+      case ASTNode(NesTLexer.DECLARATION, text, children, parent, symbolTable) =>
         val (structList, symbolList) = Declarations.extractDeclaredNames(node)
         val symbolMap = symbolList.toMap
         val structMap = structList.toMap
@@ -130,7 +130,7 @@ object Symbols {
         // The following assumes the source file was syntactically correct.
         val Some(firstNode) = parent
         val Some(parentNode) =
-          if (firstNode.tokenType == MininessLexer.NULL) {
+          if (firstNode.tokenType == NesTLexer.NULL) {
             val Some(nullNode) = parent
             nullNode.parent
           }
@@ -138,8 +138,8 @@ object Symbols {
             parent
           }
         val targetNode =
-          if (parentNode.tokenType == MininessLexer.USES ||
-              parentNode.tokenType == MininessLexer.PROVIDES) {
+          if (parentNode.tokenType == NesTLexer.USES ||
+              parentNode.tokenType == NesTLexer.PROVIDES) {
             val Some(specificationNode) = parentNode.parent
             val Some(moduleNode) = specificationNode.parent
             moduleNode
@@ -151,7 +151,7 @@ object Symbols {
         targetNode.symbolTable match {
           case None =>
             targetNode.symbolTable = Some(
-              Symbols(Map[String, MininessTypes.Representation](), Map[String, MininessTypes.Representation](), symbolMap) )
+              Symbols(Map[String, NesTTypes.Representation](), Map[String, NesTTypes.Representation](), symbolMap) )
           case Some( Symbols(structSymbols, typeSymbols, termSymbols) ) =>
             // Do any of the declared symbols redefine an existing symbol in this scope?
             for ((symbolName, symbolType) <- symbolMap) {
@@ -168,7 +168,7 @@ object Symbols {
         targetNode.symbolTable match {
           case None =>
             targetNode.symbolTable = Some(
-              Symbols(structMap, Map[String, MininessTypes.Representation](), Map[String, MininessTypes.Representation]()) )
+              Symbols(structMap, Map[String, NesTTypes.Representation](), Map[String, NesTTypes.Representation]()) )
           case Some( Symbols(structSymbols, typeSymbols, termSymbols) ) =>
             // Do any of the declared symbols redefine an existing symbol in this scope?
             for ((structName, structType) <- structMap) {
@@ -183,7 +183,7 @@ object Symbols {
         }
         for (child <- children) decorateAST(child)
        
-      case ASTNode(MininessLexer.PARAMETER, text, children, parent, symbolTable) =>
+      case ASTNode(NesTLexer.PARAMETER, text, children, parent, symbolTable) =>
         val (structList, symbolList) = Declarations.extractDeclaredNames(node)
         val symbolMap = symbolList.toMap
         val structMap = structList.toMap
@@ -197,7 +197,7 @@ object Symbols {
         targetNode.symbolTable match {
           case None =>
             targetNode.symbolTable = Some(
-              Symbols(structMap, Map[String, MininessTypes.Representation](), symbolMap) )
+              Symbols(structMap, Map[String, NesTTypes.Representation](), symbolMap) )
           case Some( Symbols(structSymbols, typeSymbols, termSymbols) ) =>
             // Do any of the declared symbols redefine an existing symbol in this scope?
             for ((symbolName, symbolType) <- symbolMap) {

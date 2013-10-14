@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
 // FILE    : LiftableTypes.scala
-// SUBJECT : Module that introduces types that can be used in a Scalaness program to represent types in Mininess.
+// SUBJECT : Types that can be used in a Scalaness program to represent types in nesT.
 // AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
@@ -10,12 +10,12 @@ object LiftableTypes {
   
   /**
    * Marker trait so that types that can exist in the second stage are indicated as such.
-   * Certain aspects of the runtime system are intended to process any possible Mininess type,
+   * Certain aspects of the runtime system are intended to process any possible nesT type,
    * but not types that are only known to Scala.
    */
   trait Liftable
 
-  /** Represents the Mininess type void */
+  /** Represents the nesT type void */
   class Uninit extends Liftable
 
   // Note that case classes can't be used because "case-to-case" inheritance is buggy and
@@ -25,7 +25,7 @@ object LiftableTypes {
   
   // TODO: Is this a situation with Scala 2.10 value classes would be useful?
 
-  /** Represents the Mininess type char */
+  /** Represents the nesT type char */
   class Char(private val value: scala.Char) extends Liftable {
     def toChar = value
     override def toString = value.toString
@@ -47,7 +47,7 @@ object LiftableTypes {
    */
   class ValueOutOfRangeException(message: String) extends Exception(message)
   
-  /** Represents the Mininess type uint32_t */
+  /** Represents the nesT type uint32_t */
   class UInt32(private[LiftableTypes] val value: Long) extends Liftable with Ordered[UInt32] {
     if (value < 0 || value > 4294967295L)
       throw new ValueOutOfRangeException("Invalid UInt32 constructed: " + value)
@@ -84,7 +84,7 @@ object LiftableTypes {
     implicit val uint32Numeric = new UInt32IsNumeric
   }
 
-  /** Represents the Mininess type uint16_t */
+  /** Represents the nesT type uint16_t */
   class UInt16(override private[LiftableTypes] val value: Long) extends UInt32(value) {
     if (value < 0 || value > 65535)
       throw new ValueOutOfRangeException("Invalid UInt16 constructed: " + value)
@@ -120,7 +120,7 @@ object LiftableTypes {
     implicit val uint16Numeric = new UInt16IsNumeric
   }
 
-  /** Represents the Mininess type uint8_t */
+  /** Represents the nesT type uint8_t */
   class UInt8 (override private[LiftableTypes] val value: Long) extends UInt16(value) {
     if (value < 0 || value > 255)
       throw new ValueOutOfRangeException("Invalid UInt8 constructed: " + value)
@@ -157,7 +157,7 @@ object LiftableTypes {
   }
   
   
-  /** Represents the Mininess type int32_t */
+  /** Represents the nesT type int32_t */
   class Int32(private[LiftableTypes] val value: Int) extends Liftable with Ordered[Int32]{
     def toInt = value
     def +(other: Int32) = Int32(value + other.value)
@@ -191,7 +191,7 @@ object LiftableTypes {
     implicit val int32Numeric = new Int32IsNumeric
   }
 
-  /** Represents the Mininess type int16_t */
+  /** Represents the nesT type int16_t */
   class Int16(override private[LiftableTypes] val value: Int) extends Int32(value) {
     if (value < -32768 || value > 32767)
       throw new ValueOutOfRangeException("Invalid Int16 constructed: " + value)
@@ -228,7 +228,7 @@ object LiftableTypes {
     implicit val int16Numeric = new Int16IsNumeric
   }
 
-  /** Represents the Mininess type int8_t */
+  /** Represents the nesT type int8_t */
   class Int8(override private[LiftableTypes] val value: Int) extends Int16(value) {
     if (value < -128 || value > 127)
       throw new ValueOutOfRangeException("Invalid Int8 constructed: " + value)

@@ -11,7 +11,7 @@ import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.transform.Transform
 import scala.tools.nsc.symtab.Flags
 import java.io.File
-import edu.uvm.mininess.MininessTypes
+import edu.uvm.nest.NesTTypes
 
 /**
  * This class implements a plugin component using tree transformers.
@@ -46,7 +46,7 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
    * method does not check if the inclusion file actually exists. None is returned if the last
    * item is not a string literal.
    */
-  private def checkForMininessInclusion(lastItem: Tree) = {
+  private def checkForNesTInclusion(lastItem: Tree) = {
     lastItem match {
       // The last item is a literal of some kind...
       case Literal(constantValue) => {
@@ -72,7 +72,7 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
 
 
   /**
-   * Extracts the type and value parameters of a class representing a Mininess module.
+   * Extracts the type and value parameters of a class representing a nesT module.
    *
    * @param body A collection of AST roots that define the body of the class.
    * @return A pair of maps where the first map takes a type parameter name to its upper bound
@@ -81,15 +81,15 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
   private def extractTypeAndValueParameters(body: List[Tree]) = {
     // TODO: Report errors with proper source position information.
 
-    var typeParameterDeclarations = Map[String, MininessTypes.Representation]()
-    var valueParameterDeclarations = Map[String, MininessTypes.Representation]()
+    var typeParameterDeclarations = Map[String, NesTTypes.Representation]()
+    var valueParameterDeclarations = Map[String, NesTTypes.Representation]()
     for (bodyItem <- body) {
       bodyItem match {
         case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
           // TODO: Handle the case where there are multiple constructors.
           if (name.toString == "instantiate" /* "<init>" */) {
             if (vparamss.length > 1)
-              reporter.error(null, "Mininess modules can't have multiple parameter lists")
+              reporter.error(null, "NesT modules can't have multiple parameter lists")
 
             vparamss match {
               case List() => // No parameters at all. Just return two empty maps.
@@ -144,7 +144,7 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
   //=============================================================================================
 
   /**
-   * Process the body of a class or module definition to see if it contains a Mininess inclusion.
+   * Process the body of a class or module definition to see if it contains a nesT inclusion.
    * If it does, then inject appropriate material, etc.
    *
    * @param tparams The type parameters of the enclosing class (an empty list for a module).
@@ -157,11 +157,11 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
     if (body.size == 0) impl
     else {
       val lastItem = body(body.size - 1)
-      checkForMininessInclusion(lastItem) match {
+      checkForNesTInclusion(lastItem) match {
         case None => impl
         case Some( (shortName, fullName) ) => {
           // This is a hackish way of getting (for example) ExampleC from ExampleC.nc.
-          val MininessComponentName = shortName.substring(0, shortName.lastIndexOf('.'))
+          val NesTComponentName = shortName.substring(0, shortName.lastIndexOf('.'))
           val reparseName = fullName.replace(".nc", ".i")
 
           val (typeParameters, valueParameters) = extractTypeAndValueParameters(body)
@@ -199,7 +199,7 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
           // Display the generated code if requested.
           val Some(displayGenerated) = scalanessSettings("displayGenerated")
           if (displayGenerated == "true") {
-            println(s"Code generated into $MininessComponentName...")
+            println(s"Code generated into $NesTComponentName...")
 //            println(s"\t$typeVars")
 //            println(s"\t$valueVars")
             println(s"\t$abstractSyntaxVal")
@@ -243,11 +243,11 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
      */
     def postTransform(tree: Tree): Tree = tree match {
 
-      // For class definitions, see if they provide a Mininess inclusion.
+      // For class definitions, see if they provide a nesT inclusion.
       case ClassDef(mods, name, tparams, impl) =>
         treeCopy.ClassDef(tree, mods, name, tparams, processClassOrModuleDef(tparams, impl))
 
-      // For module definitions, see if they provide a Mininess inclusion.
+      // For module definitions, see if they provide a nesT inclusion.
       case ModuleDef(mods, name, impl) =>
         treeCopy.ModuleDef(tree, mods, name, processClassOrModuleDef(List(), impl))
 

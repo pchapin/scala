@@ -1756,11 +1756,11 @@ trait Typers extends Adaptations
             None
           else {
             val moduleTypeAST = parseScalanessAnnotation(moduleTypeAnnotations(0).assocs)
-            Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST))
+            Some(edu.uvm.scalaness.TypeASTNode.toNesTModule(moduleTypeAST))
           }
 
-        val mininessModuleType = scalanessCheck(ClassDef(typedMods, cdef.name, tparams1, impl2))
-        val nesTModuleType = mininessModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
+        val rawNesTModuleType = scalanessCheck(ClassDef(typedMods, cdef.name, tparams1, impl2))
+        val nesTModuleType = rawNesTModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
         if (!(edu.uvm.scalaness.TypeRules.moduleEqual(annotatedNesTModuleType,nesTModuleType))) {
           reporter.error(cdef.pos, s"""nesT module type mismatch
                                       |\tAnnotated = ${annotatedNesTModuleType.toString}
@@ -1841,12 +1841,12 @@ trait Typers extends Adaptations
             None
           else {
             val moduleTypeAST = parseScalanessAnnotation(moduleTypeAnnotations(0).assocs)
-            Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST))
+            Some(edu.uvm.scalaness.TypeASTNode.toNesTModule(moduleTypeAST))
           }
 
-        val mininessModuleType = scalanessCheck(ModuleDef(typedMods, mdef.name, impl2))
-        val nesTModuleType = mininessModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
-        // Objects that wrap external libraries don't have Mininess module types but are annotated.
+        val rawNesTModuleType = scalanessCheck(ModuleDef(typedMods, mdef.name, impl2))
+        val nesTModuleType = rawNesTModuleType map { edu.uvm.scalaness.TypeRules.toModuleType(_) }
+        // Objects that wrap external libraries don't have nesT module types but are annotated.
         // TODO: suppress the check below only for objects wrapping externa libraries!
         //
         // if (annotatedNesTModuleType != nesTModuleType) {
@@ -2010,7 +2010,7 @@ trait Typers extends Adaptations
           None
         else {
           val moduleTypeAST = parseScalanessAnnotation(moduleTypeAnnotations(0).assocs)
-          Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST))
+          Some(edu.uvm.scalaness.TypeASTNode.toNesTModule(moduleTypeAST))
         }
       
       val typeAbbreviationAnnotations = annots filter { _.tpe.toString.contains("edu.uvm.scalaness.TypeAbbr") }
@@ -2052,7 +2052,7 @@ trait Typers extends Adaptations
           fullTypeString = myTypeAbbreviation.getFullType
         }
         val moduleTypeAbbrvAST = parseScalanessAbbrvAnnotation(fullTypeString)
-        annotatedNesTModuleType = Some(edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAbbrvAST))
+        annotatedNesTModuleType = Some(edu.uvm.scalaness.TypeASTNode.toNesTModule(moduleTypeAbbrvAST))
       }
       
       if (sym.hasAnnotation(definitions.VolatileAttr) && !sym.isMutable)
@@ -2321,7 +2321,7 @@ trait Typers extends Adaptations
       for (annotation <- annots) {
         if (annotation.tpe.toString == "edu.uvm.scalaness.ModuleType") {
           val moduleTypeAST = parseScalanessAnnotation(annotation.assocs)
-          val moduleTypeASTMininess = edu.uvm.scalaness.TypeASTNode.toMininessModule(moduleTypeAST)
+          val moduleTypeASTNesT = edu.uvm.scalaness.TypeASTNode.toNesTModule(moduleTypeAST)
           // println(moduleTypeAST)
         }
       }
@@ -3200,8 +3200,8 @@ trait Typers extends Adaptations
           val argslen = args.length
           val formals = formalTypes(paramTypes, argslen)
 
-          var newNesTModuleType: Option[(Map[edu.uvm.mininess.MininessTypes.TypeVariable,edu.uvm.mininess.MininessTypes.Representation], 
-                                             edu.uvm.mininess.MininessTypes.Module)] = None
+          var newNesTModuleType: Option[(Map[edu.uvm.nest.NesTTypes.TypeVariable,edu.uvm.nest.NesTTypes.Representation], 
+                                             edu.uvm.nest.NesTTypes.Module)] = None
           if (doNesTTypeCheck) {
           
             // Application of Scalaness type rules.

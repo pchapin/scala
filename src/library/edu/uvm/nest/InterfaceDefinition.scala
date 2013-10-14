@@ -1,17 +1,19 @@
 //-----------------------------------------------------------------------
 // FILE    : InterfaceDefinition.scala
-// SUBJECT : Encapsulates the definition of a Mininess interface.
+// SUBJECT : Encapsulates the definition of a nesT interface.
 // AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
-package edu.uvm.mininess
+package edu.uvm.nest
 
 /**
- * Encapsulates the definition of a Mininess interface. In Mininess interfaces are regarded as a collection of imports
- * and exports. The translation from full nesC interface (done by an InterfaceLocator) thus needs to know if the full
- * nesC interface is being used or provided. This class is currently a thin wrapper around Set[CommandInformation].
+ * Encapsulates the definition of a nesT interface. In nesT interfaces are regarded as a
+ * collection of imports and exports. The translation from full nesC interface (done by an
+ * InterfaceLocator) thus needs to know if the full nesC interface is being used or provided.
+ * This class is currently a thin wrapper around Set[CommandInformation].
  * 
- * @param members A set of CommandInformation objects that this interface definition object wraps.
+ * @param members A set of CommandInformation objects that this interface definition object
+ * wraps.
  * 
  * @author Peter
  */
@@ -40,8 +42,9 @@ class InterfaceDefinition(
   
   
   /**
-   * Produce a new interface definition with the directionality of all the members reversed. This method changes imports
-   * to exports and visa-versa. This method is side-effect free; the original interface definition is not changed.
+   * Produce a new interface definition with the directionality of all the members reversed.
+   * This method changes imports to exports and visa-versa. This method is side-effect free; the
+   * original interface definition is not changed.
    */
   def reverseDirection = {
     import CommandDirectionality._
@@ -58,10 +61,11 @@ class InterfaceDefinition(
   
   
   /**
-   * Look up the CommandInformation object associated with a particular command. There are several other convenience
-   * methods in this class that look up individual attributes of a command. However, if more than one attribute is
-   * needed it would probably be better to use this method and match its result against a CommandInformation pattern to
-   * extract all attributes at once.
+   * Look up the CommandInformation object associated with a particular command. There are
+   * several other convenience methods in this class that look up individual attributes of a
+   * command. However, if more than one attribute is needed it would probably be better to use
+   * this method and match its result against a CommandInformation pattern to extract all
+   * attributes at once.
    * 
    * @param commandName The name of the command to look up.
    * @return The CommandInformation object associated with that name.
@@ -84,9 +88,10 @@ class InterfaceDefinition(
 
 
   /**
-   * Look up the declaration associated with a particular command name. The "uses command ..." or "provides command ..."
-   * prefix is not included. The appropriate prefix to use depends on the command's direction. In addition, the ASTNode
-   * returned by this method has parent and symbolTable attributes both set to None.
+   * Look up the declaration associated with a particular command name. The "uses command ..."
+   * or "provides command ..." prefix is not included. The appropriate prefix to use depends on
+   * the command's direction. In addition, the ASTNode returned by this method has parent and
+   * symbolTable attributes both set to None.
    * 
    * @param commandName The name of the command to look up.
    * @return The declaration associated with that name.

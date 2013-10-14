@@ -1,4 +1,4 @@
-grammar Mininess;
+grammar NesT;
 
 options {
     output    = AST;
@@ -58,9 +58,9 @@ tokens {
 
     ERROR_T        = 'error_t';
     
-    // nesC extensions to Standard C. The 'event' and 'interface' reserved words are supported
+    // NesT extensions to Standard C. The 'event' and 'interface' reserved words are supported
     // only because of earlier experiments with interface unwrapping (and the code that handles
-    // it is still in the code base). However, in current Mininess programs they should never
+    // it is still in the code base). However, in current nesT programs they should never
     // appear.
     //
     CALL           = 'call';
@@ -161,12 +161,12 @@ tokens {
 }
 
 @parser::header {
-    package edu.uvm.mininess.parser;
+    package edu.uvm.nest.parser;
     import java.util.LinkedList;
 }
 
 @lexer::header {
-    package edu.uvm.mininess.parser;
+    package edu.uvm.nest.parser;
 }
 
 @parser::members {
@@ -762,14 +762,14 @@ function_definition
             -> declaration_specifiers declarator compound_statement;
 
 /* =============== */
-/* nesC extensions */
+/* nesT extensions */
 /* =============== */
 
 // The FILE pseudo-token is needed to provide a wrapper for the entire file. Otherwise if the
 // optional translation unit is present, a null token is used as the parent of that unit's
 // declarations and the interface|component. This null token is awkward.
 //
-mininess_file
+nest_file
     :    translation_unit? large_scale_construct
              -> ^(FILE translation_unit? large_scale_construct);
 

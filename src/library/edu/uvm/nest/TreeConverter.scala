@@ -4,12 +4,12 @@
 // AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
-package edu.uvm.mininess
+package edu.uvm.nest
 
 import org.antlr.runtime.CommonToken
 import org.antlr.runtime.tree._
-import parser.MininessLexer
-import MininessLexer._
+import parser.NesTLexer
+import NesTLexer._
 
 /**
  * This object has methods for handling abstract syntax tree conversions and other high level AST

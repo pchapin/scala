@@ -269,8 +269,9 @@ trait Types
      * type checker knows nothing about the nesT type information and (hopefully) just passes
      * it around transparently.
      */
-    var nesTModuleType: Option[(Map[edu.uvm.mininess.MininessTypes.TypeVariable, edu.uvm.mininess.MininessTypes.Representation],
-                                edu.uvm.mininess.MininessTypes.Module)] = None
+    var nesTModuleType:
+      Option[( Map[edu.uvm.nest.NesTTypes.TypeVariable, edu.uvm.nest.NesTTypes.Representation],
+               edu.uvm.nest.NesTTypes.Module )] = None
                                 
     /**
      * If the type represents a symbol that corresponds to a type abbreviation, the

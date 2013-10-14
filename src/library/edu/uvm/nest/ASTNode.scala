@@ -1,13 +1,13 @@
 //-----------------------------------------------------------------------
 // FILE    : ASTNode.scala
-// SUBJECT : Class representing nodes the Mininess abstract syntax tree.
+// SUBJECT : Class representing nodes the nesT abstract syntax tree.
 // AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
-package edu.uvm.mininess
+package edu.uvm.nest
 
 /**
- * Class representing nodes in the AST of a Mininess program. Either the field children or the
+ * Class representing nodes in the AST of a nesT program. Either the field children or the
  * field parent must be a var so that mutually referential ASTNode instances can be built.
  */
 sealed case class ASTNode(

@@ -1,10 +1,10 @@
 //-----------------------------------------------------------------------
 // FILE    : Mini.scala
-// SUBJECT : A DSL for manipulating Mininess AST nodes.
+// SUBJECT : A DSL for manipulating nesT AST nodes.
 // AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
-package edu.uvm.mininess
+package edu.uvm.nest
 
 class Mini(val node: ASTNode) {
   def this(tokenType: Int, text: String) = this(ASTNode(tokenType, text, List(), None, None))

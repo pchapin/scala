@@ -4,10 +4,10 @@
 // AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
-package edu.uvm.mininess
+package edu.uvm.nest
 
 import java.io.{BufferedReader, File, FileReader}
-import MininessTypes._
+import NesTTypes._
 
 class TypeCompatibilityRelation(relationFileName: Option[String])
   extends Function2[Representation, Representation, Boolean] {

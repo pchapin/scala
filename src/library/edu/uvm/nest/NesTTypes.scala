@@ -1,14 +1,14 @@
 //-----------------------------------------------------------------------
-// FILE    : MininessTypes.scala
-// SUBJECT : Internal representation (AST) of types used in Mininess code.
+// FILE    : NesTTypes.scala
+// SUBJECT : Internal representation (AST) of types used in nesT code.
 // AUTHOR  : (C) Copyright 2012 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
-package edu.uvm.mininess
+package edu.uvm.nest
 
-object MininessTypes {
+object NesTTypes {
 
-  class MininessTypeException(message: String) extends Exception(message)
+  class NesTTypeException(message: String) extends Exception(message)
 
   /**
    * Instances of this class describe Scalaness's representation of a nesC type.
@@ -58,7 +58,7 @@ object MininessTypes {
     val finalType = delta.get(t) match {
       case Some(TypeVariable(tvar)) => promote(delta, tvar)
       case Some(structuredType) => structuredType 
-      case None => throw new MininessTypeException(s"Type Variable $t must exist in Delta")
+      case None => throw new NesTTypeException(s"Type Variable $t must exist in Delta")
     }
     finalType
   } // Recursively looks up the type variable until a structured type is found or returns Uninit.
@@ -71,7 +71,7 @@ object MininessTypes {
     val memberList = struct match {
       case Structure(name, members) => members
       // case Uninit => List() // FLAG: This should be case Interface => lookupInterface("CommandName")
-      case _ => throw new MininessTypeException("Must be structure type")
+      case _ => throw new NesTTypeException("Must be structure type")
     }
 
     var currMbr = memberList.size
@@ -82,14 +82,14 @@ object MininessTypes {
       
       val (mbrName, mbrType) = memberList(currMbr) match {
         case (str, someType) => (str,someType)
-        case _ => throw new MininessTypeException("Invalid member")
+        case _ => throw new NesTTypeException("Invalid member")
       }
       
       if (index == mbrName)
         return mbrType
     }
     return Function(Uninit,List()) // FLAG - just a placeholder to see what happens with Interfaces
-    throw new MininessTypeException("Invalid address")
+    throw new NesTTypeException("Invalid address")
   }
     
   /**
@@ -104,40 +104,40 @@ object MininessTypes {
         case Int8 => right match {
           case Int16 => Int16
           case Int32 => Int32
-          case _ => throw new MininessTypeException(message)
+          case _ => throw new NesTTypeException(message)
         }
         
         case Int16 => right match {
           case Int8  => Int16
           case Int32 => Int32
-          case _ => throw new MininessTypeException(message)
+          case _ => throw new NesTTypeException(message)
         }
         
         case Int32 => right match {
           case Int8  => Int32
           case Int16 => Int32
-          case _ => throw new MininessTypeException(message)
+          case _ => throw new NesTTypeException(message)
         }
         
         case UInt8 => right match {
           case UInt16 => UInt16
           case UInt32 => UInt32
-          case _ => throw new MininessTypeException(message)
+          case _ => throw new NesTTypeException(message)
         }
         
         case UInt16 => right match {
           case UInt8  => UInt16
           case UInt32 => UInt32
-          case _ => throw new MininessTypeException(message)
+          case _ => throw new NesTTypeException(message)
         }
         
         case UInt32 => right match {
           case UInt8  => UInt32
           case UInt16 => UInt32
-          case _ => throw new MininessTypeException(message)
+          case _ => throw new NesTTypeException(message)
         }
         
-        case _ => throw new MininessTypeException(message)
+        case _ => throw new NesTTypeException(message)
       }
     }
   }
