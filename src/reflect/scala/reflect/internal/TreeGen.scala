@@ -3,6 +3,7 @@ package reflect
 package internal
 
 import Flags._
+import util._
 
 abstract class TreeGen extends macros.TreeBuilder {
   val global: SymbolTable
@@ -208,8 +209,8 @@ abstract class TreeGen extends macros.TreeBuilder {
   /** Builds a type application node if args.nonEmpty, returns fun otherwise. */
   def mkTypeApply(fun: Tree, targs: List[Tree]): Tree =
     if (targs.isEmpty) fun else TypeApply(fun, targs)
-  def mkTypeApply(target: Tree, method: Symbol, targs: List[Type]): Tree =
-    mkTypeApply(Select(target, method), targs map TypeTree)
+  def mkAppliedTypeTree(fun: Tree, targs: List[Tree]): Tree =
+    if (targs.isEmpty) fun else AppliedTypeTree(fun, targs)
   def mkAttributedTypeApply(target: Tree, method: Symbol, targs: List[Type]): Tree =
     mkTypeApply(mkAttributedSelect(target, method), targs map TypeTree)
 
@@ -297,10 +298,6 @@ abstract class TreeGen extends macros.TreeBuilder {
     mkAttributedRef(ReflectRuntimeUniverse) setType singleType(ReflectRuntimeUniverse.owner.thisPrefix, ReflectRuntimeUniverse)
   }
 
-  def mkPackageDef(packageName: String, stats: List[Tree]): PackageDef = {
-    PackageDef(mkUnattributedRef(newTermName(packageName)), stats)
-  }
-
   def mkSeqApply(arg: Tree): Apply = {
     val factory = Select(gen.mkAttributedRef(SeqModule), nme.apply)
     Apply(factory, List(arg))
@@ -355,12 +352,12 @@ abstract class TreeGen extends macros.TreeBuilder {
         if (body forall treeInfo.isInterfaceMember) None
         else Some(
           atPos(wrappingPos(superPos, lvdefs)) (
-            DefDef(NoMods, nme.MIXIN_CONSTRUCTOR, List(), List(Nil), TypeTree(), Block(lvdefs, Literal(Constant())))))
-      } else {
+            DefDef(NoMods, nme.MIXIN_CONSTRUCTOR, Nil, ListOfNil, TypeTree(), Block(lvdefs, Literal(Constant())))))
+      }
+      else {
         // convert (implicit ... ) to ()(implicit ... ) if its the only parameter section
         if (vparamss1.isEmpty || !vparamss1.head.isEmpty && vparamss1.head.head.mods.isImplicit)
           vparamss1 = List() :: vparamss1
-        val superRef: Tree = atPos(superPos)(mkSuperInitCall)
         val superCall = pendingSuperCall // we can't know in advance which of the parents will end up as a superclass
                                          // this requires knowing which of the parents is a type macro and which is not
                                          // and that's something that cannot be found out before typer
@@ -374,7 +371,7 @@ abstract class TreeGen extends macros.TreeBuilder {
             DefDef(constrMods, nme.CONSTRUCTOR, List(), vparamss1, TypeTree(), Block(lvdefs ::: List(superCall), Literal(Constant())))))
       }
     }
-    constr foreach (ensureNonOverlapping(_, parents ::: gvdefs, focus=false))
+    constr foreach (ensureNonOverlapping(_, parents ::: gvdefs, focus = false))
     // Field definitions for the class - remove defaults.
     val fieldDefs = vparamss.flatten map (vd => copyValDef(vd)(mods = vd.mods &~ DEFAULTPARAM, rhs = EmptyTree))
 
@@ -416,7 +413,7 @@ abstract class TreeGen extends macros.TreeBuilder {
             atPos(cpos) {
               ClassDef(
                 Modifiers(FINAL), x, Nil,
-                mkTemplate(parents, self, NoMods, List(Nil), stats, cpos.focus))
+                mkTemplate(parents, self, NoMods, ListOfNil, stats, cpos.focus))
             }),
           atPos(npos) {
             New(
@@ -437,4 +434,18 @@ abstract class TreeGen extends macros.TreeBuilder {
     else if (!stats.last.isTerm) Block(stats, Literal(Constant(())))
     else if (stats.length == 1) stats.head
     else Block(stats.init, stats.last)
+
+  def mkTreeOrBlock(stats: List[Tree]) = stats match {
+    case Nil => EmptyTree
+    case head :: Nil => head
+    case _ => gen.mkBlock(stats)
+  }
+
+  /** Create a tree representing an assignment <lhs = rhs> */
+  def mkAssign(lhs: Tree, rhs: Tree): Tree = lhs match {
+    case Apply(fn, args) =>
+      Apply(atPos(fn.pos)(Select(fn, nme.update)), args :+ rhs)
+    case _ =>
+      Assign(lhs, rhs)
+  }
 }

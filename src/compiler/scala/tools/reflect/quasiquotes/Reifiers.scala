@@ -10,8 +10,7 @@ trait Reifiers { self: Quasiquotes =>
   import global.build.{SyntacticClassDef, SyntacticTraitDef, SyntacticModuleDef,
                        SyntacticDefDef, SyntacticValDef, SyntacticVarDef,
                        SyntacticBlock, SyntacticApplied, SyntacticTypeApplied,
-                       SyntacticFunction, SyntacticNew}
-  import global.treeInfo._
+                       SyntacticFunction, SyntacticNew, SyntacticAssign}
   import global.definitions._
   import Cardinality._
   import universeTypes._
@@ -71,9 +70,9 @@ trait Reifiers { self: Quasiquotes =>
         reifyBuildCall(nme.SyntacticValDef, mods, name, tpt, rhs)
       case SyntacticVarDef(mods, name, tpt, rhs) =>
         reifyBuildCall(nme.SyntacticVarDef, mods, name, tpt, rhs)
-      case SyntacticApplied(fun, argss) if argss.length > 1 =>
-        reifyBuildCall(nme.SyntacticApplied, fun, argss)
-      case SyntacticApplied(fun, argss @ (_ :+ (_ :+ Placeholder(_, _, DotDotDot)))) =>
+      case SyntacticAssign(lhs, rhs) =>
+        reifyBuildCall(nme.SyntacticAssign, lhs, rhs)
+      case SyntacticApplied(fun, argss) if argss.nonEmpty =>
         reifyBuildCall(nme.SyntacticApplied, fun, argss)
       case SyntacticTypeApplied(fun, targs) if targs.nonEmpty =>
         reifyBuildCall(nme.SyntacticTypeApplied, fun, targs)
@@ -228,6 +227,8 @@ trait Reifiers { self: Quasiquotes =>
     override def reifyTreeSyntactically(tree: Tree): Tree = tree match {
       case RefTree(qual, SymbolPlaceholder(tree)) =>
         mirrorBuildCall(nme.RefTree, reify(qual), tree)
+      case This(SymbolPlaceholder(tree)) =>
+        mirrorCall(nme.This, tree)
       case _ =>
         super.reifyTreeSyntactically(tree)
     }

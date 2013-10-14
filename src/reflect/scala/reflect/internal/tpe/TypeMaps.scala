@@ -841,7 +841,7 @@ private[internal] trait TypeMaps {
   object IsDependentCollector extends TypeCollector(false) {
     def traverse(tp: Type) {
       if (tp.isImmediatelyDependent) result = true
-      else if (!result) mapOver(tp)
+      else if (!result) mapOver(tp.dealias)
     }
   }
 
@@ -969,22 +969,6 @@ private[internal] trait TypeMaps {
         if (t.symbol == sym)
           result = true
       }
-      arg
-    }
-  }
-
-  /** A map to implement the `contains` method. */
-  class ContainsTypeCollector(t: Type) extends TypeCollector(false) {
-    def traverse(tp: Type) {
-      if (!result) {
-        if (tp eq t) result = true
-        else mapOver(tp)
-      }
-    }
-    override def mapOver(arg: Tree) = {
-      for (t <- arg)
-        traverse(t.tpe)
-
       arg
     }
   }

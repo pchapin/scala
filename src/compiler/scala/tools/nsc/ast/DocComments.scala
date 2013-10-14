@@ -18,19 +18,20 @@ trait DocComments { self: Global =>
 
   val cookedDocComments = mutable.HashMap[Symbol, String]()
 
-  /** The raw doc comment map */
-  val docComments = mutable.HashMap[Symbol, DocComment]()
+  /** The raw doc comment map
+   *
+   * In IDE, background compilation runs get interrupted by
+   * reloading new sourcefiles. This is weak to avoid
+   * memleaks due to the doc of their cached symbols
+   * (e.g. in baseTypeSeq) between periodic doc reloads.
+   */
+  val docComments = mutable.WeakHashMap[Symbol, DocComment]()
 
   def clearDocComments() {
     cookedDocComments.clear()
     docComments.clear()
     defs.clear()
   }
-
-  /** Associate comment with symbol `sym` at position `pos`. */
-  def docComment(sym: Symbol, docStr: String, pos: Position = NoPosition) =
-    if ((sym ne null) && (sym ne NoSymbol))
-      docComments += (sym -> DocComment(docStr, pos))
 
   /** The raw doc comment of symbol `sym`, as it appears in the source text, "" if missing.
    */
@@ -93,11 +94,6 @@ trait DocComments { self: Global =>
     expandVariables(cookedDocComment(sym, docStr), sym, site1)
   }
 
-  /** The cooked doc comment of symbol `sym` after variable expansion, or "" if missing.
-   *  @param sym  The symbol for which doc comment is returned (site is always the containing class)
-   */
-  def expandedDocComment(sym: Symbol): String = expandedDocComment(sym, sym.enclClass)
-
   /** The list of use cases of doc comment of symbol `sym` seen as a member of class
    *  `site`. Each use case consists of a synthetic symbol (which is entered nowhere else),
    *  of an expanded doc comment string, and of its position.
@@ -125,10 +121,6 @@ trait DocComments { self: Global =>
     }
     getDocComment(sym) map getUseCases getOrElse List()
   }
-
-  /** Returns the javadoc format of doc comment string `s`, including wiki expansion
-   */
-  def toJavaDoc(s: String): String = expandWiki(s)
 
   private val wikiReplacements = List(
     ("""(\n\s*\*?)(\s*\n)"""    .r, """$1 <p>$2"""),

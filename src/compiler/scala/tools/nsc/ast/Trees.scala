@@ -70,7 +70,7 @@ trait Trees extends scala.reflect.internal.Trees { self: Global =>
 
     ClassDef(sym,
       gen.mkTemplate(sym.info.parents map TypeTree,
-                    if (sym.thisSym == sym || phase.erasedTypes) emptyValDef else ValDef(sym.thisSym),
+                    if (sym.thisSym == sym || phase.erasedTypes) noSelfType else ValDef(sym.thisSym),
                     constrMods, vparamss, body, superPos))
   }
 
@@ -79,8 +79,6 @@ trait Trees extends scala.reflect.internal.Trees { self: Global =>
   object treeInfo extends {
     val global: Trees.this.type = self
   } with TreeInfo
-
-  lazy val treePrinter = newTreePrinter()
 
   // --- additional cases in operations ----------------------------------
 
@@ -185,7 +183,6 @@ trait Trees extends scala.reflect.internal.Trees { self: Global =>
 
   def resetAllAttrs(x: Tree, leaveAlone: Tree => Boolean = null): Tree = new ResetAttrs(false, leaveAlone).transform(x)
   def resetLocalAttrs(x: Tree, leaveAlone: Tree => Boolean = null): Tree = new ResetAttrs(true, leaveAlone).transform(x)
-  def resetLocalAttrsKeepLabels(x: Tree, leaveAlone: Tree => Boolean = null): Tree = new ResetAttrs(true, leaveAlone, true).transform(x)
 
   /** A transformer which resets symbol and tpe fields of all nodes in a given tree,
    *  with special treatment of:

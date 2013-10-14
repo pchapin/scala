@@ -561,9 +561,7 @@ abstract class BCodeHelpers extends BCodeTypes with BytecodeWriters {
 
         memberCTK
       }
-
-      exemplar(csym).directMemberClasses = (result ::: lateClosuresBTs)
-
+      exemplar(csym) // side effect city
       result
     }
 
@@ -866,11 +864,7 @@ abstract class BCodeHelpers extends BCodeTypes with BytecodeWriters {
     // a plain class lacking companion module, for details see `isCandidateForForwarders`).
     // -----------------------------------------------------------------------------------------
 
-    val ExcludedForwarderFlags = {
-      import symtab.Flags._
-      // Should include DEFERRED but this breaks findMember.
-      ( CASE | SPECIALIZED | LIFTED | PROTECTED | STATIC | EXPANDEDNAME | BridgeAndPrivateFlags | MACRO )
-    }
+    val ExcludedForwarderFlags = genASM.ExcludedForwarderFlags
 
     /* Adds a @remote annotation, actual use unknown.
      *
