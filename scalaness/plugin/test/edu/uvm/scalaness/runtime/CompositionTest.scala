@@ -6,15 +6,15 @@
 //-----------------------------------------------------------------------
 package edu.uvm.scalaness.runtime
 
-import edu.uvm.mininess.ASTNode
-import edu.uvm.mininess.parser.MininessLexer
+import edu.uvm.nest.ASTNode
+import edu.uvm.nest.parser.NesTLexer
 import java.io.File
 import org.junit.Assert._
 import org.junit.{After, Before, Test}
 
 class CompositionTest {
 
-  object dummyComponent extends MininessComponent {
+  object dummyComponent extends NesTComponent {
     val configuration = new ProgramComponent(
       Set(), Set(), Map(), Map(), new ProgramConfiguration(Set(), List()), ".")
     
@@ -44,7 +44,7 @@ class CompositionTest {
       valueParameters = Set(),
       imports         = Set("c1", "c2"),
       exports         = Set(),
-      abstractSyntax  = ASTNode(MininessLexer.NUMBER, "1", List(), None, None))
+      abstractSyntax  = ASTNode(NesTLexer.NUMBER, "1", List(), None, None))
 
     val B = new NamedProgramComponent(
       name            = "B",
@@ -53,7 +53,7 @@ class CompositionTest {
       valueParameters = Set(),
       imports         = Set(),
       exports         = Set("c1"),
-      abstractSyntax  = ASTNode(MininessLexer.NUMBER, "1", List(), None, None))
+      abstractSyntax  = ASTNode(NesTLexer.NUMBER, "1", List(), None, None))
 
     val C = new NamedProgramComponent(
       name            = "C",
@@ -62,7 +62,7 @@ class CompositionTest {
       valueParameters = Set(),
       imports         = Set("c1"),
       exports         = Set("c2"),
-      abstractSyntax  = ASTNode(MininessLexer.NUMBER, "1", List(), None, None))
+      abstractSyntax  = ASTNode(NesTLexer.NUMBER, "1", List(), None, None))
 
     val composedComponent1 = new ProgramComponentWrapper(A, ".") wireTo new ProgramComponentWrapper(B, ".")
     val composedComponent2 = composedComponent1 wireTo new ProgramComponentWrapper(C, ".")

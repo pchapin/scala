@@ -97,15 +97,9 @@ blink.run
     Builds and then runs the Blink sample program. This allows the dynamic behavior of the
     sample to be checked.
 
-spartan.compile
-    Compiles the staged SpartanRPC sample program using the latest Scalaness.jar file.
-
-spartan.run
-    Builds and then runs the SpartanRPC sample program.
-
-clean, blink.clean, spartan.clean, all.clean
-    Cleans the Scalaness plugin, the Blink sample, the SpartanRPC sample, or all three as
-    appropriate. A clean operation removes all build artifacts and should restore your working
-    copy to its original condition (modulo any changes you've made or additional files you've
-    added explicitly). Note that cleaning Ant only removes artifacts created by Ant. You must
-    clean the IntelliJ project separately if you've been using it.
+clean, blink.clean, all.clean
+    Cleans the Scalaness plugin, the Blink sample, or both as appropriate. A clean operation
+    removes all build artifacts and should restore your working copy to its original condition
+    (modulo any changes you've made or additional files you've added explicitly). Note that
+    cleaning Ant only removes artifacts created by Ant. You must clean the IntelliJ project
+    separately if you've been using it.
