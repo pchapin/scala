@@ -168,41 +168,47 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
           val (typeParameters, valueParameters) = extractTypeAndValueParameters(body)
           // println(s"typeParameters = $typeParameters, valueParameters = $valueParameters")
 
-          // Compute 'var someName: SomeType = null' for each type and value parameter.
+          // Compute 'var someName: MetaType[SomeType] = null' for each type and value parameter.
           // TODO: Be sure appropriate imports are available.
-//          val typeVars = for ( (typeName, typeType) <- typeParameters ) yield {
-//            println(s"typeName = $typeName; typeType = $typeType")
-//            treeBuilder.makePatDef(
-//              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
-//              Typed(Ident("sc_" + typeName), AppliedTypeTree(Ident("MetaType"), List(Ident(Lifter.lowerType(reporter, typeType.toString))))),
-//              Literal(Constant("null")))
-//          }
-//          val valueVars = for ( (valueName, valueType) <- valueParameters) yield {
-//            treeBuilder.makePatDef(
-//              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
-//              Typed(Ident("sc_" + valueName), TypeTree(Ident(Lifter.lowerType(reporter, valueType.toString)))),
-//              Literal(Constant("null")))
-//          }
+          val typeVars = for ( (typeName, typeType) <- typeParameters ) yield {
+            // println(s"typeName = $typeName; typeType = $typeType")
+            treeBuilder.makePatDef(
+              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
+              Typed(Ident("sc_" + typeName),
+                    AppliedTypeTree(Ident(TypeName("MetaType")),
+                                    List(Ident(TypeName(Lifter.lowerType(reporter, typeType.toString)))))),
+              Literal(Constant(null)))
+          }
+          val valueVars = for ( (valueName, valueType) <- valueParameters) yield {
+            treeBuilder.makePatDef(
+              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
+              Typed(Ident("sc_" + valueName),
+                    Ident(TypeName(Lifter.lowerType(reporter, valueType.toString)))),
+              Literal(Constant(null)))
+          }
 
           // Compute 'val abstractSyntax =
           //            Parser.reparse("ExampleC.i", List("firstType", "secondType"))'
           // TODO: Be sure appropriate imports are available.
-          val typeNames = for ( (typeName, _) <- typeParameters ) yield Literal(Constant(typeName))
+          val typeNames =
+            for ( (typeName, _) <- typeParameters ) yield Literal(Constant(typeName))
           val typeNameList =
             Apply(Ident("List"), typeNames.toList)
           val reparseInvocation =
-            Apply(Select(Ident("Parser"), "reparse"), List(Literal(Constant(s"$reparseName")), typeNameList))
-          val abstractSyntaxVal = treeBuilder.makePatDef(
-            Modifiers(Flags.PRIVATE),
-            Ident("abstractSyntax"),
-            reparseInvocation)
+            Apply(Select(Ident("Parser"), "reparse"),
+                  List(Literal(Constant(s"$reparseName")), typeNameList))
+          val abstractSyntaxVal =
+            treeBuilder.makePatDef(
+              Modifiers(Flags.PRIVATE),
+              Ident("abstractSyntax"),
+              reparseInvocation)
 
           // Display the generated code if requested.
           val Some(displayGenerated) = scalanessSettings("displayGenerated")
           if (displayGenerated == "true") {
-            println(s"Code generated into $NesTComponentName...")
-//            println(s"\t$typeVars")
-//            println(s"\t$valueVars")
+            println(s"\nCode generated into $NesTComponentName...")
+            println(s"\t$typeVars")
+            println(s"\t$valueVars")
             println(s"\t$abstractSyntaxVal")
           }
 
@@ -214,7 +220,7 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
             bodyItem match {
               case someDef @ DefDef(_, name, _, _, _, _) =>
                 if (name.toString == "<init>")
-                  List(someDef) ++ abstractSyntaxVal
+                  List(someDef) ++ typeVars.flatten ++ valueVars.flatten ++ abstractSyntaxVal
                 else
                   List(someDef)
               case _ => List(bodyItem)
