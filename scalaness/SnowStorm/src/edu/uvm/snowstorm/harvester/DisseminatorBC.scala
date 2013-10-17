@@ -43,7 +43,6 @@ class DisseminatorBC extends NesTComponent {
   /////////
   def instantiate = new DisseminatorBC
 
-  // private val abstractSyntax = Parser.reparse("./SensorBox/DisseminatorBC.nc", List())
   val configuration =
     new ProgramComponentWrapper(new NamedProgramComponent(
       name            = "DisseminatorBC",

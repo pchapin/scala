@@ -7,6 +7,7 @@ package edu.uvm.scalaness
 
 import scala.tools.nsc._
 import scala.tools.nsc.plugins.PluginComponent
+import scala.tools.nsc.reporters.Reporter
 import scala.tools.nsc.transform.Transform
 import scala.tools.nsc.symtab.Flags
 import java.io.File
@@ -145,6 +146,44 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
 
 
   /**
+   * Compute the lowered version of the nesT type. Currently when generating boilerplate the
+   * parameter types of the instantiate method are converted to strings and then immediately
+   * lifted. Those lifted types are passed back to this method and lowered again. Ultimately the
+   * input to this method should come from the ModuleType annotation on the class/object
+   * instead (and the name of the method should be changed accordingly).
+   * 
+   * @param liftedType The nesT type to lower.
+   * @param The AST of the lowered Scala type.
+   */
+  private def lowerType(reporter: Reporter, liftedType: NesTTypes.Representation): Tree = {
+    import NesTTypes._
+
+    val translation: Map[Representation, Tree] =
+      Map(
+        Char   -> Ident(TypeName("Char"  )),
+        Int8   -> Ident(TypeName("Int8"  )),
+        Int16  -> Ident(TypeName("Int16" )),
+        Int32  -> Ident(TypeName("Int32" )),
+        UInt8  -> Ident(TypeName("UInt8" )),
+        UInt16 -> Ident(TypeName("UInt16")),
+        UInt32 -> Ident(TypeName("UInt32")),
+        ErrorT -> Ident(TypeName("ErrorT")))
+
+    liftedType match {
+      case Array(elementType, size) =>
+        AppliedTypeTree(Ident(TypeName("Array")),
+                        List(lowerType(reporter, elementType)))
+
+      case _ =>
+        translation.getOrElse(liftedType, {
+          reporter.error(null, "type " + liftedType + " not yet supported. Using Int16")
+          Ident(TypeName("Int16"))
+        })
+    }
+  }
+
+
+  /**
    * Process the body of a class or module definition to see if it contains a nesT inclusion.
    * If it does, then inject appropriate material, etc.
    *
@@ -176,14 +215,14 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
               Modifiers(Flags.PRIVATE | Flags.MUTABLE),
               Typed(Ident("sc_" + typeName),
                     AppliedTypeTree(Ident(TypeName("MetaType")),
-                                    List(Ident(TypeName(Lifter.lowerType(reporter, typeType.toString)))))),
+                                    List(lowerType(reporter, typeType)))),
               Literal(Constant(null)))
           }
           val valueVars = for ( (valueName, valueType) <- valueParameters) yield {
             treeBuilder.makePatDef(
               Modifiers(Flags.PRIVATE | Flags.MUTABLE),
               Typed(Ident("sc_" + valueName),
-                    Ident(TypeName(Lifter.lowerType(reporter, valueType.toString)))),
+                    lowerType(reporter, valueType)),
               Literal(Constant(null)))
           }
 

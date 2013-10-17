@@ -217,7 +217,7 @@ object NesTTypes {
       if (node.children(i).tokenType == token)
         return node.children(i)
     }
-    throw new Exception("UNABLE TO LOCATE CHILD OF TOKEN: " + token) 
+    throw new Exception(s"Unable to locate child token (type $token) of node '${node.text}'")
   }
   
   def existsChild(node: ASTNode, token: Int): Boolean = {

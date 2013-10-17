@@ -11,6 +11,8 @@ import edu.uvm.nest.NesTTypes
 
 object Lifter {
 
+  import NesTTypes._
+
   /**
    * Compute the lifted version of the given Scalaness type.
    * 
@@ -18,10 +20,9 @@ object Lifter {
    * @return The nesT representation of that type.
    */
   private[scalaness] def liftType(
-    reporter: Reporter, typeName: String): NesTTypes.Representation = {
+    reporter: Reporter, typeName: String): Representation = {
 
     // TODO: Report errors/warnings with proper source position information.
-    import NesTTypes._
 
     val firstBracketIndex = typeName.indexOf('[')
     val lastBracketIndex = typeName.lastIndexOf(']')
@@ -71,31 +72,6 @@ object Lifter {
           liftBaseType(typeName.substring(lastOuterDotIndex + 1))
         }
     }
-  }
-
-
-  /**
-   * Compute the lowered version of the nesT type.
-   * 
-   * @param typeName The name of the nesT type to lower.
-   * @param The name of the Scalaness representation of that type.
-   */
-  private[scalaness] def lowerType(reporter: Reporter, typeName: String) = {
-    // TODO: Handle more complex types just the primitives.
-    val translation = Map(
-      "char"     -> "Char",
-      "int"      -> "Int16",    // Assume a 16 bit microcontroller.
-      "int8_t"   -> "Int8",
-      "int16_t"  -> "Int16",
-      "int32_t"  -> "Int32",
-      "uint8_t"  -> "UInt8",
-      "uint16_t" -> "UInt16",
-      "uint32_t" -> "UInt32")
-
-    translation.getOrElse(typeName, {
-      reporter.error(null, "type " + typeName + " not yet supported. Using Int16")
-      "Int16"
-    })
   }
 
 }
