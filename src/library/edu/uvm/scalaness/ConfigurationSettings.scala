@@ -24,8 +24,8 @@ class ConfigurationSettings(
   /** Contains a map of (name, value) pairs. */
   private var settings = Map[String, String]()
 
-  /** Contains the path to the configuration file (with trailing separator). */
-  private[scalaness] var configurationPath = "." + File.separator
+  /** Contains the path to the configuration file. */
+  private[scalaness] var configurationPath = "."
 
   /**
    * Provides default values for some (possibly all) configurable items.
@@ -246,8 +246,10 @@ object ConfigurationSettings {
     )
 
     // TODO: This doesn't handle Windows drive letters properly: "C:\..."
-    if (canonicalPath.length > 0 && canonicalPath.charAt(0) != File.separatorChar)
-      settings.configurationPath + canonicalPath
+    if (canonicalPath.length == 0)
+      settings.configurationPath
+    else if (canonicalPath.charAt(0) != File.separatorChar)
+      settings.configurationPath + File.separatorChar + canonicalPath
     else
       canonicalPath
   }

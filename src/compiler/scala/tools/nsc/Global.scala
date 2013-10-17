@@ -62,8 +62,8 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
       Map("ASTOutput"         -> "FALSE",
           "debug"             -> "FALSE",
           "displayGenerated"  -> "FALSE",
-          "inclusionPath"     -> ".",
-          "interfacePath"     -> "."))
+          "inclusionPath"     -> "",
+          "interfacePath"     -> ""))
 
     // TODO: This assumes that currentSettings is already well defined. Is that so?
     private val configName =

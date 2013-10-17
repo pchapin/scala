@@ -36,6 +36,7 @@ trait ScalanessTyper {
    * Check to see if last item in the class definition is a string literal.
    * 
    * @param lastItem The AST of the last item in a class definition.
+
    * @return Some( (shortName, fullName) ) if the last item is a string literal. Here shortName
    * is the value of the string literal and fullName is the full path to the inclusion. This
    * method does not check if the inclusion file actually exists. None is returned if the last
@@ -51,7 +52,7 @@ trait ScalanessTyper {
         else {
           val Constant(value) = constantValue
 
-          // I depend on the fact that inclusionPrefix has a default value.
+          // Here I depend on the fact that inclusionPrefix has a default value.
           val Some(inclusionPrefix) = scalanessSettings("inclusionPath")
 
           val fullName = inclusionPrefix + File.separator + value.asInstanceOf[String]
@@ -175,7 +176,8 @@ trait ScalanessTyper {
    * Preprocess the indicated file to the indicated result.
    * 
    * @param fullName The full name (possibly with path) of the file to preprocess.
-   * @param preprocessedFullName The full name (possibly with path) of the result of preprocessing.
+   * @param preprocessedFullName The full name (possibly with path) of the result of pre-
+   * processing.
    */
   def runPreprocessor(fullName: String, preprocessedFullName: String) = {
     // TODO: Various aspects of preprocessing should be configurable.
@@ -190,7 +192,7 @@ trait ScalanessTyper {
     commandLine.add(preprocessorName)
     
     // TODO: Eventually the include paths should be configurable and might need this processing.
-    // settings("IncludePaths") match {
+    // scalanessSettings("IncludePaths") match {
     //   case Some(includePathsString) =>
     //     val includePaths = includePathsString.split(":")
     //     for (path <- includePaths) {

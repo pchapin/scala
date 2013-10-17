@@ -2,7 +2,6 @@
 // FILE    : ScalanessPostParser.scala
 // SUBJECT : New compiler phase for handling AST manipulations immediately after parsing.
 // AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
-//
 //-----------------------------------------------------------------------
 package edu.uvm.scalaness
 
@@ -14,12 +13,17 @@ import java.io.File
 import edu.uvm.nest.NesTTypes
 
 /**
- * This class implements a plugin component using tree transformers.
- * 
- * This class originally took settings: ConfigurationSettings. This allowed it to access the
- * Scalaness configuration. Currently a ConfigurationSettings object is created in Scalaness-
- * Typer but getting access to it from here is awkward. For the now I'm just hard coding paths
- * into the compiler. Obviously that is very lame.
+ * This class injects boilerplate into the program's AST after parsing.
+ *
+ * This class is implemented as a plugin component using tree transformers providing a new phase
+ * to run immediately after parsing (but before type checking). This phase is "manually" added
+ * to the phase pipeline in the compiler source code. I can't tell if this approach is hackish
+ * or elegant. In any case it will facilitate adaption to the plugin version of Scalaness if
+ * that ever again becomes a reality.
+ *
+ * Be aware that this phase runs before name resolution and type checking. Thus names from the
+ * program are "raw" and not yet put into canonical form. This creates some guesswork in the
+ * analysis but the implementation here works well enough.
  */
 class ScalanessPostParser(val global: Global) extends PluginComponent with Transform {
   import global._
@@ -32,21 +36,20 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
 
   def newTransformer(unit: CompilationUnit) = new PostParserTransformer
 
-  // The methods surrounded by '=' are currently (nearly) duplicated in ScalanessTyper.scala.
-  // They should be factored out if possible. However, the methods are not identical so some
-  // sort of parameterization of them might be necessary to handle the differences.
-  //=============================================================================================
-
   /*
-   * Check to see if last item in the class definition is a string literal.
+   * Check to see if last item in the class or object definition is a string literal.
    *
    * @param lastItem The AST of the last item in a class definition.
+   *
    * @return Some( (shortName, fullName) ) if the last item is a string literal. Here shortName
    * is the value of the string literal and fullName is the full path to the inclusion. This
    * method does not check if the inclusion file actually exists. None is returned if the last
    * item is not a string literal.
    */
   private def checkForNesTInclusion(lastItem: Tree) = {
+    // TODO: In theory we should check that the class/object extends NesTComponent.
+    // That would be complicated to do here since name resolution has not yet occured.
+
     lastItem match {
       // The last item is a literal of some kind...
       case Literal(constantValue) => {
@@ -56,9 +59,8 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
         else {
           val Constant(value) = constantValue
 
-          // I depend on the fact that inclusionPrefix has a default value.
-          // val Some(inclusionPrefix) = settings("inclusionPath")
-          val inclusionPrefix = "."
+          // Here I depend on the fact that inclusionPrefix has a default value.
+          val Some(inclusionPrefix) = scalanessSettings("inclusionPath")
 
           val fullName = inclusionPrefix + File.separator + value.asInstanceOf[String]
           Some(value.asInstanceOf[String], fullName)
@@ -141,7 +143,6 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
     (typeParameterDeclarations, valueParameterDeclarations)
   }
 
-  //=============================================================================================
 
   /**
    * Process the body of a class or module definition to see if it contains a nesT inclusion.
