@@ -61,5 +61,5 @@ class ANMStub extends NesTComponent {
   // END of Scalaness generated code.
   ////////
 
-  "Harvester/StubC.nc"
+  "Harvester/StubC.nt"
 }

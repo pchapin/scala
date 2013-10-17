@@ -44,7 +44,7 @@ object Main {
     //////// 
            
     
-    "ServerC.nc"
+    "ServerC.nt"
   }
  
     
@@ -56,4 +56,4 @@ object Main {
     serverModule.image()
   }
     
-}       
+}

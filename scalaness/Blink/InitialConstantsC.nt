@@ -1,4 +1,4 @@
-// FILE   : InitialConstantsC.nc
+// FILE   : InitialConstantsC.nt
 // SUMMARY: Module that manages constants used by the program.
 //
 // This is a silly module that just returns constant values as needed. It does demonstrate how

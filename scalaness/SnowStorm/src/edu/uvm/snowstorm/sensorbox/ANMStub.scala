@@ -61,5 +61,5 @@ class ANMStub extends NesTComponent {
   // END of Scalaness generated code.
   ////////
 
-  "SensorBox/StubC.nc"
+  "SensorBox/StubC.nt"
 }

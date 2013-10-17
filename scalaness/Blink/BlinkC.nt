@@ -1,4 +1,4 @@
-// FILE   : BlinkC.nc
+// FILE   : BlinkC.nt
 // SUMMARY: Staged "Blink" main module.
 //
 // The first stage program computes the flash count, the blink period (in ms), and an optimal

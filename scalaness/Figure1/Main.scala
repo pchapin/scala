@@ -38,7 +38,7 @@ object Main {
     // END of Scalaness generated code.
     //////// 
 
-    "RadioC.nc"
+    "RadioC.nt"
   }
 
 
@@ -76,7 +76,7 @@ object Main {
     // END of Scalaness generated code.
     //////// 
 
-    "SendC.nc"
+    "SendC.nt"
   }
 
   @ModuleType("""{}
@@ -117,7 +117,7 @@ object Main {
     // END of Scalaness generated code.
     //////// 
 
-    "NodeC.nc"
+    "NodeC.nt"
   }
 
   def nodeSpecialize(

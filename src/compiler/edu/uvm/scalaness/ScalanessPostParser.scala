@@ -161,9 +161,9 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
       checkForNesTInclusion(lastItem) match {
         case None => impl
         case Some( (shortName, fullName) ) => {
-          // This is a hackish way of getting (for example) ExampleC from ExampleC.nc.
+          // This is a hackish way of getting (for example) ExampleC from ExampleC.nt.
           val NesTComponentName = shortName.substring(0, shortName.lastIndexOf('.'))
-          val reparseName = fullName.replace(".nc", ".i")
+          val reparseName = fullName.replace(".nt", ".i")
 
           val (typeParameters, valueParameters) = extractTypeAndValueParameters(body)
           // println(s"typeParameters = $typeParameters, valueParameters = $valueParameters")

@@ -1,4 +1,4 @@
-// FILE   : ASMACC.nc
+// FILE   : ASMACC.nt
 // SUMMARY: An AuthorizationServer that uses hardware MAC authorization with a session key.
 //
 

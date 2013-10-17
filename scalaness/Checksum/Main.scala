@@ -105,7 +105,7 @@ object Main {
     // END of Scalaness generated code.
     //////// 
            
-    "ChecksumC.nc"
+    "ChecksumC.nt"
   }
  
 
@@ -150,7 +150,7 @@ object Main {
     // END of Scalaness generated code.
     ////////
          
-    "MessageFormatterC.nc"
+    "MessageFormatterC.nt"
   }
 
 

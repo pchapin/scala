@@ -1,4 +1,4 @@
-// FILE   : ACRT0C.nc
+// FILE   : ACMACC.nt
 // SUMMARY: An AuthorizationClient that uses hardware MAC authorization with a session key.
 //
 

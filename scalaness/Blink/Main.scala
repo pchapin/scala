@@ -113,7 +113,7 @@ object Main {
     //////// 
            
     
-    "InitialConstantsC.nc"
+    "InitialConstantsC.nt"
   }
  
 
@@ -175,7 +175,7 @@ object Main {
     // END of Scalaness generated code.
     ////////
          
-    "BlinkC.nc"
+    "BlinkC.nt"
   }
  
     

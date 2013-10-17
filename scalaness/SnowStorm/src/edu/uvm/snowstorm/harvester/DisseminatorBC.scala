@@ -60,5 +60,5 @@ class DisseminatorBC extends NesTComponent {
   // END of Scalaness generated code.
   ////////
 
-  "Harvester/DisseminatorBC.nc"
+  "Harvester/DisseminatorBC.nt"
 }

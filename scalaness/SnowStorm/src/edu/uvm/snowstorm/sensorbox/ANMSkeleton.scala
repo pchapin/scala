@@ -59,5 +59,5 @@ class ANMSkeleton extends NesTComponent {
   // END of Scalaness generated code.
   ////////
 
-  "SensorBox/SkeletonC.nc"
+  "SensorBox/SkeletonC.nt"
 }
