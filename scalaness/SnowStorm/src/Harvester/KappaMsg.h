@@ -15,7 +15,7 @@
 #define DIS_KEY 777
 #define BCAST_DIS_KEY 333
 
-#ifndef __MININESS__
+#ifndef __NEST__
 
 // These are the different network control commands, communicated via 
 // dissemination and collection.
@@ -91,7 +91,7 @@ struct commandTAG {
 };
 
 
-#ifndef __MININESS__
+#ifndef __NEST__
 typedef nx_struct kappa kappamsg_t;
 typedef nx_struct nettime netstamp_t;
 typedef struct commandTAG command_t;
