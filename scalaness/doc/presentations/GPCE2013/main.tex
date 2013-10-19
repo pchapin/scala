@@ -1,0 +1,111 @@
+\documentclass[landscape]{slides}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amstext}
+\usepackage{enumerate}
+\usepackage{epsfig}
+\usepackage{graphics}
+\usepackage{ifthen}
+\usepackage[latin1]{inputenc}
+\usepackage{listings}
+\usepackage{mathpartir}
+\usepackage{mathrsfs}
+\usepackage{moreverb}
+\usepackage{stmaryrd}
+\usepackage{times}
+\usepackage{url}
+
+\input{slide-macros}
+\input{macros}
+
+% Are the definitions below really necessary?
+\renewcommand{\fml}{$\langle$ML$\rangle$}
+\renewcommand{\metaite}[3]{\mathrm{if\ }#1 \mathrm{\ then\ } #2 \mathrm{\ else\ } #3}
+\newcommand{\bfup}[1]{\mathbf{#1}}
+\renewcommand{\typet}{\bfup{type}}
+\renewcommand{\kwtlet}{\bfup{tlet}}
+\newcommand{\kwin}{\bfup{in}}
+\renewcommand{\elet}[3]{\kwlet\ #1 = #2 \ \kwin\ #3}
+\renewcommand{\tlet}[3]{\kwtlet\ #1 = #2 \ \kwin\ #3}
+\newcommand{\stjudge}[4]{#1,#2 \vdash #3 : #4}
+
+% Define Scalaness language support.
+% The keywords listed here include all reserved words from Scala along with nesT/Scalaness
+% extensions.
+\lstdefinelanguage{scalaness}{keywords=
+  {abstract, case, catch, class, def, do, else, extends, false, final, finally, for, forSome, if
+   implicit, import, lazy, match, new, null, object, override, package, private, protected,
+   return, sealed, super, this, throw, trait, try, true, type, val, var, while, with, yield,
+   export},
+  otherkeywords={_, :, =, =>, <-, <:, <\%, >:, \#, @},
+  basicstyle=\ttfamily,
+  sensitive=true,
+  morecomment=[l]//,
+  morecomment=[s]{/*}{*/},
+  morestring=[b]{"}}
+
+% Define nesC language support.
+% The keywords listed here include all the "normal" (non-underscore leading) keywords from C2011
+% together with additional keywords from nesC and SpartanRPC.
+\lstdefinelanguage{nesC}{keywords=
+  {activate, as, auto, break, case, char, const, continue, default, do, double, duty, else,
+   enable, enum, extern, float, for, goto, if, inline, int, long, register, restrict, return,
+   short, signed, sizeof, struct, switch, typedef, union, unsigned, void, volatile, while, as,
+   atomic, async, call, command, component, components, configuration, event, generic,
+   implementation, includes, interface, module, new, norace, nx_struct, nx_union, post,
+   provides, remote, requires, signal, task, uses},
+  otherkeywords={->},  % Not sure if I really want this.
+  basicstyle=\ttfamily,
+  sensitive=true,
+  morecomment=[l]//,
+  morecomment=[s]{/*}{*/},
+  morestring=[b]{"}}
+
+% Default settings for code listings.
+
+\lstset{language=scalaness,
+  basicstyle={\small},  % If you turn off \ttfamily you get bold keywords.
+  stringstyle=\ttfamily,
+  commentstyle=\ttfamily,
+  xleftmargin=0.25in,
+  showstringspaces=false}
+
+\lstset{language=nesC,
+  basicstyle={\small},  % If you turn off \ttfamily you get bold keywords.
+  stringstyle=\ttfamily,
+  commentstyle=\ttfamily,
+  xleftmargin=0.25in,
+  showstringspaces=false}
+
+\title{\color{titlecolor}Scalaness/nesT: Type Specialized Staged Programming for Sensor Networks}
+\author{
+  \begin{tabular}{c}
+  \\[3mm]
+  \Large{Peter Chapin, Christian Skalka,}\\ \Large{Scott Smith, Michael Watson} \\[2mm]
+  \normalsize{Department of Computer Science}\\[5mm]
+  \includegraphics{uvm-logo}\\[16mm]
+  \small{Scott Smith is at The Johns Hopkins University}
+  \end{tabular}
+}
+\date{October 28, 2013}
+
+\begin{document}
+
+\color{myblack}
+\pagecolor{Background}
+\newcommand{\heading}[1]{\textbf{\LARGE #1}}
+
+\maketitle
+
+\input{slides}
+
+\end{document}
+
+
+
+
+
+
+
+
+

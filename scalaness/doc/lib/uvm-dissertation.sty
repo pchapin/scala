@@ -47,7 +47,7 @@
   {\protect\par\vspace*{0.5\baselineskip}
     \par{\noindent\bfseries #1\vspace{-0.5\baselineskip}}\par}}
 
-%Change "Bibliography" to "References"
+% Change ``Bibliography'' to ``References''
 \renewcommand{\bibname}{References}
 
 % Graduate Colloge wants ``Table of Contents''
@@ -126,7 +126,8 @@
 \def\cs{\gdef\@spectype{Computer Science}}
 
 \def\octgrad{\gdef\@gradmonth{October}}
-\def\marchgrad{\gdef\@gradmonth{March}}
+\def\jangrad{\gdef\@gradmonth{January}}
+\def\margrad{\gdef\@gradmonth{March}}
 \def\maygrad{\gdef\@gradmonth{May}}
 
 %% Commands to define the defense committee.
@@ -233,8 +234,8 @@ The University of Vermont
       \cline{1-1} \@chair & \ \\
       \\ \\ \\
 
-      \ & Vice President for Research and \\
-      \cline{1-1} Frances E. Carr, Ph.D. & Dean of the Graduate College \\
+      \ & Dean, Graduate College \\
+      \cline{1-1} Cynthia J. Forehand, Ph.D. & \ \\
       \\ \\ \\
       Date: \@defensedate & \ \\
     \end{tabular}
@@ -290,10 +291,10 @@ The University of Vermont
 %
 % Change some of the rules for float placement.
 %
-\setcounter{topnumber}{2}          %Maximum 2 floats on top
-\setcounter{bottomnumber}{1}       %Maximum 1 float on bottom
-\renewcommand{\topfraction}{0.7}    %Top float max size is 70%
-\renewcommand{\bottomfraction}{0.7} %Bottom float max size is 70%
+\setcounter{topnumber}{2}           % Maximum 2 floats on top
+\setcounter{bottomnumber}{1}        % Maximum 1 float on bottom
+\renewcommand{\topfraction}{0.7}    % Top float max size is 70%
+\renewcommand{\bottomfraction}{0.7} % Bottom float max size is 70%
 
 
 %%
@@ -302,9 +303,8 @@ The University of Vermont
 %%
 %% Copyright 2000 Harald Harders
 %%
-%% This program can be redistributed and/or modified under the terms
-%% of the LaTeX Project Public License Distributed from CTAN
-%% archives in directory macros/latex/base/lppl.txt; either
+%% This program can be redistributed and/or modified under the terms of the LaTeX Project Public
+%% License Distributed from CTAN archives in directory macros/latex/base/lppl.txt; either
 %% version 1 of the License, or any later version.
 %%
 % expands the first and second argument with
@@ -337,8 +337,8 @@ The University of Vermont
 
 
 %
-% Hack ``addcontentsline'' to put ``Chapter'' or ``Appendix'' before
-% the appropriate entry in the TOC.
+% Hack ``addcontentsline'' to put ``Chapter'' or ``Appendix'' before the appropriate entry in
+% the TOC.
 %
 
 \def\addcontentsline#1#2#3{
@@ -356,5 +356,5 @@ The University of Vermont
 
 
 %
-% End of file uidis.sty
+% End of file uvmdis.sty
 %
