@@ -1,7 +1,7 @@
-\startslide{Presentation Outline}
 
+\startslide{Outline}
 \begin{cenumerate}
-\item Motivations, design overview
+\item Motivation, overview
 \item Technical details
 \begin{citemize}
 \item Language design 
@@ -9,141 +9,80 @@
 \end{citemize}
 \item Language implementation and application
 \end{cenumerate}
-
 \stopslide
 
-\startslide{Presentation Outline}
-
-\begin{cenumerate}
-\item \cemph{Motivations, design overview}
-\item Technical details
-\begin{citemize}
-\item Language design 
-\item Formal foundations
-\end{citemize}
-\item Language implementation and application
-\end{cenumerate}
-
-\stopslide
+%%%%%
 
 \startslide{The Problem Setting: Embedded Sensor Networks}
-
-%\includegraphics{sagehen-deploy}
+\begin{center}
+\includegraphics[scale=.50]{brainbox} 
+\includegraphics[scale=.50]{tower} 
+\includegraphics[scale=.50]{harvester} 
+\end{center}
 
 \begin{citemize}
 \item Distributed data-gathering systems for earth and agricultural sciences.
-\item At UVM, focus on sytems alpine snow hydrology.
+\item At UVM, focus on alpine snow hydrology.
 \begin{citemize}
 \item Deployments in California, New Hampshire, Arctic Norway.
 \end{citemize}
 \end{citemize}
 \stopslide
 
-\startslide{The Problem Setting: Embedded Sensor Networks}
+%%%%%
 
-\begin{center}
-%\includegraphics[scale=.3]{motes}
-\end{center}
-
+\startslide{Challenges of Programming Sensor Networks}
 \begin{citemize}
-\item \cemph{Mote} computation and communications platform.
-\item Crossbow TelosB: 4MHz, 10KB RAM, 48K ROM.
+\item Heavily resource constrained---RAM, ROM, clock cycles, power.
+\item E.g., Crossbow TelosB: 4\,MHz, 10\,KiB RAM, 48\,KiB ROM
+\item \ldots yet complex, distributed algorithms used
 \end{citemize}
-\stopslide
 
-\startslide{Unique Challenges of Programming WSNs}
-
-\begin{citemize}
-\item Heavily resource constrained-- RAM, ROM, clock cycles, power.
-\item ... yet complex, distributed algorithms
-\begin{citemize}
-\item ``True'' specification at \cemph{macro} (network) level.
-\end{citemize}
-\end{citemize}
 State of the art:
 \begin{citemize}
-\item TinyOS and nesC programming: optimized for efficiency, widely used.
-\item Various \cemph{macroprogramming} proposals, but mostly ad hoc 
-node level programming techniques in practice.
+\item NesC and TinyOS: optimized for efficiency, widely used.
+\item Various \cemph{macroprogramming} proposals, but mostly ad hoc node level programming
+  techniques in practice.
 \end{citemize}
 \stopslide
 
-\startslide{Program Staging aka Metaprogramming aka Partial Evaluation}
+%%%%%
 
+\startslide{Staging as a Tool}
+In the lab:
 \begin{citemize}
-\item \cemph{Specialization}: given a program template define algorithms that 
-automatically make applications more compact and efficient.
-\item Metaprogramming allows macroprogramming of device level code.
+\item Create first stage program to specialize and compose modules of second stage code.
 \end{citemize}
 
-\stopslide
-
-\startslide{How Would It Be Used?}
-
-\vspace{.4in}
-\begin{center}
-%\includegraphics{lab}
-\end{center}
-
-In the lab.
+In the field on a base station or \cemph{hub}:
 \begin{citemize}
-\item Device code specialized prior to deployment.
-\item Application: key distribution for resource authorization.
+\item Execute first stage program to generate second stage program accounting for field
+  conditions.
+\item Deploy second stage program to nodes (over the air).
 \end{citemize}
-
 \stopslide
 
-\startslide{How Would It Be Used?}
+%%%%%
 
-
-$$
-\begin{array}{l@{\qquad}l}
-%\includegraphics[scale=.08]{mammoth-gateway}
-&
-%\includegraphics[scale=.15]{gateway}  
-\end{array}
-$$
-
-On a deployed \cemph{hub}.
-\begin{citemize}
-\item Gateway devices higher powered, full Linux box.
-\item Application: \emph{backcasting}, dynamic refinement of sampling models.
-\emph{in situ}.
-\end{citemize}
-
+\startslide{Workflow}
+\hspace*{.6in}\includegraphics{scalaness}
 \stopslide
+
+%%%%%
 
 \startslide{Our Approach}
-
 \begin{citemize}
-\item \cemph{Lightweight macroprogramming}. Scala at metalevel, nesC 
-residuum.
+\item \cemph{Lightweight macroprogramming}. Scala at metalevel, nesC residuum.
 \item Technical features: type specialization, process separation.
-\item \cemph{Cross-stage type safety}: type checking at Scala level ensures
-type safety of nesC residuum.
+\item \cemph{Cross-stage type safety}: type checking at Scala level ensures type safety of nesC
+  residuum.
 \item \cemph{Well-founded language design}.
 \end{citemize}
-
 \stopslide
 
-\startslide{Contrast with Related Work}
-
-\cemph{Flask}: Mainland, Morrisett, Welch 2008.
-\begin{citemize}
-\item Macroprogramming functional language.
-\item Staging techniques generate device-level code from macroprogram.
-\end{citemize}
-In our work:
-\begin{citemize}
-\item Total programmer control over device level code (efficiency over expressivity).
-\item Accessible imperative (vs.~declarative) model.
-\item Cross-stage type safety.
-\end{citemize}
-
-\stopslide
+%%%%%
 
 \startslide{Presentation Outline}
-
 \begin{cenumerate}
 \item Motivations, design overview
 \item \cemph{Technical details}
@@ -153,238 +92,92 @@ In our work:
 \end{citemize}
 \item Language implementation and application
 \end{cenumerate}
-
 \stopslide
 
-\startslide{Language Model and Scope}
+%%%%%
 
-In intended application space, computational model includes network 
-communication:
-\begin{citemize}
-\item Obtain environmental information from network
-\item Deployment of specialized code
-\end{citemize}
-Existing protocols and libraries address these. \cemph{We focus on novel
-program staging feature semantics and typing}.
-%:
-%\begin{citemize}
-%\item TinyOS JVM libraries for communication of small values
-%\item Deluge for dissemination of large values (OS images)
-%\end{citemize}
-%Focus on semantics and typing for program staging features.
+\startslide{Example: Introducing Some Type Abbreviations}
+\lstset{basicstyle=\ttfamily, escapeinside={(*@}{@*)}}
+\begin{lstlisting}
+(*@\tt{abbrvt\ mesgT(t) =}@*)
+  { src : (*@\tt{t}@*); dest : (*@\tt{t}@*); data : uint8[] };
+
+(*@\tt{abbrvt\ radioT =}@*)
+  < at (*@$\subtype$@*) uint >
+  { export error_t radio_x((*@\tt{mesgT}@*)(at)*); 
+    import error_t handle_radio_r((*@\tt{mesgT}@*)(at)*); };
+
+(*@\tt{abbrvt\ commT =}@*)
+  (at (*@$\subtype$@*) uint) (*@$\circ$@*) < >
+  { export error_t send((*@\tt{mesgT}@*)(at)*); 
+    import error_t handle_receive((*@\tt{mesgT}@*)(at)*); };
+\end{lstlisting}
 \stopslide
 
-\startslide{Two Program Stages: Scalaness/nesT}
-Language model incorporates two distinct program stages.
-\begin{citemize}
-\item \cemph{First Stage}: for execution in lab or 
-on hub device.
-\begin{citemize}
-\item Written in a Scala variant (\cemph{Scalaness}).
-\item Code-as-value realized as first class TinyOS modules.
-\item Operations on module datatype allow program specialization.
-\end{citemize}
-\item \cemph{Second Stage}: for deployment 
-and execution on network devices.
-\begin{citemize}
-\item Written in type safe variant of nesC (\cemph{nesT}).
-\item Supports integration of TinyOS libraries.
-\end{citemize}
-\end{citemize}
+%%%%%
 
+\startslide{Example: DnesT Modules}
+\lstset{basicstyle=\ttfamily, escapeinside={(*@}{@*)}}
+\begin{lstlisting}
+(*@\tt{authSend =}@*)
+  < at (*@$\subtype$@*) uint; sendk : uint8[] >  
+  { import error_t radio_x((*@\tt{mesgT}@*)(at)*);
+    export error_t send(m : (*@\tt{mesgT}@*)(at)*) 
+        { radio_x(AES_sign(m, sendk)); }
+  };
+
+(*@\tt{authRecv =}@*)
+  < at (*@$\subtype$@*) uint; recvk : uint8[] >  
+  { import error_t handle_recv((*@\tt{mesgT}@*)(at)*);
+    export error_t handle_radio_r(m : (*@\tt{mesgT}@*)(at)*) 
+        { if AES_signed(m, recvk) 
+              handle_recv(m); }
+  };
+\end{lstlisting}
 \stopslide
 
-\startslide{Example: Specializing the Radio Stack}
+%%%%%
 
-TinyOS radio stack allows static configuration of message size.
+\startslide{Example: DScalaness Method}
+\lstset{basicstyle=\ttfamily, escapeinside={(*@}{@*)}}
+\begin{lstlisting}
+def authSpecialize
+ (nmax   : uint16,
+  radioM : radioT,
+  keys   : Array[Array[uint8]]) : commT {
 
-Allow specialization of radio stack based on application context:
-\begin{citemize}
- \item \cemph{Length} of message payload.
- \item \cemph{Type} of message header (address size).
-\end{citemize}
-Potentially \emph{big win}: power consumption in many applications
-dominated by messaging overhead.
+    typedef adt (*@$\subtype$@*) uint =
+      if (nmax <= 256) uint8 else uint16;
+
+    val sendM = (*@\jinst{authSend}{adt; keys(0)}@*);
+    val recvM = (*@\jinst{authRecv}{adt; keys(1)}@*);
+    sendM (*@$\ltimes$@*) (*@\jinst{radioM}{adt}@*) (*@$\ltimes$@*) recvM;
+}
+\end{lstlisting}
 \stopslide
 
-\startslide{Scalaness/nesT Example}
+%%%%%
 
-$$
-\begin{array}{rcl}
-\texttt{messageT} &\defeq& \texttt{\{src:X; dest:X; data:uint8[\,]\}} \\[5mm]
-\texttt{radioT} &\defeq& \texttt{<mt $\subtype$ messageT[uint], paysize:uint>} \\
- & & \texttt{\{\ export\  error\_t\ radio (adt)\ \}}\\[5mm]
-%\texttt{senderT} &\defeq& \texttt{< > \{\ export\  error\_t\ send (messageT)\ \}}\\[2mm]
-\end{array} 
-$$
-$$
-\begin{array}{lcl}
-\texttt{sendC} & = & \texttt{<adt $\subtype$ uint>}\\
-&& \texttt{\{ import error\_t radio(messageT[adt]);}\\
-&& \texttt{\phantom{\{ }export error\_t send (s:adt, d:adt, uint8[] data)}\\
-&& \texttt{\phantom{\{ }\{ radio(\{src = s, dest = d, data = data\}); \}\ \}}\\[10mm]
-\multicolumn{3}{l}{\texttt{def sendSpecialize(nmax:uint16, paysize:uint, radioC:radioT)}}\\
-\{\\
-\multicolumn{3}{l}{\quad \texttt{typedef adt $\subtype$ uint16 = if (nmax <= 256) uint8 else uint16;}}\\
-\multicolumn{3}{l}{\quad \texttt{sendC<adt> $\ltimes$ radioC<messageT[adt], paysize>;}}\\
-\}
-\end{array}
-$$
+\startslide{Example: Generating nesT (and nesC)}
+\lstset{basicstyle=\ttfamily, escapeinside={(*@}{@*)}}
+\begin{lstlisting}
+ (*@\tt{appMR\ =}@*) 
+  < >
+  { export handle_recv(m : (*@\tt{mesgT}@*)(uint8)*) {(*@\ldots@*)} }; 
 
+ (*@\tt{appM\ =}@*) 
+  < >
+  { import send((*@\tt{mesgT}@*)(uint8)*); export main() {(*@\ldots@*)} };  
+
+ image(appM (*@$\ltimes$@*)
+         authSpecialize(nmax, radioM, keys) (*@$\ltimes$@*)
+           appMR);
+\end{lstlisting}
 \stopslide
 
-\startslide{Syntactic Sugar for Presentation}
-
-$$
-\begin{array}{rcl}
-\texttt{\color{red}{messageT}} &\color{red}{\defeq}& \texttt{\color{red}{\{src:X; dest:X; data:uint8[\,]\}}} \\[5mm]
-\texttt{radioT} &\defeq& \texttt{<mt $\subtype$ messageT[uint], paysize:uint>} \\
- & & \texttt{\{\ export\  error\_t\ radio (adt)\ \}}\\[5mm]
-%\texttt{senderT} &\defeq& \texttt{< > \{\ export\  error\_t\ send (messageT)\ \}}\\[2mm]
-\end{array} 
-$$
-$$
-\begin{array}{lcl}
-\texttt{sendC} & = & \texttt{<adt $\subtype$ uint>}\\
-&& \texttt{\{ import error\_t radio(messageT[adt]);}\\
-&& \texttt{\phantom{\{ }export error\_t send (s:adt, d:adt, uint8[] data)}\\
-&& \texttt{\phantom{\{ }\{ radio(\{src = s, dest = d, data = data\}); \}\ \}}\\[10mm]
-\multicolumn{3}{l}{\texttt{def sendSpecialize(nmax:uint16, paysize:uint, radioC:radioT)}}\\
-\{\\
-\multicolumn{3}{l}{\quad \texttt{typedef adt $\subtype$ uint16 = if (nmax <= 256) uint8 else uint16;}}\\
-\multicolumn{3}{l}{\quad \texttt{sendC<adt> $\ltimes$ radioC<messageT[adt], paysize>;}}\\
-\}
-\end{array}
-$$
-
-\stopslide
-
-\startslide{Scalaness/nesT Example: nesT Module Definitions}
-
-$$
-\begin{array}{rcl}
-\texttt{messageT} &\defeq& \texttt{\{src:X; dest:X; data:uint8[\,]\}} \\[5mm]
-\texttt{\color{red}{radioT}} &\color{red}{\defeq}& \texttt{\color{red}{<mt $\subtype$ messageT[uint], paysize:uint>}} \\
- & & \texttt{\color{red}{\{\ export\  error\_t\ radio (adt)\ \}}}\\[5mm]
-%\texttt{senderT} &\defeq& \texttt{< > \{\ export\  error\_t\ send (messageT)\ \}}\\[2mm]
-\end{array} 
-$$
-$$
-\begin{array}{lcl}
-\texttt{\color{red}{sendC}} & \color{red}{=} & \texttt{\color{red}{<adt $\subtype$ uint>}}\\
-&& \texttt{\color{red}{\{ import error\_t radio(messageT[adt]);}}\\
-&& \texttt{\phantom{\{ }\color{red}{export error\_t send (s:adt, d:adt, uint8[] data)}}\\
-&& \texttt{\phantom{\{ }\color{red}{\{ radio(\{src = s, dest = d, data = data\}); \}\ \}}}\\[10mm]
-\multicolumn{3}{l}{\texttt{def sendSpecialize(nmax:uint16, paysize:uint, radioC:radioT)}}\\
-\{\\
-\multicolumn{3}{l}{\quad \texttt{typedef adt $\subtype$ uint16 = if (nmax <= 256) uint8 else uint16;}}\\
-\multicolumn{3}{l}{\quad \texttt{sendC<adt> $\ltimes$ radioC<messageT[adt], paysize>;}}\\
-\}
-\end{array}
-$$
-
-\stopslide
-
-\startslide{Scalaness/nesT Example: First Class Modules}
-
-$$
-\begin{array}{rcl}
-\texttt{messageT} &\defeq& \texttt{\{src:X; dest:X; data:uint8[\,]\}} \\[5mm]
-\texttt{radioT} &\defeq& \texttt{<mt $\subtype$ messageT[uint], paysize:uint>} \\
- & & \texttt{\{\ export\  error\_t\ radio (adt)\ \}}\\[5mm]
-%\texttt{senderT} &\defeq& \texttt{< > \{\ export\  error\_t\ send (messageT)\ \}}\\[2mm]
-\end{array} 
-$$
-$$
-\begin{array}{lcl}
-\texttt{sendC} & = & \texttt{<adt $\subtype$ uint>}\\
-&& \texttt{\{ import error\_t radio(messageT[adt]);}\\
-&& \texttt{\phantom{\{ }export error\_t send (s:adt, d:adt, uint8[] data)}\\
-&& \texttt{\phantom{\{ }\{ radio(\{src = s, dest = d, data = data\}); \}\ \}}\\[10mm]
-\multicolumn{3}{l}{\texttt{def sendSpecialize(nmax:uint16, paysize:uint, \color{red}{radioC:radioT})}}\\
-\{\\
-\multicolumn{3}{l}{\quad \texttt{typedef adt $\subtype$ uint16 = if (nmax <= 256) uint8 else uint16;}}\\
-\multicolumn{3}{l}{\quad \texttt{sendC<adt> $\ltimes$ radioC<messageT[adt], paysize>;}}\\
-\}
-\end{array}
-$$
-
-\stopslide
-
-\startslide{Module Instantiation and Wiring}
-
-$$
-\begin{array}{rcl}
-\texttt{messageT} &\defeq& \texttt{\{src:X; dest:X; data:uint8[\,]\}} \\[5mm]
-\texttt{radioT} &\defeq& \texttt{<mt $\subtype$ messageT[uint], paysize:uint>} \\
- & & \texttt{\{\ export\  error\_t\ radio (adt)\ \}}\\[5mm]
-%\texttt{senderT} &\defeq& \texttt{< > \{\ export\  error\_t\ send (messageT)\ \}}\\[2mm]
-\end{array} 
-$$
-$$
-\begin{array}{lcl}
-\texttt{sendC} & = & \texttt{<adt $\subtype$ uint>}\\
-&& \texttt{\{ import error\_t radio(messageT[adt]);}\\
-&& \texttt{\phantom{\{ }export error\_t send (s:adt, d:adt, uint8[] data)}\\
-&& \texttt{\phantom{\{ }\{ radio(\{src = s, dest = d, data = data\}); \}\ \}}\\[10mm]
-\multicolumn{3}{l}{\texttt{def sendSpecialize(nmax:uint16, paysize:uint, radioC:radioT)}}\\
-\{\\
-\multicolumn{3}{l}{\quad \texttt{typedef adt $\subtype$ uint16 = if (nmax <= 256) uint8 else uint16;}}\\
-\multicolumn{3}{l}{\quad \texttt{\color{red}{sendC<adt> $\ltimes$ radioC<messageT[adt], paysize>;}}}\\
-\}
-\end{array}
-$$
-
-\stopslide
-
-\startslide{Scalaness/nesT Example: Dynamic Type Construction}
-
-$$
-\begin{array}{rcl}
-\texttt{messageT} &\defeq& \texttt{\{src:X; dest:X; data:uint8[\,]\}} \\[5mm]
-\texttt{radioT} &\defeq& \texttt{<mt $\subtype$ messageT[uint], paysize:uint>} \\
- & & \texttt{\{\ export\  error\_t\ radio (adt)\ \}}\\[5mm]
-%\texttt{senderT} &\defeq& \texttt{< > \{\ export\  error\_t\ send (messageT)\ \}}\\[2mm]
-\end{array} 
-$$
-$$
-\begin{array}{lcl}
-\texttt{sendC} & = & \texttt{<adt $\subtype$ uint>}\\
-&& \texttt{\{ import error\_t radio(messageT[adt]);}\\
-&& \texttt{\phantom{\{ }export error\_t send (s:adt, d:adt, uint8[] data)}\\
-&& \texttt{\phantom{\{ }\{ radio(\{src = s, dest = d, data = data\}); \}\ \}}\\[10mm]
-\multicolumn{3}{l}{\texttt{def sendSpecialize(nmax:uint16, paysize:uint, radioC:radioT)}}\\
-\{\\
-\multicolumn{3}{l}{\quad \texttt{\color{red}{typedef adt $\subtype$ uint16 = if (nmax <= 256) uint8 else uint16;}}}\\
-\multicolumn{3}{l}{\quad \texttt{sendC<{\color{red}adt}> $\ltimes$ radioC<messageT[{\color{red}adt}], paysize>;}}\\
-\}
-\end{array}
-$$
-
-\stopslide
-
-\startslide{Well-Founded Semantics and Typing}  
-
-Complex interaction of many elements. Module composition semantic challenges:
-\begin{citemize}
-\item Migration of values and types across stages.
-\begin{citemize}
-\item Migrating \cemph{values may contain references}.
-\end{citemize}
-\end{citemize}
-Module composition typing challenges:
-\begin{citemize}
-\item Operations should preserve typeability of module components (\cemph{cross-stage type
-safety}).
-\item Type discipline over migrating values-- enforce \cemph{process separation}.
-\item Static module types may be \cemph{abstract} (up to subtyping bounds) wrt 
-dynamically \cemph{constructed types}.
-\end{citemize}
-
-\stopslide
+%%%%%
 
 \startslide{Presentation Outline}
-
 \begin{cenumerate}
 \item Motivations, design overview
 \item \cemph{Technical details}
@@ -394,11 +187,11 @@ dynamically \cemph{constructed types}.
 \end{citemize}
 \item Language implementation and application
 \end{cenumerate}
-
 \stopslide
 
-\startslide{\fml\ Foundations}
+%%%%%
 
+\startslide{\fml\ Foundations}
 The \fml\ language\footnote{\cref{Yu David Liu, Christian Skalka, and Scott Smith. Type-Specialized Staged Programming with Process Separation. Journal of Higher Order and Symbolic Computation, 24(4):341-385, 2012.}} was developed to study these elements at a foundational level.
 \begin{citemize}
 \item Comprises $F_{\le}$.
@@ -408,11 +201,11 @@ interactions between separate process spaces.
 \item Formal metatheory includes cross-stage type safety-- residue of  
 partial evaluation of well-typed code is guaranteed to be well-typed.
 \end{citemize}
-
 \stopslide
 
-\startslide{The Model of a Module}
+%%%%%
 
+\startslide{The Model of a Module}
 The essence of a nesT module definition:
 {\Large
 $$
@@ -427,8 +220,9 @@ $$
 \end{citemize}
 \stopslide
 
-\startslide{The Model of Module Instantiation}
+%%%%%
 
+\startslide{The Model of Module Instantiation}
 The essence of a Scalaness/nesT module instantiation:
 {\Large
 $$
@@ -447,8 +241,9 @@ MetaML.
 \end{citemize}
 \stopslide
 
-\startslide{Type Construction and Escape}
+%%%%%
 
+\startslide{Type Construction and Escape}
 A $\mathrm{tlet}$ binding mechanism allows construction of types:
 {\large
 $$
@@ -460,11 +255,11 @@ $$
 \item Restriction: only concrete types are values, no higher-order type constructors.
 \item Dynamically constructed types may escape their scope.
 \end{citemize}
-
 \stopslide
 
-\startslide{Type Construction and Escape}
+%%%%%
 
+\startslide{Type Construction and Escape}
 We introduce an \cemph{$\exists$ type binder} for typing constructed type escape:
 {\large
 \begin{eqnarray*}
@@ -485,8 +280,9 @@ $$
 Cross-stage type safety does not interfere with code type specialization.
 \stopslide
 
-\startslide{$\exists$ Type?}
+%%%%%
 
+\startslide{$\exists$ Type?}
 Usage of $\exists$ type is non-standard.
 \begin{citemize}
 \item No pack, unpack rules.
@@ -515,11 +311,11 @@ But several appealing features of the approach:
 where $\Delta$ subtyping coercions, $\Gamma$ free variable typings, $t$ in \TirName{TLet}
 has \emph{eigenvariable} interpretation.
 \end{citemize}
-
 \stopslide
 
-\startslide{$\exists$ Type?}
+%%%%%
 
+\startslide{$\exists$ Type?}
 Bounded $\exists$ type form well-studied, esp.~Ghelli and Pierce 1998:
 \begin{citemize}
 \item Crucial elements of type checking in $F_\le$ (\emph{promotion}).
@@ -529,8 +325,9 @@ Bounded $\exists$ type form well-studied, esp.~Ghelli and Pierce 1998:
  \item Invariant $\exists$ bounds decidable. 
 \end{citemize}
 \end{citemize}
-
 \stopslide
+
+%%%%%
 
 \startslide{Putting it together in Scalaness}
 $$
@@ -560,8 +357,9 @@ $$
 $\codt{T}$ is syntactic type transformation/interpretation (Scalaness to nesT).
 \stopslide
 
-\startslide{Presentation Outline}
+%%%%%
 
+\startslide{Presentation Outline}
 \begin{cenumerate}
 \item Motivations, design overview
 \item Technical details
@@ -571,8 +369,9 @@ $\codt{T}$ is syntactic type transformation/interpretation (Scalaness to nesT).
 \end{citemize}
 \item \cemph{Language implementation and application}
 \end{cenumerate}
-
 \stopslide
+
+%%%%%
 
 \startslide{Implementation}
 Scalaness/nesT has been implemented.
@@ -586,15 +385,9 @@ typings, nesT type checking.
 Github repository at \url{http://tinyurl.com/a85z8cu}.
 \stopslide
 
-\startslide{Implementation}
-
-
-\hspace*{.6in}\includegraphics{scalaness}
-
-\stopslide
+%%%%%
 
 \startslide{Application: WSN Session Key Negotiation}
-
 Currently studying authorization scheme for WSNs.
 \begin{citemize}
 \item WSN may comprise interacting security domains with different credentials
@@ -609,7 +402,9 @@ on Crossbow TelosB.
 \cemph{Refactor session key negotiation and authorized access into 
 different stages.}
 \stopslide
-%
+
+%%%%%
+
 %\startslide{Application: WSN Session Key Negotiation}
 %
 %Use Scalaness/nesT to orchestrate more efficient key negotiation:
@@ -622,23 +417,29 @@ different stages.}
 %\end{citemize}
 %\stopslide
 
-\startslide{Application: WSN Session Key Negotiation}
+%%%%%
 
+\startslide{Application: WSN Session Key Negotiation}
 \hspace*{.6in}\includegraphics{spartanrpc}
 
 Decreases WSN computational overhead, RAM and ROM consumption. 
 \stopslide
 
-\startslide{Future Work}
+%%%%%
 
+\startslide{Future Work}
 \begin{citemize}
 \item Clarifying ``middle ground'' between langage borders, syntactic transformations.
 \item Incorporating network communication. 
 \item Other applications: backcasting and evolving control.
 \end{citemize}
-
 \stopslide
 
-\startslide{Questions?}
+%%%%%
 
+\startslide{Questions?}
+\makeatletter
+\center{Peter Chapin \textless pchapin@cs.uvm.edu\textgreater}
+\center{Scalaness source: \cemph{https://github.com/pchapin/scala}}
+\makeatother
 \stopslide

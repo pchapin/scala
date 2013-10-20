@@ -1,5 +1,11 @@
 
-#include "MessageType.h"
+// #include "MessageType.h"
+
+struct MessageType {
+    addrT    src;
+    addrT    dest;
+    uint8_t  data[64];
+};
 
 module RadioC {
     provides command error_t radio( struct MessageType message );

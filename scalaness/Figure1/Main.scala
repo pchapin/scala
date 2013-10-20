@@ -135,12 +135,16 @@ object Main {
       if (nmax < 256) new MetaType[UInt32](NesTTypes.UInt8)
         else new MetaType[UInt32](NesTTypes.UInt16)
 
+    val addrtReversed: MetaType[UInt32] =
+      if (nmax < 256) new MetaType[UInt32](NesTTypes.UInt16)
+        else new MetaType[UInt32](NesTTypes.UInt8)
+
     @TypeAbbr(SendT.parameterize(List("MessageType{src: addrT, dest: addrT, data: Array[UInt8,64]}")))
     val rawSendC = new SendC
     
 
     @TypeAbbr(ScodeT)
-    val scode = (rawSendC.instantiate(addrt)) +> rawRadioC.instantiate(addrt)
+    val scode = (rawSendC.instantiate(addrt)) +> rawRadioC.instantiate(addrtReversed)
     // Extra parentheses around first component above intentional. Does it work?
 
     @TypeAbbr(NodeT)
