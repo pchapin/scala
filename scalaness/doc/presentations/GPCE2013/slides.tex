@@ -34,13 +34,13 @@
 \startslide{Challenges of Programming Sensor Networks}
 \begin{citemize}
 \item Heavily resource constrained---RAM, ROM, clock cycles, power.
-\item E.g., Crossbow TelosB: 4\,MHz, 10\,KiB RAM, 48\,KiB ROM
+\item e.g., Crossbow TelosB: 4\,MHz, 10\,KiB RAM, 48\,KiB ROM
 \item \ldots yet complex, distributed algorithms used
 \end{citemize}
 
 State of the art:
 \begin{citemize}
-\item NesC and TinyOS: optimized for efficiency, widely used.
+\item nesC and TinyOS: optimized for efficiency, widely used.
 \item Various \cemph{macroprogramming} proposals, but mostly ad hoc node level programming
   techniques in practice.
 \end{citemize}
@@ -48,24 +48,15 @@ State of the art:
 
 %%%%%
 
-\startslide{Staging as a Tool}
-In the lab:
-\begin{citemize}
-\item Create first stage program to specialize and compose modules of second stage code.
-\end{citemize}
-
-In the field on a base station or \cemph{hub}:
-\begin{citemize}
-\item Execute first stage program to generate second stage program accounting for field
-  conditions.
-\item Deploy second stage program to nodes (over the air).
-\end{citemize}
-\stopslide
-
-%%%%%
-
 \startslide{Workflow}
-\hspace*{.6in}\includegraphics{scalaness}
+\centering
+\scalebox{0.80}{\includegraphics{scalaness}}
+\begin{citemize}
+\item \cemph{In the lab}: Create first stage program to specialize and compose modules of second
+  stage code.
+\item \cemph{In the field}: Execute first stage program to generate second stage program
+  accounting for field conditions. Deploy to nodes (over the air).
+\end{citemize}
 \stopslide
 
 %%%%%
@@ -73,7 +64,7 @@ In the field on a base station or \cemph{hub}:
 \startslide{Our Approach}
 \begin{citemize}
 \item \cemph{Lightweight macroprogramming}. Scala at metalevel, nesC residuum.
-\item Technical features: type specialization, process separation.
+\item Technical features: \cemph{type specialization}, \cemph{process separation}.
 \item \cemph{Cross-stage type safety}: type checking at Scala level ensures type safety of nesC
   residuum.
 \item \cemph{Well-founded language design}.
@@ -116,7 +107,7 @@ In the field on a base station or \cemph{hub}:
 
 %%%%%
 
-\startslide{Example: DnesT Modules}
+\startslide{Example: nesT Modules}
 \lstset{basicstyle=\ttfamily, escapeinside={(*@}{@*)}}
 \begin{lstlisting}
 (*@\tt{authSend =}@*)
@@ -138,7 +129,7 @@ In the field on a base station or \cemph{hub}:
 
 %%%%%
 
-\startslide{Example: DScalaness Method}
+\startslide{Example: Scalaness Method}
 \lstset{basicstyle=\ttfamily, escapeinside={(*@}{@*)}}
 \begin{lstlisting}
 def authSpecialize
@@ -158,7 +149,7 @@ def authSpecialize
 
 %%%%%
 
-\startslide{Example: Generating nesT (and nesC)}
+\startslide{Example: Generating Residual Program}
 \lstset{basicstyle=\ttfamily, escapeinside={(*@}{@*)}}
 \begin{lstlisting}
  (*@\tt{appMR\ =}@*) 
@@ -191,145 +182,40 @@ def authSpecialize
 
 %%%%%
 
-\startslide{\fml\ Foundations}
-The \fml\ language\footnote{\cref{Yu David Liu, Christian Skalka, and Scott Smith. Type-Specialized Staged Programming with Process Separation. Journal of Higher Order and Symbolic Computation, 24(4):341-385, 2012.}} was developed to study these elements at a foundational level.
+\startslide{\fml\ Foundations} The \fml\ language\footnote{\cref{Yu David Liu, Christian Skalka,
+    and Scott Smith. Type-Specialized Staged Programming with Process Separation. Journal of
+    Higher Order and Symbolic Computation, 24(4):341-385, 2012.}} was developed to study these
+elements at a foundational level.
 \begin{citemize}
 \item Comprises $F_{\le}$.
-\item MetaML-like syntax and semantics, but novel features to moderate 
-interactions between separate process spaces.
+\item MetaML-like syntax and semantics, but novel features to moderate interactions between
+  separate process spaces.
 \item Resricted form of type construction (not full $\lambda_\omega$).
-\item Formal metatheory includes cross-stage type safety-- residue of  
-partial evaluation of well-typed code is guaranteed to be well-typed.
+\item Formal metatheory includes cross-stage type safety---residue of partial evaluation of
+  well-typed code is guaranteed to be well-typed.
 \end{citemize}
 \stopslide
 
 %%%%%
 
-\startslide{The Model of a Module}
-The essence of a nesT module definition:
-{\Large
-$$
-\lambda x : \tau_1 . \Lambda t \subtype \tau_2 . \langle e \rangle
-$$
-}
+\startslide{Dynamic Type Construction}
+\lstset{basicstyle=\ttfamily, escapeinside={(*@}{@*)}}
+\begin{center}
+\begin{lstlisting}
+typedef adt (*@$\subtype$@*) uint =
+    if (nmax <= 256) uint8 else uint16;
+\end{lstlisting}
+\end{center}
+
 \begin{citemize}
-\item $\langle e \rangle$ is code-as-value (the ``module definition'').
-\item $\lambda$ binds ``value parameter''.
-\item $\Lambda$ binds ``type parameter'', with type bound.
-\item If $x$ is free in $e$, then $\tau_1 = \langle \tau \rangle$. \cemph{The stage levels must match}.
+\item nesT types used as values at the Scala level; can't be used as types.
+\item Only concrete types are values, no higher-order type constructors.
 \end{citemize}
 \stopslide
 
 %%%%%
 
-\startslide{The Model of Module Instantiation}
-The essence of a Scalaness/nesT module instantiation:
-{\Large
-$$
-(\lambda x : \tau_1 . \Lambda t \subtype \tau_2 . \langle e \rangle)(\mathrm{lift}\ v) \tau
-$$
-}
-\begin{citemize}
-\item Value $v$ must be explicitly ``lifted'' to next stage.
-\begin{citemize}
-\item Only way for values to migrate across stages, no free variable capture as in 
-MetaML.
-\item Lifting enforces serialization (implicit lifting in Scalaness).
-\item Enforced by the type system: require that $\tau_1 = 
-\langle \tau' \rangle$ and $v : \tau'$.
-\end{citemize}
-\end{citemize}
-\stopslide
-
-%%%%%
-
-\startslide{Type Construction and Escape}
-A $\mathrm{tlet}$ binding mechanism allows construction of types:
-{\large
-$$
-\mathrm{tlet\ } t \subtype \mathrm{uint16} = \metaite{e}{\mathrm{uint8}}{\mathrm{uint16}} 
-\mathrm{\ in\ }(\lambda x : t . x)\\
-$$
-}
-\begin{citemize}
-\item Restriction: only concrete types are values, no higher-order type constructors.
-\item Dynamically constructed types may escape their scope.
-\end{citemize}
-\stopslide
-
-%%%%%
-
-\startslide{Type Construction and Escape}
-We introduce an \cemph{$\exists$ type binder} for typing constructed type escape:
-{\large
-\begin{eqnarray*}
-&\mathrm{tlet\ } t \subtype \mathrm{uint16} = \metaite{e}{\mathrm{uint8}}{\mathrm{uint16}} 
-\mathrm{\ in\ }(\lambda x : t . x)\\
-&: \\
-&\exists t \subtype \mathrm{uint16} . t \rightarrow t
-\end{eqnarray*}
-}
-\cemph{Execution obtains a \emph{refinement} of the type}; assuming $e \rightarrow^* \mathrm{true}$:
-{\large
-$$
-\ldots \rightarrow^* (\lambda x : \mathrm{uint8} . x) 
-\qquad \text{where} \ \ (\lambda x : \mathrm{uint8} . x) : \mathrm{uint8} \rightarrow
- \mathrm{uint8}
-$$
-}
-Cross-stage type safety does not interfere with code type specialization.
-\stopslide
-
-%%%%%
-
-\startslide{$\exists$ Type?}
-Usage of $\exists$ type is non-standard.
-\begin{citemize}
-\item No pack, unpack rules.
-\end{citemize}
-But several appealing features of the approach:
-\begin{citemize}
-\item Sound typing $\Gamma, \Delta \vdash e : \tau$ must \cemph{encapsulate} the definition of constructed types.
-
-{\small
-\begin{mathpar}
-\inferrule[TLet]
-{
-\stjudge{\Gamma}{\Delta}{e}{\typet[\sigma]}\\
-%\Delta \vdash \tau'' \subtype \tau'\\
-\stjudge{\Gamma}{\Delta; t \subtype \sigma}{e'}{\tau}
-}
-{\stjudge{\Gamma}{\Delta}{\tlet{t \subtype \sigma}{e}{e'}}
-  {\exists t \subtype \sigma . \tau}}
-
-\inferrule[$\exists$-E]{\Gamma, \Delta; \vdash e : \exists t \subtype \tau' . \tau
-  \\  t \not\in \Delta, \Gamma}{
- \Gamma, \Delta; t\subtype \tau' \vdash e : \tau}
-\end{mathpar}
-}
-
-where $\Delta$ subtyping coercions, $\Gamma$ free variable typings, $t$ in \TirName{TLet}
-has \emph{eigenvariable} interpretation.
-\end{citemize}
-\stopslide
-
-%%%%%
-
-\startslide{$\exists$ Type?}
-Bounded $\exists$ type form well-studied, esp.~Ghelli and Pierce 1998:
-\begin{citemize}
-\item Crucial elements of type checking in $F_\le$ (\emph{promotion}).
-\item \cemph{Decidable} subtyping relation, with algorithm.
-\begin{citemize}
- \item Covariant $\exists$ type bounds sound but undecidable.
- \item Invariant $\exists$ bounds decidable. 
-\end{citemize}
-\end{citemize}
-\stopslide
-
-%%%%%
-
-\startslide{Putting it together in Scalaness}
+\startslide{Sample Scalaness Typing}
 $$
 \jmodt{\Delta_1}{\margs{\Delta_2, \Gamma}\lc 
   \imports; \exportsty \rc}
@@ -338,20 +224,20 @@ Module type form, where:
 \begin{citemize}
 \item $\Delta_1$ bounds of types constructed externally to the module
 \item $\Delta_2$, $\Gamma$ type parameter bounds and term parameter types
-\item $\imports$, $\exports$ import and export type signatures
+\item $\imports$, $\exportsty$ import and export type signatures
 \end{citemize}
 $$
 \inferrule[ModInstT]
 {\Gamma \vdash \tt{e} : \jmodt{\varnothing}{\margs{\vect{t} \subtype \vect{\t}_1; 
  \vect{x} : \vect{\t}_2} \lc 
   \imports; \exportsty \rc}\\
- \Gamma \vdash \ttvec{e}_1 : \jinst{Type}{\ttvec{T}_1}\\
+ \Gamma \vdash \ttvec{e}_1 : \jinst{MetaType}{\ttvec{T}_1}\\
  \Gamma \vdash \ttvec{e}_2 : \ttvec{T}_2 \\
  \vdash \codt{\ttvec{T}_1} \subtype \vect{\t}_1\\
  \vdash \codt{\ttvec{T}_2} \subtype \vect{\t}_2
 }
-{\Gamma \vdash \jinst{e}{\ttvec{e}_1; \ttvec{e}_2} : \jmodt{\vect{t}\subtype \codt{\ttvec{T}_1}}{\margs{} \lc
-  \imports; \exportsty \rc} }
+{\Gamma \vdash \jinst{e}{\ttvec{e}_1; \ttvec{e}_2} : \jmodt{\ttvec{e}_1\subtype
+    \codt{\ttvec{T}_1}}{\margs{} \lc \imports[\ttvec{e}_1/\vect{t}]; \exportsty[\ttvec{e}_2/\vect{t}] \rc} }
 $$
 
 $\codt{T}$ is syntactic type transformation/interpretation (Scalaness to nesT).
@@ -376,28 +262,28 @@ $\codt{T}$ is syntactic type transformation/interpretation (Scalaness to nesT).
 \startslide{Implementation}
 Scalaness/nesT has been implemented.
 \begin{citemize}
-\item nesT defined as restricted subset of nesC, compiled as nesC with some 
-rewriting (e.g.~array bounds checks).
-\item Scalaness defined by extension to the Scala compiler and plugin architecture.
-\item Type checking extends Scala type checker with module types, module operation 
-typings, nesT type checking. 
+\item nesT defined as restricted subset of nesC, compiled as nesC with some rewriting
+  (e.g.~array bounds checks).
+\item Scalaness defined by extension to the Scala compiler.
+\item Type checking extends Scala type checker with module types, module operation typings, nesT
+  type checking.
 \end{citemize}
-Github repository at \url{http://tinyurl.com/a85z8cu}.
+Github repository: \url{https://github.com/pchapin/scala}
+
+Web site with samples: \url{http://tinyurl.com/a85z8cu}
 \stopslide
 
 %%%%%
 
 \startslide{Application: WSN Session Key Negotiation}
-Currently studying authorization scheme for WSNs.
+Currently studying authorization schemes for WSNs.
 \begin{citemize}
-\item WSN may comprise interacting security domains with different credentials
-and policies.
+\item WSN may comprise interacting security domains with different credentials and policies.
 \item Symmetric keys provide efficient foundation for securing access.
-\item Public keys allow symmetric key negotiation (Diffie-Hellman) in ``open world''
-model.
+\item Public keys allow symmetric key negotiation (Diffie-Hellman) in ``open world'' model.
 \end{citemize}
-Public key signature verification wildly expensive in WSNs; around 90 seconds
-on Crossbow TelosB.
+Public key signature verification wildly expensive in WSNs; around 90 seconds on Crossbow
+TelosB.
 
 \cemph{Refactor session key negotiation and authorized access into 
 different stages.}
@@ -405,24 +291,27 @@ different stages.}
 
 %%%%%
 
-%\startslide{Application: WSN Session Key Negotiation}
-%
-%Use Scalaness/nesT to orchestrate more efficient key negotiation:
-%\begin{citemize}
-%\item 
-%\item Key negotiation performed over on communicating high-powered 
-%hubs in first stage code.
-%\item Specialize second stage code with negotiated key material, deploy 
-%to WSN nodes for authorized resource access.
-%\end{citemize}
-%\stopslide
-
-%%%%%
-
 \startslide{Application: WSN Session Key Negotiation}
 \hspace*{.6in}\includegraphics{spartanrpc}
 
 Decreases WSN computational overhead, RAM and ROM consumption. 
+\stopslide
+
+%%%%%
+
+\startslide{Results}
+\begin{center}
+\begin{tabular}{|r||c|c|c|c|} \hline
+              & Unsecured & Unstaged* & Staged & Savings\\ \hline
+Sensor ROM    &     36254 &    48616 &  36596 & 25\% \\
+Sensor RAM    &      2868 &     5417 &   3038 & 44\% \\ \hline
+Harvester ROM &     24316 &    35834 &  24436 & 32\% \\
+Harvester RAM &      2274 &     4771 &   2402 & 50\% \\ \hline
+\end{tabular}
+\end{center}
+
+{\small * Chapin, Skalka; \textit{SpartanRPC}; Technical Report;
+  \url{http://www.cs.uvm.edu/~skalka/skalka-pubs/chapin-skalka-spartanrpctr.pdf}}
 \stopslide
 
 %%%%%
@@ -440,6 +329,6 @@ Decreases WSN computational overhead, RAM and ROM consumption.
 \startslide{Questions?}
 \makeatletter
 \center{Peter Chapin \textless pchapin@cs.uvm.edu\textgreater}
-\center{Scalaness source: \cemph{https://github.com/pchapin/scala}}
+\center{\cemph{https://github.com/pchapin/scala}}
 \makeatother
 \stopslide
