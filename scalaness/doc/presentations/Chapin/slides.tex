@@ -20,9 +20,77 @@
 
 %%%%%
 
-\startslide{Introduction}
-This is wonderful!
+\startslide{Objective}
+\centerline{\emph{\textbf{Trust Management Authorization in Sensor Networks}}}
+
+\begin{citemize}
+\item \cemph{Trust Management}: A way of authorizing access to resources in distributed, dynamic
+  systems where principals don't know each other.
+
+\item \cemph{Sensor Networks}: A kind of embedded system with very limiting CPU, memory, and
+  power constraints.
+\end{citemize}
 \stopslide
+
+%%%%%
+
+\startslide{Two Solutions}
+\begin{citemize}
+\item \cemph{SpartanRPC}: An extension to the nesC programming language allowing for secure RPC.
+
+\item \cemph{Scalaness/nesT}: A staged programming system that allows an extended Scala to
+  specialize and compose nesT modules.
+\end{citemize}
+
+Both solutions are feasible but have different advantages.
+
+Both systems can be generalized beyond sensor networks.
+
+Scalaness can be generalized beyond authorization applications.
+\stopslide
+
+%%%%%
+
+\startslide{Langage Based Approach}
+Use programming languages to address the issues.
+
+\begin{citemize}
+\item \cemph{More efficient}: Compiler in a position to do optimizations.
+\item \cemph{More robust}: Compiler static analysis finds more errors.
+\item \cemph{Easier to use}: Special syntax/semantics makes features more accessible.
+\item \cemph{Better foundation}: Rigorous techniques, e.g., type theory, can guide design.
+\end{citemize}
+\stopslide
+
+%%%%%
+
+\startslide{SpartanRPC Motivation}
+\centerline{\scalebox{1.0}{\includegraphics{Figures/SpartanRPC-Motivation.pdf}}}
+\stopslide
+
+%%%%%
+
+\startslide{Scalaness Motivation}
+\centerline{\scalebox{1.0}{\includegraphics{Figures/Scalaness-Motivation.pdf}}}
+\stopslide
+
+%%%%%
+
+\startslide{Application Possibilities}
+\begin{citemize}
+  \item Directed diffusion \& data aggregation.
+  \item In-network time synchronization.
+  \item Data collection (\cemph{Snowcloud}).
+  \item Mobile applications.
+  \begin{citemize}
+    \item Querying infrastructure networks.
+    \item ``Smart cars.''
+    \item Body area networks.
+  \end{citemize}
+\end{citemize}
+\stopslide
+
+%%%%%
 
 %%%%%
 
@@ -65,7 +133,7 @@ $
 
 \startslide{$RT_0$ Credential Forms}
 Simplest member of the $RT$ family\footnote{\textit{Design of a Role-based Trust-management
-    Framework}, Mitchell \& Winsborough, 2002}.
+    Framework}; Li, Mitchell, Winsborough, 2002}.
 \begin{cenumerate}
 \item $\cred{A.r}{E}{}$ 
 \item $\cred{A.r}{B.s}{}$ 
@@ -152,6 +220,149 @@ $\textit{isMember}(\textit{?x}, A, r) \leftarrow
 \item Evaluation
 \item Conclusion
 \end{cenumerate}
+\stopslide
+
+%%%%%
+
+\startslide{Sensor Network RPC}
+\begin{citemize}
+\item Wireless networks are \cemph{volatile}, \cemph{unreliable}, have \cemph{limited power}
+  (must sleep).
+\item \emph{Synchronous RPC is not suitable}. Invoker can't afford to wait for a reply.
+\item SpartanRPC is asynchronous.
+\end{citemize}
+\stopslide
+
+%%%%
+
+\startslide{Tasks vs. Duties}
+\begin{citemize}
+\item nesC supports tasks\ldots\ asynchronous execution.
+\item Tasks have limitations
+\begin{citemize}
+  \item Can't take parameters.
+  \item Must be defined in the same module that posts.
+\end{citemize}
+\item SpartanRPC extends nesC tasks to \cemph{duties}.
+\begin{citemize}
+  \item Can take parameters.
+  \item Can be posted remotely.
+\end{citemize}
+\end{citemize}
+\stopslide
+
+%%%%
+
+\startslide{Duty Example}
+{\small
+\begin{lstlisting}[language=nesC, escapechar=!]
+
+                 interface LEDControl {
+                   !\color{red}{duty}! void setLEDs(uint8_t mask);
+                 }
+
+
+
+module ClientC {                   module ServerC {
+  uses interface LEDControl;         provides !\color{red}{remote}!
+}                                      interface LEDControl;
+implementation {                   }
+  ...                              implementation {
+  post LEDControl.setLEDs!\color{red}{(42)}!;       !\color{red}{duty}! void LEDControl.setLEDs
+  ...                                  (uint8_t mask)
+}                                    {
+                                       ...
+                                     }
+                                   }
+\end{lstlisting} 
+}
+\stopslide
+
+%%%%%
+
+\startslide{nesC Wiring}
+
+{\small
+\begin{lstlisting}[language=nesC]
+               configuration AppC { }
+               implementation {
+                 components MainC, LEDControllerC;
+                 MainC.LEDControl -> LEDControllerC;
+               }
+\end{lstlisting}
+}
+
+\begin{citemize}
+\item Component wiring is static. Unable to change connections at run time.
+\item SpartanRPC models inter-node connections as \cemph{dynamic wires}.
+\end{citemize}
+\stopslide
+
+%%%%%
+
+\startslide{Dynamic Wires}
+{\small
+\begin{lstlisting}[language=nesC, escapechar=!]
+configuration AppC { }
+implementation {
+  components ClientC, RemoteSelectorC;
+  ClientC.LEDControl -> !\color{red}{[RemoteSelectorC]}!.LEDControl;
+}
+
+             interface ComponentManager {
+               command component_set elements( );
+             }
+\end{lstlisting}
+}
+
+\begin{citemize}
+  \item RemoteSelectorC \lstinline{provides} the ComponentManager interface.
+  \item A \lstinline{component_set} is an array of remote component IDs.
+\end{citemize}
+\stopslide
+
+%%%%%
+
+\startslide{Security Example}
+{\small
+\begin{lstlisting}[language=nesC, escapechar=!]
+
+                 interface LEDControl {
+                   duty void setLEDs(uint8_t mask);
+                 }
+
+
+
+module ClientC {                   module ServerC {
+  uses interface LEDControl;         provides remote
+}                                      interface LEDControl
+implementation {                         !\color{red}{requires "UVM.admin"}!;
+  ...                              }
+  post LEDControl.setLEDs(42);     implementation {
+  ...                                duty void LEDControl.setLEDs
+}                                      (uint8_t mask)
+                                     {
+                                       ...
+                                     }
+                                   }
+\end{lstlisting} 
+}
+\stopslide
+
+%%%%%
+
+\startslide{Security Example}
+{\small
+\begin{lstlisting}[language=nesC, escapechar=!]
+         configuration AppC { }
+         implementation {
+           components ClientC, RemoteSelectorC;
+
+           !\color{red}{activate "*" as "Alice" for}! ClientC.LEDControl ->
+             [RemoteSelectorC].LEDControl;
+         }
+\end{lstlisting}
+}
 \stopslide
 
 %%%%%

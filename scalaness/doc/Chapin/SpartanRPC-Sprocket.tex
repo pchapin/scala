@@ -444,7 +444,7 @@ under what \RT\ entity the invocations will be performed, and (2) the client may
 credentials in their possession which are to be activated for use in the invocation. Syntax is
 as follows:
 \begin{lstlisting}[mathescape=true]
-enable "$C_1, \ldots, C_n$" as "$B$" for C.I -> [M].J
+activate "$C_1, \ldots, C_n$" as "$B$" for C.I -> [M].J
 \end{lstlisting}
 For any invocation made through this wiring the credentials $C_1, \ldots, C_n$ will be remotely
 added to the RPC server's authorization environment for the authorization decision, via a
@@ -511,7 +511,7 @@ specification of client identity as !NetB!.
 {
 \singlespace
 \begin{lstlisting}
-enable
+activate
   "WSNAdmin.control <- NetB.control, 
    NetB.control     <- NetB" as "NetB"
 for 
