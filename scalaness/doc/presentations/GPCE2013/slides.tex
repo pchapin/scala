@@ -89,7 +89,7 @@ State of the art:
 
 \startslide{Example: Introducing Some Type Abbreviations}
 \lstset{basicstyle=\ttfamily, escapeinside={(*@}{@*)}}
-\begin{lstlisting}
+\begin{lstlisting}[language=nesC]
 (*@\tt{abbrvt\ mesgT(t) =}@*)
   { src : (*@\tt{t}@*); dest : (*@\tt{t}@*); data : uint8[] };
 
@@ -109,7 +109,7 @@ State of the art:
 
 \startslide{Example: nesT Modules}
 \lstset{basicstyle=\ttfamily, escapeinside={(*@}{@*)}}
-\begin{lstlisting}
+\begin{lstlisting}[language=nesC]
 (*@\tt{authSend =}@*)
   < at (*@$\subtype$@*) uint; sendk : uint8[] >  
   { import error_t radio_x((*@\tt{mesgT}@*)(at)*);
@@ -121,7 +121,7 @@ State of the art:
   < at (*@$\subtype$@*) uint; recvk : uint8[] >  
   { import error_t handle_recv((*@\tt{mesgT}@*)(at)*);
     export error_t handle_radio_r(m : (*@\tt{mesgT}@*)(at)*) 
-        { if AES_signed(m, recvk) 
+        { if (AES_signed(m, recvk))
               handle_recv(m); }
   };
 \end{lstlisting}
@@ -131,7 +131,7 @@ State of the art:
 
 \startslide{Example: Scalaness Method}
 \lstset{basicstyle=\ttfamily, escapeinside={(*@}{@*)}}
-\begin{lstlisting}
+\begin{lstlisting}[language=scalaness]
 def authSpecialize
  (nmax   : uint16,
   radioM : radioT,
@@ -151,12 +151,12 @@ def authSpecialize
 
 \startslide{Example: Generating Residual Program}
 \lstset{basicstyle=\ttfamily, escapeinside={(*@}{@*)}}
-\begin{lstlisting}
- (*@\tt{appMR\ =}@*) 
+\begin{lstlisting}[language=scalaness]
+val appMR =
   < >
   { export handle_recv(m : (*@\tt{mesgT}@*)(uint8)*) {(*@\ldots@*)} }; 
 
- (*@\tt{appM\ =}@*) 
+val appM = 
   < >
   { import send((*@\tt{mesgT}@*)(uint8)*); export main() {(*@\ldots@*)} };  
 
@@ -198,23 +198,6 @@ elements at a foundational level.
 
 %%%%%
 
-\startslide{Dynamic Type Construction}
-\lstset{basicstyle=\ttfamily, escapeinside={(*@}{@*)}}
-\begin{center}
-\begin{lstlisting}
-typedef adt (*@$\subtype$@*) uint =
-    if (nmax <= 256) uint8 else uint16;
-\end{lstlisting}
-\end{center}
-
-\begin{citemize}
-\item nesT types used as values at the Scala level; can't be used as types.
-\item Only concrete types are values, no higher-order type constructors.
-\end{citemize}
-\stopslide
-
-%%%%%
-
 \startslide{Sample Scalaness Typing}
 $$
 \jmodt{\Delta_1}{\margs{\Delta_2, \Gamma}\lc 
@@ -222,25 +205,26 @@ $$
 $$
 Module type form, where:
 \begin{citemize}
-\item $\Delta_1$ bounds of types constructed externally to the module
 \item $\Delta_2$, $\Gamma$ type parameter bounds and term parameter types
 \item $\imports$, $\exportsty$ import and export type signatures
+\item $\Delta_1$ bounds of types constructed externally to the module
+\begin{citemize}
+\item Early substitution of these types unsound due to possible contravariant use in $\imports;
+  \exportsty$.
+\end{citemize}
 \end{citemize}
 $$
 \inferrule[ModInstT]
 {\Gamma \vdash \tt{e} : \jmodt{\varnothing}{\margs{\vect{t} \subtype \vect{\t}_1; 
- \vect{x} : \vect{\t}_2} \lc 
-  \imports; \exportsty \rc}\\
- \Gamma \vdash \ttvec{e}_1 : \jinst{MetaType}{\ttvec{T}_1}\\
+ \vect{x} : \vect{\t}_2} \lc \imports; \exportsty \rc} \\
+ \Gamma \vdash \ttvec{s} : \jinst{MetaType}{\ttvec{T}_1} \\
  \Gamma \vdash \ttvec{e}_2 : \ttvec{T}_2 \\
- \vdash \codt{\ttvec{T}_1} \subtype \vect{\t}_1\\
+ \vdash \codt{\ttvec{T}_1} \subtype \vect{\t}_1 \\
  \vdash \codt{\ttvec{T}_2} \subtype \vect{\t}_2
 }
-{\Gamma \vdash \jinst{e}{\ttvec{e}_1; \ttvec{e}_2} : \jmodt{\ttvec{e}_1\subtype
-    \codt{\ttvec{T}_1}}{\margs{} \lc \imports[\ttvec{e}_1/\vect{t}]; \exportsty[\ttvec{e}_2/\vect{t}] \rc} }
+{\Gamma \vdash \jinst{e}{\ttvec{s}; \ttvec{e}_2} : \jmodt{\ttvec{s} \subtype
+    \codt{\ttvec{T}_1}}{\margs{} \lc \imports[\ttvec{s}/\vect{t}]; \exportsty[\ttvec{s}/\vect{t}] \rc} }
 $$
-
-$\codt{T}$ is syntactic type transformation/interpretation (Scalaness to nesT).
 \stopslide
 
 %%%%%
@@ -268,8 +252,6 @@ Scalaness/nesT has been implemented.
 \item Type checking extends Scala type checker with module types, module operation typings, nesT
   type checking.
 \end{citemize}
-Github repository: \url{https://github.com/pchapin/scala}
-
 Web site with samples: \url{http://tinyurl.com/a85z8cu}
 \stopslide
 
@@ -309,7 +291,7 @@ Harvester ROM &     24316 &    35834 &  24436 & 32\% \\
 Harvester RAM &      2274 &     4771 &   2402 & 50\% \\ \hline
 \end{tabular}
 \end{center}
-
+\vspace{1.5in}
 {\small * Chapin, Skalka; \textit{SpartanRPC}; Technical Report;
   \url{http://www.cs.uvm.edu/~skalka/skalka-pubs/chapin-skalka-spartanrpctr.pdf}}
 \stopslide
@@ -318,7 +300,8 @@ Harvester RAM &      2274 &     4771 &   2402 & 50\% \\ \hline
 
 \startslide{Future Work}
 \begin{citemize}
-\item Clarifying ``middle ground'' between langage borders, syntactic transformations.
+\item Clarifying ``middle ground'' between language borders.
+\item Syntactic transformations; allowing DScalaness syntax in Scalaness programs.
 \item Incorporating network communication. 
 \item Other applications: backcasting and evolving control.
 \end{citemize}
@@ -329,6 +312,6 @@ Harvester RAM &      2274 &     4771 &   2402 & 50\% \\ \hline
 \startslide{Questions?}
 \makeatletter
 \center{Peter Chapin \textless pchapin@cs.uvm.edu\textgreater}
-\center{\cemph{https://github.com/pchapin/scala}}
+\center{\cemph{http://tinyurl.com/a85z8cu}}
 \makeatother
 \stopslide

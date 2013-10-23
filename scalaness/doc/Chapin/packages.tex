@@ -31,11 +31,10 @@
 % The keywords listed here include all reserved words from Scala along with nesT/Scalaness
 % extensions.
 \lstdefinelanguage{scalaness}{keywords=
-  {abstract, case, catch, class, def, do, else, extends, false, final, finally, for, forSome, if
+  {abstract, case, catch, class, def, do, else, extends, false, final, finally, for, forSome, if,
    implicit, import, lazy, match, new, null, object, override, package, private, protected,
-   return, sealed, super, this, throw, trait, try, true, type, val, var, while, with, yield,
-   export},
-  otherkeywords={_, :, =, =>, <-, <:, <\%, >:, \#, @},
+   return, sealed, super, this, throw, trait, try, true, type, val, var, while, with, yield},
+  otherkeywords={export, typedef, _, :, =, =>, <-, <:, <\%, >:, \#, @},
   basicstyle=\ttfamily,
   sensitive=true,
   morecomment=[l]//,
@@ -52,7 +51,7 @@
    atomic, async, call, command, component, components, configuration, event, generic,
    implementation, includes, interface, module, new, norace, nx_struct, nx_union, post,
    provides, remote, requires, signal, task, uses},
-  otherkeywords={->},  % Not sure if I really want this.
+  otherkeywords={import, export, ->},
   basicstyle=\ttfamily,
   sensitive=true,
   morecomment=[l]//,

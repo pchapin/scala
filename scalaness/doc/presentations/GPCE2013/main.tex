@@ -34,11 +34,10 @@
 % The keywords listed here include all reserved words from Scala along with nesT/Scalaness
 % extensions.
 \lstdefinelanguage{scalaness}{keywords=
-  {abstract, case, catch, class, def, do, else, extends, false, final, finally, for, forSome, if
+  {abstract, case, catch, class, def, do, else, extends, false, final, finally, for, forSome, if,
    implicit, import, lazy, match, new, null, object, override, package, private, protected,
-   return, sealed, super, this, throw, trait, try, true, type, val, var, while, with, yield,
-   export},
-  otherkeywords={_, :, =, =>, <-, <:, <\%, >:, \#, @},
+   return, sealed, super, this, throw, trait, try, true, type, val, var, while, with, yield},
+  otherkeywords={export, typedef, _, :, =, =>, <-, <:, <\%, >:, \#, @},
   basicstyle=\ttfamily,
   sensitive=true,
   morecomment=[l]//,
@@ -55,7 +54,7 @@
    atomic, async, call, command, component, components, configuration, event, generic,
    implementation, includes, interface, module, new, norace, nx_struct, nx_union, post,
    provides, remote, requires, signal, task, uses},
-  otherkeywords={->},  % Not sure if I really want this.
+  otherkeywords={import, export, ->},
   basicstyle=\ttfamily,
   sensitive=true,
   morecomment=[l]//,
@@ -82,10 +81,9 @@
 \author{
   \begin{tabular}{c}
   \\[3mm]
-  \Large{Peter Chapin, Christian Skalka,}\\ \Large{Scott Smith, Michael Watson} \\[2mm]
-  \normalsize{Department of Computer Science}\\[5mm]
-  \includegraphics{uvm-logo}\\[16mm]
-  \small{Scott Smith is at The Johns Hopkins University}
+  \Large{Peter Chapin*, Christian Skalka*,}\\ \Large{Scott Smith$\dagger$, Michael Watson*} \\[10mm]
+  \normalsize{* Department of Computer Science, University of Vermont}\\[2mm]
+  \normalsize{$\dagger$ Department of Computer Science, The Johns Hopkins University}
   \end{tabular}
 }
 \date{October 28, 2013}
