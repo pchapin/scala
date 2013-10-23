@@ -144,8 +144,13 @@ object Main {
     
 
     @TypeAbbr(ScodeT)
-    val scode = (rawSendC.instantiate(addrt)) +> rawRadioC.instantiate(addrtReversed)
+    val scode = (rawSendC.instantiate(addrt)) +> rawRadioC.instantiate(addrt)
     // Extra parentheses around first component above intentional. Does it work?
+
+    // The following shouldn't type check because addrt and addrtReversed are different objects.
+    // TODO: Fix me!
+    //@TypeAbbr(ScodeT)
+    //val scode = (rawSendC.instantiate(addrt)) +> rawRadioC.instantiate(addrtReversed)
 
     @TypeAbbr(NodeT)
     val rawNodeC = new NodeC

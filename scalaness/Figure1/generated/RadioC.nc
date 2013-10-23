@@ -1,6 +1,6 @@
 struct MessageType  {
-    uint8_t  src  ;
-    uint8_t  dest  ;
+    uint16_t  src  ;
+    uint16_t  dest  ;
     uint8_t data  [64 ] ;
 } ;
 module RadioC  {
