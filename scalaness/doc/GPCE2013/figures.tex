@@ -766,13 +766,13 @@ $$
 {\Gamma \vdash \tt{e} : \jmodt{\varnothing}{\margs{\vect{t} \subtype \vect{\t}_1; 
  \vect{x} : \vect{\t}_2} \lc 
   \imports; \exportsty \rc}\\
- \Gamma \vdash \ttvec{e}_1 : \jinst{MetaType}{\ttvec{T}_1}\\
- \Gamma \vdash \ttvec{e}_2 : \ttvec{T}_2 \\
+ \Gamma \vdash \ttvec{t} : \jinst{MetaType}{\ttvec{T}_1}\\
+ \Gamma \vdash \ttvec{e} : \ttvec{T}_2 \\
  \vdash \codt{\ttvec{T}_1} \subtype \vect{\t}_1\\
  \vdash \codt{\ttvec{T}_2} \subtype \vect{\t}_2
 }
-{\Gamma \vdash \jinst{e}{\ttvec{e}_1; \ttvec{e}_2} : \jmodt{\vect{t}\subtype \codt{\ttvec{T}_1}}{\margs{} \lc 
-  \imports; \exportsty \rc} }
+{\Gamma \vdash \jinst{e}{\ttvec{t}; \ttvec{e}} : \jmodt{\ttvec{t} \subtype \codt{\ttvec{T}_1}}{\margs{} \lc 
+  \imports[\ttvec{t}/\vect{t}]; \exportsty[\ttvec{t}/\vect{t}] \rc} }
 
 \inferrule[ModWireT]
 {
@@ -806,9 +806,9 @@ $$
 {A Sensor Node (L,C) and Hub Device (R).}
 {figure-snowcloud}
 \hspace{1mm}
-\includegraphics[scale=.27]{brainbox} 
-\includegraphics[scale=.27]{tower} 
-\includegraphics[scale=.27]{harvester} 
+\includegraphics[scale=.28]{brainbox} 
+\includegraphics[scale=.28]{tower} 
+\includegraphics[scale=.28]{harvester} 
 \end{fpfig}
 }
 

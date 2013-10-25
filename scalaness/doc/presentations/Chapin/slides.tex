@@ -26,8 +26,8 @@
 \item \cemph{Trust Management}: A way of authorizing access to resources in distributed, dynamic
   systems where principals don't know each other.
 
-\item \cemph{Sensor Networks}: A kind of embedded system with very limiting CPU, memory, and
-  power constraints.
+\item \cemph{Sensor Networks}: A kind of embedded system with limited CPU, memory, and available
+  power.
 \end{citemize}
 \stopslide
 
@@ -35,29 +35,24 @@
 
 \startslide{Two Solutions}
 \begin{citemize}
-\item \cemph{SpartanRPC}: An extension to the nesC programming language allowing for secure RPC.
+\item \cemph{SpartanRPC}: An extension to the nesC programming language allowing secure RPC.
 
 \item \cemph{Scalaness/nesT}: A staged programming system that allows an extended Scala to
   specialize and compose nesT modules.
 \end{citemize}
 
-Both solutions are feasible but have different advantages.
-
-Both systems can be generalized beyond sensor networks.
-
-Scalaness can be generalized beyond authorization applications.
 \stopslide
 
 %%%%%
 
-\startslide{Langage Based Approach}
+\startslide{Language Based Approach}
 Use programming languages to address the issues.
 
 \begin{citemize}
-\item \cemph{More efficient}: Compiler in a position to do optimizations
-\item \cemph{More robust}: Compiler static analysis finds more errors
-\item \cemph{Easier to use}: Special syntax/semantics makes features more accessible
-\item \cemph{Better foundation}: Rigorous techniques, e.g., type theory, can guide design
+\item \cemph{More efficient}: Compiler in a position to do optimizations.
+\item \cemph{More robust}: Static analysis finds errors earlier.
+\item \cemph{Easier to use}: Special syntax/semantics makes features more accessible.
+\item \cemph{Better foundation}: Rigorous techniques, e.g. type theory, can guide design.
 \end{citemize}
 \stopslide
 
@@ -83,13 +78,10 @@ Use programming languages to address the issues.
   \item Mobile applications
   \begin{citemize}
     \item Querying infrastructure networks
-    \item ``Smart cars''
     \item Body area networks
   \end{citemize}
 \end{citemize}
 \stopslide
-
-%%%%%
 
 %%%%%
 
@@ -107,24 +99,7 @@ Use programming languages to address the issues.
 %%%%%
 
 \startslide{Structure of Trust Management Systems}
-\begin{tabular}{cc}
-\scalebox{1.75}{\includegraphics{Figures/tmstruct.pdf}}
-& 
-\hspace{-10mm}
-$
-\begin{array}[b]{rcl}
-P &:& \text{Policy}\\
-C &:& \text{Certificates}\\
-Q &:& \text{Authorization Query}\\
-V &:& \text{Certificate Validation}\\
-L &:& \text{Authorization Mechanism}\\
-T_P &:& \text{Policy Compilation}\\
-T_C &:& \text{Credential Encoding}\\
-T_Q &:& \text{Query Compilation}\\
-D &:& \text{Certificate Discovery}\\
-\end{array}
-$
-\end{tabular}
+\centerline{\scalebox{1.75}{\includegraphics{Figures/tmstruct.pdf}}}
 \stopslide
 
 %%%%%
@@ -168,18 +143,18 @@ $\textit{isMember}(\textit{?x}, A, r) \leftarrow
 \stopslide
 
 %%%%%
-
-\startslide{How it Works}
-\begin{cenumerate}
-\item Alice $A$ has policy $P$ protecting some resource.
-\item Bob $B$ submits certificates $\mathcal{C}$ to $A$ with access request signed by $B$.
-\item $A$ checks validity on each $c \in \mathcal{C}$ and collects valid credentials in set $C$.
-\item $A$ converts $P\,' = P \cup C$ to \datalog\ rules $\mathcal{D}$.
-\item Access is granted if $B$ is a member of some \textit{governing role} according to
-  $\mathcal{D}$.
-\end{cenumerate}
-\stopslide
-
+%
+%\startslide{How it Works}
+%\begin{cenumerate}
+%\item Alice $A$ has policy $P$ protecting some resource.
+%\item Bob $B$ submits certificates $\mathcal{C}$ to $A$ with access request signed by $B$.
+%\item $A$ checks validity on each $c \in \mathcal{C}$ and collects valid credentials in set $C$.
+%\item $A$ converts $P\,' = P \cup C$ to \datalog\ rules $\mathcal{D}$.
+%\item Access is granted if $B$ is a member of some \textit{governing role} according to
+%  $\mathcal{D}$.
+%\end{cenumerate}
+%\stopslide
+%
 %%%%%
 
 \startslide{Example}
@@ -199,10 +174,10 @@ $\textit{isMember}(\textit{?x}, A, r) \leftarrow
 
 \startslide{Why $RT_0$?}
 \begin{citemize}
-\item \cemph{Formal foundation} based on \datalog
-\item \cemph{Expressive} enough to write interesting policies
-\item \cemph{Simple} enough to implement in limited space/time
-\item \cemph{Understandable} enough to avoid configuration errors
+\item \cemph{Formal foundation} based on \datalog.
+\item \cemph{Expressive} enough to write interesting policies.
+\item \cemph{Simple} enough to implement in limited space/time.
+\item \cemph{Understandable} enough to avoid configuration errors.
 \end{citemize}
 \stopslide
 
@@ -222,8 +197,10 @@ $\textit{isMember}(\textit{?x}, A, r) \leftarrow
 %%%%%
 
 \startslide{Sensor Network RPC}
+Remote procedure call in a sensor network context?
+
 \begin{citemize}
-\item Wireless networks are \cemph{volatile}, \cemph{unreliable}, have \cemph{limited power}
+\item Wireless networks are \cemph{volatile}, \cemph{unreliable}, and have \cemph{limited power}
   (must sleep).
 \item \emph{Synchronous RPC is not suitable}. Invoker can't afford to wait for a reply.
 \item SpartanRPC is asynchronous.
@@ -234,16 +211,16 @@ $\textit{isMember}(\textit{?x}, A, r) \leftarrow
 
 \startslide{Tasks vs. Duties}
 \begin{citemize}
-\item nesC supports tasks\ldots\ asynchronous execution
-\item Tasks have limitations
+\item nesC supports tasks\ldots\ asynchronous execution.
+\item Tasks have limitations.
 \begin{citemize}
-  \item Can't take parameters
-  \item Must be defined in the same module that posts
+  \item Can't take parameters.
+  \item Must be defined in the same module that posts.
 \end{citemize}
-\item SpartanRPC extends nesC tasks to \cemph{duties}
+\item SpartanRPC extends nesC tasks to \cemph{duties}.
 \begin{citemize}
-  \item Can take parameters
-  \item Can be posted remotely
+  \item Can take parameters.
+  \item Can be posted remotely.
 \end{citemize}
 \end{citemize}
 \stopslide
@@ -283,15 +260,15 @@ implementation {                   }
 \begin{lstlisting}[language=nesC]
                configuration AppC { }
                implementation {
-                 components MainC, LEDControllerC;
-                 MainC.LEDControl -> LEDControllerC;
+                 components ClientC, LEDControllerC;
+                 ClientC.LEDControl -> LEDControllerC;
                }
 \end{lstlisting}
 }
 
 \begin{citemize}
-\item Component wiring is static. Unable to change connections at run time.
-\item SpartanRPC models inter-node connections as \cemph{dynamic wires}.
+  \item Component wiring is static. Unable to change connections at run time.
+  \item SpartanRPC models inter-node connections as \cemph{dynamic wires}.
 \end{citemize}
 \stopslide
 
@@ -381,11 +358,11 @@ implementation {                         !\color{red}{requires "UVM.admin"}!;
 \stopslide
 
 %%%%%
-
-\startslide{Post Format}
-\centerline{\scalebox{1.0}{\includegraphics{Figures/Post-Format.pdf}}}
-\stopslide
-
+%
+%\startslide{Post Format}
+%\centerline{\scalebox{1.0}{\includegraphics{Figures/Post-Format.pdf}}}
+%\stopslide
+%
 %%%%%
 
 \startslide{Receive Duty}
@@ -411,7 +388,6 @@ implementation {                         !\color{red}{requires "UVM.admin"}!;
 \item Introduction
 \item Review of Trust Management
 \item SpartanRPC/Sprocket
-\item DScalaness/DnesT
 \item \cemph{Scalaness/nesT}
 \item Evaluation
 \item Conclusion
@@ -432,17 +408,19 @@ implementation {                         !\color{red}{requires "UVM.admin"}!;
 \stopslide
 
 %%%%%
-
-\startslide{The Approach}
-\begin{citemize}
-\item \cemph{Lightweight macroprogramming}. Scala at metalevel, nesC residuum.
-\item Technical features: \cemph{type specialization}, \cemph{process separation}.
-\item \cemph{Cross-stage type safety}: type checking at Scala level ensures type safety of nesC
-  residuum.
-\item \cemph{Well-founded language design}
-\end{citemize}
-\stopslide
-
+%
+%\startslide{The Approach}
+%\begin{citemize}
+%\item \cemph{Lightweight macroprogramming}: Scala at metalevel, nesC residuum, composibility at
+%  the module level.
+%\item Technical features: \cemph{Type specialization}, \cemph{dynamic type construction},
+%  \cemph{process separation}.
+%\item \cemph{Cross-stage type safety}: Type checking at Scala level ensures type safety of nesC
+%  residuum.
+%\item \cemph{Well-founded language design}
+%\end{citemize}
+%\stopslide
+%
 %%%%%
 
 \startslide{Example: Introducing Some Type Abbreviations}
@@ -525,21 +503,21 @@ val appM =
 \stopslide
 
 %%%%%
-
-\startslide{\fml\ Foundations} The \fml\ language\footnote{\cref{Yu David Liu, Christian Skalka,
-    and Scott Smith. Type-Specialized Staged Programming with Process Separation. Journal of
-    Higher Order and Symbolic Computation, 24(4):341-385, 2012.}} studies the issues at a
-foundational level.
-\begin{citemize}
-\item Comprises $F_{\le}$
-\item MetaML-like syntax and semantics, but novel features to moderate interactions between
-  separate process spaces.
-\item Resricted form of type construction (not full $\lambda_\omega$).
-\item Formal metatheory includes cross-stage type safety---residue of partial evaluation of
-  well-typed code is guaranteed to be well-typed.
-\end{citemize}
-\stopslide
-
+%
+%\startslide{\fml\ Foundations} The \fml\ language\footnote{\cref{Yu David Liu, Christian Skalka,
+%    and Scott Smith. Type-Specialized Staged Programming with Process Separation. Journal of
+%    Higher Order and Symbolic Computation, 24(4):341-385, 2012.}} studies the issues at a
+%foundational level.
+%\begin{citemize}
+%\item Comprises $F_{\le}$.
+%\item MetaML-like syntax and semantics, but novel features to moderate interactions between
+%  separate process spaces.
+%\item Restricted form of type construction (not full $\lambda_\omega$).
+%\item Formal metatheory includes cross-stage type safety---residue of partial evaluation of
+%  well-typed code is guaranteed to be well-typed.
+%\end{citemize}
+%\stopslide
+%
 %%%%%
 
 \startslide{Sample Scalaness Typing}
@@ -549,12 +527,12 @@ $$
 $$
 Module type form, where:
 \begin{citemize}
-\item $\Delta_2$, $\Gamma$ type parameter bounds and term parameter types
-\item $\imports$, $\exportsty$ import and export type signatures
-\item $\Delta_1$ bounds of types constructed externally to the module
+\item $\Delta_2$, $\Gamma$ type parameter bounds and term parameter types.
+\item $\imports$, $\exportsty$ import and export type signatures.
+\item $\Delta_1$ bounds of types constructed externally to the module.
 \begin{citemize}
-\item Substitution of these types unsound due to possible contravariant use in $\imports;
-  \exportsty$
+\item Direct substitution of these types unsound due to possible contravariant use in $\imports;
+  \exportsty$.
 \end{citemize}
 \end{citemize}
 $$
@@ -572,19 +550,19 @@ $$
 \stopslide
 
 %%%%%
-
-\startslide{Implementation}
-Scalaness/nesT has been implemented
-\begin{citemize}
-\item nesT defined as restricted subset of nesC, compiled as nesC with some rewriting
-  (e.g.~array bounds checks).
-\item Scalaness defined by extension to the Scala compiler.
-\item Type checking extends Scala type checker with module types, module operation typings, nesT
-  type checking.
-\end{citemize}
-Web site with samples: \url{http://tinyurl.com/a85z8cu}
-\stopslide
-
+%
+%\startslide{Implementation}
+%Scalaness/nesT has been implemented
+%\begin{citemize}
+%\item nesT defined as restricted subset of nesC, compiled as nesC with some rewriting
+%  (e.g.~array bounds checks).
+%\item Scalaness defined by extension to the Scala compiler.
+%\item Type checking extends Scala type checker with module types, module operation typings, nesT
+%  type checking.
+%\end{citemize}
+%Web site with samples: \url{http://tinyurl.com/a85z8cu}
+%\stopslide
+%
 %%%%%
 
 \startslide{Outline}
@@ -614,13 +592,14 @@ Web site with samples: \url{http://tinyurl.com/a85z8cu}
 \begin{citemize}
 \item Scalaness vs. SpartanRPC
 \end{citemize}
-
 \end{citemize}
+
+{\small Test motes: MSP430, 8\,MHz, 48\,KiB ROM, 10\,KiB RAM, TinyOS 2.1}
 \stopslide
 
 %%%%%
 
-\startslide{Sprocket RAM Overhead}
+\startslide{Sprocket: RAM Overhead}
 \centering
   \begin{tabular}{|l|r|r|r|} \hline
     \textit{Storage Area} \T & \textit{\# Items} & \textit{Bytes/Item} & \textit{Total Bytes} \\
@@ -636,7 +615,7 @@ Web site with samples: \url{http://tinyurl.com/a85z8cu}
 
 %%%%%
 
-\startslide{Memory Consumption of Minimal Test Programs}
+\startslide{Sprocket: Memory Consumption of Minimal Programs}
 \centering
   \begin{tabular}{|l|r|r|} \hline
     \textit{Test Program} \T & \textit{RAM Bytes} & \textit{ROM Bytes} \\
@@ -666,7 +645,7 @@ Web site with samples: \url{http://tinyurl.com/a85z8cu}
 
 %%%%%
 
-\startslide{Processing Time for Transient Operations}
+\startslide{Sprocket: Processing Time for Transient Operations}
 \centering
   \begin{tabular}{|l|r|} \hline
     \textit{Operation} \T & \textit{Time} \\ \hline \hline
@@ -679,7 +658,7 @@ Web site with samples: \url{http://tinyurl.com/a85z8cu}
 
 %%%%%
 
-\startslide{Transient Time in Single Hop Directed Diffusion}
+\startslide{Sprocket: Transient Time in Single Hop Directed Diffusion}
 \centering
   \begin{tabular}{|l|r|r|r|} \hline
     \textit{\# neighbors} \T & \textit{1 Cert }
@@ -695,7 +674,7 @@ Web site with samples: \url{http://tinyurl.com/a85z8cu}
 
 %%%%%
 
-\startslide{Transient Time in Multi Hop Directed Diffusion}
+\startslide{Sprocket: Transient Time in Multi Hop Directed Diffusion}
 \centering
   \begin{tabular}{|l|r|r|r|} \hline
     \textit{Run} \T & \textit{1 hop }
@@ -748,12 +727,26 @@ $\dagger$ Using Scalaness
 %%%%%
 
 \startslide{Conclusion}
-Life is wonderful!
+\begin{citemize}
+\item Trust management in embedded systems is feasible.
+\item SpartanRPC/Sprocket resource heavy but leaves enough for applications.
+\begin{citemize}
+  \item $\sim$minutes transient; $\sim$\%30 reduction in maximum message rate in
+    steady-state.
+\end{citemize}
+\item Scalaness/nesT can dramatically improve performance.
+\begin{citemize}
+  \item Requires appropriate deployment scenario.
+  \item Cross-stage type safety simplifies deployment.
+\end{citemize}
+\item Both systems could be generalized for non-sensor network applications.
+\item Scalaness is far more general than SpartanRPC.
+\end{citemize}
 \stopslide
 
 %%%%%
 
-\startslide{Acknowledgements}
+\startslide{Acknowledgments}
 
 \centerline{I would like to acknowledge the help and advice I received from}
 \centerline{\cemph{Christian Skalka, Sean Wang, and Scott Smith}}
@@ -765,6 +758,6 @@ Life is wonderful!
 \makeatletter
 \center{Peter Chapin \textless pchapin@cs.uvm.edu\textgreater}
 \center{Sprocket: \cemph{https://github.com/pchapin/Sprocket}}
-\center{Scalaness: \cemph{https://github.com/pchapin/scala}}
+\center{Scalaness: \cemph{http://tinyurl.com/a85z8cu}}
 \makeatother
 \stopslide
