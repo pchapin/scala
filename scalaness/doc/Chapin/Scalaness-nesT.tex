@@ -1,13 +1,13 @@
 \chapter{Scalaness/nesT}
 \label{chapter-scalaness-nest}
 
-In this chapter I cover the specific details of Scalaness and nesT, the practical realization of
-DScalaness and DnesT. I first describe nesT along with the details of how nesT programs are
-transformed into nesC programs. I also describe how the Scala compiler was modified to provide
-Scalaness type checking with a minimum of disruption to the the compiler's existing
-functionality. The full source code of a simple example Scalaness/nesT program is discussed in
-\autoref{chapter-sample}. The use of Scalaness on a larger example is discussed in
-\autoref{section-scalaness-evaluation}.
+This chapter covers the specific details of Scalaness and nesT, the practical realization of
+DScalaness and DnesT. First described is nesT along with the details of how nesT programs are
+transformed into nesC programs. Additionally, included is a description of how the Scala
+compiler was modified to provide Scalaness type checking with a minimum of disruption to the the
+compiler's existing functionality. The full source code of a simple example Scalaness/nesT
+program is discussed in \autoref{chapter-sample}. The use of Scalaness on a larger example is
+discussed in \autoref{section-scalaness-evaluation}.
 
 \section{NesT}
 \label{section-nest-implementation}
@@ -15,25 +15,25 @@ functionality. The full source code of a simple example Scalaness/nesT program i
 \lstset{language=nesC}
 \lstMakeShortInline!
 
-NesT is the name give to the second stage language used by the implementation. Roughly speaking
+NesT is the name give to the second stage language used by the implementation. Roughly speaking,
 nesT is the practical realization of DnesT. In particular, nesT uses the syntax of nesC to the
 greatest extent possible in order to simplify the compiler and to minimize the learning burden
-placed on existing nesC programmers. For example a nesT module is specified exactly as a nesC
+placed on existing nesC programmers. For example, a nesT module is specified exactly as a nesC
 module except that it can only !use! (import) and !provide! (export) nesC commands. In
-particular neither nesC events nor nesC interfaces can appear in a nesT component specification.
+particular, neither nesC events nor nesC interfaces can appear in a nesT component specification.
 
-NesT also supports DnesT's notion of subtyping and features for safe memory access and safe
-casting. Thus while nesT programs are syntactically identical (aside from the new array
+NesT also supports DnesT's notion of subtyping and features, for safe memory access and safe
+casting. Thus, while nesT programs are syntactically identical (aside from the new array
 increment operator), and semantically similar to programs written in nesC, nesT programs are
 more robust than equivalent nesC programs.
 
 NesT type checking implements the rules described in \autoref{section-dnesttyping} and is
 largely straight forward. The intention is to follow nesC's type system to the greatest extent
-possible with changes to account for stricter rules disallowing implicit conversions. However,
+possible, with changes to account for stricter rules disallowing implicit conversions. However,
 nesT does support the subtyping rules of DnesT. The details of how nesT type checking was
 implemented is described by Watson \cite{watson-masters-2013}.
 
-NesT is implemented as a rewriting to nesC. Because of nesT's special relationship with nesC
+NesT is implemented as a rewriting to nesC. Because of nesT's special relationship with nesC,
 this rewriting is largely trivial. However, the implementation of the special features of nesT
 are described in more detail in this section.
 
@@ -109,21 +109,21 @@ flagged by the Scalaness compiler as a type error.
 \subsection{External Libraries}
 \label{section-external-libraries}
 
-My experiments with nesT show that it is expressive enough to write useful program components.
+Experiments with nesT show that it is expressive enough to write useful program components.
 However, any realistic application will need to interact with various libraries written in full
-nesC that I call \newterm{external libraries}. It is not my intention to require the whole
-program be written in nesT for such a requirement would not be practical. Instead external
+nesC, named \newterm{external libraries}. It is not intended here to require the whole
+program be written in nesT, for such a requirement would not be practical. Instead external
 libraries could represent low level code such as the TinyOS operating system or high level
 application code that wishes to use Scalaness generated nesT modules.
 
-At the time of this writing neither nesT nor Scalaness provide any direct support for
+At the time of this writing, neither nesT nor Scalaness provide any direct support for
 interfacing to external libraries, although such support might be useful future work. However, a
 programming technique can be used whereby shim components are manually created that wrap library
-interfaces. Here I illustrate that technique using a small example.
+interfaces. The following is an illustration of that technique using a small example.
 
 Consider first the TinyOS !Boot! interface. This interface is used to indicate when a node is
 started; all useful nesC programs must interact with it. Yet nesT does not support interfaces at
-all much less some of the entities, such as events, that are commonly declared in interfaces.
+all, much less some of the entities, such as events, that are commonly declared in interfaces.
 Instead the programmer creates a shim component such as !BootShimC! as shown below
 
 \singlespace
@@ -156,7 +156,7 @@ nesT applications. Thus it is reasonable to expect programmers to accumulate a l
 The shim components must be wired to the external library components they wrap. This is done by
 producing two nesC \newterm{wrapping configurations}. The first, conventionally called
 !LibraryIC! encapsulates all nesC components that have imports. The second, conventionally
-called !LibraryEC! encapsulates all nesC components that have exports. Normally these are the
+called !LibraryEC!, encapsulates all nesC components that have exports. Normally these are the
 only two configurations an application needs. If the programmer has full control over the entire
 application he or she can add the necessary external library components (via their shims) to
 either !LibraryIC! and/or !LibraryEC! as appropriate.
@@ -231,7 +231,7 @@ object LibraryEC extends NesTComponent {
 \end{fpfig}
 \primaryspacing
 
-The module type of external components can't be determined by examining their definitions since
+The module type of external components cannot be determined by examining their definitions since
 they are not in nesT. However, as with all nesT modules they must be annotated with their module
 type in the Scalaness program as shown in \autoref{figure-external-components} and discussed
 further in \autoref{section-module-type}. For external modules this annotation is accepted
@@ -258,7 +258,7 @@ val resultModule =
 \primaryspacing
 
 Although it is not possible to use Scalaness to compose external library components directly,
-the programmer is free to create several different wrapping configurations if desired and
+the programmer is free to create several different wrapping configurations, if desired, and
 represent each of them separately in the Scalaness program. The Scalaness program could then
 dynamically select which wrapping configuration is to be used in the final generated code. In
 any case the type system will ensure that illegal wirings can never be made.
@@ -272,7 +272,7 @@ DnesT supports width subtyping of structures as shown in \autoref{figure-subjudg
 this, nesT supports covariant subtyping of pointers to structure types. If $\tau_1$ and $\tau_2$
 are structure types and $\tau_1 \subtype \tau_2$ according to DnesT subtype rules, then $\tau_1*
 \subtype \tau_2*$. To implement the important case of passing a pointer to a structure to a
-function, the Scalaness compiler need only add an appropriate cast as it rewrites the nesT to
+function, \note{what??}the Scalaness compiler need only add an appropriate cast as it rewrites the nesT to
 nesC. For example, consider the nesT code below
 
 \singlespace
@@ -304,15 +304,15 @@ guarantee this is safe and !f! will only manipulate the !X! subobject of its par
 % Structure assignment is rewritten as a slicing operation where only the individual members of
 % the subobject are assigned to the target.
 
-Like DnesT, nesT has no notation to indicate a subtype relation between structures. Instead the
+Like DnesT, nesT has no notation to indicate a subtype relation between structures. Instead, the
 judgment is entirely based on structural considerations.
 
 \subsection{Safe Casts}
 \label{section-safe-casts}
 
-Since one of the goals of nesT is to promote type safety no implicit type conversions, aside
+Since one of the goals of nesT is to promote type safety, no implicit type conversions, aside
 from subtype conversions, are provided. Explicit conversions are permitted only when configured
-by the programmer. This allows the programmer can define certain casts that are logical even if
+by the programmer. This allows the programmer to define certain casts that are logical even if
 they require non-trivial user defined code to execute.
 
 The Scalaness compiler accepts a configuration file that defines a relation on types
@@ -322,7 +322,7 @@ the types $T_1$ and $T_2$. However, all such conversions require explicit cast e
 are never applied implicitly. The \textit{isCompatible} relation is the implementation of
 \textit{compatible} in the \TirName{CastT} rule of \autoref{figure-coretyping}.
 
-To illustrate the way these casts are implemented in nesT programs consider as an example the
+To illustrate the way these casts are implemented in nesT programs, consider as an example the
 following two structure definitions.
 
 \singlespace
@@ -381,7 +381,7 @@ checks.
 
 For each array increment operation $a_i \rhd e_i$ in a statement a variable to hold the value of
 $e_i$ is declared and initialized. This is done so that $e_i$ will only be evaluated once; an
-important considering in a language, such as nesT, with side effects. Also the dynamic size of
+important consideration in a language, such as nesT, with side effects. Also the dynamic size of
 the result of each array operation $d_i$ is declared and initialized appropriately. For example
 
 \singlespace
@@ -453,7 +453,7 @@ x = ((a |> e1) |> e2)[b[i]];
 \vspace{1.0ex}
 \primaryspacing
 
-Is first rewritten as:
+Is first rewritten as
 
 \singlespace
 \vspace{1.0ex}
@@ -522,7 +522,7 @@ involving only the parameter. Calls to such functions are rewritten to pass the 
 dynamic size information as appropriate.
 
 The command !boundsCheckFailed! must be provided by the programmer in a component named
-!BoundsCheckC!. The behavior of this command is unspecified but it should not return. I expect
+!BoundsCheckC!. The behavior of this command is unspecified but it should not return. The expectation is that
 in most cases it will restart the node after, perhaps, attempting to log the problem. As with
 !DoCastC! the Scalaness compiler automatically wires to !BoundsCheckC! as appropriate.
 
@@ -539,44 +539,45 @@ implemented.
 \lstMakeShortInline!
 
 Scalaness is implemented as a modified Scala compiler \cite{scalaness-home} based on the open
-source development Scala compiler. The Scala compiler has a plug-in architecture and originally
-I hoped Scalaness could be implemented as a compiler plug-in. That would have made Scalaness
-easier to use and maintain and thus enhanced the systems practicability.
+source development Scala compiler. The Scala compiler has a plug-in architecture and it had
+originally been anticipated that Scalaness could be implemented as a compiler plug-in. That
+would have made Scalaness easier to use and maintain and, thus, enhanced the systems
+practicability.
 
 Unfortunately, implementing Scalaness as a plug-in met with difficulties. The main problem was
 with extending the type checker of Scala to accommodate the Scalaness type system. The plug-in
 approach required a complete reimplementation of Scala typing inside the plug-in. This is
 because plug-ins can only gain control either before Scala typing has occurred or after it has
-completed. Thus the implementation of the Scalaness typing rules couldn't easily benefit from
-the logic in the existing type checker.
+completed. Consequently, the implementation of the Scalaness typing rules couldn't easily
+benefit from the logic in the existing type checker.
 
-In contrast building Scalaness as a modified compiler allowed Scalaness type information to
+In contrast, building Scalaness as a modified compiler allowed Scalaness type information to
 ``piggyback'' on the existing type checker infrastructure. In particular, Scalaness type
 information was added to the singleton types already created and maintained by the Scala
 compiler for each declared value. This information could then be queried at critical points
 during the type checking process where Scalaness rules, as shown in
 \autoref{figure-scalanesstyping}, were applied \cite{watson-masters-2013}.
 
-However, in order to facilitate keeping Scalaness synchronized with future developments of the
-main Scala compiler every attempt was made to implement Scalaness in the least invasive way
-possible. Much of the logic, including the new typing rules themselves are implemented in
-separate packages away from the main body of the compiler code base. The places where it was
+Nevertheless, in order to facilitate keeping Scalaness synchronized with future developments of
+the main Scala compiler, every attempt was made to implement Scalaness in the least invasive way
+possible. Much of the logic, including the new typing rules themselves, are implemented in
+separate packages away from the main body of the compiler code base. The instances where it was
 necessary to insert Scalaness specific code into, for example, the existing type checker, have
 been kept to a minimum.
 
-Making radical changes to Scala syntax was not seriously considered. For reasons of simplicity I
-didn't want to modify \emph{both} the parser and the type checker. Fortunately Scala has a
-general mechanism for adding arbitrary information to declarations, namely
-\newterm{annotations}, and I used Scala annotations to express nesT module types as strings
-using a syntax of my choosing.
+Making radical changes to Scala syntax was not seriously considered. For reasons of simplicity,
+it was deemed undesirable to modify \emph{both} the parser and the type checker. Fortunately
+Scala has a general mechanism for adding arbitrary information to declarations, namely
+\newterm{annotations}, Scala annotations were used to express nesT module types as strings using
+a randomly chosen syntax.\note{does this say what you meant Peter?}
 
-My work is based on Scala 2.10. This version of Scala also provides an extensive reflection API
+This work's foundation utilizes Scala 2.10, which also provides an extensive reflection API
 and experimental support for expression macros. These facilities allow one to do abstract syntax
 tree (AST) transformations on Scala programs using ordinary Scala code. Macros are described by
-the Scala community as a kind of ``lightweight'' plug-in mechanism. Unfortunately at the time of
-this writing type macros are not available so it is not yet possible to write a macro that
+the Scala community as a kind of ``lightweight'' plug-in mechanism. Unfortunately, at the time of
+this writing, type macros are not available so it is not yet possible to write a macro that
 outputs a class definition. However, in the future when type macros become available it might be
-possible to implement some or all of Scalaness as a macro library.
+possible to implement some, or all, of Scalaness as a macro library.
 
 \subsection{Scala Compiler Organization}
 \label{section-scala-compiler-organization}
@@ -596,11 +597,11 @@ typer
 \end{Verbatim}
 \primaryspacing
 
-The bulk of the modifications made by Scalaness are in the typer phase. There hooks were added
-at critical points that call into Scalaness specific code in package !edu.uvm.scalaness!. In
-addition a new phase was added between the parser and namer phases. This new phase is
+The bulk of the modifications made by Scalaness are in the typer phase, where hooks were added
+at critical points that call into Scalaness specific code in package !edu.uvm.scalaness!. Furthermore, 
+a new phase was added between the parser and namer phases. This new phase is
 responsible for augmenting certain Scalaness constructs with their necessary runtime support.
-This is done by inserting material in the AST produced by the parser. In principle that material
+This is done by inserting material in the AST produced by the parser. In principle, that material
 could have been manually written by the programmer but instead is automatically generated as a
 convenience. It is this ``post-parser'' phase that could potentially be eliminated by type
 macros when they become available.
@@ -612,7 +613,7 @@ Certain types and their corresponding values that appear in a Scalaness program 
 types and values in the nesT modules manipulated by that program as described in
 \autoref{section-serialization}. Values of these types need to be transformed as they cross the
 boundary between the two programming languages due to differences in the way a liftable type and
-its nesT counterpart are represented. In this section I will describe which Scalaness types are
+its nesT counterpart are represented. This section describes which Scalaness types are
 liftable and how their values are handled when used to specialize a nesT module.
 
 \subsubsection{Primitive Types}
@@ -620,29 +621,29 @@ liftable and how their values are handled when used to specialize a nesT module.
 
 All liftable types except arrays are subtypes of a special marker trait !Liftable!. The
 primitive types in nesT have liftable counterparts in Scalaness that are classes extending
-!Liftable!. For example the type !uint16_t! in nesT corresponds with class !UInt16! in
-Scalaness. In my implementation there are six primitive, liftable integer types: three unsigned
+!Liftable!. For example, the type !uint16_t! in nesT corresponds with class !UInt16! in
+Scalaness. In this implementation there are six primitive, liftable integer types: three unsigned
 types !UInt8!, !UInt16!, !UInt32!, and three corresponding signed integer types. All of these
 types have specific sizes; the implementation does not provide a simple integer type. This
-avoids issues associated with the machine dependent size of !int! in nesC. Finally two other
+avoids issues associated with the machine dependent size of !int! in nesC. Finally, two other
 liftable primitive types are also provided: !Char! and !Uninit! (which lifts to !void!).
 
 The nesT subtype relations are preserved in Scalaness where !UInt8 <: UInt16 <: UInt32! and
 similarly for the signed integer types. In Scalaness these types are defined in the object
 !LiftableTypes! so that they don't conflict with any normal (non-liftable) types defined by the
-programmer or the language, such as !Char!. Furthermore the integer liftable types are endowed
+programmer or the language, such as !Char!. Furthermore, the integer liftable types are endowed
 with the usual arithmetic operations so they can be manipulated in the Scalaness program in a
 natural way.
 
 No conversions are provided between the liftable types and their ordinary Scala analogs. This
 means existing libraries that, for example, manipulate Scala !Char! objects won't work with
-!LiftableTypes.Char!. I do not consider this a problem for two reasons.
+!LiftableTypes.Char!. This is not regarded as a problem for two reasons.
 \begin{enumerate}
 \item Since values of liftable type will eventually be written into nesT components, they will
   likely be put to very different uses than values of ordinary Scala types. In fact, letting the
   Scala type system catch inadvertent mixing of ordinary primitives and liftable primitives
   could be seen as a desirable feature.
-\item Implicit conversions can be easily added by the Scalaness programmer if desired using the
+\item Implicit conversions can be easily added by the Scalaness programmer, if desired, using the
   normal facilities of Scala.
 \end{enumerate}
 
@@ -650,11 +651,11 @@ To facilitate the second point, \emph{explicit} conversion methods from each lif
 its corresponding non-liftable counterpart are provided as a convenience.
 
 The Scala type system is used to ensure compile-time type safety of the primitive liftable types
-in a Scalaness program. For example the type !Int16! can only be constructed using a value of
-Scala's type !Short!. Consequently normal Scala type checking prevents a potentially out of
+in a Scalaness program. For example, the type !Int16! can only be constructed using a value of
+Scala's type !Short!. Consequently, normal Scala type checking prevents a potentially out of
 range value from being used.
 
-Unfortunately Scala does not support unsigned types natively. In the current implementation a
+Unfortunately, Scala does not support unsigned types natively. In the current implementation a
 sufficiently wide signed type is used to initialize objects of unsigned liftable type. This
 makes it possible to use an out-of-range value during the execution of the Scalaness program
 resulting in a runtime exception. However, Scala programs are subject to runtime exceptions for
@@ -664,9 +665,9 @@ ensure a Scalaness program never exits by way of an exception.
 \subsubsection{Arrays}
 \label{section-liftable-arrays}
 
-\emph{An ordinary Scala array type is liftable if and only if its element type is liftable.}
+\emph{An ordinary Scala array type is liftable if, and only if, its element type is liftable.}
 This is an exception to the rule stated in \autoref{section-liftable-primitives} that says all
-liftable types must extend !Liftable! and thus arrays are handled in a special way. Yet it is a
+liftable types must extend !Liftable! and, thus, arrays are handled in a special way. Yet it is a
 significant convenience to the programmer to be able to use ordinary Scala arrays, and not some
 special ``liftable array'' class, to hold liftable arrays. This need does not arise for the
 other containers in the Scala collections library since those containers have no counterpart in
@@ -708,7 +709,7 @@ class TimeStampedHeader
 \vspace{1.0ex}
 \primaryspacing
 
-Here !nodeIDType! is a previously defined liftable class type. Consequently both of these
+Here !nodeIDType! is a previously defined liftable class type. Consequently, both of these
 classes are liftable and have representations as nesT structure types.
 
 % TODO: Figure out how to properly model Scala's inheritance system in this context.
@@ -716,8 +717,8 @@ classes are liftable and have representations as nesT structure types.
 \subsection{Lifting}
 \label{section-lifting}
 
-When nesT modules are specialized by values, the Scala values used to make those specialization
-are lifted into the nesT code. For primitive types occurrences of the value parameter in the
+When nesT modules are specialized by values, the Scala values used to make those specializations
+are lifted into the nesT code. For primitive types, occurrences of the value parameter in the
 nesT code is simply replaced by a constant representing the actual value used to specialize the
 module.
 
@@ -764,8 +765,8 @@ implementation {
 
 Here !{ 1, 2, 3, 4}! is a sample value of the key parameter used to instantiate the module. The
 nesT programmer does not declare the global variable !key! in the nesT module but nevertheless
-uses the name !key! freely in the module. In effect the nesT programmer is using the parameter
-declaration (in the Scalaness code) to guide her work. This follows the behavior of the nesT
+uses the name !key! freely in the module. In effect, the nesT programmer is using the parameter
+declaration (in the Scalaness code) to guide his/her work. This follows the behavior of the nesT
 type checker.
 
 The example above shows the result before the final translation to nesC. During that translation
@@ -778,9 +779,8 @@ additional size parameter for the array as described in \autoref{section-array-o
 \label{section-metatype}
 
 Scalaness allows types to be dynamically constructed. However, the Scala type system does not
-directly support using types as values. To work around this limitation I explicitly introduced a
-wrapper generic class !MetaType[T]! to represent any liftable type that is a subtype of !T!.
-
+directly support using types as values. To work around this limitation, a wrapper generic class
+!MetaType[T]! was explicitly introduced to represent any liftable type that is a subtype of !T!.
 \singlespace
 \vspace{1.0ex}
 \begin{lstlisting}[language=scalaness]
@@ -871,7 +871,7 @@ errors are reported as necessary.
 \label{section-component-declarations}
 
 Components in nesT can be parameterized by types and values and instantiated multiple times.
-These properties are closely modeled by Scala classes. Thus the representation of a nesT
+These properties are closely modeled by Scala classes. Thus, the representation of a nesT
 component in Scalaness is by way of a class that extends a special !NesTComponent! marker trait.
 
 One might be tempted to allow a syntax such as
@@ -896,9 +896,8 @@ class SendC
 \primaryspacing
 
 This intends to define a Scalaness component using Scala syntax for representing type and value
-parameters with the body of the component written in nesT. Unfortunately this can't be supported
-without modifying the Scala parser to accept nesT as well as Scala, and it was my intention to
-avoid this complication.
+parameters with the body of the component written in nesT. Unfortunately this cannot be supported
+without modifying the Scala parser to accept nesT as well as Scala.
 
 One way to work around the problem of mixed language syntax is presented by Garcia
 \cite{Garcia-Scala-Query} where the ``alien'' language is included as a string literal. The
@@ -927,8 +926,8 @@ class SendC
 
 Since the nesT code implementing a component is often long and complex it makes sense to allow
 the programmer to edit and manage that code in tools that are nesC-aware such as nesC syntax
-highlighting editors. I anticipate that in many cases different programmers with very different
-kinds of expertise will be editing the Scalaness and nesT code bases. Thus my implementation
+highlighting editors. It is anticipated that in many cases different programmers with very different
+kinds of expertise will be editing the Scalaness and nesT code bases. Thus, this implementation
 uses a string literal to name an external file containing the nesT contents of a component as
 shown below.
 
@@ -952,16 +951,16 @@ locates the specified nesT file (\filename{SendC.nt} above), parses it as nesT a
 type checking on that file using type and value parameters as provided to the Scalaness class.
 
 Using Scala's syntax for specifying type and value parameters as shown above is attractive but
-unfortunately it does not work for Scalaness. There are two problems.
+unfortunately it does not work for Scalaness. There are two problems:
 \begin{enumerate}
-\item I wanted to allow nesT components to be passed around in a Scalaness program in an
+\item It is the intent to allow nesT components to be passed around in a Scalaness program in an
   uninstantiated state. In contrast Scala classes are not first class values in Scala.
 \item NesT components can have parameters involving dynamically constructed types. In contrast
   Scala class parameters must involve only types that are fully specified statically.
 \end{enumerate}
 
-I considered modifying the Scala compiler to allow dynamically constructed types to appear in
-declarations and as type parameters but this required extensive modifications to the existing
+Modifying the Scala compiler to allow dynamically constructed types to appear in declarations
+and as type parameters was considered, but this required extensive modifications to the existing
 Scala type checker and so was rejected as an option. Instead the Scalaness representation of a
 nesT component includes a special method !instantiate!, automatically generated by the compiler,
 that is used to create instantiated nesT components. That method accepts the value parameters as
@@ -990,9 +989,9 @@ class SendC extends NesTComponent {
 \label{section-runtime-support}
 
 In addition to compile-time analysis and type checking, Scalaness programs require support for
-nesT module composition (aka ``wiring'') at runtime. In this section I give an overview of how
-this runtime support works. Full details can be found in the documented source code of Scalaness
-\cite{scalaness-home}. I note that the current implementation of Scalaness composes nesT modules
+nesT module composition (aka ``wiring'') at runtime. In this section, an overview of how
+this runtime support works is provided. Full details can be found in the documented source code of Scalaness
+\cite{scalaness-home}. Note that the current implementation of Scalaness composes nesT modules
 and rewrites those modules to nesC in a single, integrated processing step. The runtime system
 currently emits nesC directly without the need for any explicit nesT-to-nesC rewriting.
 
@@ -1044,10 +1043,10 @@ class ChecksumC extends NesTComponent {
 \primaryspacing
 
 The code marked in \autoref{figure-checksum-class} as being generated by the compiler is not
-legal Scala as shown but is presented as an aid to understanding. The compiler actually inserts
-during compilation a type-correct AST of the necessary code into the AST of the enclosing
-class. The Scalaness runtime library, specifically methods in the inherited !NesTComponent!
-trait, makes use of the generated code during module composition.
+legal Scala as shown but is presented as an aid to understanding. The compiler actually inserts,
+during compilation, a type-correct AST of the necessary code into the AST of the enclosing
+class. The Scalaness runtime library, specifically the methods in the inherited !NesTComponent!
+trait, makes use of this generated code during module composition.
 
 In particular, the generated field !configuration! holds the reference to an object representing
 a nesC configuration that wraps the nesT module. The imports and exports of that module are
@@ -1058,7 +1057,7 @@ compilation of the Scalaness program. The reparsing done at runtime is thus guar
 succeed.
 
 The named component wrapped by the configuration is made aware of the names of the type and
-value parameters. Furthermore the Scalaness compiler augments the class with methods
+value parameters. Furthermore, the Scalaness compiler augments the class with methods
 !getTypeMap! and !getValueMap! that return maps associating those names with additional hidden
 fields (the definitions of which are not shown in \autoref{figure-checksum-class}) holding the
 runtime representation of the type and value arguments actually used. This information is used
@@ -1122,7 +1121,7 @@ As for \autoref{figure-checksum-class} the code shown as generated by the compil
 illustration only. The compiler inserts during compilation the AST of the appropriate code into
 the AST of the enclosing class.
 
-The !instantiate! method is provided module type parameters as Scala !MetaType! values, and
+The !instantiate! method is provided both module type parameters as Scala !MetaType! values, and
 module value parameters, all of which must have liftable types. The method creates a fresh Scala
 instance of the class and stores the module parameters into hidden fields where they are
 subsequently used (during imaging) to specialize the module's body. A single instance of the

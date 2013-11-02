@@ -4,7 +4,7 @@
 
 % Keep the listings limited to column 62 at most (60 is better).
 
-In this appendix I show a simple Scalaness/nesT sample. The sample composes two nesT modules
+This appendix shows a simple Scalaness/nesT sample. The sample composes two nesT modules
 being used as part of a hypothetical communication protocol. One module formats messages for
 transmission and the other module computes checksums.
 
@@ -13,7 +13,7 @@ use different checksum algorithms. In fact, the Scalaness program could dynamica
 of several candidate checksum modules as it composes the overall application, although that
 feature is not demonstrated here.
 
-I begin with the Scalaness program itself. In this simple example the entire program is
+Beginning with the Scalaness program itself: In this simple example the entire program is
 contained in a single Scala object holding the main method. The program begins by declaring
 objects representing the wrapped nesC libraries needed. It then declares classes representing
 the nesT components to be used, defines some helper methods, and executes the main body. Notice
@@ -226,7 +226,7 @@ object Main {
 \vspace{1.0ex}
 \primaryspacing
 
-Next I show the nesT implementation of the checksum module. This version uses a simple
+Below is the nesT implementation of the checksum module. This version uses a simple
 arithmetic summation. It is parameterized by the type used to hold the checksum and by a value
 representing the size of the array to be processed. Thus specializations of this module can only
 operate on fixed sized arrays, presummably the size of some standard message format.
