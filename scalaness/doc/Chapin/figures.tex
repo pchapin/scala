@@ -54,7 +54,7 @@ $
 
 \newcommand{\syntaxfig}
 {
-\begin{fpfig*}[t]{Program Syntax of nesT}{figure-syntax}
+\begin{fpfig*}[!p]{Program Syntax of nesT}{figure-syntax}
 \figsize
 $$
 \begin{array}{lc@{\ }l@{\hspace{-5mm}}r}
@@ -791,13 +791,13 @@ $$
 {\Gamma \vdash \tt{e} : \jmodt{\varnothing}{\margs{\vect{t} \subtype \vect{\t}_1; 
  \vect{x} \subtype \vect{\t}_2} \lc 
   \imports; \exportsty \rc}\\
- \Gamma \vdash \ttvec{e}_1 : \jinst{MetaType}{\ttvec{T}_1}\\
+ \Gamma \vdash \ttvec{s} : \jinst{MetaType}{\ttvec{T}_1}\\
  \Gamma \vdash \ttvec{e}_2 : \ttvec{T}_2 \\
  \vdash \codt{\ttvec{T}_1} \subtype \vect{\t}_1\\
  \vdash \codt{\ttvec{T}_2} \subtype \vect{\t}_2
 }
-{\Gamma \vdash \jinst{e}{\ttvec{e}_1; \ttvec{e}_2} : \jmodt{\vect{t}\subtype \codt{\ttvec{T}_1}}{\margs{} \lc 
-  \imports; \exportsty \rc} }
+{\Gamma \vdash \jinst{e}{\ttvec{s}; \ttvec{e}_2} : \jmodt{\vect{s}\subtype \codt{\ttvec{T}_1}}{\margs{} \lc 
+  \imports[\vect{s}/\vect{t}]; \exportsty[\vect{s}/\vect{t}] \rc} }
 
 \inferrule[ModWireT]
 {

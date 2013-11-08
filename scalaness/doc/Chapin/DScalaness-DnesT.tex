@@ -823,7 +823,7 @@ This is reflected in the \TirName{ModT} rule in \autoref{figure-scalanesstyping}
 the DnesT typing system with the DScalaness type system. Since in this case an uninstantiated
 module definition is being typed, its instance coercion is empty. An instance coercion in a
 module type is directly populated when a module is instantiated, as in the \TirName{ModInstT}
-rule. Here, the type instances $\ttvec{e}_1$ are all dynamically constructed, so they define the
+rule. Here, the type instances $\ttvec{s}$ are all dynamically constructed, so they define the
 upper bounds of the instantiated module's instance coercion. All type and value parameters are
 expected to respect the typing bounds specified in the module definition.
 
@@ -831,6 +831,12 @@ A subtle but significant detail in this rule is the consequence of dynamically c
 having no meaning ``as types'' at the DScalaness level. This means that no DScalaness value of
 that type can be constructed, so dynamically constructed type names do not occur in the typings
 of value parameters.
+
+However, dynamically constructed type names do need to be substituted for module type parameters
+in the import and export signatures. This ensures that wirings will be consistent regardless of
+the actual types eventually computed by the DScalaness program. A consequence of this is that
+modules can't be instantiated with anonymous expressions; only named type definitions can be
+used. Those names become part of the module's type.
 
 The \TirName{ModWireT} typing rule for module wiring is a straightforward reflection of the
 operational rule for module wiring, as is the \TirName{ModImageT} rule for module runnability
