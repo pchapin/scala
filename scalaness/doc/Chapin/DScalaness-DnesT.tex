@@ -114,48 +114,52 @@ parameterized type $\tt{mesgT(t)}$ using the DScalaness $\tt{abbrvt}$ binder, wh
 $\tt{mesgT}(\t)$ denotes the ground type obtained by substituting $\t$ for $\tt{t}$ in the
 definition of $\tt{mesgT}$.
 
-% TODO: The formatting of this example could be improved (notice inconsistent font size).
 \begin{fpfig}[!p]{DScalaness/DnesT Example}{figure-example}
 {
 \singlespace
 \lstset{numbers=left, numberstyle=\tiny, numbersep=0pt, basicstyle=\ttfamily}
-\lstset{escapeinside={(*@}{@*)}}
+\lstset{escapechar=!, language=scalaness}
 \begin{lstlisting}
- (*@\tt{abbrvt\ mesgT(t)\  =}@*) { src : (*@\tt{t}@*); dest : (*@\tt{t}@*); data : uint8[] };  (*@\label{l:mesgt}@*)
+ abbrvt mesgT(t) =
+  { src : t; dest : t; data : uint8[] }; !\label{l:mesgt}!
+ abbrvt radioT = !\label{l:radiot}!
+  < at !$\subtype$! uint >
+  { export error_t radio_x(mesgT(at)*); 
+    import error_t handle_radio_r(mesgT(at)*); };
+ abbrvt commT = !\label{l:commt}!
+  (at !$\subtype$! uint) !$\circ$! < >
+  { export error_t send(mesgT(at)*); 
+    import error_t handle_receive(mesgT(at)*); };
 
- (*@\tt{abbrvt\ radioT\  =}@*) < mt (*@$\subtype$@*) (*@\tt{mesgT}@*)(uint) > (*@\label{l:radiot}@*)
-                 { export error_t radio_x(mt*); 
-                   import error_t handle_radio_r(mt*); };
+ val authSend = !\label{l:authsend}!
+  < at !$\subtype$! uint; sendk : uint8[] >
+  { import error_t radio_x(mesgT(at)*);
+    export error_t send(m : mesgT(at)*) 
+        { radio_x(AES_sign(m, sendk)); } };
+ val authRecv = !\label{l:authrecv}!
+  < at !$\subtype$! uint; recvk : uint8[] >  
+  { import error_t handle_recv(mesgT(at)*);
+    export error_t handle_radio_r(m : mesgT(at)*) 
+        { if (AES_signed(m, recvk))
+              handle_recv(m); } }; 
 
- (*@\tt{abbrvt\ commT\ \  =}@*) (mt (*@$\subtype$@*) (*@\tt{mesgT}@*)(uint)) (*@$\circ$@*) (*@\label{l:commt}@*)
-                 < >
-                 { export error_t send(mt*); 
-                   import error_t handle_receive(mt*); };
-
- (*@\tt{authSend\ \  =}@*) < mt (*@$\subtype$@*) (*@\tt{mesgT}@*)(uint);(*@\label{l:authsend}@*) sendk : uint8[],>  
-             { import error_t radio_x(mt*);
-               export error_t send(m : mt*) 
-                      { radio_x(AES_sign(m, sendk)); } };
-
- (*@\tt{authRecv\ \  =}@*) < mt (*@$\subtype$@*) (*@\tt{mesgT}@*)(uint);(*@\label{l:authrecv}@*) recvk : uint8[] >  
-             { import error_t handle_recv(mt*);
-               export error_t handle_radio_r(m : mt*) 
-                      { if AES_signed(m, recvk) 
-                         handle_recv(m); } }; 
-
- (*@\tt{def\ authSpecialize}@*) (*@\label{l:authspecialize}@*)
-  (*@ \tt{(nmax : uint16, radioM : radioT, keys : uint8[][]) : commT }@*) { (*@\label{l:args}@*)
-     (*@\tt{typedef\ adt \subtype uint = \ if\ (nmax  \le 256)\ uint8\ else\ uint16;}@*)  (*@\label{l:typedef}@*) 
-     (*@\tt{val\ sendM = \jinst{authSend}{mesgT(adt); keys[0]};}@*)  (*@\label{l:inst1}@*)
-     (*@\tt{val\ recvM = \jinst{authRecv}{mesgT(adt); keys[1]};}@*)  (*@\label{l:inst2}@*)    
-     (*@\tt{(sendM \ltimes \jinst{radioM}{mesgT(adt)}) \ltimes recvM;}@*) (*@\label{l:wire}@*)
+ def authSpecialize !\label{l:authspecialize}!
+  (nmax   : uint16,                                                     !\label{l:args}!
+   radioM : radioT,
+   keys   : Array[Array[uint8]]) : commT
+     typedef adt !$\subtype$! uint =                                    !\label{l:typedef}!
+       if (nmax <= 256) uint8 else uint16;
+     val sendM = !\jinst{authSend}{mesgT(adt); keys(0)};!               !\label{l:inst1}!
+     val recvM = !\jinst{authRecv}{mesgT(adt); keys(1)};!               !\label{l:inst2}!    
+     sendM !$\ltimes$! !\jinst{radioM}{mesgT(adt)}! !$\ltimes$! recvM;  !\label{l:wire}!
     }
 
- (*@\tt{appMR\ =}@*) (*@\label{l:main}@*)
-  < > { export handle_recv(m : (*@\tt{mesgT}@*)(uint8)*) {(*@\ldots@*)} }; 
- (*@\tt{appM\ =}@*) 
-  < > { import send((*@\tt{mesgT}@*)(uint8)*); export main() {(*@\ldots@*)} };  
- (*@\tt{image(appM \ltimes (authSpecialize(nmax, radioM, keys) \ltimes appMR)); } @*) (*@\label{l:image}@*)  
+ val appMR = !\label{l:main}!
+  < >{ export handle_recv(m : mesgT(uint8)*) {!\ldots!} }; 
+ val appM = 
+  < >{ import send(mesgT(uint8)*); export main() {!\ldots!} };  
+ image(appM !$\ltimes$!
+         authSpecialize(nmax, radioM, keys) !$\ltimes$! appMR); } !\label{l:image}!  
 \end{lstlisting}
 \primaryspacing
 }
@@ -166,38 +170,38 @@ that provide an API to the radio. The DnesT module language is a simplified vers
 component language. In this example, any module of type $\tt{radioT}$ exports a $\tt{radio\_x}$
 function for sending messages, and imports a $\tt{handle\_radio\_r}$ function that allows
 received messages to be handled in a user-defined manner. Both functions take message references
-as arguments. Furthermore, the module is parameterized by the type of messages $\tt{mt}$, where
-the address type is upper-bounded by 32-bit unsigned integer. Thus, any module of type
-$\tt{radioT}$ can be dynamically specialized to a 32, 16, or 8 bit address space. Module type
-parameters are always defined with brackets $\tt{<...>}$.
+as arguments. Furthermore, the module is parameterized by the type of node addresses $\tt{at}$,
+upper-bounded by 32-bit unsigned integer. Thus, any module of type $\tt{radioT}$ can be
+dynamically specialized to an 8, 16, or 32 bit address space. Module type parameters are always
+defined with brackets $\tt{<...>}$.
  
-Now on line~\ref{l:commt} another type is defined $\tt{commT}$ which is the type of modules
+Now on line~\ref{l:commt} another type $\tt{commT}$ is defined which is the type of modules
 providing a QOS layer over a specialized radio. Although this type is also parameterized by a
-bounded message type $\tt{mt}$, as is $\tt{radioT}$, the parameterization is subtly different
+bounded address type $\tt{at}$, as is $\tt{radioT}$, the parameterization is subtly different
 syntactically and semantically, since $\tt{commT}$ expects a program context where the radio has
-been specialized. Thus, in $\tt{commT}$, $\tt{mt}$ is understood as being ``some'' type with an
-upper bound of $\tt{mesgT(uint)}$ which occurs in the module signature, whereas the module
-itself has no parameters to be instantiated. This sort of type is needed in the presence of
-\emph{dynamic type construction}.
+been specialized. Thus, in $\tt{commT}$, $\tt{at}$ is understood as being ``some'' type with an
+upper bound of $\tt{uint}$ which occurs in the module signature, whereas the module itself has
+no parameters to be instantiated. This sort of type is needed in the presence of \emph{dynamic
+  type construction}.
 
 Next on lines \ref{l:authsend} and \ref{l:authrecv} modules are defined for sending and
 receiving messages that provide a layer of authentication security over the radio. Observe that
 in the implementation of $\tt{send}$ in module \tt{authSend}, messages are signed with a key
 $\tt{sendk}$, whereas when messages are received they must be signed with a possibly different
 key $\tt{recvk}$ before being passed on to the user's receive handler, as specified in module
-\tt{authRecv}. These modules are parameterized by a message type $\tt{mt}$, and also the
+\tt{authRecv}. These modules are parameterized by an address type $\tt{at}$, and also the
 $\tt{sendk}$ and $\tt{recvk}$ key values.
 
 To generalize a technique for composing these modules with a radio to yield a module of type
 \tt{commT}, that is abstract with respect to neighborhood sizes, radio implementations, and
 session key material, the DScalaness $\tt{authSpecialize}$ function is defined on
 line~\ref{l:authspecialize}. The first-class status of DnesT modules in DScalaness is apparent
-here. On line~\ref{l:args} the function is specified to take a module parameter $\tt{radioM}$ of
-type $\tt{radioT}$ among its arguments, and to return a module of type $\tt{commT}$ as a result.
-It also takes an array of keys as an argument, and on lines~\ref{l:inst1} and~\ref{l:inst2} it
-instantiates $\tt{sendMesg}$ and $\tt{recvMesg}$ with the keys in the array. Finally it uses the
-type $\tt{adt}$ in the instantiations, which in line~\ref{l:typedef} is dynamically constructed
-on the basis of the input variable $\tt{nmax}$.
+here. Starting at line~\ref{l:args} the method is specified to take a module parameter
+$\tt{radioM}$ of type $\tt{radioT}$ among its arguments, and to return a module of type
+$\tt{commT}$ as a result. It also takes an array of keys as an argument, and on
+lines~\ref{l:inst1} and~\ref{l:inst2} it instantiates $\tt{sendMesg}$ and $\tt{recvMesg}$ with
+the keys in the array. Finally it uses the type $\tt{adt}$ in the instantiations, which in
+line~\ref{l:typedef} is dynamically constructed on the basis of the input variable $\tt{nmax}$.
 
 This illustrates a key novelty of the system, the ability to \emph{dynamically} set a type to
 use on a node based on a decision made during the execution of the DScalaness program. Since the

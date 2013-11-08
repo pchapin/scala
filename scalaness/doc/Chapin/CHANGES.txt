@@ -1,0 +1,8 @@
+
+CHANGES.txt
+===========
+
+This file lists changes made to my dissertation following the defense.
+
+1. Changed to passive voice and third person throughout.
+2. Updated the sample DScalaness program in chapter 4.
