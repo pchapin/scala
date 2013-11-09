@@ -62,7 +62,7 @@ social entities must interact and cooperate. Recent work has shown the effective
 sensor networks in such scenarios \cite{citeulike:4460555,1038146}, in their ability to
 coordinate multiple data collection and communication devices in an ad-hoc, easily deployable
 fashion. However, data collection and communication in this scenario (and other similar ones)
-must be a secured resource, due to e.g.~HIPA requirements in the case of medical response.
+must be a secured resource, due to, e.g., HIPA requirements in the case of medical response.
 Furthermore, security must be coordinated on-site in a sensor network comprising subnetworks
 administered separately (police, medical units from different hospitals, etc.), and no prior
 coordination between administrations can generally be assumed. The SpartanRPC system is designed
@@ -162,13 +162,13 @@ interface LEDControl {
 \primaryspacing
 
 Duties are defined in modules in a manner similar to the way tasks, commands, or events are
-defined. The reserved word !duty! is again used on the definition. Similar to commands and events the
-name of the duty is qualified by the name of the interface in which it is declared. Including a
-duty in an interface definition automatically implies that the interface can be remotely
-invoked, or is \emph{remotable} in the sense formalized in \autoref{section-remotable}. Any
-remotable interface provided by a component must be specified as !remote! in its provides
+defined. The reserved word !duty! is again used on the definition. Similar to commands and
+events the name of the duty is qualified by the name of the interface in which it is declared.
+Including a duty in an interface definition automatically implies that the interface can be
+remotely invoked, or is \emph{remotable} in the sense formalized in \autoref{section-remotable}.
+Any remotable interface provided by a component must be specified as !remote! in its provides
 specification. The first code sample in \autoref{figure-duty-usage} shows an !LEDControllerC!
-component that provides the !LEDControl! interface remotely i.e.~that allows remote nodes to
+component that provides the !LEDControl! interface remotely, i.e., that allows remote nodes to
 control LED status lights on a board.
 
 \begin{fpfig}[t]{Duty Implementation and Invocation Examples}{figure-duty-usage}
@@ -228,8 +228,8 @@ Since a remotable interface describes RPC services, such interfaces are required
 duties taking only arguments of remotable type; also, remotable interfaces can only contain
 duties, to ensure meaningful remote usage.
 \begin{definition}
-  An interface is \emph{remotable} if and only if it only provides duties whose argument types
-  are remotable.
+  An interface is \emph{remotable} if and only if it contains only duties, and those duties have
+  argument types and return types that are remotable.
 \end{definition}
 
 \section{Dynamic Wires}
@@ -538,13 +538,13 @@ encapsulated, underlying security protocols for authorization of remote duty pos
 cryptography. The TinyECC library \cite{Liu-Peng-TinyECC-2008} was used for public key
 functionality, and AES encryption for symmetric key functionality. TinyECC uses elliptic curve
 cryptography for more efficient public key operations in sensor networks. Using AES has the
-benefit of hardware support on many current embedded platforms, e.g.~those employing the Chipcon
-CC2420 radio.
+benefit of hardware support on many current embedded platforms, e.g., those employing the
+Chipcon CC2420 radio.
 
 There are three security protocols for authorized duty postings, illustrated in
 \autoref{figure-sprocketrt-protocol}, each operating asynchronously. First, a credential
 exchange protocol, wherein \RT\ credentials are communicated between nodes and authorization for
-various entities are computed, i.e.~the \emph{minimum model} as described in
+various entities are computed, i.e., the \emph{minimum model} as described in
 \autoref{section-security-extensions}. Second, a session key negotiation protocol, where
 symmetric keys for multiple authorized service invocations between a duty client and server are
 computed. And third, an authorized service invocation protocol, wherein duty posting requests
@@ -570,7 +570,7 @@ certificates between nodes and to verify them and interpret the credentials they
 components run as background daemons. A SpartanRPC-enabled node is deployed with a collection of
 certificates in read-only storage representing that node's credentials, which are determined by
 some external means. Once the node is booted, the certificate sender starts a periodic timer.
-When the timer fires, the node link-layer broadcasts (i.e.~only to neighbors) all certificates
+When the timer fires, the node link-layer broadcasts (i.e., only to neighbors) all certificates
 in its certificate storage that are mentioned in the !enable! clauses in its program. To prevent
 adjacent node certificate broadcasts from colliding, the certificate broadcast interval is
 modulated randomly by $\pm 10$\%. For example if the nominal broadcast interval is one minute,
@@ -588,7 +588,7 @@ Once a newly received certificate has been verified, the credential it represent
 and stored. The credential storage also contains the $RT_0$ minimum model implied by the
 currently known collection of credentials. Each time a new credential is added to storage, the
 minimum model is updated. This is done by repeatedly applying authorization logic inference
-rules implied by the credentials to the current model until a fixed point is reached, i.e.~a
+rules implied by the credentials to the current model until a fixed point is reached, i.e., a
 logical closure \cite{Li:DCFTML}. Thus, each node maintains a local view of authorization levels
 for network entities based on received credentials.
 
@@ -596,10 +596,10 @@ The certificate representation of an \RT\ credential contains the public keys de
 mentioned in the credential. Roles are identified by one byte numeric codes and are scoped by
 the entity defining the role. Credential forms are distinguished by numbers $\{ 1, 2, 3, 4 \}$.
 Certificates are also signed by their issuing authority. Conveniently, the issuing authority is
-always mentioned in a credential (e.g.~the issuing authority of $\cred{A.r}{B}{}$ is $A$) so the
-public key required to verify the certificate is always included with it for free. This does not
-introduce a security problem. Since entities are identified directly by their keys, an attacker
-who creates a new key is simply creating a new entity.
+always mentioned in a credential (e.g., the issuing authority of $\cred{A.r}{B}{}$ is $A$) so
+the public key required to verify the certificate is always included with it for free. This does
+not introduce a security problem. Since entities are identified directly by their keys, an
+attacker who creates a new key is simply creating a new entity.
 
 The over-the-air format for the intersection certificate is illustrated in
 \autoref{figure-certformats}. The other certificate forms are organized in a similar way.

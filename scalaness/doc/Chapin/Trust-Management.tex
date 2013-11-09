@@ -52,7 +52,7 @@ guest lecturers, and other entities known to cooperating institutions.
 
 Finally, basing authorization purely on identity is not a sufficiently expressive or flexible
 approach, since security in modern distributed systems often utilizes more sophisticated
-features (e.g.~delegation) and policies (e.g.~separation of duty \cite{Simon:SODRBE}). These
+features (e.g., delegation) and policies (e.g., separation of duty \cite{Simon:SODRBE}). These
 issues are addressed by the use of trust management systems.
 
 \section{Components of Trust Management Systems}
@@ -188,8 +188,8 @@ In the case of trust management systems based on logic, the authorization proble
 in terms of finding a proof of a particular formula representing successful resource access,
 with the policy represented as a collection of suitable axioms. Credentials relevant to a
 particular decision become additional hypotheses to be used in the proof. Trust management
-systems based on database formalisms (e.g.~relational algebra) see the authorization decision as
-a query against a distributed database. The certificates issued by a principal contain, in
+systems based on database formalisms (e.g., relational algebra) see the authorization decision
+as a query against a distributed database. The certificates issued by a principal contain, in
 effect, tuples from relations that a principal controls. Trust management systems based on graph
 theory define the authorization decision in terms of finding a path through a graph. The request
 is represented by a particular node in the graph. Principals are also graph nodes and the
@@ -198,8 +198,8 @@ certificates they issue denote edges.
 It is not unusual for a particular trust management system to be described by more than one
 formalism. In fact, some aspects of trust management are more naturally expressed using one
 formalism or another. Also, \datalog\ serves as both a database formalism and a programming
-logic, and several trust management systems, including $RT_0$ that is used in this work, have been
-specified in \datalog \cite{Li:DCFTML}.
+logic, and several trust management systems, including $RT_0$ that is used in this work, have
+been specified in \datalog\ \cite{Li:DCFTML}.
 
 \subsection{Authorization Procedure. Authorization Complexity}
 
@@ -472,14 +472,14 @@ uses policy and credential statements to associate principals, called \newterm{e
 system, $RT_0$, provides credential forms for simple role membership as well as indirection
 roles and intersection roles as described below.
 
-$RT_1$ is an extension of $RT_0$ providing parameterized roles. $RT_1^C$ further extends
-$RT_1$ to allow for the description of structured resources \cite{Li:DCFTML,Li:RRBTMF}. The
-system $RT^D$ provides a mechanism to describe the delegation of rights and role activations,
-and $RT^T$ provides support for threshold and separation of duty policies. $RT^T$ and $RT^D$
-can be used in combination with $RT_0$, $RT_1$, or $RT_1^C$ to create trust management
-systems such as $RT_0^T$, $RT_1^{TD}$, and so forth. A rich complexity analysis has also been
-developed for the \RT\ framework for problems beyond simple authorization, e.g.~role inclusion
-and role membership bounds \cite{Li:BPOCSATM}.
+$RT_1$ is an extension of $RT_0$ providing parameterized roles. $RT_1^C$ further extends $RT_1$
+to allow for the description of structured resources \cite{Li:DCFTML,Li:RRBTMF}. The system
+$RT^D$ provides a mechanism to describe the delegation of rights and role activations, and
+$RT^T$ provides support for threshold and separation of duty policies. $RT^T$ and $RT^D$ can be
+used in combination with $RT_0$, $RT_1$, or $RT_1^C$ to create trust management systems such as
+$RT_0^T$, $RT_1^{TD}$, and so forth. A rich complexity analysis has also been developed for the
+\RT\ framework for problems beyond simple authorization, e.g., role inclusion and role
+membership bounds \cite{Li:BPOCSATM}.
 
 \subsection{Features}
 
@@ -601,7 +601,7 @@ interplay between the semantics of authorization per se and components external 
 A variant of the \RT\ framework has been developed that associates risk values with credentials
 \cite{skalka-wang-chapin-jcs06}. These risks are tracked through the authorization process so
 that the role membership is parameterized by the total membership risk. The set of risks and
-their ordering is left abstract, and can be specialized to a number of applications, e.g.~risk
+their ordering is left abstract, and can be specialized to a number of applications, e.g., risk
 can be defined as remaining certificate lifetime, so that role membership is parameterized by
 the minimal lifetime of certificates used for authorization.
 

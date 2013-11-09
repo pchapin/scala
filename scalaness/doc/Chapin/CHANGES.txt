@@ -7,3 +7,6 @@ This file lists changes made to my dissertation following the defense.
 1. Changed to passive voice and third person throughout.
 2. Updated the sample DScalaness program in chapter 4.
 3. Fixed the ModInstT DScalaness type rule.
+4. Clarified the security behavior of the Sprocket session key negotiation protocol.
+5. Various minor fixes to address small details noted by my committee.
+

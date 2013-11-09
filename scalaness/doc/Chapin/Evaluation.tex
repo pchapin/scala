@@ -54,9 +54,9 @@ Since many communication chips now support hardware AES encryption, this evaluat
 demonstrates performance using that feature. In particular, the popular Tmote Sky wireless
 sensor mote \cite{tmotesky-datasheet} uses a Chipcon CC2420 transceiver with hardware
 encryption. Unfortunately, the standard TOSSIM simulation environment does not model hardware
-encryption for TinyOS 2.1, so all tests were performed on real hardware. Tmote Sky motes were
-used, with 16Kb of RAM, 48Kb of ROM and an 8MHz MSP430 microcontroller running TinyOS 2.1.2
-\cite{tinyos}.
+encryption for TinyOS 2.1 so all tests were performed on real hardware, limiting the tests to
+small scale configurations. Tmote Sky motes were used, with 16Kb of RAM, 48Kb of ROM and an 8MHz
+MSP430 microcontroller running TinyOS 2.1.2 \cite{tinyos}.
 
 The system was exercised using several small test programs. These programs consisted of a
 client/server pair where the client repeatedly sent a message containing a 16~bit value to the
@@ -240,7 +240,15 @@ particular application. For example, activating the Shamir Trick cut certificate
 time in half at the expense of increasing RAM usage by nearly 700 bytes.
 
 Table~\ref{table-transient-time} shows the times required for each of the primitive transient
-operations in the implementation of this system.
+operations. The time required to build the minimum model is directly related to the number and
+nature of the credentials involved. In this test a collection of five representative credentials
+that included at least one of each type was used. In any case this time is entirely negligible
+compared to the other transient operations.
+
+% There might be a termination problem with my algorithm for updating the minimum model despite
+% the fact that the method I'm using is theoretically guaranteed to terminate. In particular if
+% the model is too large it might be possible for the algorithm to run infinitely, alternating
+% between replacing two different tuples in the limited space.
 
 \begin{table}[tbhp]
   \newcommand\T{\rule{0pt}{2.1ex}}
@@ -257,16 +265,6 @@ operations in the implementation of this system.
   }
   \label{table-transient-time}
 \end{table}
-
-The time required to build the minimum model is directly related to the number and nature of the
-credentials involved. In this test a collection of five representative credentials that included
-at least one of each type was used. In any case this time is entirely negligible compared to the
-other transient operations.
-
-% There might be a termination problem with my algorithm for updating the minimum model despite
-% the fact that the method I'm using is theoretically guaranteed to terminate. In particular if
-% the model is too large it might be possible for the algorithm to run infinitely, alternating
-% between replacing two different tuples in the limited space.
 
 The time quoted for session key negotiation represents the time required for both negotiating
 partners to compute the session key. In the current implementation the two negotiating nodes do
@@ -402,9 +400,9 @@ administration. This will provide that Harvester with collection and control aut
 domain. For Harvesters to be provided to collaborators, the Snowcloud administrators issue a
 credential establishing the institution as a collaborator, while the institution itself may
 define and manage policy for their $\mathit{Usr}$ role membership. For example, the University
-of New Hampshire ($\mathit{UNH}$) can be established as a collaborator with credential (5),
-below, issued by Snowcloud domain administration, and may specify role membership with the
-credential (6) issued by UNH domain administration:
+of New Hampshire, represented by \RT\ entity $\mathit{UNH}$, can be established as a
+collaborator with credential (5), below, issued by Snowcloud domain administration, and may
+specify role membership with the credential (6) issued by UNH domain administration:
 \begin{mathpar}
 (5)\quad \cred{SC.Collab}{{UNH}}{}
 
@@ -437,8 +435,8 @@ interface SpDissemUpdate {
 \vspace{1.0ex}
 \primaryspacing
 
-To implement e.g.~the control command channel, the following module can be defined and included
-on sensor nodes in the Snowcloud domain:
+To implement, e.g., the control command channel, the following module can be defined and
+included on sensor nodes in the Snowcloud domain:
 
 \singlespace
 \vspace{1.0ex}
@@ -455,7 +453,7 @@ implementation { ... }
 
 In the implementation, the provided $\verb+SpDissemUpdate+$ interface accepts command
 invocations from neighbors, but requires them to be authorized for the $\mathit{SC.Con}$ role.
-Commands are relayed to all other neighbors (i.e.~disseminated) via the used
+Commands are relayed to all other neighbors (i.e., disseminated) via the used
 $\verb+NeighborUpdate+$ interface; those neighbors are identified by the provided
 $\verb+ComponentManager+$.
 

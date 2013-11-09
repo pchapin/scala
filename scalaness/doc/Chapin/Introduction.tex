@@ -32,9 +32,9 @@ For reasons of space and time efficiency, many embedded systems are programmed i
 languages such as C. Programming at that level is complicated and error prone. It is desirable,
 therefore, to provide programmers with convenient abstractions to shield them from low level
 complexities. This dissertaion proposes, in particular, that these abstractions should be in the
-programming language itself, and this work is about providing enriched languages that can be used
-to address the needs of modern embedded systems. This \newterm{language-based} approach has the
-result that some of the work of producing correct programs is off-loaded to the language
+programming language itself, and this work is about providing enriched languages that can be
+used to address the needs of modern embedded systems. This \newterm{language-based} approach has
+the result that some of the work of producing correct programs is off-loaded to the language
 compiler and runtime system. Language features can be formally analyzed and rigorously tested
 once and then applied to many applications. This is in contrast to each application being an
 ad-hoc construction of customized components with limited use beyond the application for which
@@ -80,12 +80,12 @@ different address spaces. When applied to embedded systems, the second (and fina
 in an embedded systems language running on the embedded hardware, whereas the first stage need
 not be as restricted.
 
-This dissertation also describes \newterm{Scalaness} \cite{chapin-GPCE-2013}, an extension
-of Scala \cite{PiS2} with features that allow the programmer to compose and specialize
-components written in a reduced dialect of nesC called \newterm{nesT}. An important and novel
-feature of Scalaness is that it extends Scala's type system, so that a well-typed Scalaness
-program will always generate a well-typed nesT program. Thus the type correctness of the program
-that ultimately runs on the embedded device is guaranteed by the first stage Scalaness compiler.
+This dissertation also describes \newterm{Scalaness} \cite{chapin-GPCE-2013}, an extension of
+Scala \cite{PiS2} with features that allow the programmer to compose and specialize components
+written in a reduced dialect of nesC called \newterm{nesT}. An important and novel feature of
+Scalaness is that it extends Scala's type system, so that a well-typed Scalaness program will
+always generate a well-typed nesT program. Thus the type correctness of the program that
+ultimately runs on the embedded device is guaranteed by the first stage Scalaness compiler.
 
 Scala was chosen as the basis for the first stage language largely for pragmatic reasons,
 primarily to build a system that could be used for real applications. Scala is a rich language
@@ -97,10 +97,10 @@ compiler itself.
 
 \section{Motivation}
 
-To establish better comprehension of the motivation behind this dissertation's work, this section
-will provide an example scenario related to wireless sensor networks. The scenario is described
-in general terms; it could apply to a variety of sensor network applications, one of which is
-discussed in more detail in \autoref{chapter-evaluation}.
+To establish better comprehension of the motivation behind this dissertation's work, this
+section will provide an example scenario related to wireless sensor networks. The scenario is
+described in general terms; it could apply to a variety of sensor network applications, one of
+which is discussed in more detail in \autoref{chapter-evaluation}.
 
 \begin{fpfig*}[t]
   {Motivational Scenario}
@@ -126,6 +126,8 @@ lifetimes, all without being able to access each other's primary functions.
 In other scenarios one of the networks, say $B$, may be reduced to a single mobile node that
 wanders into the field of an established network $A$. In that case $B$ may wish to query $A$ or
 otherwise interact with it, yet $A$ and $B$ may have no prior association.
+\autoref{section-field-example} describes a specific scenario of this type used during the
+evaluation of the work presented here.
 
 Trust management systems provide exactly the kind of flexible, policy-driven authorization
 control to address these situations. The ability to define access policy for unknown principals,
@@ -161,8 +163,9 @@ undecidable. KeyNote has been used to enforce IPsec security requirements
 \cite{Blaze:TMIPS,Blaze:EKTMS}
 
 SDSI/SPKI \cite{Rivest:SDSI-11,RFC-2693} provides a relatively simple, yet expressively
-interesting trust management language that is a precursor to the $RT_0$ system used here \note{in this dissertation or in Scalaness or in SpartanRPC?}. The
-semantics of SDSI/SPKI have been analyzed by several authors
+interesting trust management language that is a precursor to the $RT_0$ system used here
+\note{in this dissertation or in Scalaness or in SpartanRPC?}. The semantics of SDSI/SPKI have
+been analyzed by several authors
 \cite{Abadi:OSLLNS,Halpern:LSSLLNS,Howell:FSS,Li:LNSS,Clarke:CCDSS} making it one of the best
 studied trust management systems. SDSI/SPKI has been used to provide security in component based
 programming language design \cite{Liu:CSI}.
@@ -206,9 +209,10 @@ the trustedFleck system extends this with a form a secure RPC
 networks that allows remote services to be added to the system dynamically \cite{5766863}.
 SpartanRPC differs from these systems in that it extends the nesC programming language (unlike
 trustedFleck) to allow programmer definition of secure RPC services (unlike S-RPC) that can be
-accessed by nodes within the network itself (unlike Marionette). This dissertation's system is similar to, and
-inspired by, TinyRPC \cite{may-tinyrpc-2007}.  TinyRPC, however, does not provide security and has
-a \note{should that 'a' be there?} different semantics that are not as expressive as this dissertation's approach.
+accessed by nodes within the network itself (unlike Marionette). This dissertation's system is
+similar to, and inspired by, TinyRPC \cite{may-tinyrpc-2007}. TinyRPC, however, does not provide
+security and has a \note{should that 'a' be there?} different semantics that are not as
+expressive as this dissertation's approach.
 
 Teeny\textsc{lime} allows application programs to access an abstract ``tuple space'' that is the
 union of tuple spaces on the local node and the immediately neighboring nodes
@@ -232,8 +236,8 @@ High level macro\-programming languages such as Kairos \cite{springerlink:10.100
 and Regiment \cite{Newton:2007:RMS:1236360.1236422} provide a way to program the entire network
 as a single entity. These systems attempt to hide not only the inter-node communication from the
 programmer, but also the entire node level programs. SpartanRPC operates at a much lower level
-and also, unlike these macro\-programming systems, addresses access control issues in networks
-containing multiple security domains.
+making it potentially more flexible and also, unlike these macro\-programming systems,
+SpartanRPC addresses access control issues in networks containing multiple security domains.
 
 Whole network programming of wireless sensor networks has also been investigated using mobile
 agents in systems such as Agilla \cite{Fok:2009:AMA:1552297.1552299} and Wiseman
@@ -256,33 +260,35 @@ there is a very restricted syntax for a few special metaprogramming operations i
 component wiring, macros, and code templating.
 
 MetaML \cite{Taha-MetaML,DBLP:conf/icess/Taha04} and MetaHaskell \cite{mainland12} are
-foundations this dissertation's work builds on. MetaHaskell does support heterogeneous language staging where the
-lower stage language is defined by a plug-in and several instantiations have been defined
-including one for a low-level C-like language. Like this dissertation's approach, they guarantee type safety of
-all lower-stage code produced. They use a more traditional metaprogramming model, however, not
-the process-separated model needed for embedded systems metaprogramming and they do not address the
-issues of metaprogramming module composition and type specialization.
+foundations this dissertation's work builds on. MetaHaskell does support heterogeneous language
+staging where the lower stage language is defined by a plug-in and several instantiations have
+been defined including one for a low-level C-like language. Like this dissertation's approach,
+they guarantee type safety of all lower-stage code produced. They use a more traditional
+metaprogramming model, however, not the process-separated model needed for embedded systems
+metaprogramming and they do not address the issues of metaprogramming module composition and
+type specialization.
 
 Lightweight Modular Staging \cite{Rompf-LMS} describes a method of expressing staged
 computations using a Scala host framework without any compiler modifications. The approach
 allows cross-stage type safety but also does not support dynamic type construction.
 
-Actor based sensor metaprogramming has been studied in \cite{cheong07}; this work shares this dissertation's 
-focus on high level dynamic reprogrammability but is untyped. More broadly, meta programming is
-known to be useful for increasing the efficiency of systems applications. One example is Tempo
-\cite{289140}, a system that integrates partial evaluation and type specialization for
-increasing efficiency of systems applications. Ur \cite{UrPLDI10} allows for type safe meta
-programming for web applications.
+Actor based sensor metaprogramming has been studied in \cite{cheong07}; this work shares this
+dissertation's focus on high level dynamic reprogrammability but is untyped. More broadly, meta
+programming is known to be useful for increasing the efficiency of systems applications. One
+example is Tempo \cite{289140}, a system that integrates partial evaluation and type
+specialization for increasing efficiency of systems applications. Ur \cite{UrPLDI10} allows for
+type safe meta programming for web applications.
 
 The units of staged code composition in nesT programming are \emph{modules}. Countless different
 module systems exist, but they are primarily designed to achieve separate compilation and sound
-linking \cite{Cardelli-1997}.The different design goal of this dissertation leads to different design choices in nesT
-modules. For example, data crossing nesT module boundaries needs to conform to the property of
-process separation, a non-issue in standard module system designs. In addition, nesT modules
-allow values/types across the boundary of modules to be flexibly constructed, including dynamic
-construction of types. Module systems such as ML modules \cite{macqueen84} and Units
-\cite{flatt98units} allow types to be imported/exported as this dissertation supports. However, there are
-several features of ML modules including type hiding that this dissertation's system does not aim to support.
+linking \cite{Cardelli-1997}.The different design goal of this dissertation leads to different
+design choices in nesT modules. For example, data crossing nesT module boundaries needs to
+conform to the property of process separation, a non-issue in standard module system designs. In
+addition, nesT modules allow values/types across the boundary of modules to be flexibly
+constructed, including dynamic construction of types. Module systems such as ML modules
+\cite{macqueen84} and Units \cite{flatt98units} allow types to be imported/exported as this
+dissertation supports. However, there are several features of ML modules including type hiding
+that this dissertation's system does not aim to support.
 
 NesT modules are more expressive in their support of first class modules as values and the
 possibility of dynamic construction of ``type exports.'' That said, first class modules are not
@@ -297,19 +303,22 @@ on this, but types are still not first class values.
 
 \section{Dissertation Organization}
 
-The rest of this dissertation is organized as follows. Trust management systems are described, in
-general, in \autoref{chapter-trust-management}, outlining the different features provided by
+The rest of this dissertation is organized as follows. Trust management systems are described,
+in general, in \autoref{chapter-trust-management}, outlining the different features provided by
 common trust management systems and motivating their use. Special focus is given to the \RT\
-family of trust management systems used in this work. The design of SpartanRPC is described, as well as the
-details of its implementation, in \autoref{chapter-spartanrpc-sprocket}. Of particular note is the description of the added support for $RT_0$ trust management to a general RPC mechanism.
-Scalaness and nesT are introduced in more detail in \autoref{chapter-dscalaness-dnest}, and then the
-syntax and semantics of both languages are described, using simplified ``distilled'' versions of those
-languages called \newterm{DScalaness} and \newterm{DnesT}. The implementation of the
-practical Scalaness/nesT system is described in \autoref{chapter-scalaness-nest}, relating the features of the
-implementation to the earlier foundational presentation. An evaluation of both systems is provided in
-\autoref{chapter-evaluation} using simple test programs in the context of a realistic field
-example. The conclusion is documented in \autoref{chapter-conclusion}. Finally, in \autoref{chapter-sample} 
-the full source code of a simple Scalaness/nesT sample is demonstrated, with commentary.
+family of trust management systems used in this work. The design of SpartanRPC is described, as
+well as the details of its implementation, in \autoref{chapter-spartanrpc-sprocket}. Of
+particular note is the description of the added support for $RT_0$ trust management to a general
+RPC mechanism. Scalaness and nesT are introduced in more detail in
+\autoref{chapter-dscalaness-dnest}, and then the syntax and semantics of both languages are
+described, using simplified ``distilled'' versions of those languages called
+\newterm{DScalaness} and \newterm{DnesT}. The implementation of the practical Scalaness/nesT
+system is described in \autoref{chapter-scalaness-nest}, relating the features of the
+implementation to the earlier foundational presentation. An evaluation of both systems is
+provided in \autoref{chapter-evaluation} using simple test programs in the context of a
+realistic field example. The conclusion is documented in \autoref{chapter-conclusion}. Finally,
+in \autoref{chapter-sample} the full source code of a simple Scalaness/nesT sample is
+demonstrated, with commentary.
 
 %%% Local Variables: 
 %%% mode: LaTeX

@@ -347,9 +347,9 @@ for either arrays or structures. Besides convenience, declarations are useful to
 serialization of program objects passed in from DScalaness, as discussed in
 \autoref{section-serialization}.
 
-In the formal syntax and semantics of DnesT presented here, functions are nullary
-(i.e.~parameterless) as a simplification. This does not limit expressivity since DnesT does not
-permit recursion. Thus function parameters can be simulated in principle by way of module level
+In the formal syntax and semantics of DnesT presented here, functions are nullary (i.e.,
+parameterless) as a simplification. This does not limit expressivity since DnesT does not permit
+recursion. Thus function parameters can be simulated in principle by way of module level
 declarations. The actual implementation of nesT allows functions to be parameterized as in nesC.
 Accordingly, syntactic liberties are taken in the examples in this chapter and make use of
 non-nullary functions.
@@ -391,7 +391,7 @@ from expression computation and may be a value that is not necessarily in memory
 The DnesT syntax for necessary dynamic entities is given in \autoref{figure-semanticssyntax}. In
 DnesT, computed values are represented as pairs $\cval{\pi}{\mv}$, where $\mv$ is a base,
 pointer, array, or structure value, and $\pi$ is a tag indicating whether or not the value is in
-memory. Computed r-values not in memory are denoted $\cval{\circ}{\mv}$, e.g. $\cval{\circ}{2}$
+memory. Computed r-values not in memory are denoted $\cval{\circ}{\mv}$, e.g., $\cval{\circ}{2}$
 is the result of computing 1 + 1. The l-value object $\cval{\bn}{\mv}$ indicates that the value
 $\mv$ is in memory at location $\bn$.
 
@@ -405,7 +405,7 @@ $\blockmem$.
 Evaluation rules for selected expressions are given in \autoref{figure-coresemantics}. Here,
 computation is on pairs of memories and expressions. The existence of a function
 $\fundef{docast}$ is assumed, which performs a casting conversion. This function is allowed to
-be defined by users, and in certain cases may be a no-op (e.g.~casting pointers to arrays when
+be defined by users, and in certain cases may be a no-op (e.g., casting pointers to arrays when
 the latter are contiguous in memory). In any case, if $\docast{\t}{\mv}{\blockmem}$ is defined,
 the cast conversion is required to be type safe, in that the result must be of type $\t$. This
 is discussed more in \autoref{section-dnesttyping}.
@@ -533,7 +533,7 @@ defined in \autoref{figure-subjudge}.
 
 A subtyping relation typically called \emph{promotion} is also central to the approach; given a
 set of subtyping coercions $\tpdecl$ and a type variable $t$, promotion will return the least
-upper bound of $t$ which is also a structured type, i.e.~not a type variable.
+upper bound of $t$ which is also a structured type, i.e., not a type variable.
 \begin{definition}
 The relation $\ll$ \emph{promotes} a type variable:
 \begin{mathpar}
@@ -736,10 +736,10 @@ for combining mappings.
 \begin{definition}[Special Mapping Operations]
   Let $m$ range over vectors with mapping interpretations, in particular~$\tpdecl$, $\vpdecl$,
   $\imports$, and $\exports$. Binary operator $m_1\maploosemerge m_2$ represents (non-exclusive)
-  map merge, i.e.~$m_1 \maploosemerge m_2 = m_1 @ m_2$ with the requirement that $\identifier\in
-  \dom(m_1)\cap\dom(m_2)$ implies $m_1(\identifier) = m_2(\identifier)$. The mapping $m / S$ is
-  the same as $m$ except undefined on domain elements in set $S$, and the mapping
-  $\restrict{m}{S}$ is the same as $m$ except undefined on elements not in ${S}$.
+  map merge, i.e., $m_1 \maploosemerge m_2 = m_1 @ m_2$ with the requirement that
+  $\identifier\in \dom(m_1)\cap\dom(m_2)$ implies $m_1(\identifier) = m_2(\identifier)$. The
+  mapping $m / S$ is the same as $m$ except undefined on domain elements in set $S$, and the
+  mapping $\restrict{m}{S}$ is the same as $m$ except undefined on elements not in ${S}$.
 \end{definition}
 Finally, the \TirName{ModImage} rule in \autoref{figure-jmodsemantics} shows that imaging it is
 an assertion requiring its arguments to be a runnable module.
