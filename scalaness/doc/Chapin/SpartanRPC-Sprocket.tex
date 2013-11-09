@@ -542,9 +542,9 @@ benefit of hardware support on many current embedded platforms, e.g.~those emplo
 CC2420 radio.
 
 There are three security protocols for authorized duty postings, illustrated in
-\autoref{figure-sprocketrt-protocol}, that operate asynchronously. First, a credential exchange
-protocol, wherein \RT\ credentials are communicated between nodes and authorization for various
-entities are computed, i.e.~the \emph{minimum model} as described in
+\autoref{figure-sprocketrt-protocol}, each operating asynchronously. First, a credential
+exchange protocol, wherein \RT\ credentials are communicated between nodes and authorization for
+various entities are computed, i.e.~the \emph{minimum model} as described in
 \autoref{section-security-extensions}. Second, a session key negotiation protocol, where
 symmetric keys for multiple authorized service invocations between a duty client and server are
 computed. And third, an authorized service invocation protocol, wherein duty posting requests
@@ -567,15 +567,14 @@ TinyOS setting.
 SpartanRPC credentials are implemented as signed certificates. All SpartanRPC-enabled nodes
 contain a certificate sender component and a certificate receiver component, to transfer
 certificates between nodes and to verify them and interpret the credentials they represent. Both
-components run as background daemons, performing their function asynchronously. A
-SpartanRPC-enabled node is deployed with a collection of certificates in read-only storage
-representing that node's credentials, which are determined by some external means. Once the node
-is booted, the certificate sender starts a periodic timer. When the timer fires, the node
-link-layer broadcasts (i.e.~only to neighbors) all certificates in its certificate storage that
-are mentioned in the !enable! clauses in its program. To prevent adjacent node certificate
-broadcasts from colliding, the certificate broadcast interval is modulated randomly by $\pm
-10$\%. For example if the nominal broadcast interval is one minute, the actual time varies
-randomly between 54 and 66 seconds.
+components run as background daemons. A SpartanRPC-enabled node is deployed with a collection of
+certificates in read-only storage representing that node's credentials, which are determined by
+some external means. Once the node is booted, the certificate sender starts a periodic timer.
+When the timer fires, the node link-layer broadcasts (i.e.~only to neighbors) all certificates
+in its certificate storage that are mentioned in the !enable! clauses in its program. To prevent
+adjacent node certificate broadcasts from colliding, the certificate broadcast interval is
+modulated randomly by $\pm 10$\%. For example if the nominal broadcast interval is one minute,
+the actual time varies randomly between 54 and 66 seconds.
 
 The certificate distribution strategy is robust in the face of new nodes being added to the
 network or intermittent radio connectivity. If a node fails to receive certain certificates from
@@ -634,11 +633,11 @@ to each certificate to ensure integrity over unreliable channels. Also, nodes ma
 database of certificate checksums, to quickly check whether a certificate has already been
 received and verified. Fletcher checksums are commonly used in sensor networks and other
 embedded systems since their error detection properties are almost as good as CRCs with
-significantly reduced computational cost \cite{fletcher-1982}.
+significantly reduced software computational cost \cite{fletcher-1982}.
 
 Currently certificates carry no lifetime information and are considered to be valid forever.
-This is not ideal since a certificate issuer may eventually change his/her policy but currently has
-no way to revoke old certificates. However, adding a feature for certificate revocation
+This is not ideal since a certificate issuer may eventually change his/her policy but currently
+has no way to revoke old certificates. However, adding a feature for certificate revocation
 introduces non-monotonicity into the semantics of the authorization logic
 \cite{Li01nonmonotonicity,Rivest:1998:WEC:647502.728327}. Adding an expiration time to the
 certificates is more logically appealing but would require nodes to support real time services
@@ -680,7 +679,8 @@ entry has a flag to indicate the nature (client-side or server-side) of the sess
 % has non-trivial implications for memory and network overhead.
 
 The first time a client attempts to access a service on a particular server, it will send a
-session key negotiation request. When a server receives a session key negotiation request
+session key negotiation request as shown in the middle portion of
+\autoref{figure-sprocketrt-protocol}. When a server receives a session key negotiation request
 message from a client node $N$ containing the public key $K_{cp}$ of the requesting entity (as
 mentioned in the !as! clause of the dynamic wire) and the $(C, I)$ address of the desired
 service, the following steps are taken:
@@ -695,11 +695,33 @@ service, the following steps are taken:
   same session key and associate it with the proper endpoint from its perspective.
 \end{enumerate}
 
-Note that under this protocol every session key computed between nodes $N_A$ and $N_B$ for the
-same requesting entity will be the same. This is not a problem since the server node uses $(C,
-I)$ to look up the session key in its storage. If a node attempts to access an unauthorized
-service, no entry for that $(C, I)$ will exist in the server's session key storage and access
-will fail.
+The session key negotiation protocol is a simple Diffie-Hellman key agreement protocol that
+combines the public key of the peer entity with the private key of the local entity. The
+implementation does not include any nonces as would be done, for example, with the ECMQV
+protocol \cite{ISO-IEC-1170-3:2008}. As a result any renegotiated session keys between the same
+entities would be identical. However, this is not a serious problem because the implementation
+does not currently renegotiate session keys anyway. Furthermore the ECMQV protocol entails three
+exchanged messages and additional computations and so would further increase the burden on the
+nodes.
+
+A potentially more serious concern is that the simple protocol described here would normally be
+vulnerable to a man-in-the-middle attack whereby an active attacker negotiates independent
+session keys with each peer and is then able to modify messages sent between those peers.
+However, in an \RT\ trust management context this is not a concern because authorization is
+entirely based on key rather than on any identity bound to that key. An active man in the middle
+who creates a ``bogus'' key would simply be creating a new and presummably unauthorized \RT\
+entity.
+
+The session key negotiation protocol described here always computes the same session key between
+nodes $N_A$ and $N_B$ for the same requesting entity. This is also not a problem since the
+server node uses $(C, I)$ to look up the session key in its storage. If $N_A$ previously
+negotiated a session key with $N_B$ for service $(C_1, I_1)$, an attempt by $N_A$ to use that
+session key to access an unauthorized service $(C_2, I_2)$ will fail because the server has no
+entry for $(N_A, C_2, I_2)$ in its session key storage. In fact, this design creates an
+optimization opportunity called \newterm{session key stealing} where, in the case of a
+successful authorization for $(C_2, I_2)$, a previously computed session key for $(C_1, I_1)$
+can simply be copied by the server from $(N_A, C_1, I_1)$ to $(N_A, C_2, I_2)$ without being
+recomputed. However, \Sprocket\ does not implement session key stealing.
 
 \subsubsection{Authorized RPC Invocations}
 
