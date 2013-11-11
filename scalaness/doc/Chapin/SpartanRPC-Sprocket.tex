@@ -38,16 +38,16 @@ several authors
 \cite{1049776,Malan:2008:IPI:1387663.1387668,bertoni-2006,kumar-2006,4604657,Liu-Peng-TinyECC-2008,Szczechowiak:2008:NTL:1786014.1786040},
 combining this with the necessary authorization decision to support a full trust management
 system, and showing the feasibility and practicality of doing so on resource constrained
-devices, has not been previously demonstrated. As will be demonstrated in \autoref{chapter-evaluation}
-the \Sprocket\ runtime system exacts a significant performance penalty on the nodes,
-particularly with respect to system startup time. Yet despite this problem useful work can still
-be accomplished.
+devices, has not been previously demonstrated. As will be demonstrated in
+\autoref{chapter-evaluation} the \Sprocket\ runtime system exacts a significant performance
+penalty on the nodes, particularly with respect to system startup time. Yet despite this problem
+useful work can still be accomplished.
 
 \section{Overview and Applications}
 \label{section-overview}
 
 The SpartanRPC language allows network administrators to define $RT_0$ policies that mediate
-access to specified resources on network nodes. A \emph{resource} in SpartanRPC is user-defined
+access to specified resources on network nodes. In SpartanRPC a resource is user-defined
 functionality programmed in an extension of nesC, and accessible in RPC style by client code
 programmed in the same extension of nesC. Thus, while previous systems have explored the problem
 of establishing multiple security domains in a wireless sensor network
@@ -56,43 +56,28 @@ of establishing multiple security domains in a wireless sensor network
 readily-accessible mechanism that combines these features. Furthermore, SpartanRPC's use of
 $RT_0$ allows specification of fine-grained, decentralized security policies.
 
-Since SpartanRPC is flexible and easily accessible to TinyOS programmers, these features can be
-used with a variety of applications. Consider a first-responder situation, in which multiple
-social entities must interact and cooperate. Recent work has shown the effectiveness of wireless
-sensor networks in such scenarios \cite{citeulike:4460555,1038146}, in their ability to
-coordinate multiple data collection and communication devices in an ad-hoc, easily deployable
-fashion. However, data collection and communication in this scenario (and other similar ones)
-must be a secured resource, due to, e.g., HIPA requirements in the case of medical response.
-Furthermore, security must be coordinated on-site in a sensor network comprising subnetworks
-administered separately (police, medical units from different hospitals, etc.), and no prior
-coordination between administrations can generally be assumed. The SpartanRPC system is designed
-to address these types of scenarios.
-
-For instance, if an EMT team deploys a sensor network to monitor patient locations and vital
-signs, a security policy can be imposed whereby responding police departments can deploy their
-own sensor network, and through it access patient identity and location data but \emph{not}
-medical data directly from the EMT network. This direct data access will often be necessary due
-to real-time constraints and lack of Internet connectivity in emergency situations. Thus the
-direct approach to managing access described in this chapter would be essential; a staged
-approach may not have sufficiently fast turn-around time.
-
-Time synchronization is another important sensor network function that is security sensitive,
-since many higher-level protocols rely on it. A number of previous authors have considered
-secure time synchronization in the presence of ``insider'' attacks
+In addition to the first responder application described in \autoref{chapter-introduction},
+various other potential applications of SpartanRPC exist. For example, time synchronization is
+another important sensor network function that is security sensitive, since many higher-level
+protocols rely on it. A number of previous authors have considered secure time synchronization
+in the presence of ``insider'' attacks
 \cite{Manzo:2005:TSA:1102219.1102238,Ganeriwal:2008:STS:1380564.1380571}, whereby nodes within
 the network may be compromised and function as malicious actors capable of corrupting the
-protocol. In particular, the FTSP protocol can be attacked by a single compromised ``root'' node
-injecting false timing information into the network \cite{Manzo:2005:TSA:1102219.1102238}, even
-when symmetric keys are used for secure information exchange. However, the threat model in this
-work treats all nodes in a network as equally compromisable. In cases where a connected
-sub-component of a network running an FTSP protocol is more resistant to compromise, due to,
-e.g., differences in hardware, a SpartanRPC policy can be established whereby only nodes in the
-most tamper-resistant sub-component of the network may function as roots. FTSP time sync updates
-on any given node can be defined to require a root authorization level. This implies that nodes
+protocol.
+
+In particular, the FTSP protocol can be attacked by a single compromised ``root'' node injecting
+false timing information into the network \cite{Manzo:2005:TSA:1102219.1102238}, even when
+symmetric keys are used for secure information exchange. However, the threat model in this work
+treats all nodes in a network as equally compromisable. In cases where a connected sub-component
+of a network running an FTSP protocol is more resistant to compromise, due to, e.g., the use of
+tamper-proof hardware, a policy can be established whereby only nodes in the most
+tamper-resistant sub-component of the network may function as roots. FTSP time sync updates on
+any given node can be defined to require a root authorization level. This implies that nodes
 requiring secure time synchronization must be at most a single radio hop from a root node, but
 nodes willing to accept possibly corrupted time sync data can extend the network indefinitely.
 Note that in this scenario, SpartanRPC policies adapt to heterogeneity in network device
-hardware, vs.~network administration as in the previous example.
+hardware, vs.~network administration as in the first responder example in
+\autoref{chapter-introduction}.
 
 Other potential applications of this system include secure routing protocols in heterogeneous
 trust environments \cite{senroute-ahnj03}, transport and network layer protocols

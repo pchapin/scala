@@ -271,8 +271,8 @@ any case the type system will ensure that illegal wirings can never be made.
 DnesT supports width subtyping of structures as shown in \autoref{figure-subjudge}. To implement
 this, nesT supports covariant subtyping of pointers to structure types. If $\tau_1$ and $\tau_2$
 are structure types and $\tau_1 \subtype \tau_2$ according to DnesT subtype rules, then $\tau_1*
-\subtype \tau_2*$. To implement the important case of passing a pointer to a structure to a
-function, \note{what??}the Scalaness compiler need only add an appropriate cast as it rewrites the nesT to
+\subtype \tau_2*$. To implement the important case of passing a pointer to a structure into a
+function, the Scalaness compiler need only add an appropriate cast as it rewrites the nesT to
 nesC. For example, consider the nesT code below
 
 \singlespace
@@ -568,8 +568,8 @@ been kept to a minimum.
 Making radical changes to Scala syntax was not seriously considered. For reasons of simplicity,
 it was deemed undesirable to modify \emph{both} the parser and the type checker. Fortunately
 Scala has a general mechanism for adding arbitrary information to declarations, namely
-\newterm{annotations}, Scala annotations were used to express nesT module types as strings using
-a randomly chosen syntax.\note{does this say what you meant Peter?}
+\newterm{annotations}. Scala annotations were used to express nesT module types as strings using
+an arbitrarily chosen syntax designed to be palatable to Scala programmers.
 
 This work's foundation utilizes Scala 2.10, which also provides an extensive reflection API
 and experimental support for expression macros. These facilities allow one to do abstract syntax
