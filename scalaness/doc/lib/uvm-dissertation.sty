@@ -254,15 +254,15 @@ The University of Vermont
   \thispagestyle{empty}
   \singlespace
 %  \begin{center}
- %   \uppercase\expandafter{\@title}\\
- %   \@author, Ph.D. \\ \singlespace
- %   Department of Physics\\
- %   University of Illinois at Urbana-Champaign, \@gradyear\\
- %   \@advisor, Advisor\\
+%    \uppercase\expandafter{\@title}\\
+%    \@author, Ph.D. \\ \singlespace
+%    Department of Physics\\
+%    University of Illinois at Urbana-Champaign, \@gradyear\\
+%    \@advisor, Advisor\\
 %  \end{center}
 } {
   \pagenumbering{roman}
-   \clearpage
+  \clearpage
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% If a dedication page is needed, you could define dedication 
@@ -272,11 +272,12 @@ The University of Vermont
 % define dedication environment
 %
 \newenvironment{dedication}{
-  \vspace*{5in} %% leave 5in plain space from top of the page
-  \thispagestyle{empty} %% whether or not to show the page number
+  \vspace*{0.5in} %% leave 0.5in plain space from top of the page
+  % \thispagestyle{empty} %% whether or not to show the page number
   \singlespace
   } {
   \pagenumbering{roman}
+  \clearpage
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
