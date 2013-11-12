@@ -772,7 +772,7 @@ would place receiving nodes in a constant state of ECC digital signature verific
 potentially consuming large amounts of CPU time and energy. Mitigation of such attacks is
 outside the scope of this work, but has been discussed in the literature \cite{4431860}.
 
-\paragraph{A note on multicast security} Fan-out wirings are a common idiom, and provide a form
+\paragraph{A note on multicast security.} Fan-out wirings are a common idiom, and provide a form
 of multicast communication. However, the use of MACs for security in a multicast setting
 presents well-known challenges. In particular, while $n$-way Diffie-Hellman can be used to
 negotiate secret keys between $n$ actors, such a scheme cannot be used in light of the possibly
@@ -782,8 +782,8 @@ $s$ on both nodes but that $B$ is not authorized for $s$ on $C$ and vice-versa. 
 session key were negotiated between $A$, $B$, and $C$ in this case, then $B$ could make
 unauthorized use of $C$'s version of $s$ and vice-versa. While a variety of techniques have been
 proposed to mitigate this problem \cite{canetti-1999}, most typically rely on very large
-multicast groups and are not applicable in a wireless sensor network setting. Thus, fan-out wirings use
-multiple, independent MACs as described above.
+multicast groups and are not applicable in a wireless sensor network setting. Thus, fan-out
+wirings use multiple, independent MACs as described above.
 
 \subsection{Identifying Services Over the Air}
 
