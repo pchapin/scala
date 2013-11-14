@@ -4,10 +4,19 @@ CHANGES.txt
 
 This file lists changes made to my dissertation following the defense.
 
-1. Changed to passive voice and third person throughout.
-2. Updated the sample DScalaness program in chapter 4.
-3. Fixed the ModInstT DScalaness type rule.
-4. Clarified the security behavior of the Sprocket session key negotiation protocol.
-5. Various minor fixes to address small details noted by my committee.
-6. Revised the Introduction as per suggestions from my committee.
-7. Fixed dedication page formatting as per graduate college requirements.
++ Changed to passive voice and third person throughout.
++ Revised the Introduction as per suggestions from my committee.
+  - Moved the first responder example forward from the SpartanRPC chapter.
+  - Added a section on the security model.
+  - Clarified contributions of this work.
+  - Emphasized that there are no direct comparables (no other embedded trust management solutions)
++ Revised the conclusion to contain more specific information.
+  - Summarized results of the evaluations.
+  - Emphasized the contributions of this work.
++ Clarified the security behavior of the Sprocket session key negotiation protocol.
++ Updated the sample DScalaness program in chapter 4.
++ Fixed the ModInstT DScalaness type rule.
++ Numerous minor fixes to address small details noted by my committee.
++ Switched to 12 point font as per graduate college requirements.
++ Fixed dedication page formatting as per graduate college requirements.
++ Corrected numerous formatting errors.

@@ -2,35 +2,54 @@
 \chapter{Conclusion}
 \label{chapter-conclusion}
 
-% Getting a Ph.D. is a major pain in the ass.
-
-This dissertation has described two language-level approaches for providing trust management
-style authorization to resource constrained embedded systems. One approach, SpartanRPC, is based
-on a remote procedure call discipline with primitives for specifying authorization requests and
-requirements. The other approach, Scalaness, makes use of staged programming to off-load
-complicated security computations to a higher powered machine.
-
-In addition to describing the design of SpartanRPC and Scalaness, this dissertation has also
-demonstrated implementations of both and shown their application to a realistically scaled
-sensor network system.
+This dissertation has described two language-level approaches for providing, for the first time,
+trust management style authorization to resource constrained embedded systems. One approach,
+SpartanRPC, is based on a remote procedure call discipline with primitives for specifying
+authorization requests and requirements. The other approach, Scalaness, makes use of staged
+programming to off-load complicated security computations to a higher powered machine.
 
 As a method for providing distributed trust management to resource constrained systems, both
-approaches are feasible. SpartanRPC does demand considerable resources on the devices, limiting
-the amount of memory and processor time available for application logic. However, in some
-environments these limitations may be acceptable. Scalaness has the potential of greatly
-reducing the load on the embedded devices but requires a deployment scenario where a more
-powerful machine is available to specialize the device programs.
+approaches are feasible. SpartanRPC demands considerable resources on the devices, limiting the
+amount of memory and processor time available for application logic. In particular, SpartanRPC
+enabled applications exhibit transient start-up times measured in minutes, although maximum
+steady-state message transfer rates exhibit a degradation of only about 30\%. In addition, the
+SpartanRPC runtime system consumes approximately 13\,KiB of ROM and 2\,KiB of RAM. Despite these
+significant overheads, realistic applications can nevertheless use the system as evidenced by
+the SpartanRPC-enabled version of the Snowcloud application.
 
-Both approaches are tied to the nesC programming language either by extending nesC in the case
-of SpartanRPC or by translating a specialized language into nesC in the case of Scalaness.
-However, the systems described here are not specific to sensor networks and would be applicable
-in any environment where nesC is used. Furthermore, although nesC was developed for sensor
-networks, it could be used as a general purpose embedded systems language.
+SpartanRPC is fundamentally a link-level protocol. Since the number of neighbors in a typical
+sensor network remains small as the network grows, the applicability of SpartanRPC is only
+weakly impacted by the total size of the network. The main issue is in the relatively long
+session key negotiation time; the first time a message floods the network an extremely long time
+may pass before the message reaches the network frontier since session key negotiations must
+occur sequentially at each hop.
 
-Scalaness also has the advantage of being a far more flexible system than SpartanRPC. Staging
-could be applied to a variety of problems, not just the handling of security and authorization.
-In that respect Scalaness is a more general tool and thus potentially of greater long term
-interest.
+Scalaness has the potential of greatly reducing the load on the embedded devices. In a trust
+management context, with a Scalaness program pre-computing session keys, the long transient
+start-up time and large memory overheads of SpartanRPC are all but eliminated. The very slow
+network flooding time experienced by SpartanRPC applications is also removed. However, The 30\%
+reduction in maximum message transfer rate remains.
+
+Scalaness does require a deployment scenario where a more powerful machine is available to
+specialize the device programs. In some scenarios the time required to generate and deploy the
+specialized node programs might be significant, negating somewhat the advantage in transient
+start-up time Scalaness has relative to SpartanRPC. However, Scalaness is a far more flexible
+system, admitting other kinds of deployment scenarios and application use-cases besides those
+available to the more limited SpartanRPC.
+
+Indeed, Scalaness represents a more principled approach to generating efficient embedded systems
+software in general, as evidenced by the formal description of the system in
+\autoref{chapter-dscalaness-dnest} and in the foundational \fml\ work \cite{FramedML}. Scalaness
+provides a unique combination of staging with process separation, dynamic type construction, and
+a cross-stage type safety conjecture that enable the robust and efficient generation of many
+embedded systems applications. In a Scalaness context, the embedded trust management problem is
+nothing more than a demonstration application.
+
+Both SpartanRPC and Scalaness are tied to the nesC programming language, either by extending
+nesC in the case of SpartanRPC or by translating a specialized language into nesC in the case of
+Scalaness. However, the systems described here are not specific to sensor networks and would be
+applicable in any environment where nesC is used. Furthermore, although nesC was developed for
+sensor networks, it could be used as a general purpose embedded systems language.
 
 \section{Future Work}
 \label{section-future-work}
@@ -44,9 +63,7 @@ with richer trust management languages such as $RT_1$ and its variations to see 
 trust management language could be supported on constrained devices. Currently the $RT_0$
 authorization logic uses minimal time and space so conceivably fairly complex trust management
 languages could be supported without significantly increasing the overall overhead of the
-system.
-
-Notice that the current version of Scalaness already supports arbitrary trust management
+system. Notice that the current version of Scalaness already supports arbitrary trust management
 languages because the first stage program runs in an environment with relatively infinite
 resources.
 

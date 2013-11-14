@@ -4,10 +4,10 @@
 Embedded systems present difficult programming challenges
 \cite{Mottola:2011:PWS:1922649.1922656}. For reasons of size, power consumption, disposability,
 or some combination of these things, embedded devices are often highly resource constrained. For
-example, a typical device might have only 48~KiB of program ROM, 8~KiB of RAM, and use a small,
-16~bit microcontroller running at 8~MHz \cite{tmotesky-datasheet}. Yet embedded applications are
-increasing in complexity and often provide mission-critical or even safety-critical services.
-Such systems need to be both efficient and correct.
+example, a typical device might have only 48\,KiB of program ROM, 10\,KiB of RAM, and use a
+small, 16~bit microcontroller running at 8\,MHz \cite{tmotesky-datasheet}. Yet embedded
+applications are increasing in complexity and often provide mission-critical or even
+safety-critical services. Such systems need to be both efficient and correct.
 
 This dissertation specifically looks at the problem of providing distributed trust management in
 resource constrained embedded systems. Here \newterm{trust management} refers to a general
@@ -76,10 +76,10 @@ Specialized code can often be considerably optimized. However, flexibility is re
 the first stage program can be re-executed at a later time to re-specialize the second stage
 program as needed.
 
-In this work, unlike with many staging systems, the stages use different programming languages
-and execute on different machines, i.e., in different address spaces. When applied to embedded
-systems the second (and final) stage must be in an embedded systems language running on the
-embedded hardware, whereas the first stage need not be as restricted.
+Unlike with many staging systems, the work described here uses stages with different programming
+languages and that execute on different machines, i.e., in different address spaces. When
+applied to embedded systems the second (and final) stage must be in an embedded systems language
+running on the embedded hardware, whereas the first stage need not be as restricted.
 
 This dissertation also describes \newterm{Scalaness} \cite{chapin-GPCE-2013}, an extension of
 Scala \cite{PiS2} with features that allow the programmer to compose and specialize components
@@ -127,18 +127,18 @@ stations could communicate perhaps by way of shared files manually carried from 
 the next. Since the first stage program does not need to execute frequently such sharing could
 be done while each service provider is setting up at the location of the emergency. Other
 environmental and security factors could be provided to the first stage program at that time,
-essentially allowing the node software to be quickly and easily customized for the particular
-disaster at hand.
+allowing the node software to be quickly and easily customized for the particular disaster at
+hand.
 
 %%%%%
 % End of first responder application.
 %%%%%
 
 More generally \autoref{figure-motivation} shows two wireless sensor networks owned by separate
-administrative domains, $A$ and $B$. The lower part of the figure shows two sensor networks
-consisting of multiple nodes. Each node in the networks is an example of a resource constrained
-embedded system. The two networks overlap in space so that nodes from the two networks can
-potentially communicate with each other.
+administrative domains, $A$ and $B$. The lower part of the figure shows the networks as
+consisting of multiple sensor nodes. Each node in the networks is an example of a resource
+constrained embedded system. The two networks overlap in space so that nodes from the two
+networks can potentially communicate with each other.
 
 \begin{fpfig*}[t]
   {Motivational Scenario}
