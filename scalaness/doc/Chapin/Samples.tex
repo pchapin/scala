@@ -2,10 +2,10 @@
 \chapter{Scalaness/nesT Sample}
 \label{chapter-sample}
 
-% Keep the listings limited to column 62 at most (60 is better).
+% Keep the listings limited to column 55.
 
-This appendix shows a simple Scalaness/nesT sample. The sample composes two nesT modules
-being used as part of a hypothetical communication protocol. One module formats messages for
+This appendix shows a simple Scalaness/nesT sample. The sample composes two nesT modules being
+used as part of a hypothetical communication protocol. One module formats messages for
 transmission and the other module computes checksums.
 
 It is reasonable for the checksum module to be separate since different applications may wish to
@@ -29,10 +29,10 @@ The full source code is below.
 \singlespace
 \vspace{1.0ex}
 \begin{lstlisting}[language=scalaness]
-//------------------------------------------------------------
-// FILE    : Main.scala
-// SUBJECT : The main object for the Scalaness Checksum sample
-//------------------------------------------------------------
+//-----------------------------------------------------
+// FILE   : Main.scala
+// SUBJECT: Scalaness checksum sample.
+//-----------------------------------------------------
 
 object Main {
 
@@ -87,13 +87,9 @@ object Main {
 
 
   /**
-   * The following method returns a fully instantiated nesT
-   * module for computing checksums. The precise module
-   * created depends on runtime information.
-   *
-   * @param size The size of the data block the module will
-   * process.
-   * @param checksumType The type used for the final checksum.
+   * The following method returns a fully instantiated
+   * nesT module for computing checksums. The precise
+   * module created depends on runtime information.
    */
   def getChecksummer(
     size: UInt16, checksumType: MetaType[UInt32]) = {
@@ -118,10 +114,9 @@ object Main {
 
     
   /**
-   * The main method obtains configuration information from
-   * the command line and composes the final program.
-   * 
-   * @param args The command line arguments
+   * The main method obtains configuration information
+   * from the command line and composes the final
+   * program.
    */ 
   def main(args: Array[String]) {
 
@@ -153,7 +148,8 @@ object Main {
          <;>
          { ;
            compute_checksum(
-             data: Array[UInt8]): checksumType }""", List())
+             data: Array[UInt8]): checksumType }""",
+      List())
 
     // A runnable module type.
     val ResultT = new TypeAbbreviation(
@@ -187,7 +183,7 @@ object Main {
 
 
     if (args.length != 2)
-      println("Usage: Main checksum_bit_length block_size")
+      println("Usage: Main bit_length block_size")
     else {
  
       // Get run time information about types/values.
@@ -208,13 +204,15 @@ object Main {
       // Compute appropriate checking module.
       @TypeAbbr(CheckT)
       val checkingModule =
-          getChecksummer(desiredSize, desiredChecksumType)
+          getChecksummer(
+            desiredSize, desiredChecksumType)
       
       // Wire things together.
       @TypeAbbr(ResultT)
       val resultModule =
           LibraryIC +>
-            formattingModule +> checkingModule +> LibraryEC
+            formattingModule +> checkingModule +>
+              LibraryEC
 
       // Generate the nesT/nesC.
       resultModule.image()
@@ -226,19 +224,19 @@ object Main {
 \vspace{1.0ex}
 \primaryspacing
 
-Below is the nesT implementation of the checksum module. This version uses a simple
-arithmetic summation. It is parameterized by the type used to hold the checksum and by a value
-representing the size of the array to be processed. Thus specializations of this module can only
-operate on fixed sized arrays, presummably the size of some standard message format.
+Below is the nesT implementation of the checksum module. This version uses a simple arithmetic
+summation. It is parameterized by the type used to hold the checksum and by a value representing
+the size of the array to be processed. Thus specializations of this module can only operate on
+fixed sized arrays, presummably the size of some standard message format.
 
 \singlespace
 \vspace{1.0ex}
 \begin{lstlisting}[language=nesC]
-// Type : checksumType: The type used to hold a checksum.
-// Value: size: The size of the data array to process.
+// Type : checksumType: Type used to hold a checksum.
+// Value: size: Size of the data array to process.
 module ChecksumC {
-  provides
-    command checksumType compute_checksum(uint8_t data[]);
+  provides command
+    checksumType compute_checksum(uint8_t data[]);
 }
 implementation {
    
@@ -316,14 +314,14 @@ communication module for transmission.
 \singlespace
 \vspace{1.0ex}
 \begin{lstlisting}[language=nesC]
-
-// Type : checksumType: The type used to hold a checksum.
-// Value: size: The size of the data array to process.
+// Type : checksumType: Type used to hold a checksum.
+// Value: size: Size of the data array to process.
 //
 // Main program of the node.
 module MessageFormatterC {
     
-  uses command checksumType compute_checksum(uint8_t data[]);
+  uses command
+    checksumType compute_checksum(uint8_t data[]);
   uses command void startPeriodic( uint32_t period );
   provides command void booted( );
   provides command void fired( );
@@ -351,7 +349,8 @@ implementation {
     }
     checksum = call compute_checksum( raw );
         
-    // Other program components used to send message with checksum.
+    // Other program components are used to send
+    // the message with checksum.
   }
     
 }
@@ -359,8 +358,8 @@ implementation {
 \vspace{1.0ex}
 \primaryspacing
 
-The specialized and rewritten nesC shows the dynamic size of an array expression being passed to
-\texttt{compute\_checksum}.
+The final sample fragment below shows the specialized and rewritten nesC with the dynamic size
+of an array expression being passed to \texttt{compute\_checksum}.
 
 \singlespace
 \vspace{1.0ex}
@@ -404,4 +403,3 @@ implementation {
 \end{lstlisting}
 \vspace{1.0ex}
 \primaryspacing
-

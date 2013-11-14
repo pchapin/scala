@@ -86,7 +86,7 @@ even node-based web servers supporting secure channels \cite{1049776}.
 
 \section{Technical Foundations}
 
-\paragraph{Language-Based Security} SpartanRPC provides language-level abstractions for defining
+\paragraph{Language-Based Security.} SpartanRPC provides language-level abstractions for defining
 remote services and associated security policies. Programmers are presented with an extension of
 nesC, with new features for defining remote access controlled services, and for invoking those
 services securely. This hides the implementation details of the underlying security protocols
@@ -94,7 +94,7 @@ and only requires mastery of $RT_0$, a simple authorization logic. SpartanRPC pr
 compiled in the same manner as nesC programs, in fact the SpartanRPC compiler rewrites
 SpartanRPC programs to ordinary nesC code.
 
-\paragraph{Asynchronous Remote Procedure Call} As other authors have observed
+\paragraph{Asynchronous Remote Procedure Call.} As other authors have observed
 \cite{may-tinyrpc-2007}, RPC is an appropriate abstraction for node services on the network and
 supports whole-network (vs.~node-specific) programming. Secure RPC is well-studied in a
 traditional networking environment, and is a natural means of layering security over a
@@ -108,16 +108,16 @@ programmer-defined asynchronous computation in nesC, so treating remote computat
 as remote tasks fits this paradigm. Remote tasks can be invoked on one-hop neighbors, providing
 a link layer service on which network layer services can be built.
 
-\paragraph{PK-Based Authorization Policies} SpartanRPC provides language-level abstractions for
+\paragraph{PK-Based Authorization Policies.} SpartanRPC provides language-level abstractions for
 specifying RPC authorization policies. The $RT_0$ trust management system allows network
 entities to communicate credentials for authorizing service invocations. In SpartanRPC these
 credentials are implemented with ECC public keys \cite{bertoni-2006}, which are validated during
 the initial authorization phase. ECC is significantly more tractable than RSA in a resource
 constrained setting. Furthermore, following an initial authorization phase SpartanRPC protocol
 establishes a shared AES key for subsequent invocations of a given service by the same node.
-Since hardware AES is available on common radio chipsets, highly efficient performance
-for secure invocations is obtained following authorization. This is demonstrated with empirical results
-reported in \autoref{chapter-evaluation}.
+Since hardware AES is available on common radio chipsets, highly efficient performance for
+secure invocations is obtained following authorization. This is demonstrated with empirical
+results reported in \autoref{chapter-evaluation}.
 
 \section{Duties and Remotability}
 \label{section-duties}
@@ -270,17 +270,17 @@ typedef struct {
 \primaryspacing
 \end{minipage}
 \\
-\centering
-\begin{minipage}[t]{5in}
-\vspace{1.5em}
+\begin{center}
+\begin{minipage}[t]{3.75in}
 \singlespace
 \begin{lstlisting}
 interface ComponentManager {
-  command component_set elements();
+  command component_set elements( );
 }
 \end{lstlisting}
 \primaryspacing
 \end{minipage}
+\end{center}
 }
 \end{fpfig}
 
@@ -341,9 +341,9 @@ layer communication, the details of which are hidden from the SpartanRPC program
 duties can only be posted on neighbors. Note that since this call to !elements! may return more
 than one component ID, this is a sort of fan-out wiring.
 
-For example, the programmer could wire the !LoggerC! component mentioned in
-\autoref{figure-duty-usage} to LED controller components on a dynamically changing subset of
-neighbors using a configuration such as:
+For example, the !LoggerC! component mentioned in \autoref{figure-duty-usage} could be wired by
+the programmer to LED controller components on a dynamically changing subset of neighbors using
+a configuration such as:
 \begin{lstlisting}
 LoggerC.LEDControl -> [RemoteSelectorC].LEDControl;
 \end{lstlisting}
@@ -352,10 +352,10 @@ The server's configuration does not need to wire anything to the remote interfac
 
 \subsection{Callbacks and First-Class IDs}
 
-It is assumed that the component IDs for well known services will be agreed upon ahead of time by a
-social process outside of SpartanRPC. By broadcasting to a ``well known'' component ID, a node
-can use services on neighboring nodes without knowing their node IDs. The use of well known ID
-values is analogous to the use of well known TCP port numbers to provide easily accessible
+It is assumed that the component IDs for well known services will be agreed upon ahead of time
+by a social process outside of SpartanRPC. By broadcasting to a ``well known'' component ID, a
+node can use services on neighboring nodes without knowing their node IDs. The use of well known
+ID values is analogous to the use of well known TCP port numbers to provide easily accessible
 Internet services.
 
 If a node expects a reply from a service that it invokes, the invoking node must set up a
@@ -408,7 +408,7 @@ A.g$ holds, where:
   \item $A.g$ is the governing role of the RPC service.
   \item $\creds$ are the credentials known to the RPC server.
 \end{itemize}
-RPC service programmers specify governing roles as part of module definitions---specifically at
+RPC service programmers specify governing roles as part of module definitions, specifically at
 remote interface !provides! clauses. Hence, governing roles are associated with interface
 \emph{implementations}, not interfaces themselves. This allows application flexibility, in that
 the same interface can be implemented with various authorization levels within the same network.
@@ -448,15 +448,16 @@ distinguished \newterm{default entity} is used for the invocation.
 \subsection{Example}
 \label{section-security-example}
 
-Suppose that an existing network deployment !NetA! is imaged with a component !SamplingRateC!
-which provides a means to control sampling rates through an interface !SamplingRate!. Further,
-since sampling rate modification is a sensitive operation, the network administrators require
-!NetA.control! authorization to use this component:
+Suppose that an existing network deployment !NetA! is imaged with a component called
+!SamplingRateC! which provides a means to control sampling rates through an interface such as
+!SamplingRate!. Further, since sampling rate modification is a sensitive operation, the network
+administrators require !NetA.control! authorization to use this component:
 
 \singlespace
 \begin{lstlisting}
 module SamplingRateC {
-    provides remote interface SamplingRate requires "NetA.control";
+  provides remote
+    interface SamplingRate requires "NetA.control";
 }
 \end{lstlisting}
 \primaryspacing
@@ -509,11 +510,11 @@ for
 \section{The SpartanRPC Implementation}
 \label{section-implementation}
 
-This section describes the \Sprocket\ implementation of the SpartanRPC system using $RT_0$
-trust management for authorization. \Sprocket\ rewrites a SpartanRPC program into a pure nesC
-program and provides a supporting runtime system. Program rewriting converts remote duty
-postings into a nesC messaging protocol. The main task of the runtime system is to implement the
-encapsulated, underlying security protocols for authorization of remote duty postings.
+This section describes the \Sprocket\ implementation of the SpartanRPC system using $RT_0$ trust
+management for authorization. \Sprocket\ rewrites a SpartanRPC program into a pure nesC program
+and provides a supporting runtime system. Program rewriting converts remote duty postings into a
+nesC messaging protocol. The main task of the runtime system is to implement the encapsulated,
+underlying security protocols for authorization of remote duty postings.
 
 \subsection{Authorization and Security Protocols}
 \label{section-security-protocols}
@@ -823,11 +824,12 @@ these features.
 
 \subsubsection{Interfaces, Call Sites, and Duty Definitions}
 
-Duty declarations in interfaces are rewritten to command declarations by substituting !command!
-for !duty!. Since nesC commands are allowed to have arbitrary parameters, duties with parameters
-present no complications. \Sprocket\ verifies that if an interface contains a duty, then the
-only declarations in that interface are duties. \Sprocket\ further verifies that the parameters
-of each duty, if any, conform to the restrictions described in \autoref{section-remotable}.
+Duty declarations in interfaces are rewritten to command declarations by substituting the
+reserved word !command! for the reserved word !duty!. Since nesC commands are allowed to have
+arbitrary parameters, duties with parameters present no complications. \Sprocket\ verifies that
+if an interface contains a duty, then the only declarations in that interface are duties.
+\Sprocket\ further verifies that the parameters of each duty, if any, conform to the
+restrictions described in \autoref{section-remotable}.
 
 % Some of these checks are not yet implemented, but they should present no problems. The current
 % implementation only supports duties with parameters of primitive types (no structure types).

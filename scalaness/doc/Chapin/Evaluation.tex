@@ -2,7 +2,7 @@
 \chapter{Evaluation}
 \label{chapter-evaluation}
 
-This chapter presents the results of evaluating the performance of Sprocket and Scalaness/nesT.
+This chapter presents the results of evaluating the performance of Sprocket and Scalaness/ nesT.
 The results are presented in terms of both simple ``toy'' programs that explore specific issues
 in isolation, and on a larger, realistic application employing trust management authorization
 that demonstrates the applicability of the systems in real world scenarios.
@@ -66,7 +66,7 @@ performance using that feature. In particular, the popular Tmote Sky wireless se
 \cite{tmotesky-datasheet} uses a Chipcon CC2420 transceiver with hardware encryption.
 Unfortunately, the standard TOSSIM simulation environment does not model hardware encryption for
 TinyOS 2.1 so all tests were performed on real hardware, limiting the tests to small scale
-configurations. Tmote Sky motes were used, with 16\,KiB of RAM, 48\,KiB of ROM and an 8MHz
+configurations. Tmote Sky nodes were used, with 16\,KiB of RAM, 48\,KiB of ROM and an 8MHz
 MSP430 microcontroller running TinyOS 2.1.2 \cite{tinyos}.
 
 The system was exercised using several small test programs. These programs consisted of a
@@ -404,18 +404,18 @@ identified by $\mathit{Nid}$ is in the Snowcloud domain.
 
 (4)\quad \cred{SC.Node}{NId}{}
 \end{mathpar}
-When invoking remote services, the node will do so on behalf of the entity $\mathit{Nid}$. It
+When invoking remote services, the node will do so on behalf of the entity $\mathit{NId}$. It
 will also be imaged with the $\mathit{NId}$ private key for session key negotiation.
 
-Any Harvester within the Snowcloud domain is then provided with the credential
-$\cred{SC.Node}{HId}{}$ and the $\mathit{HId}$ private key issued by Snowcloud domain
-administration. This will provide that Harvester with collection and control authority in the
-domain. For Harvesters to be provided to collaborators, the Snowcloud administrators issue a
-credential establishing the institution as a collaborator, while the institution itself may
-define and manage policy for their $\mathit{Usr}$ role membership. For example, the University
-of New Hampshire, represented by \RT\ entity $\mathit{UNH}$, can be established as a
-collaborator with credential (5), below, issued by Snowcloud domain administration, and may
-specify role membership with the credential (6) issued by UNH domain administration:
+Any Harvester within the Snowcloud domain is given the credential $\cred{SC.Node}{HId}{}$ and
+the $\mathit{HId}$ private key issued by Snowcloud domain administration. This will provide that
+Harvester with collection and control authority in the domain. For Harvesters to be provided to
+collaborators, the Snowcloud administrators issue a credential establishing the institution as a
+collaborator, while the institution itself may define and manage policy for their $\mathit{Usr}$
+role membership. For example, the University of New Hampshire, represented by \RT\ entity
+$\mathit{UNH}$, can be established as a collaborator with credential (5), below, issued by
+Snowcloud domain administration, and may specify role membership with the credential (6) issued
+by UNH domain administration:
 \begin{mathpar}
 (5)\quad \cred{SC.Collab}{{UNH}}{}
 
@@ -608,8 +608,8 @@ in the ``Unstaged'' column as a convenience.
 \begin{table}[h]
 \centering \newcommand\T{\rule{0pt}{2.1ex}}
 \caption{RAM and ROM comparison for Scalaness Snowcloud} {
-\begin{tabular}{|r||c|c|c|c|} \hline \hline
-              & Unsecured & Unstaged & Staged & Savings\\ \hline
+\begin{tabular}{|r||c|c|c|c|} \hline
+              & Unsecured & Unstaged & Staged & Savings\\ \hline\hline
 Sensor ROM    &     36254 &    48616 &  36596 & 25\% \\
 Sensor RAM    &      2868 &     5417 &   3038 & 44\% \\ \hline
 Harvester ROM &     24316 &    35834 &  24436 & 32\% \\

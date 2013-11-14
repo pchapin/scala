@@ -299,8 +299,8 @@ $\vect{x}@\vect{y}$. For relational symbols $R \in \{ \subtype, =, : \}$, the ab
 $\vect{x}\, R\, \vect{y} = x_1\, R\, y_1, \ldots, x_n\, R\, y_n$ is used. So for example,
 $\tbindvec{x}{\t} = x_1 : \t_1,\ldots,x_n : \t_n$.
 
-The following naming conventions are also used for various language constructs. Metavariable is
-used $\fname$ (of set $\mathcal{F}$) for function names, $\fdname$ (of set $\mathcal{L}$) for
+The following naming conventions are also used for various language constructs. Meta\-variable
+$\fname$ (of set $\mathcal{F}$) is used for function names, $\fdname$ (of set $\mathcal{L}$) for
 field names, $\VAR$ (of set $\mathcal{V}$) for term variables, $\TVAR$ (of set $\mathcal{T}$)
 for type variables, $\blockno$ (of set $\mathcal{M}$) for memory locations, $\neight$ (of set
 $\mathbb{Z}_{2^8}$) for 8-bit unsigned integers, and $\nsixtn$ (of set $\mathbb{Z}_{2^{16}}$)
@@ -318,7 +318,7 @@ functions, and a language for defining modules.
 \subsubsection{Expressions}
 
 The DnesT language includes standard C-like constructs, such as conditional branching, looping,
-sequencing of expressions, and function calls, arrays, structs, numeric base datatypes (and
+sequencing of expressions, and function calls, arrays, structs, numeric base data\-types (and
 operations on them). Familiar syntax $e \idx e$ and $e.\fdname$ is used for array indexing and
 structure field selection, respectively.
 
@@ -626,14 +626,13 @@ to consider since one main concern is DnesT code specialization; DnesT programs 
 in a separate process space, so specialization with stateful values, a likely common idiom in a
 Scala setting, presents a challenge.
 
-Refer to \cite{FJ,AFJ} for details on the FGJ and AFJ object oriented calculi,
-which are represented in the languages of class definitions, constructors, methods, and the
-first line of expression forms defined in \autoref{figure-scalanesssyntax}. DScalaness extends
-these features with a typed variable declaration form $\jdef{x}{T}{e_1}{e_2}$ where the scope of
-$\tt{x}$ is $\tt{e_2}$, a dynamic type construction form $\jtlet{x}{T}{e_1}{e_2}$ (defined as
-syntactic sugar in Definition~\autoref{definition-classtable}) with similar scoping rules. For
-programming convenience a simple parameterized type abbreviation binder $\texttt{abbrvt}$ is
-also provided.
+Refer to \cite{FJ,AFJ} for details on the FGJ and AFJ object oriented calculi, which are
+represented in the languages of class definitions, constructors, methods, and the first line of
+expression forms defined in \autoref{figure-scalanesssyntax}. DScalaness extends these features
+with a typed variable declaration form $\jdef{x}{T}{e_1}{e_2}$ where the scope of $\tt{x}$ is
+$\tt{e_2}$, and a dynamic type construction form $\jtlet{x}{T}{e_1}{e_2}$ (defined as syntactic
+sugar in Definition~\autoref{definition-classtable}) with similar scoping rules. For programming
+convenience a simple parameterized type abbreviation binder $\texttt{abbrvt}$ is also provided.
 
 DnesT modules $\jmodval$ are included in the DScalaness expression and value spaces:
 instantiation is obtained via the form $\jinst{e_1}{\ttvec{e}_1; \ttvec{e}_2}$, where
@@ -716,7 +715,7 @@ $$
  \tenv, \varnothing \vdash e : \codt{\texttt{N}} 
 $$
 \end{definition}
-The full definition of serialization and an example are given and discussed below in
+The full definition of serialization, along with an example, are given and discussed below in
 \autoref{section-serialization}. In brief, when a module $\mu$ is instantiated, serialization
 will bind the value parameters of $\mu$ to the lifted values of their instances in a series of
 declarations that are added to its own. This is specified in the \TirName{ModInst} rule in

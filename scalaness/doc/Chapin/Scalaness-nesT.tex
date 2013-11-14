@@ -213,16 +213,18 @@ specify the source file of the nesC configuration using an !external! method as 
 \begin{fpfig}[tbhp]{Representation of External Components}{figure-external-components}
 {
 \begin{lstlisting}[language=scalaness]
-@ModuleType("""{}<;>
-               { booted(): Void,
-                 fired() : Void; }""")
+@ModuleType(
+  """{}<;>
+     { booted(): Void,
+       fired() : Void; }""")
 object LibraryIC extends NesTComponent {
   external("LibraryIC.nc")
 }
 
 
-@ModuleType("""{}<;>
-               { ; startPeriodic(period: UInt32): Void }""")
+@ModuleType(
+  """{}<;>
+     { ; startPeriodic(period: UInt32): Void }""")
 object LibraryEC extends NesTComponent {
   external("LibraryEC.nc")
 }
@@ -251,7 +253,9 @@ the Scalaness wiring operator.
                <;>
                { ; }""")
 val resultModule =
-  LibraryIC +> formattingModule +> checkingModule +> LibraryEC
+  LibraryIC +>
+    formattingModule +> checkingModule +>
+      LibraryEC
 \end{lstlisting}
 }
 \end{fpfig}
@@ -357,8 +361,8 @@ token = (call DoCast.UserInfo_UserToken(user));
 \vspace{1.0ex}
 \primaryspacing
 
-The programmer is required to provide the !DoCast! interface and a component !DoCastC! that
-provides that interface and contains an implementation of the various conversion commands
+The programmer is required to provide the !DoCast! interface and a component called !DoCastC!
+that provides that interface and contains an implementation of the various conversion commands
 needed. The Scalaness compiler wires to !DoCastC! automatically without any further programmer
 intervention.
 
@@ -597,14 +601,14 @@ typer
 \end{Verbatim}
 \primaryspacing
 
-The bulk of the modifications made by Scalaness are in the typer phase, where hooks were added
-at critical points that call into Scalaness specific code in package !edu.uvm.scalaness!. Furthermore, 
-a new phase was added between the parser and namer phases. This new phase is
-responsible for augmenting certain Scalaness constructs with their necessary runtime support.
-This is done by inserting material in the AST produced by the parser. In principle, that material
-could have been manually written by the programmer but instead is automatically generated as a
-convenience. It is this ``post-parser'' phase that could potentially be eliminated by type
-macros when they become available.
+The bulk of the modifications made by Scalaness are in the typer phase. Hooks were added at
+critical points in the Scala type checker that call into Scalaness-specific code in package
+!edu.uvm.scalaness!. Furthermore, a new phase was added between the parser and namer phases.
+This new phase is responsible for augmenting certain Scalaness constructs with their necessary
+runtime support. This is done by inserting material in the AST produced by the parser. In
+principle, that material could have been manually written by the programmer but instead is
+automatically generated as a convenience. It is this ``post-parser'' phase that could
+potentially be eliminated by type macros when they become available.
 
 \subsection{Liftable Types}
 \label{section-liftable-types}
@@ -781,6 +785,7 @@ additional size parameter for the array as described in \autoref{section-array-o
 Scalaness allows types to be dynamically constructed. However, the Scala type system does not
 directly support using types as values. To work around this limitation, a wrapper generic class
 !MetaType[T]! was explicitly introduced to represent any liftable type that is a subtype of !T!.
+
 \singlespace
 \vspace{1.0ex}
 \begin{lstlisting}[language=scalaness]
@@ -802,8 +807,8 @@ type parameter is a Scala type that is liftable to nesT, the value it wraps is a
 of the already lifted type. Thus !MetaType! objects form a bridge between the Scalaness and nesT
 type systems.
 
-% TODO: Is it possible for wrappedType to not be a subtype of Tau? It would seem so.
-% What happens in that case?
+% TODO: Is it possible for wrappedType to not be a subtype of Tau? It would seem so. What
+% happens in that case?
 
 \subsection{Module Type Annotations}
 \label{section-module-type}
@@ -818,9 +823,10 @@ that obey the abbreviated syntax in \autoref{figure-module-type-syntax}.
 \begin{fpfig}[tbhp]{Module Type Syntax}{figure-module-type-syntax}
 {
 \begin{Verbatim}
-module-type ::= '{' existential-binders? '}'
-                '<' type-parameters? ';' value-parameters? '>'
-                '{' imports? ';' exports? '>'
+module-type ::=
+    '{' existential-binders? '}'
+    '<' type-parameters? ';' value-parameters? '>'
+    '{' imports? ';' exports? '>'
 
 existential-binder ::= IDENTIFIER '<:' type
 type-parameter     ::= IDENTIFIER '<:' type
@@ -850,7 +856,9 @@ standard error type !error_t! which has built in support in module type annotati
          MessageType{src : addrT,
                      dest: addrT,
                      data: Array[UInt8,64]}): ErrorT;
-       send(s: addrT, d: addrT, data: Array[UInt8]): ErrorT }""" )
+       send(s: addrT,
+            d: addrT,
+            data: Array[UInt8]): ErrorT }""" )
 class SendC extends NesTComponent { ...
 \end{lstlisting}
 \vspace{1.0ex}
@@ -989,11 +997,11 @@ class SendC extends NesTComponent {
 \label{section-runtime-support}
 
 In addition to compile-time analysis and type checking, Scalaness programs require support for
-nesT module composition (aka ``wiring'') at runtime. In this section, an overview of how
-this runtime support works is provided. Full details can be found in the documented source code of Scalaness
-\cite{scalaness-home}. Note that the current implementation of Scalaness composes nesT modules
-and rewrites those modules to nesC in a single, integrated processing step. The runtime system
-currently emits nesC directly without the need for any explicit nesT-to-nesC rewriting.
+nesT module composition (aka ``wiring'') at runtime. In this section, an overview of how this
+runtime support works is provided. Full details can be found in the documented source code of
+Scalaness \cite{scalaness-home}. Note that the current implementation of Scalaness composes nesT
+modules and rewrites those modules to nesC in a single, integrated processing step. The runtime
+system currently emits nesC directly without the need for any explicit nesT-to-nesC rewriting.
 
 There are two operations to consider: component composition and component instantiation.
 
@@ -1007,20 +1015,22 @@ that provides a command for computing checksums on a given array of bytes. This 
 parameterized by the type used for the checksum and by the size of the arrays that it processes.
 
 \singlespace
-\begin{fpfig}[tbhp]{Generated Runtime Support for Composition}{figure-checksum-class}
+\begin{fpfig}[!p]{Generated Runtime Support for Composition}{figure-checksum-class}
 {
 \begin{lstlisting}[language=scalaness]
 @ModuleType(
   """{}
      < checksumType <: UInt32; size: UInt16 >
-     { ; compute_checksum(data: Array[UInt8]): checksumType }""")
+     { ; compute_checksum(
+           data: Array[UInt8]): checksumType }""")
 class ChecksumC extends NesTComponent {
 
   /////////
   // Code generated by the Scalaness compiler.
   /////////
   val configuration =
-    new ProgramComponentWrapper(new NamedProgramComponent(
+    new ProgramComponentWrapper(
+     new NamedProgramComponent(
       name            = "ChecksumC",
       enclosingObject = this,
       typeParameters  = Set("checksumType"),
@@ -1029,8 +1039,11 @@ class ChecksumC extends NesTComponent {
       exports         = extractExports(abstractSyntax),
       abstractSyntax  = abstractSyntax))
     
-  def getTypeMap  = Map("checksumType" -> sclnsChecksumType)
-  def getValueMap = Map("size" -> sclnsSize)
+  def getTypeMap =
+    Map("checksumType" -> sclnsChecksumType)
+
+  def getValueMap =
+    Map("size" -> sclnsSize)
   ////////
   // END of Scalaness generated code.
   //////// 
@@ -1091,7 +1104,8 @@ a component at the nesT level is done in Scalaness by invoking a compiler genera
 @ModuleType(
   """{}
      < checksumType <: UInt32; size: UInt16 >
-     { ; compute_checksum(data: Array[UInt8]): checksumType }""")
+     { ; compute_checksum(
+           data: Array[UInt8]): checksumType }""")
 class ChecksumC extends NesTComponent {
 
   /////////
@@ -1100,7 +1114,9 @@ class ChecksumC extends NesTComponent {
   private var sclnsChecksumType: MetaType[UInt32] = null
   private var sclnsSize: UInt16 = null
 
-  def instantiate(checksumType: MetaType[UInt32], size: UInt16) = {
+  def instantiate(
+    checksumType: MetaType[UInt32], size: UInt16) = {
+
     val result = new ChecksumC
     result.sclnsChecksumType = checksumType
     result.sclnsSize = size
@@ -1121,7 +1137,7 @@ As for \autoref{figure-checksum-class} the code shown as generated by the compil
 illustration only. The compiler inserts during compilation the AST of the appropriate code into
 the AST of the enclosing class.
 
-The !instantiate! method is provided both module type parameters as Scala !MetaType! values, and
+The !instantiate! method is provided module type parameters as Scala !MetaType! values, and
 module value parameters, all of which must have liftable types. The method creates a fresh Scala
 instance of the class and stores the module parameters into hidden fields where they are
 subsequently used (during imaging) to specialize the module's body. A single instance of the
