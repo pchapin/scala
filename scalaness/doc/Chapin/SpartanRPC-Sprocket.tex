@@ -8,28 +8,20 @@
 This chapter describes SpartanRPC \cite{chapin-skalka-SpartanRPC,chapin-skalka-SpartanRPCTR}
 and its implementation in the \Sprocket\ compiler \cite{sprocket}.
 
-SpartanRPC is a new programming language based on nesC that provides built-in support for
-authorized remote procedure calls. SpartanRPC as a language allows potentially many different
-forms of access control to be used, however \Sprocket\ currently only supports the use of the
-$RT_0$ trust management system. \Sprocket\ also uses radio links to implement \newterm{dynamic
-  wires} (as described in \autoref{section-dynamic-wires}) and thus targets TinyOS and wireless
-sensor networks. However, there is nothing in the design of SpartanRPC that would preclude the
-use of other communications channels.
+SpartanRPC is a dialect of nesC that provides built-in support for authorized remote procedure
+calls. SpartanRPC as a language allows potentially many different forms of access control to be
+used, however \Sprocket\ currently only supports the use of the $RT_0$ trust management system.
+\Sprocket\ also uses radio links to implement \newterm{dynamic wires} (as described in
+\autoref{section-dynamic-wires}) and thus targets TinyOS and wireless sensor networks. However,
+there is nothing in the design of SpartanRPC that would preclude the use of other communications
+channels.
 
-While there has been a great deal of research on security in sensor networks, much of that work
-has focused on low level concerns such as link layer security, key distribution
-\cite{camtepe-bulent-05}, and secure network protocols \cite{1049776,fouladgar-3tls-2006}.
-Systems such as TinySec \cite{karlog-tinysec-2004} and MiniSec \cite{luk-minisec-2007} are based
-on shared secrets and generally assume that an entire network comprises a single security
-domain. Furthermore, these systems support confidentiality and integrity properties, but not
-access control.
-
-In contrast the use of a trust management system allows embedded developers to specify high
-level authorization policies that permit different security domains to interact without prior
+The use of a trust management system allows embedded developers to specify high level
+authorization policies that permit different security domains to interact without prior
 introduction. In a sensor network context this might arise when, for example, the wearer of a
 body area network enters a region of space covered by a metropolitan network. These networks may
-have never encountered each other, yet wish to access sensitive functions, such as for
-medical monitoring and control.
+have never encountered each other, yet wish to access sensitive functions, such as for medical
+monitoring and control.
 
 Trust management systems use public key cryptography and require some mechanism for evaluating
 authorization requests in the light of an access policy (the $L$ in \autoref{figure-tmstruct}).
@@ -38,10 +30,10 @@ several authors
 \cite{1049776,Malan:2008:IPI:1387663.1387668,bertoni-2006,kumar-2006,4604657,Liu-Peng-TinyECC-2008,Szczechowiak:2008:NTL:1786014.1786040},
 combining this with the necessary authorization decision to support a full trust management
 system, and showing the feasibility and practicality of doing so on resource constrained
-devices, has not been previously demonstrated. As will be demonstrated in
-\autoref{chapter-evaluation} the \Sprocket\ runtime system exacts a significant performance
-penalty on the nodes, particularly with respect to system startup time. Yet despite this problem
-useful work can still be accomplished.
+devices, has not been previously demonstrated. As will be shown in \autoref{chapter-evaluation}
+the \Sprocket\ runtime system exacts a significant performance penalty on the nodes,
+particularly with respect to system startup time. Yet despite this problem useful work can still
+be accomplished.
 
 \section{Overview and Applications}
 \label{section-overview}
@@ -631,6 +623,7 @@ and some degree of time synchronization. This is a non-trivial extension of the 
 that was beyond the scope of this work.
 
 \subsubsection{Session Key Negotiation}
+\label{section-session-key-negotiation}
 
 Public key cryptography is much too computationally expensive to use for authorizing routine
 duty postings. Sprocket's run time system addresses this by negotiating session keys between the
@@ -707,7 +700,8 @@ entry for $(N_A, C_2, I_2)$ in its session key storage. In fact, this design cre
 optimization opportunity called \newterm{session key stealing} where, in the case of a
 successful authorization for $(C_2, I_2)$, a previously computed session key for $(C_1, I_1)$
 can simply be copied by the server from $(N_A, C_1, I_1)$ to $(N_A, C_2, I_2)$ without being
-recomputed. However, \Sprocket\ does not implement session key stealing.
+recomputed. However, at the time of this writing \Sprocket\ does not implement session key
+stealing.
 
 \subsubsection{Authorized RPC Invocations}
 
