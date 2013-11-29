@@ -20,10 +20,10 @@ foundations. However, they all attempt to provide a well structured approach to 
 access control in widely distributed and dynamic environments.
 
 Trust management systems are typically designed for use by authorizers with resource rich
-machines such as is commonly used for file and web servers. Yet there are embedded applications
-that could also benefit from trust management. For example, ``smart cars'' that communicate with
-each other about road conditions \cite{Seepold:2009:ESP:1641563.1641568}, or body area networks
-that provide medical monitoring features
+machines such as commercial web servers. Yet there are embedded applications that could also
+benefit from trust management. For example, ``smart cars'' that communicate with each other
+about road conditions \cite{Seepold:2009:ESP:1641563.1641568}, or body area networks that
+provide medical monitoring features
 \cite{Shnayder:2005:SNM:1098918.1098979,Chen:2011:BAN:1968858.1968873}, may encounter many
 unknown principals during their operation. The security and safety of these applications, and
 many others, will depend on their ability to distinguish trustworthy principals from unreliable
@@ -192,10 +192,10 @@ authorizers define policies in terms of the (public) keys themselves. While keys
 names, such names are purely for local convenience; they have no significance to the security of
 the system and need not be shared.
 
-An important consequence of the lack of identity-to-key bindings is that imposter keys can not
+An important consequence of the lack of identity-to-key bindings is that impostor keys can not
 be created. If an attacker generates a new public/private key pair, it would be regarded as an
 entirely new entity. Access would be evaluated based on that entity's certified attributes (if
-any). It is not possible for a ``bogus'' principal to pose as a legitmate principal. As is
+any). It is not possible for a ``bogus'' principal to pose as a legitimate principal. As is
 typical for trust management systems, this moves the problem of associating a specific attribute
 with the correct key to those who create the attribute certificates. However, those certificates
 are created off line before resource access is requested and evaluated; requesters and
@@ -204,12 +204,30 @@ produce them is outside the scope of this security model.
 
 In order to improve the efficiency of normal message transfers between a requester and an
 authorizer, symmetric session keys are computed using a simple Diffie-Hellman key agreement
-protocol as described in \autoref{section-session-key-negotiation}. Yet for the reasons given
-above, this simple approach is nevertheless not vulnerable to a man-in-the-middle attack. The
-key used by the authorizer to authorize access is the same as that used to compute the session
-key. Consequently only a legitimate user will be able to compute the same session key. Either
-the man in the middle will not be authorized or else the man in the middle is a legitimate user
-of the resource anyway.
+protocol \cite{Diffie:2006:NDC:2263321.2269104} as described in
+\autoref{section-session-key-negotiation}. In this protocol each of two communicating entities
+compute a common shared secret by combining the public key of its peer with its own private key.
+No secret information is transmitted over the network and an eavesdropping third party is unable
+to compute the same shared secret without access to either private key.
+
+Yet for the reasons given earlier, this simple approach is nevertheless not vulnerable to a man
+in the middle attack. The key used by the authorizer to authorize access is the same as that
+used to compute the session key. Consequently only a legitimate user will be able to compute the
+same session key. Either the man in the middle will not be authorized or else the man in the
+middle is a legitimate user of the resource anyway.
+
+A man in the middle would be able to pose as a legitimate service from the point of view of the
+requester. However, requester messages are not considered secret so an eavesdropper could read
+them in any case. Since the systems described here use only unidirectional communication,
+requesters that wish to receive results from an authorizer must provide a suitable service of
+their own for authorizers to use. In that case the roles of requester and authorizer are
+reversed, and the service provided by the original requester could be protected by an
+appropriate policy to prevent unauthorized nodes from returning fake results.
+
+Ultimately the session key is used to compute a message authentication code (MAC) on requester
+messages. Verification of this MAC proves that the requester is in possession of a session key
+that was previously computed using an authorized public key. The MAC on request messages then
+serves to verify authorization; \emph{no unauthorized user can compute a valid MAC}.
 
 Other security properties are not directly supported by this work. Notably, neither SpartanRPC
 nor Scalaness address the issue of node tampering or denial of service attacks. Both systems as
@@ -221,14 +239,14 @@ to an application. For example, an application specific protocol that adds a mon
 to messages could be layered on top of either system to protect against replay attacks.
 Scalaness, in particular, could be used to support such an approach by letting a first stage
 program compose and specialize the mechanism, choosing appropriate parameters at first stage
-execution time. Confidentiality of messages could also be added by simply encrypting message
-contents with the previously negotiated session key.
+execution time. Confidentiality of messages could also be added by encrypting message contents
+with the previously negotiated session key.
 
 As usual it is assumed that the cryptographic primitives used by both systems are secure in the
 sense that it is computationally infeasible for any attacker of interest to defeat the
 cryptographic protections directly.
 
-\section{Related Work}
+\section{Related Work and Contributions}
 
 % From the Trust Management paper.
 
@@ -300,7 +318,9 @@ SpartanRPC differs from these systems in that it extends the nesC programming la
 trustedFleck) to allow programmer definition of secure RPC services (unlike S-RPC) that can be
 accessed by nodes within the network itself (unlike Marionette). SpartanRPC is similar to, and
 inspired by, TinyRPC \cite{may-tinyrpc-2007}. TinyRPC, however, does not provide security and
-has different semantics that are not as expressive as SpartanRPC's approach.
+has different semantics that are not as expressive as SpartanRPC's approach. In particular,
+SpartanRPC allows asynchronous invocations to be sent to a dynamically selected subset of
+neighbors.
 
 Teeny\textsc{lime} allows application programs to access an abstract ``tuple space'' that is the
 union of tuple spaces on the local node and the immediately neighboring nodes
@@ -348,19 +368,20 @@ MetaML \cite{Taha-MetaML,DBLP:conf/icess/Taha04} and MetaHaskell \cite{mainland1
 foundations the work described here builds on. MetaHaskell does support heterogeneous language
 staging where the lower stage language is defined by a plug-in and several instantiations have
 been defined including one for a low-level C-like language. Like this dissertation's approach,
-they guarantee type safety of all lower-stage code produced. They use a more traditional
-metaprogramming model, however, not the process-separated model needed for embedded systems
-metaprogramming and they do not address the issues of metaprogramming module composition and
-type specialization. In contrast, Scalaness follows the foundational work on Framed ML (\fml)
-\cite{FramedML}; \autoref{section-framedml} discusses how it serves as the theoretical
-underpinning of the Scalaness system.
+they guarantee type safety of all lower stage code produced. They use a more traditional
+metaprogramming model, however, not the \newterm{process separation} model needed for embedded
+systems metaprogramming where different stages execute on different machine architectures and in
+different address spaces. Also neither MetaML nor MetaHaskell address the issues of
+metaprogramming module composition and type specialization. In contrast, Scalaness follows the
+foundational work on Framed ML (\fml) \cite{FramedML}; \autoref{section-framedml} discusses how
+it serves as the theoretical underpinning of the Scalaness system.
 
 Lightweight Modular Staging \cite{Rompf-LMS} describes a method of expressing staged
 computations using a Scala host framework without any compiler modifications. The approach
-allows cross-stage type safety but does not support dynamic type construction, a method by which
-second stage types can be manipulated as first stage values. This feature provided by Scalaness
-is important for optimizing the layout of data structures by tuning the types used for their
-members.
+allows cross-stage type safety but does not support \newterm{dynamic type construction}, a
+method by which second stage types can be manipulated as first stage values. This feature
+provided by Scalaness is important for optimizing the layout of data structures by tuning the
+types used for their members.
 
 Actor based sensor metaprogramming has been studied in \cite{cheong07}; this work also focuses
 on high level dynamic reprogrammability but is untyped. More broadly, metaprogramming is known
@@ -390,28 +411,37 @@ templates support types as meta values in template expansion, but type safety of
 is not guaranteed without full template expansion. Concepts \cite{gregor06:_concepts} improves
 on this, but types are still not first class values.
 
-\section{Summary of Contributions}
+\subsection{Summary of Contributions}
 
 The main contributions of this work include a demonstration, for the first time, of the
 feasibility of using trust management in resource constrained embedded systems such as sensor
-networks.
-
-No previous work has attempted to implement support for such a general and flexible
+networks. No previous work has attempted to implement support for such a general and flexible
 authorization system on such small devices. Previous work on sensor network security has tended,
 instead, to focus on low level issues, e.~g., providing confidentiality on links, or on
-relatively ad-hoc solutions to specific problems, e.~g., key distribution. In contrast, the
-SpartanRPC language, together with its implementation in \Sprocket, provide well founded,
+relatively ad-hoc solutions to specific problems, e.~g., key distribution.
+
+In contrast, the SpartanRPC language, together with its implementation in \Sprocket, provide
 language based support for general purpose distributed authorization in sensor networks. Trust
 management authorization can now be used as a primitive for building more elaborate security
 services in complex embedded networks spanning multiple security domains where fine grained
-access control is required.
+access control is required. SpartanRPC also provides a new remote procedure call discipline for
+nesC featuring asynchronous invocations and an ability to dynamically control the subset of
+neighbors to which each remote invocation is directed.
 
-This work also introduces Scalaness/nesT as a general, two stage programming system for
-developing embedded applications. Scalaness offers a unique combination of staging with process
-separation, cross-stage type safety, and dynamic type construction that make it a powerful tool
-for creating flexible and efficient embedded applications. Scalaness treats the trust management
-problem as simply one application of many, and this work demonstrates Scalaness by using it to
-re-implement a solution to embedded trust management in sensor networks.
+This work also introduces Scalaness/nesT as a well founded, two stage programming system for
+developing general embedded applications. The foundations of Scalaness are presented in the
+distilled languages DScalaness and DnesT. An implementation of the system has been created by
+modifying the open source Scala compiler.
+
+Scalaness offers a unique combination of staging with cross-stage type safety, process
+separation, and dynamic type construction that make it a powerful tool for creating flexible and
+efficient embedded applications. Scalaness treats the trust management problem as simply one
+application of many, and this work demonstrates Scalaness by using it to re-implement a solution
+to embedded trust management in sensor networks.
+
+This work also describes the use of both SpartanRPC and Scalaness on a realistic field example
+with non-trivial application requirements. This example shows that both systems can be used to
+solve real-world problems and are not merely toy systems of theoretical interest only.
 
 \section{Dissertation Organization}
 

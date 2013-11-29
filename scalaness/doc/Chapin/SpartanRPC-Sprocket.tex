@@ -667,8 +667,9 @@ service, the following steps are taken:
 \begin{enumerate}
 \item Authorization of $K_{cp}$ for service $(C, I)$ is checked using the \RT\ minimum model
   computed by the certificate receiver. If authorization fails nothing more is done.
-\item A session key is computed using elliptic curve Diffie-Hellman and added to the session key
-  storage under the proper $(N, C, I)$ value. The key is stored as a remote client key.
+\item A session key is computed using elliptic curve Diffie-Hellman key agreement and added to
+  the session key storage under the proper $(N, C, I)$ value. The key is stored as a remote
+  client key.
 \item A message is returned to the client containing the server's public key $K_{sp}$ and the
   original $(N, C, I)$ values used by the client. This is so the client is able to compute the
   same session key and associate it with the proper endpoint from its perspective.
@@ -684,7 +685,7 @@ exchanged messages and additional computations and so would further increase the
 nodes.
 
 A potentially more serious concern is that the simple protocol described here would normally be
-vulnerable to a man-in-the-middle attack whereby an active attacker negotiates independent
+vulnerable to a man in the middle attack whereby an active attacker negotiates independent
 session keys with each peer and is then able to modify messages sent between those peers.
 However, in an \RT\ trust management context this is not a concern because authorization is
 entirely based on key rather than on any identity bound to that key. An active man in the middle
