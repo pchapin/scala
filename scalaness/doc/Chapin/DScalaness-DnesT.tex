@@ -212,13 +212,12 @@ operator. The semantics of module composition here is standard \cite{Cardelli-19
 composition aka wiring $\mu_1 \ltimes \mu_2$, the exports of $\mu_2$ are connected to imports of
 $\mu_1$. The function result is a module of type \tt{commT}.
 
-To obtain a module defining a mote OS image in a program context where neighborhood size is
-known, a radio implementation has been provided, and session keys have been computed. The
-results can then be composed of an \tt{authSpecialize} function with modules specifying
-top-level message send and receive behaviors, and a \texttt{main} application entry point (here
-knowledge that address sizes can be limited to 8 bits is assumed, so \tt{nmax} < 256). At line
-\ref{l:image} a closed module is defined and a binary mote image can be produced by a call to
-\tt{image}.
+To obtain a module defining a node image in a program context where neighborhood size is known,
+a radio implementation has been provided, and session keys have been computed. The results can
+then be composed of an \tt{authSpecialize} function with modules specifying top-level message
+send and receive behaviors, and a \texttt{main} application entry point (here knowledge that
+address sizes can be limited to 8 bits is assumed, so \tt{nmax} $<$ 256). At line \ref{l:image}
+a closed module is defined and a binary mote image can be produced by a call to \tt{image}.
 
 In DScalaness, \tt{image} is an assertion that its argument is a \emph{runnable} module, with no
 unresolved parameters or imports. In the Scalaness implementation, this is the point where nesT
@@ -872,7 +871,7 @@ constructed types.
 Observing that AFJ, FGJ, and \fml\ are all proven type safe, and that DScalaness is in essence
 an orthogonal composition of these three languages, the following conjecture states that type
 safety is maintained in this composition.
-
+\pagebreak
 \begin{conject}[DScalaness Type Safety]
   If $\varnothing \vdash \texttt{e} : \texttt{T}$ and $\texttt{e} \rightarrow^* \jimage{\mu}$,
   then $\mu$ is runnable and does not go wrong.

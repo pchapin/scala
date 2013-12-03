@@ -632,12 +632,11 @@ types have specific sizes; the implementation does not provide a simple integer 
 avoids issues associated with the machine dependent size of !int! in nesC. Finally, two other
 liftable primitive types are also provided: !Char! and !Uninit! (which lifts to !void!).
 
-The nesT subtype relations are preserved in Scalaness where !UInt8 <: UInt16 <: UInt32! and
-similarly for the signed integer types. In Scalaness these types are defined in the object
-!LiftableTypes! so that they don't conflict with any normal (non-liftable) types defined by the
-programmer or the language, such as !Char!. Furthermore, the integer liftable types are endowed
-with the usual arithmetic operations so they can be manipulated in the Scalaness program in a
-natural way.
+The nesT subtype relations for primtive integers are preserved in Scalaness. In Scalaness the
+primtive types types are defined in the object !LiftableTypes! so that they don't conflict with
+any normal (non-liftable) types defined by the programmer or the language, such as !Char!.
+Furthermore, the integer liftable types are endowed with the usual arithmetic operations so they
+can be manipulated in the Scalaness program in a natural way.
 
 No conversions are provided between the liftable types and their ordinary Scala analogs. This
 means existing libraries that, for example, manipulate Scala !Char! objects won't work with
