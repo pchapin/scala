@@ -2026,11 +2026,17 @@ trait Typers extends Adaptations
           }
           for (i <- 1 until typeAbbreviationAnnotations(0).args(0).children(1).children.length) {
             val tempString = if (!((typeAbbreviationAnnotations(0).args(0).children(1).children(i).children.length > 0))) {
+                               println(typeAbbreviationAnnotations(0).args(0).children.length)
+                               println(typeAbbreviationAnnotations(0).args(0).children)
+                               println(typeAbbreviationAnnotations(0).args(0).children(1).children.length)
+                               println(typeAbbreviationAnnotations(0).args(0).children(1).children)
                                typeAbbreviationAnnotations(0).args(0).children(1).children(i).toString
-                             } // HERE BUT AN ELSE IF, SO THAT WE CAN SEE IF IT IS A TYPE ABBREVIATION, then return the abbreviation .getFullType as tempstring 
+                             }
                              else {
                                val tempSymbolSingle = SingleType(NoPrefix,
-                                 typeAbbreviationAnnotations(0).args(0).children(1).children(i).children(0).symbol)
+                                 typeAbbreviationAnnotations(0).args(0).children(1).children(i).children(0).children(0).symbol)
+                               println(tempSymbolSingle)
+                               println(tempSymbolSingle.typeAbbreviation)
                                val newTypeAbbreviation = tempSymbolSingle.typeAbbreviation match {
                                  case Some(typeA) => typeA
                                  case None => throw new Exception("Unable to find abbreviation")

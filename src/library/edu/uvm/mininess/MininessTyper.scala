@@ -59,7 +59,7 @@ class MininessTyper(
     class TypeException(message: String) extends
       PositionalMininessTypeException(message, node.line, node.positionInLine)
 
-  if (debugFlag && (node.parent == None)) TreeConverter.dumpAST(node)
+  if (true && (node.parent == None)) TreeConverter.dumpAST(node)
       
     val resultType = node match {
       

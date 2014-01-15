@@ -6,7 +6,7 @@ module RadioC {
 }
 implementation {
     command error_t radio( struct MessageType message )
-    {
+    {        
         // Do stuff.
         return SUCCESS;
     }
