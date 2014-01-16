@@ -1,0 +1,52 @@
+-----------------------------
+Skalka tech: 
+
+  > latex main
+  > dvipdfm -l main
+  // That's all!
+-----------------------------
+
+
+Say the latex file is: 
+
+\documentclass[semhelv,landscape,12pt]{seminar} 
+\begin{document} 
+\begin{slide} 
+A darned slide. 
+\end{slide} 
+\end{document} 
+
+$ latex test.tex 
+$ dvips -Ppdf -t landscape test.dvi -o test.ps 
+
+Edit the postscript with: 
+
+Thomas Halahan wrote: 
+> 
+> > Another person showed me that I can do what I wish by changing the 
+> > PostScript Prolog.  Dvips produces 
+> > 
+> > %%BeginSetup 
+> > %%Feature: *Resolution 1200dpi 
+> > TeXDict begin 
+> >  @landscape 
+> > %%EndSetup 
+> > 
+> > If I modify this to 
+> > 
+> > %%BeginSetup 
+> > %%Feature: *Resolution 1200dpi 
+> > TeXDict begin 
+> >  << /PageSize [792 612] /Orientation 0 >> setpagedevice 
+> > %%EndSetup 
+
+After checking http://www.fastlane.nsf.gov/a1/pdfcreat.htm we 
+use the cammand: 
+
+$ ps2pdf -dMaxSubsetPct=100 -dCompatibilityLevel=1.2 \ 
+  -dSubsetFonts=true -dEmbedAllFonts=true test.ps test.pdf 
+
+$ acroread test.pdf 
+
+Now it shows right within acroread! I guess I won't be 
+needing Corel Office 2000 or StarOffice now :). 

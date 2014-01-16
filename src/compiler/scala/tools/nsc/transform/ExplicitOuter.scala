@@ -216,7 +216,7 @@ abstract class ExplicitOuter extends InfoTransform
    *  values for outer parameters of constructors.
    *  The class provides methods for referencing via outer.
    */
-  abstract class OuterPathTransformer(unit: CompilationUnit) extends TypingTransformer(unit) {
+  abstract class OuterPathTransformer(unit: CompilationUnit) extends TypingTransformer(unit) with UnderConstructionTransformer {
     /** The directly enclosing outer parameter, if we are in a constructor */
     protected var outerParam: Symbol = NoSymbol
 
@@ -225,9 +225,10 @@ abstract class ExplicitOuter extends InfoTransform
      *
      * Will return `EmptyTree` if there is no outer accessor because of a premature self reference.
      */
-    protected def outerValue: Tree =
-      if (outerParam != NoSymbol) ID(outerParam)
-      else outerSelect(THIS(currentClass))
+    protected def outerValue: Tree = outerParam match {
+      case NoSymbol   => outerSelect(gen.mkAttributedThis(currentClass))
+      case outerParam => gen.mkAttributedIdent(outerParam)
+    }
 
     /** Select and apply outer accessor from 'base'
      *  The result is typed but not positioned.
@@ -275,34 +276,19 @@ abstract class ExplicitOuter extends InfoTransform
       else outerPath(outerSelect(base), from.outerClass, to)
     }
 
-
-    /** The stack of class symbols in which a call to this() or to the super
-      * constructor, or early definition is active
-      */
-    protected def isUnderConstruction(clazz: Symbol) = selfOrSuperCalls contains clazz
-    protected val selfOrSuperCalls = mutable.Stack[Symbol]()
-    @inline protected def inSelfOrSuperCall[A](sym: Symbol)(a: => A) = {
-      selfOrSuperCalls push sym
-      try a finally selfOrSuperCalls.pop()
-    }
-
     override def transform(tree: Tree): Tree = {
+      def sym = tree.symbol
       val savedOuterParam = outerParam
       try {
         tree match {
           case Template(_, _, _) =>
             outerParam = NoSymbol
-          case DefDef(_, _, _, vparamss, _, _) =>
-            if (tree.symbol.isClassConstructor && isInner(tree.symbol.owner)) {
-              outerParam = vparamss.head.head.symbol
-              assert(outerParam.name startsWith nme.OUTER, outerParam.name)
-            }
+          case DefDef(_, _, _, (param :: _) :: _, _, _) if sym.isClassConstructor && isInner(sym.owner) =>
+            outerParam = param.symbol
+            assert(outerParam.name startsWith nme.OUTER, outerParam.name)
           case _ =>
         }
-        if ((treeInfo isSelfOrSuperConstrCall tree) || (treeInfo isEarlyDef tree))
-          inSelfOrSuperCall(currentOwner.owner)(super.transform(tree))
-        else
-          super.transform(tree)
+        super.transform(tree)
       }
       finally outerParam = savedOuterParam
     }
@@ -368,16 +354,14 @@ abstract class ExplicitOuter extends InfoTransform
 
     /** The definition tree of the outer accessor of current class
      */
-    def outerFieldDef: Tree =
-      VAL(outerField(currentClass)) === EmptyTree
+    def outerFieldDef: Tree = ValDef(outerField(currentClass))
 
     /** The definition tree of the outer accessor of current class
      */
     def outerAccessorDef: Tree = localTyper typed {
-      outerAccessor(currentClass) match {
-        case acc if acc.isDeferred => DefDef(acc, EmptyTree)
-        case acc                   => DefDef(acc, Select(This(currentClass), outerField(currentClass)))
-      }
+      val acc = outerAccessor(currentClass)
+      val rhs = if (acc.isDeferred) EmptyTree else Select(This(currentClass), outerField(currentClass))
+      DefDef(acc, rhs)
     }
 
     /** The definition tree of the outer accessor for class mixinClass.

@@ -49,7 +49,7 @@ trait Contexts { self: Analyzer =>
 
   private lazy val startContext = {
     NoContext.make(
-    Template(List(), emptyValDef, List()) setSymbol global.NoSymbol setType global.NoType,
+    Template(List(), noSelfType, List()) setSymbol global.NoSymbol setType global.NoType,
     rootMirror.RootClass,
     rootMirror.RootClass.info.decls)
   }
@@ -329,6 +329,7 @@ trait Contexts { self: Analyzer =>
 
     /** The first error, if any, in the report buffer */
     def firstError: Option[AbsTypeError] = reportBuffer.firstError
+    def errors: Seq[AbsTypeError] = reportBuffer.errors
     /** Does the report buffer contain any errors? */
     def hasErrors = reportBuffer.hasErrors
 
@@ -615,7 +616,7 @@ trait Contexts { self: Analyzer =>
     private def treeIdString        = if (settings.uniqid.value) "#" + System.identityHashCode(tree).toString.takeRight(3) else ""
     private def treeString          = tree match {
       case x: Import => "" + x
-      case Template(parents, `emptyValDef`, body) =>
+      case Template(parents, `noSelfType`, body) =>
         val pstr = if ((parents eq null) || parents.isEmpty) "Nil" else parents mkString " "
         val bstr = if (body eq null) "" else body.length + " stats"
         s"""Template($pstr, _, $bstr)"""
@@ -1269,7 +1270,7 @@ trait Contexts { self: Analyzer =>
     def importedSymbol(name: Name): Symbol = importedSymbol(name, requireExplicit = false)
 
     private def recordUsage(sel: ImportSelector, result: Symbol) {
-      def posstr = pos.source.file.name + ":" + posOf(sel).safeLine
+      def posstr = pos.source.file.name + ":" + posOf(sel).line
       def resstr = if (tree.symbol.hasCompleteInfo) s"(qual=$qual, $result)" else s"(expr=${tree.expr}, ${result.fullLocationString})"
       debuglog(s"In $this at $posstr, selector '${selectorString(sel)}' resolved to $resstr")
       allUsedSelectors(this) += sel

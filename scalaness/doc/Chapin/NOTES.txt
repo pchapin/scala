@@ -71,5 +71,10 @@ I also tried the breaklinks option like this
 This worked in the sense that the links wrapped but, as mentioned in the README quote above, the
 placement of the clickable area on the next line is wrong and looks terrible.
 
+However, by combining these approaches (using breaklinks and then turning off the link border) I
+get a document that has navigable bookmarks, proper formatting, and no ugly links. The links in
+the document are still there and the ones that don't wrap are even in the right place, you just
+can't see the (misplaced) borders. This seems like a good compromise.
+
 Right now my conclusion is that hyperref can't be used and to fix this I would have to redraw
 some, possibly all, of my figures in a form acceptable to a PDF driver.

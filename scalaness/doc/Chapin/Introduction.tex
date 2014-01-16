@@ -1,144 +1,466 @@
 \chapter{Introduction}
 \label{chapter-introduction}
 
-A \newterm{wireless sensor network} (WSN) is a network composed of small sensors or actuators
-that are connected by way of short hop wireless links. Often, but not always, such networks
-include one or more base stations with wider connectivity that serve as an interface between the
-sensor network and external systems. WSNs are an area of intense study with many envisioned
-applications ranging from X to Y \cite{XXX}.
+Embedded systems present difficult programming challenges
+\cite{Mottola:2011:PWS:1922649.1922656}. For reasons of size, power consumption, disposability,
+or some combination of these things, embedded devices are often highly resource constrained. For
+example, a typical device might have only 48\,KiB of program ROM, 10\,KiB of RAM, and use a
+small, 16~bit microcontroller running at 8\,MHz \cite{tmotesky-datasheet}. Yet embedded
+applications are increasing in complexity and often provide mission-critical or even
+safety-critical services. Such systems need to be both efficient and correct.
 
-Sensor networks, like any small embedded system, present difficult programming challenges. For
-reasons of size, power consumption, disposability, or some combination of these things, sensor
-network nodes are often highly resource constrained. A typical node might have only 48~KiB of
-program ROM, 8~KiB of RAM (or less), and be using a small, 16~bit microcontroller running at
-only 8~MHz \cite{tmotesky-datasheet}. Yet WSN applications are increasing in complexity. In
-addition to application logic, such systems are now expected to support various network protocol
-stacks \cite{XXX}, elaborate security services \cite{XXX}, and etc \cite{XXX}.
+This dissertation specifically looks at the problem of providing distributed trust management in
+resource constrained embedded systems. Here \newterm{trust management} refers to a general
+approach for authorizing access to resources in an environment where the identity of requesting
+principals is not known to the authorizer. A trust management system provides a way for the
+authorizer to define an access policy in terms of arbitrary certified attributes that the
+requester must possess. Many trust management systems have been described in the literature
+\cite{chapin-skalka-wang-acmcs08}, and they vary in complexity, expressivity, and mathematical
+foundations. However, they all attempt to provide a well structured approach to the problem of
+access control in widely distributed and dynamic environments.
 
-My interest is in discovering how to effectively program these limited devices to meet high
-level security goals. While there has been a great deal of research on security in sensor
-networks much of that work has focused on low level concerns such as link layer security
-\cite{XXX}, key distribution \cite{XXX}, and secure network protocols \cite{1049776,XXX}.
-Systems such as TinySec \cite{karlog-tinysec-2004} and MiniSec \cite{luk-minisec-2007} are based
-on shared secrets and generally assume that an entire network comprises a single security
-domain. Furthermore, these systems support confidentiality and integrity properties, but not
-access control, aka authorization.
+Trust management systems are typically designed for use by authorizers with resource rich
+machines such as commercial web servers. Yet there are embedded applications that could also
+benefit from trust management. For example, ``smart cars'' that communicate with each other
+about road conditions \cite{Seepold:2009:ESP:1641563.1641568}, or body area networks that
+provide medical monitoring features
+\cite{Shnayder:2005:SNM:1098918.1098979,Chen:2011:BAN:1968858.1968873}, may encounter many
+unknown principals during their operation. The security and safety of these applications, and
+many others, will depend on their ability to distinguish trustworthy principals from unreliable
+or malicious ones.
 
-The purpose of my work is, rather, to support high level authorization policies that allow a
-network in one security domain to grant selective access to its resources by nodes in a
-cooperating security domain. Such distributed authorization systems, called \newterm{trust
-  management systems} have also been an active area of research
-\cite{chapin-skalka-wang-acmcs08}.
+For reasons of space and time efficiency, many embedded systems are programmed in low level
+languages such as C. Programming at that level is complicated and error prone. It is desirable,
+therefore, to provide programmers with convenient abstractions to shield them from low level
+complexities. These abstractions should be in the programming language itself, and this
+dissertation is about providing enriched languages that can address the needs of modern embedded
+systems in general and the embedded trust management problem in particular. This
+\newterm{language based} approach moves some of the work of producing correct programs to the
+language compiler and runtime system. Language features can be formally analyzed and rigorously
+tested once and then applied to many applications. This is in contrast to each application being
+an ad-hoc construction of customized components with limited use beyond the application for
+which they were created.
 
-A trust management system typically entails the use of public key cryptography to allow
-principals to authorize each other without prior introduction, and a system for evaluating
-authorization requests in the light of some access policy. Although the feasibility of using
-public key cryptography on sensor nodes has been shown by several authors
-\cite{1049776,Malan:2008:IPI:1387663.1387668,bertoni-2006,kumar-2006,4604657,Liu-Peng-TinyECC-2008,Szczechowiak:2008:NTL:1786014.1786040},
-combining this with the necessary authorization computations to support a full trust management
-system, and showing the feasibility and practicality of doing so, has not been previously
-demonstrated.
+The value of formal foundations cannot be overstated. In critical systems where safety or
+security is at stake, a rigorous understanding of the mechanisms being used is essential. For
+example, trust management systems that provide a precisely defined policy language are
+preferable to systems that use informal methods.
 
-Here I show two approaches to solving the problem of providing trust management-style
-distributed authorization in WSNs. The first approach is based on an RPC discipline called
-\textit{SpartanRPC}. In this method all cryptographic and authorization computations are done on
-the sensor nodes directly. However, the complexity of the system is hidden from the programmer
-behind an easy to use extension of the widely used nesC programming language
-\cite{Gay-nesC-2003}. My implementation of this direct approach is a compiler called
-\textit{Sprocket} that takes the extended nesC language as input and outputs an equivalent
-program in regular nesC. In addition Sprocket outputs the necessary runtime support to process
-authorization requests and policy statements in the $RT_0$ trust management language
-\cite{Li:DRBTMF,Li:RRBTMF}.
+The focus of this dissertation is on a kind of embedded system called a \newterm{wireless sensor
+  network} (WSN). Such systems consist of a network of small sensors or actuators that are
+connected by way of short hop radio links. Commonly such networks include one or more base
+stations, or ``hubs,'' with wider connectivity that serve as an interface between the sensor
+network and external systems. Wireless sensor networks are an area of intense study with many
+envisioned applications ranging from environment, asset, and structural monitoring to emergency
+response \cite{Culler:2004:GEI:1018015.1018072,1038146}. Yet despite the use of sensor networks
+to demonstrate the systems described herein, the techniques can be used with a wide range of
+embedded applications.
 
-The second approach I present is based on \newterm{staged programming}. In a staged environment,
+Two approaches to solving the problem of providing trust management-style distributed
+authorization in resource constrained embedded systems are discussed here. The first approach is
+based on a new remote procedure call (RPC) discipline named \textit{SpartanRPC}
+\cite{chapin-skalka-SpartanRPC,chapin-skalka-SpartanRPCTR}. In this method all trust management
+computations are done directly on the embedded devices. However, the complexity of the system is
+hidden from the programmer behind a simple extension to the widely used nesC programming
+language \cite{Gay-nesC-2003}. In order to implement this \emph{direct} approach, a compiler
+called \textit{Sprocket} has been created. \Sprocket\ takes an extended dialect of the nesC
+language as input and outputs an equivalent program in ordinary nesC. In addition \Sprocket\
+outputs the necessary runtime support to process authorization requests and policy statements in
+the $RT_0$ trust management language \cite{Li:DRBTMF,Li:RRBTMF}.
+
+The second approach presented is based on \newterm{staged programming}
+\cite{Taha-MetaML,Sheard-TemplateHaskell,Mainland-Flask-2008,FramedML}. In a staged environment,
 a first stage program is used to compose and specialize a lower level, second stage program.
 Specialized code can often be considerably optimized. However, flexibility is retained because
 the first stage program can be re-executed at a later time to re-specialize the second stage
-code as needed.
+program as needed.
 
-Staging is a widely researched topic
-\cite{Taha-MetaML,Sheard-TemplateHaskell,Mainland-Flask-2008,FramedML}. \note{Probably should
-  only mention the seminal papers here.} Many of these systems are quite general and allow an
-arbitrary number of stages where each stage can manipulate small fragments of next-stage code.
-Furthermore most existing systems \note{except\ldots} use the same language in all stages.
-Finally the type correctness of the stage $n+1$ programs are normally checked during their
-compilation or during the execution of the stage $n$ programs that produce them.
+Unlike with many staging systems, the work described here uses stages with different programming
+languages and that execute on different machines, i.e., in different address spaces. When
+applied to embedded systems the second (and final) stage must be in an embedded systems language
+running on the embedded hardware, whereas the first stage need not be as restricted.
 
-I focus here on the specific problem of using staged programming to improve the general
-efficiency of node level programs for wireless sensor networks. In such an environment the first
-stage program is envisioned to run on a powerful base station or even a hand-held device such as
-a smart phone. Using information gathered in the field, the first stage program computes an
-appropriately specialized second stage program that is then deployed to the network using an
-in-situ distributed deployment system such as Deluge \cite{deluge04}. Feedback provided by the
-network allows the first stage program to recompute an updated second stage program that can
-then be redeployed. The second stage program running on the sensor nodes remains small and
-efficient and yet long term flexibility is retained.
+This dissertation also describes \newterm{Scalaness} \cite{chapin-GPCE-2013}, an extension of
+Scala \cite{PiS2} with features that allow the programmer to compose and specialize components
+written in a reduced dialect of nesC called \newterm{nesT}. An important and novel feature of
+Scalaness is that it extends Scala's type system, so that a well-typed Scalaness program will
+always generate a well-typed nesT program. This \newterm{cross-stage type safety} property means
+the type correctness of the program that ultimately runs on the embedded device is guaranteed by
+the first stage Scalaness compiler.
 
-\note{Should I include the figure here that illustrates the blocks in a Scalaness system?}
+Scala was chosen as the basis for the first stage language largely for pragmatic reasons,
+primarily to build a system that could be used for real applications. Scala is a rich language
+that runs on the Java Virtual Machine (JVM) and has access to the Java ecosystem. Also the Scala
+compiler has a plugin architecture, and it was originally intended to implement Scalaness as a
+compiler plugin. Unfortunately, as described in \autoref{chapter-scalaness-nest} that proved
+difficult and Scalaness was instead implemented as a direct modification to the Scala compiler
+itself.
 
-In this environment only two stages are necessary so a language that provides an arbitrary
-number of stages is not required. Furthermore the practical realities of sensor network
-programming means that the second stage language needs to be either C or nesC or some dialect of
-these languages. However, nesC, especially, is an embedded systems language and not suitable for
-creating high level applications. Thus the first stage language can and should be something
-different.
+\section{Motivation}
 
-In this dissertation I describe \newterm{Scalaness}, an extension of Scala \cite{PiS2} with
-features that allow the programmer to compose and specialize components written in a reduced
-dialect of nesC called \newterm{Mininess}. One novel feature of Scalaness is that the type
-system of Scala has been modified so that a well-typed Scalaness program will always generate a
-well-typed Mininess program. No type errors will arise in the field when a compiled Scalaness
-program is used to repeatedly generate specialized node programs. This is essential since the
-user of the Scalaness program won't be a position to deal with type errors in the Mininess
-generated by that program.
+As an example of an application that illustrates the concepts of trust management in embedded
+systems, consider a first responder situation in which multiple social entities must interact
+and cooperate. Recent work has shown the effectiveness of wireless sensor networks in such
+scenarios \cite{citeulike:4460555,1038146} in their ability to coordinate multiple data
+collection and communication devices in an ad-hoc, easily deployable fashion. However, data
+collection and communication in this scenario (and other similar ones) must be a secured
+resource, due to, e.g., HIPA requirements in the case of medical response. Furthermore, security
+must be coordinated on-site in a sensor network comprising subnetworks administered separately
+(police, medical units from different hospitals, etc.), and no prior coordination between
+administrations can generally be assumed. Trust management authorization is well suited for this
+kind of scenario.
 
-Scalaness is a general system that can be applied to many sensor network applications or even
-potentially other kinds of embedded systems. To demonstrate the effectiveness of the system I
-use Scalaness to provide the same trust management support as demonstrated with Sprocket. I then
-compare the effectiveness of the two systems.
+For instance, if an EMT team deploys a sensor network to monitor patient locations and vital
+signs, a security policy can be imposed whereby responding police departments can deploy their
+own sensor network, and through it access patient identity and location data but \emph{not}
+medical data directly from the EMT network. This direct data access will often be necessary due
+to real-time constraints and lack of Internet connectivity in emergency situations.
 
-\section{Field Example}
+SpartanRPC's ability to do trust management on the network nodes themselves would be invaluable
+in this scenario. However, Scalaness may also be useful. In the staged case, powerful base
+stations could communicate perhaps by way of shared files manually carried from one machine to
+the next. Since the first stage program does not need to execute frequently such sharing could
+be done while each service provider is setting up at the location of the emergency. Other
+environmental and security factors could be provided to the first stage program at that time,
+allowing the node software to be quickly and easily customized for the particular disaster at
+hand.
 
-To evaluate the performance of SpartanRPC and Scalaness in a real application setting, I used
-both systems to implement secure versions of data collection and sampling control protocols in
-an environmental monitoring system. The Snowcloud system
-\cite{frolik-skalka-snowcloudtr,moeser-walker-skalka-frolik-wsc11} is a wireless sensor network
-developed at the University of Vermont for snow hydrology research applications. It is based on
-the MEMSIC TelosB mote platform running TinyOS, and has seen multiple field deployments. Typical
-deployed systems comprise 4-8 sensor nodes but the technology is scalable to arbitrary numbers
-of nodes. For data collection and sampling rate control, the system also includes a handheld
-``Harvester'' device. This device incorporates a TelosB mote to establish a network connection
-when in radio communication with the deployment. Users transport the device to and from
-deployment sites, and interact with the sensor node network by issuing commands from a simple
-push-button interface. A Harvester device and a deployed Snowcloud sensor tower are pictured in
-\autoref{figure-snowcloud}. The scheme described here has been implemented and tested in the UVM
-test network, which uses the same software and hardware platforms as in the active deployments.
+More generally \autoref{figure-motivation} shows two wireless sensor networks owned by separate
+administrative domains, $A$ and $B$. The lower part of the figure shows the networks as
+consisting of multiple sensor nodes. Each node in the networks is an example of a resource
+constrained embedded system. The two networks overlap in space so that nodes from the two
+networks can potentially communicate with each other.
 
-\snowcloudfig
+\begin{fpfig*}[t]
+  {Motivational Scenario}
+  {figure-motivation}
+  %\hspace{0mm}
+  \begin{center}
+    \includegraphics[scale=.40]{Figures/spartanrpc.eps}
+  \end{center}
+\end{fpfig*}
 
-In the secured version of the Snowcloud system, the goal is to treat data collection and
-sampling rate control as protected resources requiring authorization. Furthermore, sampling rate
-modifications should require a higher, ``administrator'' level of authorization than data
-collection. That is, only system engineers should be able to perform control operations, whereas
-data end-users making field visits should be able to collect data. Snowcloud sensor node code in
-particular makes use of nearly every resource available on the mote---including timing, sensor
-I/O, radio messaging, and flash memory, not to mention CPU and main memory. Thus, it is a robust
-example of a realistically scaled application.
+In some applications it may be desirable for the networks to share certain information while
+keeping other information private. As one example, $A$ and $B$ may agree to use each other's
+nodes for accurate time synchronization to their mutual best interest without wanting to share
+any other functionality. Alternatively, perhaps the networks are willing to carry data from
+foreign isolated nodes thus increasing each other's connectivity and enhancing their useful
+lifetimes, all without being able to access each other's primary functions.
 
-The system described here is also informative since it can be easily ported to other similar
-application settings. That is, sensor network application settings wherein multiple users of
-various authorization levels need to interact with the same network in control or collection
-capacities, as mediated by security policy.
+In other scenarios one of the networks, say $B$, may be reduced to a single mobile node that
+wanders into the field of an established network $A$. In that case $B$ may wish to query $A$ or
+otherwise interact with it, yet $A$ and $B$ may have no prior association.
+\autoref{section-field-example} describes a specific scenario of this type used during the
+evaluation of the work presented here.
+
+Trust management systems provide exactly the kind of flexible, policy-driven authorization
+control needed to address these situations. The ability to define access policy for unknown
+principals, the hallmark of trust management, is particularly important in the case of mobile
+embedded systems where encountering new principals is routine.
+
+SpartanRPC addresses this problem directly by providing a way for the embedded devices
+themselves to execute trust management logic. In that case no additional supporting
+infrastructure is needed but the nodes are required to do extensive computations.
+
+Scalaness, as a staged programming system, requires support beyond the nodes where the first
+stage program can execute. This additional support is shown on top of
+\autoref{figure-motivation} where Scalaness programs execute on the base stations of $A$ and $B$
+to compute node programs for deployment that are specialized with appropriate session keys. The
+Scalaness programs can communicate over the Internet to share credentials or other security
+tokens as required.
+
+\section{Security Model}
+
+Although many security properties may be of interest to embedded systems applications, only one
+is the focus of this work: \emph{a system is said to be secure if only authorized users of a
+  resource can access it}. In this context a \newterm{resource} could be a physical device on a
+node, e.g., a sensor or an actuator, or it could be a pure software component providing, e.g., a
+computation, communication, or storage service. This work is only concerned with access to
+physical devices via application level software; access via physical attacks or attacks against
+low level device drivers is not considered in the model used here.
+
+Each resource is presumed to have an \newterm{authorizer} who controls access to that resource.
+A user is authorized for a resource if and only if the authorizer's access policy for that
+resource grants access.
+
+In the manner of many trust management systems, and in the $RT_0$ system specifically, each
+principal, also called an \newterm{entity}, is represented directly by a public/private key
+pair. Consequently the requester of a resource does not need to authenticate to the authorizer
+to prove her identity, nor provide identity-to-key binding certificates. She only needs to prove
+that she has access to the private key of an authorized public/private key pair. Accordingly
+authorizers define policies in terms of the (public) keys themselves. While keys can be given
+names, such names are purely for local convenience; they have no significance to the security of
+the system and need not be shared.
+
+An important consequence of the lack of identity-to-key bindings is that impostor keys can not
+be created. If an attacker generates a new public/private key pair, it would be regarded as an
+entirely new entity. Access would be evaluated based on that entity's certified attributes (if
+any). It is not possible for a ``bogus'' principal to pose as a legitimate principal. As is
+typical for trust management systems, this moves the problem of associating a specific attribute
+with the correct key to those who create the attribute certificates. However, those certificates
+are created off line before resource access is requested and evaluated; requesters and
+authorizers are not concerned with \emph{how} certificates are created and the means used to
+produce them is outside the scope of this security model.
+
+In order to improve the efficiency of normal message transfers between a requester and an
+authorizer, symmetric session keys are computed using a simple Diffie-Hellman key agreement
+protocol \cite{Diffie:2006:NDC:2263321.2269104} as described in
+\autoref{section-session-key-negotiation}. In this protocol each of two communicating entities
+compute a common shared secret by combining the public key of its peer with its own private key.
+No secret information is transmitted over the network and an eavesdropping third party is unable
+to compute the same shared secret without access to either private key.
+
+Yet for the reasons given earlier, this simple approach is nevertheless not vulnerable to a man
+in the middle attack. The key used by the authorizer to authorize access is the same as that
+used to compute the session key. Consequently only a legitimate user will be able to compute the
+same session key. Either the man in the middle will not be authorized or else the man in the
+middle is a legitimate user of the resource anyway.
+
+A man in the middle would be able to pose as a legitimate service from the point of view of the
+requester. However, requester messages are not considered secret so an eavesdropper could read
+them in any case. Since the systems described here use only unidirectional communication,
+requesters that wish to receive results from an authorizer must provide a suitable service of
+their own for authorizers to use. In that case the roles of requester and authorizer are
+reversed, and the service provided by the original requester could be protected by an
+appropriate policy to prevent unauthorized nodes from returning fake results.
+
+Ultimately the session key is used to compute a message authentication code (MAC) on requester
+messages. Verification of this MAC proves that the requester is in possession of a session key
+that was previously computed using an authorized public key. The MAC on request messages then
+serves to verify authorization; \emph{no unauthorized user can compute a valid MAC}.
+
+Other security properties are not directly supported by this work. Notably, neither SpartanRPC
+nor Scalaness address the issue of node tampering or denial of service attacks. Both systems as
+described here are also vulnerable to various kinds of replay attacks. Issues of data
+confidentiality are also outside the immediate scope of this work.
+
+However, SpartanRPC and Scalaness do not interfere with the addition of other security services
+to an application. For example, an application specific protocol that adds a monotonic counter
+to messages could be layered on top of either system to protect against replay attacks.
+Scalaness, in particular, could be used to support such an approach by letting a first stage
+program compose and specialize the mechanism, choosing appropriate parameters at first stage
+execution time. Confidentiality of messages could also be added by encrypting message contents
+with the previously negotiated session key.
+
+As usual it is assumed that the cryptographic primitives used by both systems are secure in the
+sense that it is computationally infeasible for any attacker of interest to defeat the
+cryptographic protections directly.
+
+\section{Related Work and Contributions}
+
+% From the Trust Management paper.
+
+The first trust management systems were inspired by early foundational work in authentication
+logics such as BAN \cite{Burrows:LA} and authorization logics such as ABLP \cite{Abadi:CACDS}.
+However, the concept of trust management as an independent area of study was first introduced
+with PolicyMaker \cite{Blaze:DTM,Blaze:CCPTMS}. PolicyMaker policies are implemented as
+arbitrary programs in a suitable ``safe'' programming language. This gives the system great
+flexibility but also introduces intractability.
+
+KeyNote \cite{RFC-2704} is a direct descendant of PolicyMaker. KeyNote restricts PolicyMaker by
+specifying a limited language for creating policies. However, a full analysis of KeyNote's
+policy language \cite{Li:DCFTML} shows that certain authorization problems nevertheless remain
+undecidable. KeyNote has been used to enforce IPsec security requirements
+\cite{Blaze:TMIPS,Blaze:EKTMS}.
+
+SDSI/SPKI \cite{Rivest:SDSI-11,RFC-2693} provides a relatively simple, yet expressively
+interesting trust management language that is a precursor to the $RT_0$ system used here. The
+semantics of SDSI/SPKI have been analyzed by several authors
+\cite{Abadi:OSLLNS,Halpern:LSSLLNS,Howell:FSS,Li:LNSS,Clarke:CCDSS} making it one of the best
+studied trust management systems. SDSI/SPKI has been used to provide security in component based
+programming language design \cite{Liu:CSI}.
+
+QCM \cite{Gunter:DALSI,Gunter:GCR} and its successor SD3 \cite{Jim:STMSCE,Jim:DDQE} cast
+distributed authorization as a kind of distributed database problem. As a result, these systems
+are able to leverage well-studied database techniques and abstractions. These systems reveal a
+deep and interesting connection between authorization logics and database theory that inspired
+later work with database query languages such as \datalog\ and \datalogc\ \cite{Li:DCFTML}.
+
+Other notable examples of trust management systems include Cassandra \cite{Becker:CFTMAEHR}, a
+system that has been studied in the context of the United Kingdom's proposed nationwide
+electronic health records database. Also the Extensible Access Control Markup Language (XACML)
+\cite{OASIS:XACMLTC} and the Security Assertion Markup Language (SAML) \cite{OASIS:SSTC}, define
+XML policy and assertion languages that make use of many trust management concepts.
+
+% From the TISSEC paper.
+
+While there has been a great deal of research on security in sensor networks, much of that work
+has focused on low level concerns such as link layer security, key distribution
+\cite{camtepe-bulent-05}, and secure network protocols \cite{1049776,fouladgar-3tls-2006}.
+Systems such as TinySec \cite{karlog-tinysec-2004} and MiniSec \cite{luk-minisec-2007} are based
+on shared secrets and generally assume that an entire network comprises a single security
+domain. Furthermore, these systems support confidentiality and integrity properties, but not
+access control.
+
+Extending sensor network software platforms with support for secure interactions between domains
+has been studied in previous research on SSL for sensor networks \cite{10.1109/WAINA.2009.47}.
+However, that work was focused on extending the Internet to sensor networks (aka ``IP for
+WSNs''), whereas SpartanRPC is a more general system for enhancing secure communications
+\emph{within} a sensor network. Research on sensor network security has also addressed secure
+routing \cite{senroute-ahnj03}, cryptography \cite{bertoni-2006}, and hardware issues
+\cite{perrig-2004}. In contrast to these low-level systems, SpartanRPC provides language-level
+abstractions for secure RPC services.
+
+More closely related is a system for establishing fine-grained, ``node-level'' policies in
+sensor networks \cite{Claycomb:2011:NNL:1889383.1889450}. However, this work is more focused on
+group-based key negotiation and distribution, and while it does offer a policy language, it is
+rooted in implementation details and not as a separable specification. Also, that work does not
+provide a language API for integrating their system into secure applications as does SpartanRPC.
+
+Previous related work also illustrates interest in and useful applications of RPC in embedded
+networks. For example, the Marionette system uses network layer RPC for remote (PC-based)
+analysis and debugging of sensor networks \cite{whitehouse-marionette-2006}. The Fleck operating
+system provides a small pre-defined set of RPC services for sensor network applications, while
+the trustedFleck system extends this with a form a secure RPC
+\cite{hu-secfleck-2009,Hu:2010:TTW:1806895.1806900}. S-RPC provides an RPC facility for sensor
+networks that allows remote services to be added to the system dynamically \cite{5766863}.
+SpartanRPC differs from these systems in that it extends the nesC programming language (unlike
+trustedFleck) to allow programmer definition of secure RPC services (unlike S-RPC) that can be
+accessed by nodes within the network itself (unlike Marionette). SpartanRPC is similar to, and
+inspired by, TinyRPC \cite{may-tinyrpc-2007}. TinyRPC, however, does not provide security and
+has different semantics that are not as expressive as SpartanRPC's approach. In particular,
+SpartanRPC allows asynchronous invocations to be sent to a dynamically selected subset of
+neighbors.
+
+Teeny\textsc{lime} allows application programs to access an abstract ``tuple space'' that is the
+union of tuple spaces on the local node and the immediately neighboring nodes
+\cite{Costa:2007:PWS:1516124.1516153}. This provides an alternative to RPC for uniformly
+accessing remote and local data. However, interaction with the middleware is by way of a
+dedicated API; there is no attempt to provide a true RPC mechanism. Also Teeny\textsc{lime} does
+not address issues of access control.
+
+Secure Middleware for Embedded Peer to Peer systems (SMEPP) is a general framework for creating
+security sensitive applications from a distributed network of embedded peers
+\cite{Brogi:2008:SME:1363370.1363548}. SMEPP Light \cite{Vairo:2008:SMW:1594978.1595054} is a
+reduced version of SMEPP to address the resource constraints of wireless sensor networks. SMEPP
+Light provides a publish/subscribe communication model using directed diffusion
+\cite{intanagonwiwat-2003} to distribute ``events'' to all subscribers and symmetric key
+cryptography to provide confidentiality and data integrity within a group of nodes. However,
+SMEPP Light is not integrated into a programming language and does not provide a remote
+procedure call mechanism. Furthermore, SMEPP Light only supports a simple model of access
+control based on group membership.
+
+High level macro\-programming languages such as Kairos \cite{springerlink:10.1007/1150259312},
+and Regiment \cite{Newton:2007:RMS:1236360.1236422} provide a way to program the entire network
+as a single entity. These systems attempt to hide not only the inter-node communication from the
+programmer, but also the entire node level programs. SpartanRPC operates at a much lower level
+making it potentially more flexible and also, unlike these macro\-programming systems,
+SpartanRPC addresses access control issues in networks containing multiple security domains.
+
+Whole network programming of wireless sensor networks has also been investigated using mobile
+agents in systems such as Agilla \cite{Fok:2009:AMA:1552297.1552299} and Wiseman
+\cite{Gonzalez-Valenzuela:2010:PMW:1891545.1891566}. However, like the macro\-programming
+systems mentioned previously, neither of these systems address issues related to access control
+in the presence of multiple security domains.
+
+% From the GPCE paper
+
+The potential of applying staged metaprogramming techniques to sensor networks was explored in
+the functional sensor language Flask \cite{Mainland-Flask-2008}. Flask allows functional
+reactive programming (FRP)-based stream combinators to be pre-computed before network
+deployment, but it is possible to generate ill-typed Flask object code since cross-stage static
+type checking is not performed. Hume \cite{Hume} is a domain specific language for real-time
+embedded device programming. It includes a metaprogramming layer but that layer is more like
+nesC's configuration files in that there is a very restricted syntax for a few special
+metaprogramming operations including component wiring, macros, and code templating.
+
+MetaML \cite{Taha-MetaML,DBLP:conf/icess/Taha04} and MetaHaskell \cite{mainland12} are
+foundations the work described here builds on. MetaHaskell does support heterogeneous language
+staging where the lower stage language is defined by a plug-in and several instantiations have
+been defined including one for a low-level C-like language. Like this dissertation's approach,
+they guarantee type safety of all lower stage code produced. They use a more traditional
+metaprogramming model, however, not the \newterm{process separation} model needed for embedded
+systems metaprogramming where different stages execute on different machine architectures and in
+different address spaces. Also neither MetaML nor MetaHaskell address the issues of
+metaprogramming module composition and type specialization. In contrast, Scalaness follows the
+foundational work on Framed ML (\fml) \cite{FramedML}; \autoref{section-framedml} discusses how
+it serves as the theoretical underpinning of the Scalaness system.
+
+Lightweight Modular Staging \cite{Rompf-LMS} describes a method of expressing staged
+computations using a Scala host framework without any compiler modifications. The approach
+allows cross-stage type safety but does not support \newterm{dynamic type construction}, a
+method by which second stage types can be manipulated as first stage values. This feature
+provided by Scalaness is important for optimizing the layout of data structures by tuning the
+types used for their members.
+
+Actor based sensor metaprogramming has been studied in \cite{cheong07}; this work also focuses
+on high level dynamic reprogrammability but is untyped. More broadly, metaprogramming is known
+to be useful for increasing the efficiency of systems applications. One example is Tempo
+\cite{289140}, a system that integrates partial evaluation and type specialization for
+increasing efficiency of systems applications. Ur \cite{UrPLDI10} allows for type safe
+metaprogramming for web applications.
+
+The units of staged code composition in nesT are \emph{modules}. Countless different module
+systems exist, but they are primarily designed to achieve separate compilation and sound linking
+\cite{Cardelli-1997}.The different design goals of nesT lead to different design choices in nesT
+modules. For example, data crossing nesT module boundaries needs to conform to the property of
+process separation, a non-issue in standard module system designs. In addition, nesT modules
+allow values/types across the boundary of modules to be flexibly constructed, including dynamic
+construction of types. Module systems such as ML modules \cite{macqueen84} and Units
+\cite{flatt98units} allow types to be imported/exported as Scalaness supports. However, there
+are several features of ML modules including type hiding that Scalaness does not aim to support.
+
+NesT modules are more expressive in their support of first class modules as values and the
+possibility of dynamic construction of ``type exports.'' That said, first class modules are not
+new \cite{99620,ancona01calculus}. The novelty of nesT arises in its application to program
+staging and the incorporation of dynamic type construction.
+
+The type parametricity of System F and F$_\le$ \cite{Cardelli-1985}, and the practical type
+systems it inspired such as Java's generics, do not treat types as first class values. C++
+templates support types as meta values in template expansion, but type safety of generated code
+is not guaranteed without full template expansion. Concepts \cite{gregor06:_concepts} improves
+on this, but types are still not first class values.
+
+\subsection{Summary of Contributions}
+
+The main contributions of this work include a demonstration, for the first time, of the
+feasibility of using trust management in resource constrained embedded systems such as sensor
+networks. No previous work has attempted to implement support for such a general and flexible
+authorization system on such small devices. Previous work on sensor network security has tended,
+instead, to focus on low level issues, e.~g., providing confidentiality on links, or on
+relatively ad-hoc solutions to specific problems, e.~g., key distribution.
+
+In contrast, the SpartanRPC language, together with its implementation in \Sprocket, provide
+language based support for general purpose distributed authorization in sensor networks. Trust
+management authorization can now be used as a primitive for building more elaborate security
+services in complex embedded networks spanning multiple security domains where fine grained
+access control is required. SpartanRPC also provides a new remote procedure call discipline for
+nesC featuring asynchronous invocations and an ability to dynamically control the subset of
+neighbors to which each remote invocation is directed.
+
+This work also introduces Scalaness/nesT as a well founded, two stage programming system for
+developing general embedded applications. The foundations of Scalaness are presented in the
+distilled languages DScalaness and DnesT. An implementation of the system has been created by
+modifying the open source Scala compiler.
+
+Scalaness offers a unique combination of staging with cross-stage type safety, process
+separation, and dynamic type construction that make it a powerful tool for creating flexible and
+efficient embedded applications. Scalaness treats the trust management problem as simply one
+application of many, and this work demonstrates Scalaness by using it to re-implement a solution
+to embedded trust management in sensor networks.
+
+This work also describes the use of both SpartanRPC and Scalaness on a realistic field example
+with non-trivial application requirements. This example shows that both systems can be used to
+solve real-world problems and are not merely toy systems of theoretical interest only.
 
 \section{Dissertation Organization}
 
-The rest of this dissertation is organized as follows. In \autoref{chapter-trust-management} I
-describe trust management systems in general and motivate their use in sensor network
-applications. In \autoref{chapter-spartanrpc-sprocket} I describe the direct approach to
-providing useful trust management authorization in sensor networks based on SpartanRPC and
-Sprocket. In \autoref{chapter-nest-scalaness} I describe the staged approach based on nesT and
-Scalaness. In \autoref{chapter-evaluation} I show an evaluation of these systems as applied to
-the extended example. Finally in \autoref{chapter-conclusion} I conclude.
+The rest of this dissertation is organized as follows. Trust management systems are described,
+in general, in \autoref{chapter-trust-management}, outlining the different features provided by
+common trust management systems and motivating their use. Special focus is given to the \RT\
+family of trust management systems used in this work. The design of SpartanRPC is described, as
+well as the details of its implementation, in \autoref{chapter-spartanrpc-sprocket}. Of
+particular note is the description of the added support for $RT_0$ trust management to a general
+RPC mechanism. Scalaness and nesT are introduced in more detail in
+\autoref{chapter-dscalaness-dnest}, and then the syntax and semantics of both languages are
+described, using simplified ``distilled'' versions of those languages called
+\newterm{DScalaness} and \newterm{DnesT}. The implementation of the practical Scalaness/nesT
+system is described in \autoref{chapter-scalaness-nest}, relating the features of the
+implementation to the earlier foundational presentation. An evaluation of both systems is
+provided in \autoref{chapter-evaluation} using simple test programs in the context of a
+realistic field example. The conclusion is documented in \autoref{chapter-conclusion}. Finally,
+in \autoref{chapter-sample} the full source code of a simple Scalaness/nesT sample is
+demonstrated, with commentary.
 
 %%% Local Variables: 
 %%% mode: LaTeX

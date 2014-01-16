@@ -5,10 +5,10 @@
 //-----------------------------------------------------------------------
 package edu.uvm.scalaness
 
-import edu.uvm.mininess.MininessTypes
+import edu.uvm.nest.NesTTypes
 
-class TypeAbbreviation( val fullType: String, val params: List[String]) {
-    val nesTType: MininessTypes.Representation = MininessTypes.Int32
+class TypeAbbreviation(val fullType: String, val params: List[String]) {
+    val nesTType: NesTTypes.Representation = NesTTypes.Int32
     val numParams = params.length
     
     //def toNesTModuleType(): (Map[TypeVariable, Representation], Module) {
@@ -18,7 +18,7 @@ class TypeAbbreviation( val fullType: String, val params: List[String]) {
       println("This is a NesTModuleType")
     }
     
-    def getNesTType(): MininessTypes.Representation = {
+    def getNesTType(): NesTTypes.Representation = {
       return nesTType
     }
     
@@ -36,5 +36,4 @@ class TypeAbbreviation( val fullType: String, val params: List[String]) {
       returnString
     }
     
-
 }

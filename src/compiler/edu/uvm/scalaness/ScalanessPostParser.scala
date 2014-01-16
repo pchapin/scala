@@ -2,24 +2,29 @@
 // FILE    : ScalanessPostParser.scala
 // SUBJECT : New compiler phase for handling AST manipulations immediately after parsing.
 // AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
-//
 //-----------------------------------------------------------------------
 package edu.uvm.scalaness
 
 import scala.tools.nsc._
 import scala.tools.nsc.plugins.PluginComponent
+import scala.tools.nsc.reporters.Reporter
 import scala.tools.nsc.transform.Transform
 import scala.tools.nsc.symtab.Flags
 import java.io.File
-import edu.uvm.mininess.MininessTypes
+import edu.uvm.nest.NesTTypes
 
 /**
- * This class implements a plugin component using tree transformers.
- * 
- * This class originally took settings: ConfigurationSettings. This allowed it to access the
- * Scalaness configuration. Currently a ConfigurationSettings object is created in Scalaness-
- * Typer but getting access to it from here is awkward. For the now I'm just hard coding paths
- * into the compiler. Obviously that is very lame.
+ * This class injects boilerplate into the program's AST after parsing.
+ *
+ * This class is implemented as a plugin component using tree transformers providing a new phase
+ * to run immediately after parsing (but before type checking). This phase is "manually" added
+ * to the phase pipeline in the compiler source code. I can't tell if this approach is hackish
+ * or elegant. In any case it will facilitate adaption to the plugin version of Scalaness if
+ * that ever again becomes a reality.
+ *
+ * Be aware that this phase runs before name resolution and type checking. Thus names from the
+ * program are "raw" and not yet put into canonical form. This creates some guesswork in the
+ * analysis but the implementation here works well enough.
  */
 class ScalanessPostParser(val global: Global) extends PluginComponent with Transform {
   import global._
@@ -32,21 +37,20 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
 
   def newTransformer(unit: CompilationUnit) = new PostParserTransformer
 
-  // The methods surrounded by '=' are currently (nearly) duplicated in ScalanessTyper.scala.
-  // They should be factored out if possible. However, the methods are not identical so some
-  // sort of parameterization of them might be necessary to handle the differences.
-  //=============================================================================================
-
   /*
-   * Check to see if last item in the class definition is a string literal.
+   * Check to see if last item in the class or object definition is a string literal.
    *
    * @param lastItem The AST of the last item in a class definition.
+   *
    * @return Some( (shortName, fullName) ) if the last item is a string literal. Here shortName
    * is the value of the string literal and fullName is the full path to the inclusion. This
    * method does not check if the inclusion file actually exists. None is returned if the last
    * item is not a string literal.
    */
-  private def checkForMininessInclusion(lastItem: Tree) = {
+  private def checkForNesTInclusion(lastItem: Tree) = {
+    // TODO: In theory we should check that the class/object extends NesTComponent.
+    // That would be complicated to do here since name resolution has not yet occured.
+
     lastItem match {
       // The last item is a literal of some kind...
       case Literal(constantValue) => {
@@ -56,9 +60,8 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
         else {
           val Constant(value) = constantValue
 
-          // I depend on the fact that inclusionPrefix has a default value.
-          // val Some(inclusionPrefix) = settings("inclusionPath")
-          val inclusionPrefix = "."
+          // Here I depend on the fact that inclusionPrefix has a default value.
+          val Some(inclusionPrefix) = scalanessSettings("inclusionPath")
 
           val fullName = inclusionPrefix + File.separator + value.asInstanceOf[String]
           Some(value.asInstanceOf[String], fullName)
@@ -72,7 +75,7 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
 
 
   /**
-   * Extracts the type and value parameters of a class representing a Mininess module.
+   * Extracts the type and value parameters of a class representing a nesT module.
    *
    * @param body A collection of AST roots that define the body of the class.
    * @return A pair of maps where the first map takes a type parameter name to its upper bound
@@ -81,15 +84,15 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
   private def extractTypeAndValueParameters(body: List[Tree]) = {
     // TODO: Report errors with proper source position information.
 
-    var typeParameterDeclarations = Map[String, MininessTypes.Representation]()
-    var valueParameterDeclarations = Map[String, MininessTypes.Representation]()
+    var typeParameterDeclarations = Map[String, NesTTypes.Representation]()
+    var valueParameterDeclarations = Map[String, NesTTypes.Representation]()
     for (bodyItem <- body) {
       bodyItem match {
         case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
           // TODO: Handle the case where there are multiple constructors.
           if (name.toString == "instantiate" /* "<init>" */) {
             if (vparamss.length > 1)
-              reporter.error(null, "Mininess modules can't have multiple parameter lists")
+              reporter.error(null, "NesT modules can't have multiple parameter lists")
 
             vparamss match {
               case List() => // No parameters at all. Just return two empty maps.
@@ -141,10 +144,47 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
     (typeParameterDeclarations, valueParameterDeclarations)
   }
 
-  //=============================================================================================
 
   /**
-   * Process the body of a class or module definition to see if it contains a Mininess inclusion.
+   * Compute the lowered version of the nesT type. Currently when generating boilerplate the
+   * parameter types of the instantiate method are converted to strings and then immediately
+   * lifted. Those lifted types are passed back to this method and lowered again. Ultimately the
+   * input to this method should come from the ModuleType annotation on the class/object
+   * instead (and the name of the method should be changed accordingly).
+   * 
+   * @param liftedType The nesT type to lower.
+   * @param The AST of the lowered Scala type.
+   */
+  private def lowerType(reporter: Reporter, liftedType: NesTTypes.Representation): Tree = {
+    import NesTTypes._
+
+    val translation: Map[Representation, Tree] =
+      Map(
+        Char   -> Ident(TypeName("Char"  )),
+        Int8   -> Ident(TypeName("Int8"  )),
+        Int16  -> Ident(TypeName("Int16" )),
+        Int32  -> Ident(TypeName("Int32" )),
+        UInt8  -> Ident(TypeName("UInt8" )),
+        UInt16 -> Ident(TypeName("UInt16")),
+        UInt32 -> Ident(TypeName("UInt32")),
+        ErrorT -> Ident(TypeName("ErrorT")))
+
+    liftedType match {
+      case Array(elementType, size) =>
+        AppliedTypeTree(Ident(TypeName("Array")),
+                        List(lowerType(reporter, elementType)))
+
+      case _ =>
+        translation.getOrElse(liftedType, {
+          reporter.error(null, "type " + liftedType + " not yet supported. Using Int16")
+          Ident(TypeName("Int16"))
+        })
+    }
+  }
+
+
+  /**
+   * Process the body of a class or module definition to see if it contains a nesT inclusion.
    * If it does, then inject appropriate material, etc.
    *
    * @param tparams The type parameters of the enclosing class (an empty list for a module).
@@ -157,51 +197,57 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
     if (body.size == 0) impl
     else {
       val lastItem = body(body.size - 1)
-      checkForMininessInclusion(lastItem) match {
+      checkForNesTInclusion(lastItem) match {
         case None => impl
         case Some( (shortName, fullName) ) => {
-          // This is a hackish way of getting (for example) ExampleC from ExampleC.nc.
-          val MininessComponentName = shortName.substring(0, shortName.lastIndexOf('.'))
-          val reparseName = fullName.replace(".nc", ".i")
+          // This is a hackish way of getting (for example) ExampleC from ExampleC.nt.
+          val NesTComponentName = shortName.substring(0, shortName.lastIndexOf('.'))
+          val reparseName = fullName.replace(".nt", ".i")
 
           val (typeParameters, valueParameters) = extractTypeAndValueParameters(body)
           // println(s"typeParameters = $typeParameters, valueParameters = $valueParameters")
 
-          // Compute 'var someName: SomeType = null' for each type and value parameter.
+          // Compute 'var someName: MetaType[SomeType] = null' for each type and value parameter.
           // TODO: Be sure appropriate imports are available.
-//          val typeVars = for ( (typeName, typeType) <- typeParameters ) yield {
-//            println(s"typeName = $typeName; typeType = $typeType")
-//            treeBuilder.makePatDef(
-//              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
-//              Typed(Ident("sc_" + typeName), AppliedTypeTree(Ident("MetaType"), List(Ident(Lifter.lowerType(reporter, typeType.toString))))),
-//              Literal(Constant("null")))
-//          }
-//          val valueVars = for ( (valueName, valueType) <- valueParameters) yield {
-//            treeBuilder.makePatDef(
-//              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
-//              Typed(Ident("sc_" + valueName), TypeTree(Ident(Lifter.lowerType(reporter, valueType.toString)))),
-//              Literal(Constant("null")))
-//          }
+          val typeVars = for ( (typeName, typeType) <- typeParameters ) yield {
+            // println(s"typeName = $typeName; typeType = $typeType")
+            treeBuilder.makePatDef(
+              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
+              Typed(Ident("sc_" + typeName),
+                    AppliedTypeTree(Ident(TypeName("MetaType")),
+                                    List(lowerType(reporter, typeType)))),
+              Literal(Constant(null)))
+          }
+          val valueVars = for ( (valueName, valueType) <- valueParameters) yield {
+            treeBuilder.makePatDef(
+              Modifiers(Flags.PRIVATE | Flags.MUTABLE),
+              Typed(Ident("sc_" + valueName),
+                    lowerType(reporter, valueType)),
+              Literal(Constant(null)))
+          }
 
           // Compute 'val abstractSyntax =
           //            Parser.reparse("ExampleC.i", List("firstType", "secondType"))'
           // TODO: Be sure appropriate imports are available.
-          val typeNames = for ( (typeName, _) <- typeParameters ) yield Literal(Constant(typeName))
+          val typeNames =
+            for ( (typeName, _) <- typeParameters ) yield Literal(Constant(typeName))
           val typeNameList =
             Apply(Ident("List"), typeNames.toList)
           val reparseInvocation =
-            Apply(Select(Ident("Parser"), "reparse"), List(Literal(Constant(s"$reparseName")), typeNameList))
-          val abstractSyntaxVal = treeBuilder.makePatDef(
-            Modifiers(Flags.PRIVATE),
-            Ident("abstractSyntax"),
-            reparseInvocation)
+            Apply(Select(Ident("Parser"), "reparse"),
+                  List(Literal(Constant(s"$reparseName")), typeNameList))
+          val abstractSyntaxVal =
+            treeBuilder.makePatDef(
+              Modifiers(Flags.PRIVATE),
+              Ident("abstractSyntax"),
+              reparseInvocation)
 
           // Display the generated code if requested.
           val Some(displayGenerated) = scalanessSettings("displayGenerated")
           if (displayGenerated == "true") {
-            println(s"Code generated into $MininessComponentName...")
-//            println(s"\t$typeVars")
-//            println(s"\t$valueVars")
+            println(s"\nCode generated into $NesTComponentName...")
+            println(s"\t$typeVars")
+            println(s"\t$valueVars")
             println(s"\t$abstractSyntaxVal")
           }
 
@@ -213,7 +259,7 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
             bodyItem match {
               case someDef @ DefDef(_, name, _, _, _, _) =>
                 if (name.toString == "<init>")
-                  List(someDef) ++ abstractSyntaxVal
+                  List(someDef) ++ typeVars.flatten ++ valueVars.flatten ++ abstractSyntaxVal
                 else
                   List(someDef)
               case _ => List(bodyItem)
@@ -243,11 +289,11 @@ class ScalanessPostParser(val global: Global) extends PluginComponent with Trans
      */
     def postTransform(tree: Tree): Tree = tree match {
 
-      // For class definitions, see if they provide a Mininess inclusion.
+      // For class definitions, see if they provide a nesT inclusion.
       case ClassDef(mods, name, tparams, impl) =>
         treeCopy.ClassDef(tree, mods, name, tparams, processClassOrModuleDef(tparams, impl))
 
-      // For module definitions, see if they provide a Mininess inclusion.
+      // For module definitions, see if they provide a nesT inclusion.
       case ModuleDef(mods, name, impl) =>
         treeCopy.ModuleDef(tree, mods, name, processClassOrModuleDef(List(), impl))
 

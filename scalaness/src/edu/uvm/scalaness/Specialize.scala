@@ -1,17 +1,17 @@
 //-----------------------------------------------------------------------
 // FILE    : Specialize.scala
-// SUBJECT : Module that does the heavy lifting of specializing Mininess code.
+// SUBJECT : Module that does the heavy lifting of specializing nesT code.
 // AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //------------------------------------------------------------------------
 package edu.uvm.scalaness
 
 import reflect.runtime.universe._
-import edu.uvm.mininess.ASTNode
-import edu.uvm.mininess.Mini
-import edu.uvm.mininess.parser.MininessLexer._
+import edu.uvm.nest.ASTNode
+import edu.uvm.nest.Mini
+import edu.uvm.nest.parser.NesTLexer._
 
 /**
- * Module that does the heavy lifting of specializing Mininess code.
+ * Module that does the heavy lifting of specializing nesT code.
  */
 object Specialize {
 

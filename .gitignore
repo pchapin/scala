@@ -40,7 +40,7 @@
 /src/intellij/*.iml
 /src/intellij/*.ipr
 /src/intellij/*.iws
-/.cache
+**/.cache
 /.idea
 /.settings
 
@@ -50,6 +50,9 @@
 #####
 # The material below was added as part of the Scalaness project
 ######
+
+# Used to hold redirected error messages.
+errors.txt
 
 *.jar
 *~
@@ -61,9 +64,4 @@ classes
 scaladoc
 
 # eclipse stuff
-/src/eclipse/continuations-library/.cache
-/src/eclipse/partest/.cache
-/src/eclipse/reflect/.cache
-/src/eclipse/scala-compiler/.cache
-/src/eclipse/scala-library/.cache
-/src/eclipse/scalap/.cache
+.cache

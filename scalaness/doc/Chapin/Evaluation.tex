@@ -2,37 +2,87 @@
 \chapter{Evaluation}
 \label{chapter-evaluation}
 
-In this chapter I present results of evaluating the performance in both space and time of
-the two systems described previously.
+This chapter presents the results of evaluating the performance of Sprocket and Scalaness/ nesT.
+The results are presented in terms of both simple ``toy'' programs that explore specific issues
+in isolation, and on a larger, realistic application employing trust management authorization
+that demonstrates the applicability of the systems in real world scenarios.
 
-\section{Overhead Analysis of \Sprocket}
-\label{section-sprocket-overhead}
+\section{Field Example}
+\label{section-field-example}
 
-The practicality of \Sprocket\ depends on its cost in terms of memory and processor overhead. In
-this section I report on performance measurements made on the implementation. In summary, I show
-that the combined use of public and private key cryptography in the underlying security protocol
-imposes a low amortized cost over time, despite high costs for initial authorizations.
+To evaluate the performance of SpartanRPC and Scalaness in a real application setting, both
+systems are used to implement secure versions of data collection and sampling control protocols
+in an environmental monitoring system. The Snowcloud system
+\cite{frolik-skalka-snowcloudtr,moeser-walker-skalka-frolik-wsc11} is a wireless sensor network
+developed at the University of Vermont for snow hydrology research applications. It is based on
+the MEMSIC TelosB mote platform running TinyOS, and has seen multiple field deployments. Typical
+deployed systems comprise 4-8 sensor nodes but the technology is scalable to arbitrary numbers
+of nodes. For data collection and sampling rate control, the system also includes a handheld
+``Harvester'' device. This device incorporates a TelosB mote to establish a network connection
+when in radio communication with the deployment. Users transport the device to and from
+deployment sites, and interact with the sensor node network by issuing commands from a simple
+push-button interface. A Harvester device and a deployed Snowcloud sensor tower are pictured in
+\autoref{figure-snowcloud}. The scheme described here has been implemented and tested in the UVM
+test network, which uses the same software and hardware platforms as in the active deployments.
 
-\paragraph{Test Environment and Programs.}
-Since many communication chips now support hardware AES encryption, I was primarily interested
-in demonstrating performance using that feature. In particular, the popular Tmote Sky wireless
-sensor mote \cite{tmotesky-datasheet} uses a Chipcon CC2420 transceiver with hardware
-encryption. Unfortunately, the standard TOSSIM simulation environment does not model hardware
-encryption for TinyOS 2.1, so all of my tests were performed on real hardware. I used Tmote Sky
-motes, with 16Kb of RAM, 48Kb of ROM and an 8MHz MSP430 microcontroller running TinyOS 2.1.2
-\cite{tinyos}.
+\snowcloudfig
 
-I exercised my system using both small test programs and using our implementation of the
-directed diffusion example described in \autoref{section-example}. The small test programs
-consisted of a simple client/server pair where the client repeatedly sent a message containing a
-single 16~bit value to the server. The purpose of these tests was to explore the overhead
-induced by my system with minimal obscuring effects from application logic. The percentage
-overhead observed with the small programs is thus a worst case overhead. In contrast, the
-directed diffusion example allowed me to test the behavior of the system in a more realistic,
-long-running setting. It serves as a demonstration that my system is feasible in practice, and
-allowed me to exercise my system in a multi-mote, multi-hop network environment.
+In the secured version of the Snowcloud system, the goal is to treat data collection and
+sampling rate control as protected resources requiring authorization. Furthermore, sampling rate
+modifications should require a higher, ``administrator'' level of authorization than data
+collection. That is, only system engineers should be able to perform control operations, whereas
+data end-users making field visits should be able to collect data. Snowcloud sensor node code in
+particular makes use of nearly every resource available on the mote---including timing, sensor
+I/O, radio messaging, and flash memory, not to mention CPU and main memory. Thus, it is a robust
+example of a realistically scaled application.
 
-\subsection{Memory Overhead for Security Features}
+The system described here is also informative since it can be easily ported to other similar
+application settings. That is, sensor network application settings wherein multiple users of
+various authorization levels need to interact with the same network in control or collection
+capacities, as mediated by security policy.
+
+\paragraph{A note on secure deployment.} In the \Sprocket\ version of the field example, the
+nodes are deployed with private keys embedded in ROM. The system is thus as secure as the
+tamper-resistence of the nodes permits. However, one scenario visualized with Scalaness is for
+the specialized program to be deployed using an over-the-air reprogramming system such as
+Deluge. In that case session keys negotiated by the first stage program could be exposed to
+eavesdroppers. However, this problem can be mitigated using secure over-the-air deployment
+\cite{Dutta:2006:SDN:1127777.1127826}. In any case, Scalaness does not \emph{require}
+over-the-air deployment; programming nodes in the lab prior to being physically deployed would
+also be a common scenario.
+
+\section{\Sprocket}
+\label{section-sprocket-evaluation}
+
+This section discusses the performance of the programs generated by \Sprocket\ in terms of both
+space and time. It begins by evaluating \Sprocket\ using ``toy'' programs that focus on specific
+aspects of the system's performance. Next the performance of \Sprocket\ on the field example is
+discussed. The combined use of public and private key cryptography in the underlying security
+protocol is shown to impose a low amortized cost over time, despite high costs for initial
+authorizations.
+
+Since many communication chips now support hardware AES encryption, this evaluation demonstrates
+performance using that feature. In particular, the popular Tmote Sky wireless sensor mote
+\cite{tmotesky-datasheet} uses a Chipcon CC2420 transceiver with hardware encryption.
+Unfortunately, the standard TOSSIM simulation environment does not model hardware encryption for
+TinyOS 2.1 so all tests were performed on real hardware, limiting the tests to small scale
+configurations. Tmote Sky nodes were used, with 10\,KiB of RAM, 48\,KiB of ROM and an 8\,MHz
+MSP430 microcontroller running TinyOS 2.1.2 \cite{tinyos}.
+
+The system was exercised using several small test programs. These programs consisted of a
+client/server pair where the client repeatedly sent a message containing a 16~bit value to the
+server. The purpose of these tests was to explore the overhead induced by the system with
+minimal obscuring effects from application logic. The percentage overhead observed with the
+small programs is thus a worst case overhead.
+
+A demonstration program was also created that implemented the directed diffusion algorithm
+\cite{intanagonwiwat-2003} over several nodes. This program allowed testing of the behavior of
+the system in a long-running setting, and exercised the system in a multi-mote, multi-hop
+network environment. Although the demonstration program did not perform any significant
+function, it did show that useful higher level services can be built on top of SpartanRPC.
+
+\subsection{Memory Overhead}
+\label{section-sprocket-memory-performance}
 
 The \Sprocket\ run time system uses several memory caches to hold key material, credential
 information, and the minimum model implied by the set of known credentials. These caches are
@@ -66,11 +116,9 @@ applications where these needs are more clearly known a priori, the sizes of the
 adjusted to potentially result in lower memory consumption.
 
 % The paragraphs below attempt to give a pseudo-mathematical justification for the values in the
-% table above. I've never been completely happy with it, and the paper might be stronger without
-% this mumbo-jumbo. That said, it might be valuable to say a few more words about why we think
-% the numbers above are reasonable than I'm doing in the paragraph above.
+% table above. I've never been completely happy with it.
 
-The justification for my choice of the number of items in each storage area is as follows.
+The justification for the choice of the number of items in each storage area is as follows.
 Assume a node $N_i$ offers $n_{si}$ services and has $m_i$ neighbors. In the worst case a
 session key is needed for each service on all of $N_i$'s neighbors and for every neighbor
 connecting to $N_i$'s services. The number of session keys $n_k$ is given by
@@ -79,9 +127,10 @@ n_k = \left(\sum_{j = 1}^{m_i} n_{sj}\right) + m_i n_{si}
 \end{displaymath}
 where $n_{sj}$ represents the number of services on neighbor $j$. For example if $N_i$ had five
 neighbors each offering one service and if $N_i$ offered one service, the total number of
-session keys required would be 10. In my implementation I use this value presuming a small
-number of neighbors with a small number of services on each node. I feel this is reasonable
-because SpartanRPC is a one-hop link level communication system.
+session keys required would be 10. \Sprocket\ presumes a small number of neighbors with a small
+number of services on each node. Notice, however, that this does not preclude using the system
+in a large network; SpartanRPC is a link-layer protocol and is only concerned with the immediate
+neighbors of a node.
 
 The number of public keys is related to the complexity of the access policies used by the
 services. The intersection credential mentions three public keys so in the worst case the number
@@ -91,32 +140,33 @@ keys. This suggests an upper bound closer to $n_p = 2 n_c$.
 
 In real policies, however, it is necessary for the same public key to be mentioned in more than
 one credential. For example consider a simple credential chain such as $E_1.r_1 \leftarrow
-E_2.r_2, \ldots, E_i.r_i \leftarrow E_{i+1}.r_{i+1}, \ldots, E_n.r_n \leftarrow E_0$. In this
-case the number of credentials is $n$ and the number of unique public keys is $n+1$. I feel it
-is reasonable to suppose that in realistic policies the number of credentials and the number of
-public keys are about the same. For this reason our implementation sets $n_p = n_c$.
+E_2.r_2, \ldots, E_i.r_i \leftarrow E_{i+1}.r_{i+1}, \ldots, E_n.r_n \leftarrow E_{n+1}$. In
+this case the number of credentials is $n$ and the number of unique public keys is $n+1$. It
+appears reasonable to suppose that in realistic policies the number of credentials and the
+number of public keys are about the same. For this reason \Sprocket\ sets $n_p = n_c$.
 
-Harder to judge is the number of credentials involved in real-world authorization scenarios.
-Clearly this will be application specific and will vary widely. However, two or three
+More difficult to judge is the number of credentials involved in real-world authorization
+scenarios. Clearly this will be application specific and will vary widely. However, two or three
 credentials needed to establish authorization is a reasonable assumption, since most likely
-application designers will avoid complicated policies in a sensor network setting. Thus $n_c
-\approx 3 n_d$ where $n_d$ is the number of interacting domains, assuming each domain provides a
-single protected service. I assume only two other domains will be in the immediate vicinity of a
-node $N_i$ thus causing $n_d = 3$. I then set $n_c = 12$ to provide some space for the case when
-a neighboring domain offers more than once service.
+application designers will avoid complicated policies in a resource constrained setting. Thus
+$n_c \approx 3 n_d$ where $n_d$ is the number of interacting domains, assuming each domain
+provides a single protected service. Assumming that only two other domains will be in the
+immediate vicinity of a node $N_i$, then $n_d = 3$. \Sprocket\ sets $n_c = 12$ to provide some
+space for the case when a neighboring domain offers more than once service.
 
 If every entity defines the same roles and if the policies are such that every entity is in
 every role, then the number of model tuples required is $n_m = n_r n_p^2$ where $n_r$ is the
 total number of roles involved. This value is unrealistically large, however. In a system where
 access is widely granted (cooperating domains) a value $n_m = n_r n_d$ would be more
-appropriate. My implementation assumes that $n_d$ is about three and that $n_r$ is about four or
-five. Thus I used $n_m = 16$.
+appropriate. \Sprocket\ assumes that $n_d$ is about three and that $n_r$ is about four or five,
+thus $n_m = 16$ is used.
 
 Table~\ref{table-test-program-ram} shows the overall memory consumption of two small
 client/server pairs. The baseline pair handle all communication through normal Active Message
 packets that are explicitly programmed by the user. The SpartanRPC pair uses \Sprocket\ which
 includes support for certificate distribution and verification, session key management,
-authorization logic, and MAC computations.
+authorization logic, and MAC computations. The Directed Diffusion entry shows the memory
+consumption of the demonstration program that implements that algorithm.
 
 \begin{table}[!t]
   \newcommand\T{\rule{0pt}{2.1ex}}
@@ -127,38 +177,40 @@ authorization logic, and MAC computations.
     \textit{Test Program} \T & \textit{RAM Bytes} & \textit{ROM Bytes} \\
     \hline \hline
 
-    Baseline Client   \T &  349 & 10982 \\ \hline 
-    Baseline Server   \T &  283 & 10490 \\ \hline
-    SpartanRPC Client \T & 2222 & 23108 \\ \hline
-    SpartanRPC Server \T & 2126 & 23394 \\ \hline
+    Baseline Client    \T &  349 & 10982 \\ \hline 
+    Baseline Server    \T &  283 & 10490 \\ \hline
+    SpartanRPC Client  \T & 2222 & 23108 \\ \hline
+    SpartanRPC Server  \T & 2126 & 23394 \\ \hline
+    Directed Diffusion \T & 3105 & 27826 \\ \hline
   \end{tabular}
   }
   \label{table-test-program-ram}
 \end{table}
 
-Although the overhead incurred by the \Sprocket\ runtime system is significant on our test
+Although the overhead incurred by the \Sprocket\ runtime system is significant on this test
 platform, nearly 80\% of RAM and 50\% of ROM resources are still available. Furthermore, these
-memory usage numbers scale to denser neighborhoods and extended RPC services.
+memory usage numbers scale well to denser neighborhoods and extended RPC services because many
+aspects of the runtime system, in particular the RAM reserved for SpartanRPC, are independent of
+the number of RPC services in use.
 
-% The directed diffusion application consumes 27826 bytes of ROM and 3105 bytes of RAM.
+\subsection{Transient and Steady State Processor Overhead}
+\label{section-sprocket-cpu-performance}
 
-\subsection{Transient and Steady State Processor Overhead} 
-
-The execution performance of my system displays two distinct behaviors. The first is a transient
-behavior that occurs after a node boots when certificates are exchanged and session keys are
-negotiated between the new node and its neighbors. The second is a steady-state behavior that
-occurs during normal operation. The transient overhead of my system is large but the steady
-state overhead is not. In a quasi-static environment where new nodes enter the network
-infrequently the transient costs are amortized and it is the small, steady state overhead that
-dominates.
+The execution performance of \Sprocket\ generated programs displays two distinct behaviors. The
+first is a transient behavior that occurs after a node boots when certificates are exchanged and
+session keys are negotiated, on demand, between the new node and its neighbors. The second is a
+steady-state behavior that occurs during normal operation. The transient overhead of \Sprocket\
+is large but the steady state overhead is not. In a quasi-static environment, where new nodes
+enter the network infrequently, the transient costs are amortized and it is the small, steady
+state overhead that dominates.
 
 To explore the steady state overhead three tests were conducted.
 \begin{enumerate}
 \item A baseline test where the message handling was done explicitly using traditional Active
   Message interfaces.
-\item A duties test where the \Sprocket\ system was used but no authorization was requested.
-  This is equivalent to using the authorization components \texttt{ACNullC} and \texttt{ASNullC}
-  in \autoref{figure-client-server-authorization}.
+\item A duties test where \Sprocket\ was used but no authorization was requested. This is
+  equivalent to using the authorization components \texttt{ACNullC} and \texttt{ASNullC} in
+  \autoref{figure-client-server-authorization}.
 \item A MAC test where authorization was requested but where the session key storage areas were
   preloaded with appropriate session keys.
 \end{enumerate}
@@ -167,8 +219,8 @@ Table~\ref{table-steady-state} shows the maximum rate at which messages could be
 received by the test programs mentioned above. Note that the MAC test made use of the hardware
 assisted AES support provided by the CC2420 radio chip. These results show that maximum message
 send rates decrease by a factor of 7\% due to the addition of the duties program logic, and
-further decreases by a factor of 25\% due to MAC calculations. We note that the latter overhead
-would be incurred in any system using CC2420 MAC calculations.
+further decreases by a factor of 25\% due to MAC calculations. It is noted that the latter
+overhead would be incurred in any system using CC2420 MAC calculations.
 
 \begin{table}[!t]
   \newcommand\T{\rule{0pt}{2.1ex}}
@@ -187,21 +239,29 @@ would be incurred in any system using CC2420 MAC calculations.
   \label{table-steady-state}
 \end{table}
 
-The transient runtime overhead of my system can be subdivided into three primitive operations:
+The transient runtime overhead of this system can be subdivided into three primitive operations:
 the time required to transmit and verify a certificate, the time required to build the minimum
 model, and the time required to negotiate a session key. Two of these operations require lengthy
 public key computations and dominate the transient behavior. Thus the performance in this regard
 is closely tied to the performance provided by TinyECC.
 
 TinyECC provides a number of tunable parameters that can be used to optimize performance by
-trading off space and time \cite{Liu-Peng-TinyECC-2008}. In my tests, since I had no particular
-application constraints in mind, I used the TinyECC ``out of the box.'' However, TinyECC's
-optimizations can be used to tune the performance of the system to better match a particular
-application. For example, activating the Shamir Trick cut certificate verification time in half
-at the expense of increasing RAM usage by nearly 700 bytes.
+trading off space and time \cite{Liu-Peng-TinyECC-2008}. Since the tests on this system had no
+particular application constraints in mind, the TinyECC ``out of the box.'' was used. However,
+TinyECC's optimizations can be used to tune the performance of the system to better match a
+particular application. For example, activating the Shamir Trick cut certificate verification
+time in half at the expense of increasing RAM usage by nearly 700 bytes.
 
 Table~\ref{table-transient-time} shows the times required for each of the primitive transient
-operations in our implementation.
+operations. The time required to build the minimum model is directly related to the number and
+nature of the credentials involved. In this test a collection of five representative credentials
+that included at least one of each type was used. In any case this time is entirely negligible
+compared to the other transient operations.
+
+% There might be a termination problem with my algorithm for updating the minimum model despite
+% the fact that the method I'm using is theoretically guaranteed to terminate. In particular if
+% the model is too large it might be possible for the algorithm to run infinitely, alternating
+% between replacing two different tuples in the limited space.
 
 \begin{table}[tbhp]
   \newcommand\T{\rule{0pt}{2.1ex}}
@@ -219,38 +279,28 @@ operations in our implementation.
   \label{table-transient-time}
 \end{table}
 
-The time required to build the minimum model is directly related to the number and nature of the
-credentials involved. In my test I used a collection of five representative credentials, one of
-each type. In any case this time is entirely negligible compared to the other transient
-operations.
-
-% There might be a termination problem with my algorithm for updating the minimum model despite
-% the fact that the method I'm using is theoretically guaranteed to terminate. In particular if
-% the model is too large it might be possible for the algorithm to run infinitely, alternating
-% between replacing two different tuples in the limited space.
-
 The time quoted for session key negotiation represents the time required for both negotiating
 partners to compute the session key. In the current implementation the two negotiating nodes do
 this sequentially with the server node computing the session key before responding to the client
 node. This was done in case the session key computation failed on the server to ensure that the
 client does not falsely believe a session key was successfully negotiated.
 
-\subsection{Transient State Times for Directed Diffusion}
+\subsection{Transient Times for Directed Diffusion}
 
-As argued above, the overhead imposed by my system is primarily the time the network spends in a
-initial transient state when credentials are verified and session keys are negotiated.
+As argued above, the overhead imposed by \Sprocket\ is primarily the time the network spends in
+an initial transient state when credentials are verified and session keys are negotiated.
 Subsequently, the network enters a steady state during which the main cost is a 32\% reduction
 in \emph{maximal} message send rates due to hardware AES encryption. In order to evaluate the
-performance of my system in a realistic application, I therefore quantified the transient state
-times of the secure directed diffusion application described in \autoref{section-example}. In my
-experiments I elected a single node to repeatedly express an interest and observed how long was
-required for that interest to flood the network. This time depends on three major factors:
+performance of \Sprocket\ in a realistic application, therefore, the transient times of the
+demonstration directed diffusion application were quantified. The experiments elected a single
+node to repeatedly express an interest and observe how long was required for that interest to
+flood the network. This time depends on three major factors:
 \begin{enumerate}
 \item The number of certificates transferred.
 \item The number of neighbors for each node.
 \item The number of hops to the ``far'' edge of the network.
 \end{enumerate}
-I conducted two experiments, one on a single hop (star) network and another on a multi-hop
+Two experiments were conducted, one on a single hop (star) network and another on a multi-hop
 (mesh) network.
 
 In the single hop case, transient time $T$ can be described by the following equation:
@@ -286,7 +336,7 @@ the root to the neighbors.
   \label{table-one-hop-transient}
 \end{table}
 
-I explored the behavior of my system in a multi-hop environment by creating a linear mesh
+The behavior of the system was explored in a multi-hop environment by creating a linear mesh
 network. Each node (except the root) had a single downstream neighbor. All nodes were booted
 simultaneously and the time required for interest information to reach each node was observed.
 The policy used required only a single certificate to be transferred between nodes.
@@ -321,29 +371,29 @@ through the network. Certificates are broadcast and verified in parallel through
 upon system bootup, during the same time period required for the root's interest to propagate
 through the first and second hops.
 
-\section{SnowCloud with \Sprocket}
+\subsection{Snowcloud with \Sprocket}
 \label{section-snowcloud-sprocket}
 
-\textit{blah, blah, blah\ldots}
+To explore the real-world feasibility of using SpartanRPC and \Sprocket, the unsecured versions
+of the Harvester and sensor node programs described in \autoref{section-field-example} were
+enhanced to use SpartanRPC for access control.
 
-\subsection{Security Policies}
-
-To specify and implement the security policies informally described in
-\autoref{chapter-introduction}, I consider the sensor network and the Harvester single node
-``network'' as separate security domains, each with their own set of credentials. The sensor
-network is always endowed with administrator-level credentials. If a Harvester is to be used by
-a system engineer, it is also endowed with administrator-level credentials, whereas a Harvester
-to be used by a data end-user is only endowed with user-level credentials. When a Harvester is
-introduced to the sensor network, its resource accesses are mediated by its authorization level.
-Since credentials are unforgeable, a user-level Harvester can never be used for sensor network
-control even if it is reprogrammed.
+To specify and implement the security policies informally described previously, the sensor
+network and the Harvester single node ``network'' were considered as separate security domains,
+each with its own set of credentials. The sensor network is always endowed with
+administrator-level credentials. If a Harvester is to be used by a system engineer, it is also
+endowed with administrator-level credentials, whereas a Harvester to be used by a data end-user
+is only endowed with user-level credentials. When a Harvester is introduced to the sensor
+network, its resource accesses are mediated by its authorization level. Since credentials are
+unforgeable, a user-level Harvester can never be used for sensor network control even if it is
+reprogrammed.
 
 Sensor nodes within the network possess four credentials, as follows. In these credentials the
 Snowcloud domain is abbreviated $\mathit{SC}$. Authority to collect data and control sensors in
 the network are governed by the roles $\mathit{SC.Col}$ and $\mathit{SC.Con}$, respectively.
-Credential (1) says that any node with control authority also has collection authority. (2) says
-that nodes in the Snowcloud domain have control authority. (3) says that any entity in a
-Snowcloud collaborator's $\mathit{Usr}$ role has collection authority. (4) says that the node
+Credential (1), below, says that any node with control authority also has collection authority.
+(2) says that nodes in the Snowcloud domain have control authority. (3) says that any entity in
+a Snowcloud collaborator's $\mathit{Usr}$ role has collection authority. (4) says that the node
 identified by $\mathit{Nid}$ is in the Snowcloud domain.
 \begin{mathpar}
 (1)\quad \cred{SC.Col}{SC.Con}{}
@@ -354,27 +404,31 @@ identified by $\mathit{Nid}$ is in the Snowcloud domain.
 
 (4)\quad \cred{SC.Node}{NId}{}
 \end{mathpar}
-When invoking remote services, the node will do so on behalf of the entity $\mathit{Nid}$. It
+When invoking remote services, the node will do so on behalf of the entity $\mathit{NId}$. It
 will also be imaged with the $\mathit{NId}$ private key for session key negotiation.
 
-Any Harvester within the Snowcloud domain is then provided with the credential
-$\cred{SC.Node}{HId}{}$ and the $\mathit{HId}$ private key issued by Snowcloud domain
-administration. This will provide that Harvester with collection and control authority in the
-domain. For Harvesters to be provided to collaborators, the Snowcloud administrators issue a
-credential establishing the institution as a collaborator, while the institution itself may
-define and manage policy for their $\mathit{Usr}$ role membership. For example, the University
-of New Hampshire ($\mathit{UNH}$) can be established as a collaborator with credential (5)
-issued by Snowcloud domain administration, and may specify role membership with the credential
-(6) issued by UNH domain administration:
+Any Harvester within the Snowcloud domain is given the credential $\cred{SC.Node}{HId}{}$ and
+the $\mathit{HId}$ private key issued by Snowcloud domain administration. This will provide that
+Harvester with collection and control authority in the domain. For Harvesters to be provided to
+collaborators, the Snowcloud administrators issue a credential establishing the institution as a
+collaborator, while the institution itself may define and manage policy for their $\mathit{Usr}$
+role membership. For example, the University of New Hampshire, represented by \RT\ entity
+$\mathit{UNH}$, can be established as a collaborator with credential (5), below, issued by
+Snowcloud domain administration, and may specify role membership with the credential (6) issued
+by UNH domain administration:
 \begin{mathpar}
 (5)\quad \cred{SC.Collab}{{UNH}}{}
 
 (6)\quad \cred{{UNH}.Usr}{UsrID}{}
 \end{mathpar}
 These two credentials, along with the $\mathit{UsrID}$ private key, are imaged on Harvesters
-issued to UNH collaborators for data collection, but which remain unauthorized for control.
+used by UNH collaborators for data collection, but which remain unauthorized for control.
+Significantly UNH could program their own Harvester nodes without the Snowcloud domain being
+involved aside from providing credential (5) above. The policy set by UNH to decide who,
+exactly, is in the $\mathit{UNH.Usr}$ role is of no concern to the Snowcloud domain
+administrators.
 
-\subsection{Implementation}
+\subsubsection{Implementation}
 
 Resources themselves are accessed through a secure command dissemination protocol, that is
 modeled upon the TinyOS Dissemination protocol (as described in TEP 118). In short, protected
@@ -383,33 +437,56 @@ Commands are communicated to the network over these channels, and different chan
 for different sorts of commands.
 
 In more detail, command broadcast services can be specified as a duty in a remotable interface:
-\begin{Verbatim}
-interface SpDisseminationUpdate { duty void change(command_t new_value); }
-\end{Verbatim}
-To implement e.g.~the control command channel, the following module can be defined and included
-on sensor nodes in the Snowcloud domain:
-\begin{Verbatim}
+
+\singlespace
+\vspace{1.0ex}
+\begin{lstlisting}[language=nesC]
+interface SpDissemUpdate {
+    duty void change( command_t new_value );
+}
+\end{lstlisting}
+\vspace{1.0ex}
+\primaryspacing
+
+To implement, e.g., the control command channel, the following module can be defined and
+included on sensor nodes in the Snowcloud domain:
+
+\singlespace
+\vspace{1.0ex}
+\begin{lstlisting}[language=nesC]
 module ControlDissemC {
-    provides remote interface SpDisseminationUpdate requires "SC.Con";
-    uses            interface SpDisseminationUpdate as NeighborUpdate;
-    provides        interface ComponentManager;
+    provides remote
+      interface SpDissemUpdate requires "SC.Con";
+
+    uses interface SpDissemUpdate as NeighborUpdate;
+    provides interface ComponentManager;
 }
 implementation { ... }
-\end{Verbatim}
-In the implementation, the provided $\verb+SpDisseminationUpdate+$ interface accepts command
+\end{lstlisting}
+\vspace{1.0ex}
+\primaryspacing
+
+In the implementation, the provided $\verb+SpDissemUpdate+$ interface accepts command
 invocations from neighbors, but requires them to be authorized for the $\mathit{SC.Con}$ role.
-Commands are relayed to all other neighbors (i.e.~disseminated) via the used
+Commands are relayed to all other neighbors (i.e., disseminated) via the used
 $\verb+NeighborUpdate+$ interface; those neighbors are identified by the provided
 $\verb+ComponentManager+$.
 
 To use this component, both sensor and Harvester nodes can configure it through the following
 component instantiation and wiring, where the component's $\verb+NeighborUpdate+$ interface is
 wired remotely to neighbors:
-\begin{Verbatim}
+
+\singlespace
+\vspace{1.0ex}
+\begin{lstlisting}[language=nesC]
 components ControlDissemC as ControlChan;
 activate "*" for 
-  ControlChan.NeighborUpdate -> [ControlChan].SpDisseminationUpdate;
-\end{Verbatim}
+    ControlChan.NeighborUpdate ->
+        [ControlChan].SpDissemUpdate;
+\end{lstlisting}
+\vspace{1.0ex}
+\primaryspacing
+
 Note that a node must be endowed with the appropriate credentials for this wiring to be useful.
 
 This same code pattern can be used to implement a data collection request channel, protected by
@@ -418,89 +495,143 @@ command invocation, sensor nodes will modify their behavior appropriately, where
 to authorized data collection requests sensor nodes will report their data using collection tree
 protocol (TEP 123) to the Harvester.
 
-\subsection{Results}
+\subsubsection{Results}
 
 Results can be characterized according to both the user experience and to quantitative aspects.
-As detailed in \autoref{section-sprocket-overhead}, a one-time transient overhead is imposed for
-initial credential exchange and session key negotiation when a Harvester is first introduced to
-the network. However, since data collection for a network after several months of deployment can
-take up to an hour, this overhead is relatively insignificant. And steady-state overhead is
-small, and does not significantly affect data collection rates. Further, subsequent field visits
-will not impose transient overhead since negotiated keys can be cached in non-volatile memory.
-Thus, authorized user experience is not significantly impacted by the addition of security.
+As detailed in \autoref{section-sprocket-cpu-performance}, a one-time transient overhead is
+imposed for initial credential exchange and session key negotiation when a Harvester is first
+introduced to the network. However, since data collection for a network after several months of
+deployment can take up to an hour, this overhead is relatively insignificant. And steady-state
+overhead is small, and does not significantly affect data collection rates. Thus, authorized
+user experience is not negatively impacted by the addition of security.
 
 From a quantitative perspective, the most important measurements to consider for this
-application, beyond the general ones already considered in \autoref{section-sprocket-overhead},
-are RAM and ROM consumption of the insecure and secured versions of the Harvester collection
-protocol. We have to consider whether layering SpartanRPC security over a realistic application
-will overrun the resources available to a mote platform. Relevant measurements are as follows.
+application are RAM and ROM consumption of the unsecure and secured versions of the Harvester
+collection protocol. It must be considered whether layering SpartanRPC security over a realistic
+application will overrun the resources available to a node. Relevant measurements are shown in
+\autoref{table-sprocket-snowcloud}.
+
 \begin{table}[h]
-\centering \newcommand\T{\rule{0pt}{2.1ex}} \caption{RAM and ROM
-  consumption for Snowcloud versions} {
+\centering \newcommand\T{\rule{0pt}{2.1ex}}
+\caption{RAM and ROM comparison for SpartanRPC Snowcloud} {
 \begin{tabular}{|l|c|c|}
 \hline
 \emph{Program} \T       & \emph{RAM Bytes} & \emph{ROM Bytes} \\ \hline\hline
-Insecure Harvester \T   &             2274 &            24316 \\ \hline
+Unsecure Harvester \T   &             2274 &            24316 \\ \hline
 Secure Harvester \T     &             4771 &            35834 \\ \hline
-Insecure Sensor Node \T &             2868 &            36254 \\ \hline
+Unsecure Sensor Node \T &             2868 &            36254 \\ \hline
 Secure Sensor Node \T   &             5417 &            48616 \\ \hline
 \end{tabular}
 }
-\label{table-snowcloud}
+\label{table-sprocket-snowcloud}
 \end{table}
 
 Both RAM and ROM consumption are significantly increased by the addition of SpartanRPC security
-to this application. However, these numbers are within operating parameters, and the Sprocket
-implementation of SpartanRPC described in \autoref{section-implementation} has not yet been
-optimized for space efficiency in any way; improvements in this respect can be made but are out
-of scope for this work.
+to this application. However, these numbers are within operating parameters. Also \Sprocket\ has
+not yet been optimized so additional improvements could likely be made.
 
+\section{Scalaness/nesT}
+\label{section-scalaness-evaluation}
 
-\section{Overhead Analysis of Scalaness}
+The generality of Scalaness makes a full evaluation of the system difficult to interpret.
+However, in keeping with the aim to demonstrate trust management in embedded systems, Scalaness
+was applied to the problem of supporting trust management in the Snowcloud application in a
+manner similar to that described in \autoref{section-snowcloud-sprocket}. It should be noted,
+however, that as a general staged programming system, Scalaness can be used for many purposes;
+building authorization systems is only one application. Furthermore Scalaness could be used to
+support authorization in various ways depending on the trade offs needed between node
+efficiency, deployment frequent, and system functionality.
 
-\note{Place holder for now\ldots}
+\subsection{Snowcloud with Scalaness}
 
-\section{SnowCloud with Scalaness}
+To demonstrate a staged solution to providing trust management in Snowcloud, a Scalaness program
+called \newterm{Snowstorm} was developed. Snowstorm is intended to be run by each security
+domain participating in a deployment. It targets a conventional machine with Internet
+connectivity and arbitrary resources.
 
-\subsection{SnowStorm}
+\autoref{fig:running-snowstorm} shows two instances of Snowstorm running, $S_H$ and $S_N$, one
+by each of two administrative domains. $S_N$ is run by the sensor network administrators and is
+only interested in generating the sensor node application. $S_H$ is run by the collaborating
+domain and is only interested in generating the Harvester application. Normally, the two domains
+would probably run completely independent Scalaness programs, perhaps using a common library,
+but as a convenience during development a single program was created to serve the needs of both
+domains.
 
-I visualize a scenario where the administrative domain running the Harvester might be different
-from the administrative domain owning the sensor network. Each of these domains is its own
-$RT_0$ entity, called $H$ and $N$ respectively. $N$ defines the role \texttt{control}, the
-members of which are able to send commands to network nodes. Each node holds the following
-policy
-\begin{Verbatim}
-N.control <- H
-N.control <- N
-\end{Verbatim}
-
-It is necessary for $N$ to be made a member of $N.\textrm{control}$ so that commands can be
-forwarded from node to node during their dissemination. \note{Is there value in defining a more
-  interesting policy?}
-
-The Scalaness program, called SnowStorm, is able to generate both the Harvester and SensorBox
-applications. \autoref{fig:running-snowstorm} shows two instances of SnowStorm running, $S_H$
-and $S_N$, one by each administrative domain. $S_H$ is only interested in generating the
-Harvester application and $S_N$ is only interested in generating the SensorBox application.
-Conceptually the two domains might run completely independent Scalaness programs, but as a
-convenience during development and testing a single program was created to serve the needs of
-both domains.
-
-\begin{figure}[htbp]
+\begin{figure}[t]
   \input{Figures/SnowStorm}
   \centerline{\raise 1em\box\graph}
-  \caption{Running SnowStorm}
+  \caption{Running Snowstorm}
   \label{fig:running-snowstorm}
 \end{figure}
 
-$S_H$ and $S_N$ are assumed to both have Internet access and run continuously. $H$ requests
-authorization from $N$ and, if successful, session keys are negotiated over the Internet.
-SnowStorm provides a menu that allows an interactive user to control its operation and trigger
-the generation of the node level programs.
+$S_N$ reads the access policy from suitable configuration files (or as entered by the user)
+consisting of $RT_0$ credentials in a convenient syntax. $S_N$ and $S_H$ run continuously and
+communicate via the Internet. Both programs provide an interactive user interface with features
+for generating and managing keys, issuing credentials, and storing policy statements and
+credentials from its peers. As directed by its user $S_H$ requests access to node collection or
+control resources, causing authorization and session key negotiation to all take place
+automatically. Once session keys are available, the user can direct Snowstorm to generate the
+appropriate node level program, with $S_N$ generating the sensor node program and $S_H$
+generating the Harvester program. The nesT modules that will communicate during stage two
+execution are specialized with the previously computed session key values.
 
-Each instance of SnowStorm holds the private key of its domain and maintains a database of
-public keys ($RT$ entities) and certificates ($RT$ policy). Users are able to issue new
-certificates under their domain's key.
+The development of Snowstorm was a straight forward exercise in software engineering; most of
+the program is ordinary Scala. Snowstorm makes use of widely used third party Java libraries for
+Internet communication and ECC cryptographic operations. Thanks to the expressive power of the
+Scala language, it was possible to implement the core $RT_0$ authorization decision in just 90
+lines. Furthermore, although Snowstorm has only a text-mode interface it would have been a
+simple matter to endow it with a fully fledged graphical interface if desired. A majority of
+Snowstorm development was done without any specialized knowledge of embedded systems
+development, a point of significance since embedded systems programming often requires different
+training and experience from that used by general application developers.
+
+When asked to generate their node level programs, Snowstorm specializes a few key nesT modules
+with key information and then composes those modules to form  fully functioning node programs.
+When deployed to the nodes, these programs behaved as did the original implementation.
+Anecdotally the Scalaness type system proved its worth several times during the development of
+Snowstorm. The compiler detected improper wirings as type errors, thus preventing nonsense
+compositions of nesT modules. 
+
+Snowstorm's implementation also made extensive use of external nesC libraries. In fact, the bulk
+of the original, tested sensor node and Harvester programs were wrapped as external libraries in
+the manner described in \autoref{section-external-libraries}. NesT modules were created
+primarily to hold key material and to interact with the AES encryption hardware on the CC2420.
+No significant changes were needed to the existing code base.
+
+\subsection{Memory Usage}
+
+To explore the efficiency of Scalaness generated programs, the memory consumption of the
+generated code was measured. \autoref{table-scalaness-snowcloud} shows the results with the
+memory values of the \Sprocket\ version shown in \autoref{table-sprocket-snowcloud} duplicated
+in the ``Unstaged'' column as a convenience.
+
+\begin{table}[h]
+\centering \newcommand\T{\rule{0pt}{2.1ex}}
+\caption{RAM and ROM comparison for Scalaness Snowcloud} {
+\begin{tabular}{|r||c|c|c|c|} \hline
+              & Unsecured & Unstaged & Staged & Savings\\ \hline\hline
+Sensor ROM    &     36254 &    48616 &  36596 & 25\% \\
+Sensor RAM    &      2868 &     5417 &   3038 & 44\% \\ \hline
+Harvester ROM &     24316 &    35834 &  24436 & 32\% \\
+Harvester RAM &      2274 &     4771 &   2402 & 50\% \\ \hline
+\end{tabular}
+}
+\label{table-scalaness-snowcloud}
+\end{table}
+
+The ``Savings'' are the percent reduction from unstaged to staged secure implementation, and
+these numbers demonstrate that the potential for saving both RAM and ROM space is significant.
+Unsurprisingly the memory consumed by the Scalaness generated code is virtually identical to
+that used by the unsecured programs. The only overhead injected into the staged node programs is
+that required to interact with the AES encryption hardware and, of course, to hold the
+negotiated session key material.
+
+From the perspective of user experience, the staged version of this application is more
+convenient, since no initial authorization period is needed when the harvester is first
+introduced to the network. The staged version also exposes the system to fewer bugs and failures
+that would be obstacles to the primary goal of data collection. On the other hand the staged
+version requires the presence, somewhere in the deployment cycle, of a powerful machine on which
+the first stage program can be executed.
 
 %%% Local Variables: 
 %%% mode: LaTeX

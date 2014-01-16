@@ -13,13 +13,15 @@
 \usepackage{fancyvrb}
 \usepackage[english]{fp-autoref}
 \usepackage{fp-frame}
-\usepackage{hyperref}  % See NOTES.txt for more information.
 \usepackage{ifthen}
 \usepackage{listings}
 \usepackage{mathpartir}
 \usepackage{stmaryrd}
 \usepackage{times}
-\usepackage{url}
+\usepackage[hyphens]{url}
+
+% Package hyperref wants to be the last package loaded.
+\usepackage[dvips]{hyperref}  % See NOTES.txt for more information.
 
 % =====================
 % Package configuration
@@ -29,11 +31,11 @@
 % The keywords listed here include all reserved words from Scala along with nesT/Scalaness
 % extensions.
 \lstdefinelanguage{scalaness}{keywords=
-  {abstract, case, catch, class, def, do, else, extends, false, final, finally, for, forSome, if
-   implicit, import, lazy, match, new, null, object, override, package, private, protected,
-   return, sealed, super, this, throw, trait, try, true, type, val, var, while, with, yield,
-   export},
-  otherkeywords={_, :, =, =>, <-, <:, <\%, >:, \#, @},
+  {abbrvt, abstract, case, catch, class, def, do, else, extends, false, final, finally, for,
+   forSome, if, implicit, import, lazy, match, new, null, object, override, package, private,
+   protected, return, sealed, super, this, throw, trait, try, true, type, val, var, while, with,
+   yield},
+  otherkeywords={export, typedef, _, :, =, =>, <-, <:, <\%, >:, \#, @},
   basicstyle=\ttfamily,
   sensitive=true,
   morecomment=[l]//,
@@ -50,7 +52,7 @@
    atomic, async, call, command, component, components, configuration, event, generic,
    implementation, includes, interface, module, new, norace, nx_struct, nx_union, post,
    provides, remote, requires, signal, task, uses},
-  otherkeywords={->},  % Not sure if I really want this.
+  otherkeywords={import, export, ->},
   basicstyle=\ttfamily,
   sensitive=true,
   morecomment=[l]//,
@@ -72,3 +74,11 @@
   commentstyle=\ttfamily,
   xleftmargin=0.25in,
   showstringspaces=false}
+
+% This allows links to wrap and it makes the hyperlinks in the document invisible.
+% See NOTES.txt for more information.
+\hypersetup{
+  breaklinks=true,
+  colorlinks=false,
+  pdfborder={0 0 0},
+}

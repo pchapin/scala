@@ -156,7 +156,7 @@ class ProgramComponent(
 
   // These are the methods that would actually be called by the Scalaness programmer.
   def +>(other: ProgramComponent) = this wireTo other
-  def +>(other: MininessComponent) = this wireTo other.configuration
+  def +>(other: NesTComponent) = this wireTo other.configuration
 
 
   /**

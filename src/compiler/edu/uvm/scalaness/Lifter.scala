@@ -1,27 +1,28 @@
 //-----------------------------------------------------------------------
 // FILE    : Lifter.scala
-// SUBJECT : Utility methods for lifting and lowering Scala types to/from Mininess
+// SUBJECT : Utility methods for lifting and lowering Scala types to/from nesT
 // AUTHOR  : (C) Copyright 2013 by Peter C. Chapin <PChapin@vtc.vsc.edu>
 //
 //-----------------------------------------------------------------------
 package edu.uvm.scalaness
 
 import scala.tools.nsc.reporters.Reporter
-import edu.uvm.mininess.MininessTypes
+import edu.uvm.nest.NesTTypes
 
 object Lifter {
+
+  import NesTTypes._
 
   /**
    * Compute the lifted version of the given Scalaness type.
    * 
    * @param typeName The Scalaness type to lift as a string.
-   * @return The Mininess representation of that type.
+   * @return The nesT representation of that type.
    */
   private[scalaness] def liftType(
-    reporter: Reporter, typeName: String): MininessTypes.Representation = {
+    reporter: Reporter, typeName: String): Representation = {
 
     // TODO: Report errors/warnings with proper source position information.
-    import MininessTypes._
 
     val firstBracketIndex = typeName.indexOf('[')
     val lastBracketIndex = typeName.lastIndexOf(']')
@@ -71,31 +72,6 @@ object Lifter {
           liftBaseType(typeName.substring(lastOuterDotIndex + 1))
         }
     }
-  }
-
-
-  /**
-   * Compute the lowered version of the Mininess type.
-   * 
-   * @param typeName The name of the Mininess type to lower.
-   * @param The name of the Scalaness representation of that type.
-   */
-  private[scalaness] def lowerType(reporter: Reporter, typeName: String) = {
-    // TODO: Handle more complex types just the primitives.
-    val translation = Map(
-      "char"     -> "Char",
-      "int"      -> "Int16",    // Assume a 16 bit microcontroller.
-      "int8_t"   -> "Int8",
-      "int16_t"  -> "Int16",
-      "int32_t"  -> "Int32",
-      "uint8_t"  -> "UInt8",
-      "uint16_t" -> "UInt16",
-      "uint32_t" -> "UInt32")
-
-    translation.getOrElse(typeName, {
-      reporter.error(null, "type " + typeName + " not yet supported. Using Int16")
-      "Int16"
-    })
   }
 
 }

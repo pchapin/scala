@@ -12,7 +12,7 @@ when compiling and running Scalaness programs (as described below).
 
 In all cases look for the packages
 
-- edu.uvm.mininess
+- edu.uvm.nest
 - edu.uvm.scalaness
 
 for most of the code related to Scalaness. Some important parts of the system (type checking)

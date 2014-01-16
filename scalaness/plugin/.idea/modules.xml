@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Samples/Blink/Blink.iml" filepath="$PROJECT_DIR$/Samples/Blink/Blink.iml" />
       <module fileurl="file://$PROJECT_DIR$/Scalaness.iml" filepath="$PROJECT_DIR$/Scalaness.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Samples/SpartanRPC/SpartanRPC.iml" filepath="$PROJECT_DIR$/Samples/SpartanRPC/SpartanRPC.iml" />
     </modules>
   </component>
 </project>

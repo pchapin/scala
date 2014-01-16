@@ -14,7 +14,11 @@
 \newtheorem{proposition}{Proposition}[section]
 \newtheorem{theorem}{Theorem}[section]
 
-\def\arr#1{\textup{\textbf{[}}\mskip -.5mu\textup{\textbf{|}}\, #1 \,\textup{\textbf{|}}\mskip -.5 mu\textup{\textbf{]}}}
+% The definition of \arr doesn't quite work. The vertical bars are typeset as horizontal.
+%\def\arr#1{\textup{\textbf{[}}\mskip -.5mu\textup{\textbf{|}}\, #1 \,\textup{\textbf{|}}\mskip -.5 mu\textup{\textbf{]}}}
+\def\arr#1{[\,#1\,]}
+
+%\def\abbrv{\ \stackrel{\rm encoded}{=}\ }
 \def\blockno{m}
 \def\blok#1{\textbf{(}#1\textbf{)}}
 \def\castto#1#2{(#1)\,#2}
@@ -36,6 +40,7 @@
 \def\undefv{\ttbf{uninit}}
 \def\VAR{\textit{x} }
 
+\newcommand{\abbrvt}[3]{\tt{abbrvt\ #1 = #2\ in\ #3}}
 \newcommand{\abs}[1]{|#1|}
 \newcommand{\activation}[2]{#1\,\mathit{as}\,#2}
 \newcommand{\addt}{\mathit{add}}
@@ -127,7 +132,7 @@
 \newcommand{\promote}{\ll}
 \newcommand{\restrict}[2]{#1\!\mid\!_{#2}}
 \newcommand{\return}[1]{\tt{return\ #1}}
-\newcommand{\RT}{\textit{RT}}
+\newcommand{\RT}{$RT$}
 \newcommand{\runseq}[1]{\mathbf{run}(#1)}
 \newcommand{\select}[2]{\tt{#1.#2}}
 \newcommand{\semantics}[1]{\llbracket #1 \rrbracket}

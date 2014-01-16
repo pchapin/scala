@@ -6,16 +6,16 @@
 //-----------------------------------------------------------------------
 package edu.uvm.scalaness
 
-import edu.uvm.mininess.parser.MininessLexer
-import edu.uvm.mininess.MininessTypes._
+import edu.uvm.nest.parser.NesTLexer
+import edu.uvm.nest.NesTTypes._
 
 
 object TypeRules {
   
   def check = {
-    // These are the Mininess types of two modules that will be used to test the Scalaness
+    // These are the nesT types of two modules that will be used to test the Scalaness
     // type rules. The actual typing will be done on Scalaness types that correspond to these
-    // Mininess types. The scalaness types may not be exact, but should be close enough to have
+    // nesT types. The scalaness types may not be exact, but should be close enough to have
     // this be a good start.
     val testBlinkModule =
       Module(List((TypeVariable("flashCountType"),Int32),(TypeVariable("periodType"),Int16)),
@@ -277,7 +277,7 @@ object TypeRules {
     returnList.toMap
   }
   
-  // Lift a Scalaness level type into a Mininess level type
+  // Lift a Scalaness level type into a nesT level type
   def liftTypeString(
     typeString: String): Representation = {
       val returnType = typeString match {

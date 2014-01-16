@@ -1,12 +1,20 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FILE    : main.tex
 % AUTHOR  : (C) Copyright 2013 by Peter C. Chapin
-% SUBJECT : Dissertation
+% SUBJECT : Master document of my dissertation
 %
-% Based on the dissertation template here:
-%      http://www.uvm.edu/~gss/?Page=templates.html
+% The format used here is based on the dissertation format by Yan Zhang, 2008. It includes
+% elements developed
 %
-% TODO:
+%   by Yan Zhang at UVM (dedication page, show coadvisors' names), and
+%   by Like Gao at UVM, and
+%   by David Van Horn at UVM (most of cover pages}, and
+%   by John Carpenter at UIUC (most of skeleton stuff), and
+%   by John Shumway <john_shumway@nrel.gov> (most of the LaTeX stuff), and
+%   by John Pitney <john@pitney.org> (most of the PDF creation stuff).
+%
+% I have made whatever adjustments seemed necessary to suit my purposes and current formatting
+% requirements.
 %
 % Send comments or bug reports to:
 %
@@ -16,24 +24,8 @@
 %    Burlington, VT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% This is the main file to be complied by LaTex This is the dissertation which should meet the
-% formatting requirements for the Graduate College at the University of Vermont
-%
-% By Yan Zhang, for 2008 Summer
-%
-% It includes elements developed
-% by Yan Zhang at UVM (dedication page, show coadvisors' names), and
-% by Like Gao at UVM, and
-% by David Van Horn at UVM (most of cover pages}, and
-% by John Carpenter at UIUC (most of skeleton stuff), and
-% by John Shumway <john_shumway@nrel.gov> (most of the LaTeX stuff), and
-% by John Pitney <john@pitney.org> (most of the PDF creation stuff).
-
-% We use the standard 'report' document class from LaTeX 2e
-\documentclass[11pt]{report}
-
-% uvmdis.sty makes some adjustments to the report class to meet formatting requirements
-\usepackage{uvmdis}
+\documentclass[12pt]{report}
+\usepackage{uvm-dissertation}
 
 % chicago is the required citation style by UVM.
 \usepackage{chicago}
@@ -57,8 +49,8 @@
 \doctorphilosophy                  %% or \doctorphilosophy or \masterarts
 \cs                                %% This is the only speciality defined.
 \gradyear{2014}                    %% The year in which the degree will be conferred
-\marchgrad                         %% \maygrad or \octgrad or \marchgrad
-\advisor{Christian Skalka, Ph.D.}  %% e.g. \advisor{Xindong Wu, Ph.D.}
+\jangrad                           %% \maygrad or \octgrad, \jangrad, \margrad, or \maygrad
+\advisor{Christian Skalka, Ph.D.}  %% e.g., \advisor{Xindong Wu, Ph.D.}
 \readerone{Alan Ling, Ph.D.}
 \readertwo{Margaret Eppstein, Ph.D.}
 \chair{Jeffrey Frolik, Ph.D.}
@@ -69,7 +61,7 @@
 
 \begin{document}
 
-\title{Implementation of Type Safe Staged\\Programming for Embedded Systems}
+\title{Trust Management in Distributed\\Resource Constrained Embedded Systems}
 \author{Peter C. Chapin}
 \maketitle
 
@@ -80,8 +72,7 @@
 
 \include{abstract}
 \include{dedication}
-\include{acknowledgements}
-
+\include{acknowledgments}
 
 % Single space the lists, as recommended
 \singlespace
@@ -100,17 +91,15 @@
 % A list of symbols can go here, if any. Handle it like the Acknowledgements.
 %\include{notation}
 
-% Switch back to the primary spacing.
-\primaryspacing
-
 % Body of dissertation begins here.
+\primaryspacing
 \pagenumbering{arabic}
 
 \input{Introduction}
 \input{Trust-Management}
 \input{SpartanRPC-Sprocket}
-\input{Scalaness-nesT-Theory}
-\input{Scalaness-Mininess-Implementation}
+\input{DScalaness-DnesT}
+\input{Scalaness-nesT}
 \input{Evaluation}
 \input{Conclusion}
 
@@ -118,18 +107,17 @@
 \appendix
 
 % Include appendices here.
-%\include{nesT-Types}
-%\clearpage
+\include{Samples}
+\clearpage
 
-% This is a workaround to make "References" appear with leader dots and the page number in the
-% TOC.
+% This workaround makes "References" appear with leader dots and the page number in the TOC.
 \addcontentsline{toc}{chapter}{\bibname}
 
 %\singlespace or \doublespace for the references? Need to check with Graduate College
 \bibliographystyle{chicago}
 
 % Now, we choose the bibliography database for BibTeX use.
-\bibliography{../references-General,../references-Meta,../references-WSN,../references-AccessControl,../references-Security,../references-Scala}
+\bibliography{../../../../BibTeX/references-General,../../../../BibTeX/references-Meta,../../../../BibTeX/references-WSN,../../../../BibTeX/references-AccessControl,../../../../BibTeX/references-Security,../../../../BibTeX/references-Scala}
 
 % Switch back to the primary spacing.
 \primaryspacing

@@ -85,9 +85,6 @@ abstract class UnCurry extends InfoTransform
       transformFunction(result)
     }
 
-    private lazy val serialVersionUIDAnnotation =
-      AnnotationInfo(SerialVersionUIDAttr.tpe, List(Literal(Constant(0))), List())
-
     // I don't have a clue why I'm catching TypeErrors here, but it's better
     // than spewing stack traces at end users for internal errors. Examples
     // which hit at this point should not be hard to come by, but the immediate
@@ -158,11 +155,12 @@ abstract class UnCurry extends InfoTransform
      */
     private def nonLocalReturnTry(body: Tree, key: Symbol, meth: Symbol) = {
       localTyper typed {
-        val extpe   = nonLocalReturnExceptionType(meth.tpe.finalResultType)
+        val restpe  = meth.tpe_*.finalResultType
+        val extpe   = nonLocalReturnExceptionType(restpe)
         val ex      = meth.newValue(nme.ex, body.pos) setInfo extpe
-        val argType = meth.tpe.finalResultType withAnnotation (AnnotationInfo marker UncheckedClass.tpe)
+        val argType = restpe withAnnotation (AnnotationInfo marker UncheckedClass.tpe)
         val pat     = gen.mkBindForCase(ex, NonLocalReturnControlClass, List(argType))
-        val rhs = (
+        val rhs     = (
           IF   ((ex DOT nme.key)() OBJ_EQ Ident(key))
           THEN ((ex DOT nme.value)())
           ELSE (Throw(Ident(ex)))
@@ -219,7 +217,7 @@ abstract class UnCurry extends InfoTransform
         case fun1 if fun1 ne fun => fun1
         case _ =>
           val parents = addSerializable(abstractFunctionForFunctionType(fun.tpe))
-          val anonClass = fun.symbol.owner newAnonymousFunctionClass(fun.pos, inConstructorFlag) addAnnotation serialVersionUIDAnnotation
+          val anonClass = fun.symbol.owner newAnonymousFunctionClass(fun.pos, inConstructorFlag) addAnnotation SerialVersionUIDAnnotation
           anonClass setInfo ClassInfoType(parents, newScope, anonClass)
 
           val targs     = fun.tpe.typeArgs
@@ -336,7 +334,7 @@ abstract class UnCurry extends InfoTransform
           arg setType functionType(Nil, arg.tpe)
         }
         else {
-          log(s"Argument '$arg' at line ${arg.pos.safeLine} is $formal from ${fun.fullName}")
+          log(s"Argument '$arg' at line ${arg.pos.line} is $formal from ${fun.fullName}")
           def canUseDirectly(recv: Tree) = (
                recv.tpe.typeSymbol.isSubClass(FunctionClass(0))
             && treeInfo.isExprSafeToInline(recv)
@@ -739,7 +737,7 @@ abstract class UnCurry extends InfoTransform
         case p if rpsymbols(p.symbol) => toArrayType(p.symbol.tpe)
         case p                        => p.symbol.tpe
       }
-      val forwresult = dd.symbol.tpe.finalResultType
+      val forwresult = dd.symbol.tpe_*.finalResultType
       val forwformsyms = map2(forwformals, flatparams)((tp, oldparam) =>
         currentClass.newValueParameter(oldparam.name, oldparam.symbol.pos).setInfo(tp)
       )
@@ -751,10 +749,11 @@ abstract class UnCurry extends InfoTransform
 
       // create the symbol
       val forwsym = currentClass.newMethod(dd.name.toTermName, dd.pos, VARARGS | SYNTHETIC | flatdd.symbol.flags) setInfo forwtype
+      def forwParams = forwsym.info.paramss.flatten
 
       // create the tree
       val forwtree = theTyper.typedPos(dd.pos) {
-        val locals = map2(forwsym ARGS, flatparams) {
+        val locals = map2(forwParams, flatparams) {
           case (_, fp) if !rpsymbols(fp.symbol) => null
           case (argsym, fp)                     =>
             Block(Nil,
@@ -764,15 +763,13 @@ abstract class UnCurry extends InfoTransform
               )
             )
         }
-        val seqargs = map2(locals, forwsym ARGS) {
+        val seqargs = map2(locals, forwParams) {
           case (null, argsym) => Ident(argsym)
           case (l, _)         => l
         }
         val end = if (forwsym.isConstructor) List(UNIT) else Nil
 
-        DEF(forwsym) === BLOCK(
-          Apply(gen.mkAttributedRef(flatdd.symbol), seqargs) :: end : _*
-        )
+        DefDef(forwsym, BLOCK(Apply(gen.mkAttributedRef(flatdd.symbol), seqargs) :: end : _*))
       }
 
       // check if the method with that name and those arguments already exists in the template

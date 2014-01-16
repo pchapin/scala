@@ -1,0 +1,405 @@
+
+\chapter{Scalaness/nesT Sample}
+\label{chapter-sample}
+
+% Keep the listings limited to column 55.
+
+This appendix shows a simple Scalaness/nesT sample. The sample composes two nesT modules being
+used as part of a hypothetical communication protocol. One module formats messages for
+transmission and the other module computes checksums.
+
+It is reasonable for the checksum module to be separate since different applications may wish to
+use different checksum algorithms. In fact, the Scalaness program could dynamically select one
+of several candidate checksum modules as it composes the overall application, although that
+feature is not demonstrated here.
+
+Beginning with the Scalaness program itself: In this simple example the entire program is
+contained in a single Scala object holding the main method. The program begins by declaring
+objects representing the wrapped nesC libraries needed. It then declares classes representing
+the nesT components to be used, defines some helper methods, and executes the main body. Notice
+that the type abbreviation binders \cite{watson-masters-2013} are used to introduce convenience
+objects holding module type information.
+
+This program demonstrates dynamic type construction, nesT module type and value parameters,
+module instantiation, and wiring. The program also demonstrates returning a dynamically
+constructed type from a Scala method.
+
+The full source code is below.
+
+\singlespace
+\vspace{1.0ex}
+\begin{lstlisting}[language=scalaness]
+//-----------------------------------------------------
+// FILE   : Main.scala
+// SUBJECT: Scalaness checksum sample.
+//-----------------------------------------------------
+
+object Main {
+
+  import edu.uvm.nest._
+  import edu.uvm.scalaness._
+  import LiftableTypes._ 
+
+  // The Scalaness representation of the library imports.
+  @ModuleType(
+    """{}
+       <;>
+       { booted(): Void,
+         fired(): Void; }""")
+  object LibraryIC extends NesTComponent {
+    external("LibraryIC.nc")
+  }
+
+
+  // The Scalaness representation of the library exports.
+  @ModuleType(
+    """{}
+       <;>
+       { ; startPeriodic(period: UInt32): Void }""")
+  object LibraryEC extends NesTComponent {
+    external("LibraryEC.nc")
+  }
+
+
+  // A component for computing checksums.
+  @ModuleType(
+    """{}
+       < checksumType <: UInt32; size: UInt16 >
+       { ; compute_checksum(
+             data: Array[UInt8]): checksumType }""")
+  class ChecksumC extends NesTComponent {
+    "ChecksumC.nc"
+  }
+ 
+
+  // A component for creating messages.
+  @ModuleType(
+    """{}
+       < checksumType <: UInt32; size: UInt16 >
+       { compute_checksum(
+           data: Array[UInt8]): checksumType,
+         startPeriodic(period: UInt32): Void;
+         booted(): Void,
+         fired(): Void }""")
+  class MessageFormatterC extends NesTComponent {
+    "MessageFormatterC.nc"
+  }
+
+
+  /**
+   * The following method returns a fully instantiated
+   * nesT module for computing checksums. The precise
+   * module created depends on runtime information.
+   */
+  def getChecksummer(
+    size: UInt16, checksumType: MetaType[UInt32]) = {
+  
+    @ModuleType(
+      """{}
+         < checksumType <: UInt32; size: UInt16 >
+         { ; compute_checksum(
+               data: Array[UInt8]): checksumType }""")
+    val CheckSummer = new ChecksumC
+    
+    @ModuleType(
+      """{ checksumType <: UInt32 }
+           <;>
+           { ; compute_checksum(
+                 data: Array[UInt8]): checksumType }""")
+    val instCheckSummer =
+      CheckSummer.instantiate(size, checksumType)
+    
+    instCheckSummer
+  }
+
+    
+  /**
+   * The main method obtains configuration information
+   * from the command line and composes the final
+   * program.
+   */ 
+  def main(args: Array[String]) {
+
+    // Create type abbreviations for convenience.
+
+    // An uninstantiated module type.
+    val MesgT = new TypeAbbreviation(
+      """{}
+         < checksumType <: UInt32; size: UInt16 >
+         { startPeriodic(period: UInt32): Void,
+           compute_checksum(
+             data: Array[UInt8]): checksumType;
+           fired(): Void,
+           booted(): Void }""", List())
+
+    // An instantiated module type.
+    val FormT = new TypeAbbreviation(
+      """{ checksumType <: UInt32 }
+         <;>
+         { compute_checksum(
+             data: Array[UInt8]): checksumType,
+           startPeriodic(period: UInt32): Void;
+           booted(): Void,
+           fired(): Void }""", List())
+
+    // An instantiated module type.
+    val CheckT = new TypeAbbreviation(
+      """{ checksumType <: UInt32 }
+         <;>
+         { ;
+           compute_checksum(
+             data: Array[UInt8]): checksumType }""",
+      List())
+
+    // A runnable module type.
+    val ResultT = new TypeAbbreviation(
+      """{ checksumType <: UInt32 }
+         <;>
+         { ; }""", List())
+
+    // Return a MetaType based on command line argument.
+    def getChecksumType(args: Array[String]) = {
+      args(0).toInt match {
+        case  8 => 
+          println("Selecting 8 bit checksums")   
+          new MetaType[UInt32](NesTTypes.UInt8)
+        
+        case 16 =>
+          println("Selecting 16 bit checksums") 
+          new MetaType[UInt32](NesTTypes.UInt16)
+
+        case 32 =>
+          println("Selecting 32 bit checksums")
+          new MetaType[UInt32](NesTTypes.UInt32)
+      }
+    }
+
+    // Method that returns a liftable value.
+    def getSize(args: Array[String]) = {
+      val size = args(1).toInt
+      println(s"Selecting $size byte message blocks")
+      new UInt16(size)
+    }
+
+
+    if (args.length != 2)
+      println("Usage: Main bit_length block_size")
+    else {
+ 
+      // Get run time information about types/values.
+      val desiredChecksumType = getChecksumType(args)
+      val desiredSize = getSize(args)
+
+      // Uninstantiated message formatter.
+      @TypeAbbr(MesgT)
+      val MessageFormatter =
+        new MessageFormatterC
+
+      // Instantiated message formatter.
+      @TypeAbbr(FormT)
+      val formattingModule =
+          MessageFormatter.instantiate(
+            desiredSize, desiredChecksumType)
+
+      // Compute appropriate checking module.
+      @TypeAbbr(CheckT)
+      val checkingModule =
+          getChecksummer(
+            desiredSize, desiredChecksumType)
+      
+      // Wire things together.
+      @TypeAbbr(ResultT)
+      val resultModule =
+          LibraryIC +>
+            formattingModule +> checkingModule +>
+              LibraryEC
+
+      // Generate the nesT/nesC.
+      resultModule.image()
+    }
+  }
+
+}       
+\end{lstlisting}
+\vspace{1.0ex}
+\primaryspacing
+
+Below is the nesT implementation of the checksum module. This version uses a simple arithmetic
+summation. It is parameterized by the type used to hold the checksum and by a value representing
+the size of the array to be processed. Thus specializations of this module can only operate on
+fixed sized arrays, presummably the size of some standard message format.
+
+\singlespace
+\vspace{1.0ex}
+\begin{lstlisting}[language=nesC]
+// Type : checksumType: Type used to hold a checksum.
+// Value: size: Size of the data array to process.
+module ChecksumC {
+  provides command
+    checksumType compute_checksum(uint8_t data[]);
+}
+implementation {
+   
+  // Computes a simple checksum over the data array.
+  command checksumType compute_checksum(uint8_t data[])
+  {
+    checksumType sum = 0;
+    int16_t i;
+        
+    // Casting from uint16_t to int16_t is explicitly
+    // enabled in type compatibility relation. The
+    // compiler uses a built-in implementation of this
+    // conversion.
+    //
+    for( i = 0; i < (int16_t)size; ++i ) {
+      sum += data[i];
+    }
+    return sum;
+  }
+    
+}
+\end{lstlisting}
+\vspace{1.0ex}
+\primaryspacing
+
+The listing below illustrates how the Scalaness compiler rewrites the checksum module to pure
+nesC in the example program given. This listing also shows the result of type and value
+specialization, in this instance implemented by way of simple substitution. This version of the
+module was created for 8~bit checksums on eight element data arrays.
+
+Notice the addition of compiler generated variables to hold dynamic size information for the
+array expressions. These variables are checked to ensure memory safety as described in
+\autoref{section-array-operations}.
+
+\singlespace
+\vspace{1.0ex}
+\begin{lstlisting}[language=nesC]
+module ChecksumC  {
+  provides {
+    command uint8_t compute_checksum(
+      uint8_t data[], uint16_t _sc_data_SIZE );
+  }
+  uses {
+    command void boundsCheckFailed( );
+  }
+}
+implementation {
+  command uint8_t compute_checksum(
+    uint8_t data[], uint16_t _sc_data_SIZE) 
+  {
+    uint8_t sum = 0;
+    int16_t i;
+    for( i = 0; i < (int16_t)(8); ++i )
+    {
+    {
+      int _sc_2 = i;
+      if( _sc_2 >= _sc_data_SIZE )
+        call boundsCheckFailed( );
+      sum += data[_sc_2];
+    }
+    }
+    return sum;
+  }
+
+}
+\end{lstlisting}
+\vspace{1.0ex}
+\primaryspacing
+
+The message formatting module constructs a ``message'' consisting of ascending byte values and
+then computes a checksum over that message. Nothing more is done with the message in this simple
+demonstration. A more realistic program would then send the message to an underlying
+communication module for transmission.
+
+\singlespace
+\vspace{1.0ex}
+\begin{lstlisting}[language=nesC]
+// Type : checksumType: Type used to hold a checksum.
+// Value: size: Size of the data array to process.
+//
+// Main program of the node.
+module MessageFormatterC {
+    
+  uses command
+    checksumType compute_checksum(uint8_t data[]);
+  uses command void startPeriodic( uint32_t period );
+  provides command void booted( );
+  provides command void fired( );
+}
+implementation {
+    
+  command void booted( )
+  {
+    // Casting from int16_t to uint32_t is explicitly
+    // enabled in type compatibility relation.
+    //
+    call startPeriodic( (uint32_t)1000 );
+  }
+    
+  // Called once per second.
+  command void fired( )
+  {
+    uint8_t  raw[size];
+    uint16_t i;
+    checksumType checksum;
+        
+    // Construct message.
+    for( i = 0U; i < size; ++i ) {
+      raw[i] = (i & 0x00FF);
+    }
+    checksum = call compute_checksum( raw );
+        
+    // Other program components are used to send
+    // the message with checksum.
+  }
+    
+}
+\end{lstlisting}
+\vspace{1.0ex}
+\primaryspacing
+
+The final sample fragment below shows the specialized and rewritten nesC with the dynamic size
+of an array expression being passed to \texttt{compute\_checksum}.
+
+\singlespace
+\vspace{1.0ex}
+\begin{lstlisting}[language=nesC]
+module MessageFormatterC  {
+  provides {
+    command void fired( );
+    command void booted( );
+  }
+  uses {
+    command void startPeriodic( uint32_t period );
+    command uint8_t compute_checksum(
+      uint8_t data[], uint16_t _sc_data_SIZE );
+    command void boundsCheckFailed( );
+  }
+}
+implementation {
+  command void booted( ) 
+  {
+    call startPeriodic( (uint32_t)( 1000 ) );
+  }
+
+  command void fired( ) 
+  {
+    uint8_t  raw[8 ];
+    uint16_t i;
+    uint8_t  checksum;
+    for( i = 0U; i < 8; ++i )
+    {
+    {
+      int _sc_1 = i;
+      if( _sc_1 >= 8 )
+        call boundsCheckFailed( );
+      raw[_sc_1] = ( i & 0x00FF );
+    }
+    }
+    checksum = call compute_checksum( raw, 8 );
+  }
+
+}
+\end{lstlisting}
+\vspace{1.0ex}
+\primaryspacing

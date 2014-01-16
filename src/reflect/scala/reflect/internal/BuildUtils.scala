@@ -3,9 +3,10 @@ package reflect
 package internal
 
 import Flags._
+import util._
 
 trait BuildUtils { self: SymbolTable =>
-  import definitions.{TupleClass, FunctionClass, MaxTupleArity, MaxFunctionArity, ScalaPackage, UnitClass}
+  import definitions.{TupleClass, FunctionClass, ScalaPackage, UnitClass}
 
   class BuildImpl extends BuildApi {
 
@@ -62,7 +63,7 @@ trait BuildUtils { self: SymbolTable =>
     def setSymbol[T <: Tree](tree: T, sym: Symbol): T = { tree.setSymbol(sym); tree }
 
     def mkAnnotation(tree: Tree): Tree = tree match {
-      case SyntacticNew(Nil, SyntacticApplied(SyntacticTypeApplied(_, _), _) :: Nil, emptyValDef, Nil) =>
+      case SyntacticNew(Nil, SyntacticApplied(SyntacticTypeApplied(_, _), _) :: Nil, noSelfType, Nil) =>
         tree
       case _ =>
         throw new IllegalArgumentException(s"Tree ${showRaw(tree)} isn't a correct representation of annotation." +
@@ -82,7 +83,7 @@ trait BuildUtils { self: SymbolTable =>
     def mkTparams(tparams: List[Tree]): List[TypeDef] =
       tparams.map {
         case td: TypeDef => copyTypeDef(td)(mods = (td.mods | PARAM) & (~DEFERRED))
-        case other => throw new IllegalArgumentException("can't splice $other as type parameter")
+        case other => throw new IllegalArgumentException(s"can't splice $other as type parameter")
       }
 
     def mkRefineStat(stat: Tree): Tree = {
@@ -139,7 +140,7 @@ trait BuildUtils { self: SymbolTable =>
 
     object SyntacticApplied extends SyntacticAppliedExtractor {
       def apply(tree: Tree, argss: List[List[Tree]]): Tree =
-        argss.foldLeft(tree) { Apply(_, _) }
+        argss.foldLeft(tree) { (f, args) => Apply(f, args.map(treeInfo.assignmentToMaybeNamedArg)) }
 
       def unapply(tree: Tree): Some[(Tree, List[List[Tree]])] = {
         val treeInfo.Applied(fun, targs, argss) = tree
@@ -150,9 +151,9 @@ trait BuildUtils { self: SymbolTable =>
     private object UnCtor {
       def unapply(tree: Tree): Option[(Modifiers, List[List[ValDef]], List[Tree])] = tree match {
         case DefDef(mods, nme.MIXIN_CONSTRUCTOR, _, _, _, Block(lvdefs, _)) =>
-          Some(mods | Flag.TRAIT, Nil, lvdefs)
+          Some((mods | Flag.TRAIT, Nil, lvdefs))
         case DefDef(mods, nme.CONSTRUCTOR, Nil, vparamss, _, Block(lvdefs :+ _, _)) =>
-          Some(mods, vparamss, lvdefs)
+          Some((mods, vparamss, lvdefs))
         case _ => None
       }
     }
@@ -271,32 +272,30 @@ trait BuildUtils { self: SymbolTable =>
       }
     }
     private object TupleClassRef extends ScalaMemberRef {
-      val symbols = TupleClass.filter { _ != null }.toSeq
+      val symbols = TupleClass.seq
     }
     private object TupleCompanionRef extends ScalaMemberRef {
-      val symbols = TupleClassRef.symbols.map { _.companionModule }
+      val symbols = TupleClass.seq.map { _.companionModule }
     }
     private object UnitClassRef extends ScalaMemberRef {
       val symbols = Seq(UnitClass)
     }
     private object FunctionClassRef extends ScalaMemberRef {
-      val symbols = FunctionClass.toSeq
+      val symbols = FunctionClass.seq
     }
 
     object SyntacticTuple extends SyntacticTupleExtractor {
       def apply(args: List[Tree]): Tree = args match {
         case Nil      => Literal(Constant(()))
         case _        =>
-          require(args.length <= MaxTupleArity, s"Tuples with arity bigger than $MaxTupleArity aren't supported")
+          require(TupleClass(args.length).exists, s"Tuples with ${args.length} arity aren't supported")
           self.Apply(TupleClass(args.length).companionModule, args: _*)
       }
 
       def unapply(tree: Tree): Option[List[Tree]] = tree match {
         case Literal(Constant(())) =>
           Some(Nil)
-        case Apply(TupleCompanionRef(sym), args)
-          if args.length <= MaxTupleArity
-          && sym == TupleClass(args.length).companionModule =>
+        case Apply(TupleCompanionRef(sym), args) if sym == TupleClass(args.length).companionModule =>
           Some(args)
         case _ =>
           None
@@ -307,15 +306,14 @@ trait BuildUtils { self: SymbolTable =>
       def apply(args: List[Tree]): Tree = args match {
         case Nil => self.Select(self.Ident(nme.scala_), tpnme.Unit)
         case _   =>
-          require(args.length <= MaxTupleArity, s"Tuples with arity bigger than $MaxTupleArity aren't supported")
+          require(TupleClass(args.length).exists, s"Tuples with ${args.length} arity aren't supported")
           AppliedTypeTree(Ident(TupleClass(args.length)), args)
       }
 
       def unapply(tree: Tree): Option[List[Tree]] =  tree match {
         case UnitClassRef(_) =>
           Some(Nil)
-        case AppliedTypeTree(TupleClassRef(sym), args)
-          if args.length <= MaxTupleArity && sym == TupleClass(args.length) =>
+        case AppliedTypeTree(TupleClassRef(sym), args) if sym == TupleClass(args.length) =>
           Some(args)
         case _ =>
           None
@@ -324,13 +322,12 @@ trait BuildUtils { self: SymbolTable =>
 
     object SyntacticFunctionType extends SyntacticFunctionTypeExtractor {
       def apply(argtpes: List[Tree], restpe: Tree): Tree = {
-        require(argtpes.length <= MaxFunctionArity + 1, s"Function types with arity bigger than $MaxFunctionArity aren't supported")
+        require(FunctionClass(argtpes.length).exists, s"Function types with ${argtpes.length} arity aren't supported")
         gen.mkFunctionTypeTree(argtpes, restpe)
       }
 
       def unapply(tree: Tree): Option[(List[Tree], Tree)] = tree match {
-        case AppliedTypeTree(FunctionClassRef(sym), args @ (argtpes :+ restpe))
-          if args.length - 1 <= MaxFunctionArity && sym == FunctionClass(args.length - 1) =>
+        case AppliedTypeTree(FunctionClassRef(sym), args @ (argtpes :+ restpe)) if sym == FunctionClass(args.length - 1) =>
           Some((argtpes, restpe))
         case _ => None
       }
@@ -367,8 +364,8 @@ trait BuildUtils { self: SymbolTable =>
 
       def unapply(tree: Tree): Option[(List[Tree], List[Tree], ValDef, List[Tree])] = tree match {
         case SyntacticApplied(Select(New(SyntacticTypeApplied(ident, targs)), nme.CONSTRUCTOR), argss) =>
-          Some((Nil, SyntacticApplied(SyntacticTypeApplied(ident, targs), argss) :: Nil, emptyValDef, Nil))
-        case SyntacticBlock(SyntacticClassDef(_, tpnme.ANON_CLASS_NAME, Nil, _, List(Nil), earlyDefs, parents, selfdef, body) ::
+          Some((Nil, SyntacticApplied(SyntacticTypeApplied(ident, targs), argss) :: Nil, noSelfType, Nil))
+        case SyntacticBlock(SyntacticClassDef(_, tpnme.ANON_CLASS_NAME, Nil, _, ListOfNil, earlyDefs, parents, selfdef, body) ::
                             Apply(Select(New(Ident(tpnme.ANON_CLASS_NAME)), nme.CONSTRUCTOR), Nil) :: Nil) =>
           Some((earlyDefs, parents, selfdef, body))
         case _ =>
@@ -404,6 +401,16 @@ trait BuildUtils { self: SymbolTable =>
 
     object SyntacticValDef extends SyntacticValDefBase { val isMutable = false }
     object SyntacticVarDef extends SyntacticValDefBase { val isMutable = true }
+
+    object SyntacticAssign extends SyntacticAssignExtractor {
+      def apply(lhs: Tree, rhs: Tree): Tree = gen.mkAssign(lhs, rhs)
+      def unapply(tree: Tree): Option[(Tree, Tree)] = tree match {
+        case Assign(lhs, rhs) => Some((lhs, rhs))
+        case AssignOrNamedArg(lhs, rhs) => Some((lhs, rhs))
+        case Apply(Select(fn, nme.update), args :+ rhs) => Some((atPos(fn.pos)(Apply(fn, args)), rhs))
+        case _ => None
+      }
+    }
   }
 
   val build: BuildApi = new BuildImpl

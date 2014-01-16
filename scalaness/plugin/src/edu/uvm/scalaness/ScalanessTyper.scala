@@ -12,8 +12,8 @@ import io.VirtualFile
 import plugins.PluginComponent
 import reflect.internal.util.BatchSourceFile
 
-import edu.uvm.mininess
-import edu.uvm.mininess._
+import edu.uvm.nest
+import edu.uvm.nest._
 import scala.Some
 
 /**
@@ -48,7 +48,7 @@ class ScalanessTyper(val global: Global, settings: ConfigurationSettings) extend
    * string literal and fullName is the full path to the inclusion. This method does not check if the inclusion file
    * actually exists. None is returned if the last item is not a string literal.
    */
-  private def checkForMininessInclusion(lastItem: Tree) = {
+  private def checkForNesTInclusion(lastItem: Tree) = {
     lastItem match {
       // The last item is a literal of some kind...
       case Literal(constantValue) => {
@@ -73,51 +73,51 @@ class ScalanessTyper(val global: Global, settings: ConfigurationSettings) extend
      
   
   /**
-   * Parses the Mininess inclusion stored in the specified file.
+   * Parses the nesT inclusion stored in the specified file.
    * 
    * @param fullName The name of the file to parse.
    * @param typeVars A collection of top level type variable names to use during parsing.
    * @return The AST of the parse.
    * @throws java.io.IOException if the file can't be found or read, or an ANTLR exception if the parse fails.
    */
-  private def parseMininessInclusion(fullName: String, typeVars: Iterable[String]) = {
-    val MininessReader = new BufferedReader(new FileReader(fullName))
+  private def parseNesTInclusion(fullName: String, typeVars: Iterable[String]) = {
+    val nesTReader = new BufferedReader(new FileReader(fullName))
     try {
-      val abstractSyntax = mininess.parser.parseMininessInclusion(MininessReader, typeVars)
+      val abstractSyntax = nest.parser.parseNesTInclusion(nesTReader, typeVars)
       abstractSyntax
     }
-    finally MininessReader.close()
+    finally nesTReader.close()
   }
       
         
   /**
-   * Reads the raw text of the Mininess inclusion.
+   * Reads the raw text of the nesT inclusion.
    * 
-   * @param fullName The name of the Mininess inclusion to read.
+   * @param fullName The name of the nesT inclusion to read.
    * @return An array containing the entire contents of the inclusion file.
    * @throws java.io.IOException if the file can't be found or read.
    */
-  private def readMininessInclusion(fullName: String) = {
-    val MininessInclusionFile = new File(fullName)
-    val fileLength = MininessInclusionFile.length
-    val MininessReader = new FileReader(fullName)
+  private def readNesTInclusion(fullName: String) = {
+    val nesTInclusionFile = new File(fullName)
+    val fileLength = nesTInclusionFile.length
+    val nesTReader = new FileReader(fullName)
     try {
       val buffer = new Array[Char](fileLength.toInt)  // What happens if fileLength >= 2**31?
-      MininessReader.read(buffer)
+      nesTReader.read(buffer)
       buffer
     }
-    finally MininessReader.close()
+    finally nesTReader.close()
   }
 
 
   /**
    * Compute the lifted version of the given Scalaness type.
    * @param typeName The Scalaness type to lift as a string.
-   * @return The Mininess representation of that type.
+   * @return The nesT representation of that type.
    */
   private def liftType(typeName: String) = {
     // TODO: Report errors with proper source position information.
-    import MininessTypes._
+    import NesTTypes._
 
     def liftBaseType(baseTypeName: String) = {
       // TODO: Handle more complex types just the primitives.
@@ -153,7 +153,7 @@ class ScalanessTyper(val global: Global, settings: ConfigurationSettings) extend
 
 
   /**
-   * Extracts the type and value parameters of a class representing a Mininess module.
+   * Extracts the type and value parameters of a class representing a nesT module.
    *
    * @param body A collection of AST roots that define the body of the class.
    * @return A pair of maps where the first map takes a type parameter name to its upper bound and the second map takes
@@ -162,15 +162,15 @@ class ScalanessTyper(val global: Global, settings: ConfigurationSettings) extend
   private def extractTypeAndValueParameters(body: List[Tree]) = {
     // TODO: Report errors with proper source position information.
 
-    var typeParameterDeclarations = Map[String, MininessTypes.Representation]()
-    var valueParameterDeclarations = Map[String, MininessTypes.Representation]()
+    var typeParameterDeclarations = Map[String, NesTTypes.Representation]()
+    var valueParameterDeclarations = Map[String, NesTTypes.Representation]()
     for (bodyItem <- body) {
       bodyItem match {
         case DefDef(mods, name, tparams, vparamss, tpt, rhs) =>
           // TODO: Handle the case where there are multiple constructors.
           if (name.toString == "<init>") {
             if (vparamss.length > 1)
-              reporter.error(null, "Mininess modules can't have multiple parameter lists")
+              reporter.error(null, "NesT modules can't have multiple parameter lists")
 
             val List(parameters) = vparamss
             parameters foreach { parameter =>
@@ -212,7 +212,7 @@ class ScalanessTyper(val global: Global, settings: ConfigurationSettings) extend
 
   
   /**
-   * Process the body of a class or module definition to see if it contains a Mininess inclusion. If it does, then parse
+   * Process the body of a class or module definition to see if it contains a nesT inclusion. If it does, then parse
    * and type check that inclusion, etc.
    * 
    * @param tparams The type parameters of the enclosing class (an empty list for a module).
@@ -224,22 +224,22 @@ class ScalanessTyper(val global: Global, settings: ConfigurationSettings) extend
     // Make sure this class has a non-empty body.
     if (body.size >= 1) {
       val lastItem = body(body.size - 1)
-      checkForMininessInclusion(lastItem) match {
+      checkForNesTInclusion(lastItem) match {
         case None => ()
         case Some( (shortName, fullName) ) => {
           try {
             val virtualFile = new VirtualFile(shortName, fullName)
-            val fileText = readMininessInclusion(fullName)   // Might throw java.io.IOException
+            val fileText = readNesTInclusion(fullName)   // Might throw java.io.IOException
             val mininessSource = new BatchSourceFile(virtualFile, fileText)
             val (typeParameters, valueParameters) = extractTypeAndValueParameters(body)
 
             try {
-              // TODO: Store the abstract syntax of Mininess inclusions in some suitable place.
+              // TODO: Store the abstract syntax of nesT inclusions in some suitable place.
               println("")
-              println("**** Parsing Mininess inclusion: " + fullName)
-              val abstractSyntax = parseMininessInclusion(fullName, typeParameters.keys)
+              println("**** Parsing nesT inclusion: " + fullName)
+              val abstractSyntax = parseNesTInclusion(fullName, typeParameters.keys)
 
-              // Output the Mininess abstract syntax tree for debugging purposes.
+              // Output the nesT abstract syntax tree for debugging purposes.
               val Some(astOutputSetting) = settings("ASTOutput")
               if (astOutputSetting == "true") {
                 println("**** AST")
@@ -249,42 +249,42 @@ class ScalanessTyper(val global: Global, settings: ConfigurationSettings) extend
               // Unwrap full interface definitions.
               println("**** Interface Unwrapping")
               val Some(interfaceFolder) = settings("interfacePath")
-              val interfaceWorker = new edu.uvm.mininess.InterfaceUnwrapper(List(interfaceFolder))
+              val interfaceWorker = new edu.uvm.nest.InterfaceUnwrapper(List(interfaceFolder))
               val unwrappedAbstractSyntax = interfaceWorker.unwrapInterface(abstractSyntax)
                
               // Decorate the AST by populating symbol tables from various declarations.
               println("**** Symbol Processing")
-              edu.uvm.mininess.Symbols.decorateAST(unwrappedAbstractSyntax)
+              edu.uvm.nest.Symbols.decorateAST(unwrappedAbstractSyntax)
                 
-              // Mininess type checking.
+              // NesT type checking.
               val compatibilityRelation =
                 new TypeCompatibilityRelation(settings("typeCompatibility"))
               val Some(debugSetting) = settings("debug")
               println("**** Type Checking")
-              val typeChecker = new MininessTyper(
+              val typeChecker = new NesTTyper(
                 typeVars     = typeParameters,
                 valueVars    = valueParameters,
                 typeRelation = compatibilityRelation,
                 debugFlag    = (debugSetting == "true"))
               unwrappedAbstractSyntax.symbolTable = Some(Symbols(
-                Map[String, MininessTypes.Representation](),
-                Map(("int"     -> MininessTypes.Int16),
-                    ("char"    -> MininessTypes.Char ),
-                    ("int8_t"  -> MininessTypes.Int8 ),
-                    ("int16_t" -> MininessTypes.Int16),
-                    ("int32_t" -> MininessTypes.Int32)),
+                Map[String, NesTTypes.Representation](),
+                Map(("int"     -> NesTTypes.Int16),
+                    ("char"    -> NesTTypes.Char ),
+                    ("int8_t"  -> NesTTypes.Int8 ),
+                    ("int16_t" -> NesTTypes.Int16),
+                    ("int32_t" -> NesTTypes.Int32)),
                 valueParameters)
                 )
-              typeChecker.checkMininessInclusion(unwrappedAbstractSyntax)
+              typeChecker.checkNesTInclusion(unwrappedAbstractSyntax)
               println()
             }
             catch {
-              // Problems parsing the Mininess inclusion.
+              // Problems parsing the nesT inclusion.
               case ex: org.antlr.runtime.RecognitionException =>
                 reporter.error(null, ex.getMessage + ": " + ex.getClass.getName)
                 
-              // Problems type checking the Mininess inclusion.
-              case ex: MininessTyper.PositionalMininessTypeException =>
+              // Problems type checking the nesT inclusion.
+              case ex: NesTTyper.PositionalNesTTypeException =>
                 if (ex.line >= 0 && ex.column >= 0)
                   reporter.error(
                     mininessSource.position(line = ex.line, column = ex.column),
@@ -309,17 +309,17 @@ class ScalanessTyper(val global: Global, settings: ConfigurationSettings) extend
 
   
   /**
-   * Perform a check on the give AST node. Only class and module definitions are checked for Mininess inclusions.
+   * Perform a check on the give AST node. Only class and module definitions are checked for nesT inclusions.
    */
   def check(tree: Tree) {
 
     tree match {
 
-      // For class definitions, see if they provide a Mininess inclusion.
+      // For class definitions, see if they provide a nesT inclusion.
       case ClassDef(mods, name, tparams, impl) =>
         processClassOrModuleDef(tparams, impl)
 
-      // For module definitions, see if they provide a Mininess inclusion.
+      // For module definitions, see if they provide a nesT inclusion.
       case ModuleDef(mods, name, impl) =>
         processClassOrModuleDef(List(), impl)
       

@@ -21,7 +21,7 @@ import java.io._
  * @param imports A set of command names that are used by this component.
  * @param exports A set of command names that are provided by this component.
  * @param configuration The nesC configuration wrapped by this ProgramComponent object.
- * @param targetFolder The location where the Mininess code of this component is generated.
+ * @param targetFolder The location where the nesC code of this component is generated.
  */
 class ProgramComponent(
   private val typeParameters : Set[String],
@@ -161,7 +161,7 @@ class ProgramComponent(
   
   // These are the methods that would actually be called by the Scalaness programmer.
   def +>(other: ProgramComponent) = this wireTo other
-  def +>(other: MininessComponent) = this wireTo other.configuration
+  def +>(other: NesTComponent) = this wireTo other.configuration
 
 
   /**

@@ -53,10 +53,6 @@ trait MatchTranslation {
         case TypeBound(tpe) => tpe
         case tree           => tree.tpe
       }
-      def repeatedType = unbound match {
-        case Star(tpt) => tpt.tpe
-        case _         => NoType
-      }
       def glbWith(other: Type) = glb(tpe :: other :: Nil).normalize
 
       object SymbolAndTypeBound {
@@ -420,7 +416,6 @@ trait MatchTranslation {
       )
 
       private def rawGet         = typeOfMemberNamedGetOrSelf(resultType)
-      private def emptySub       = rawSubPatTypes.isEmpty
       private def rawInit        = rawSubPatTypes dropRight 1
       protected def sequenceType = typeOfLastSelectorOrSelf(rawGet)
       protected def elementType  = elementTypeOfLastSelectorOrSelf(rawGet)
@@ -500,11 +495,6 @@ trait MatchTranslation {
     // U must have N members _1,..., _N -- the _i are type checked, call their type Ti,
     // for now only used for case classes -- pretending there's an unapplyProd that's the identity (and don't call it)
     class ExtractorCallProd(val fun: Tree, val args: List[Tree]) extends ExtractorCall {
-      // TODO: fix the illegal type bound in pos/t602 -- type inference messes up before we get here:
-      /*override def equals(x$1: Any): Boolean = ...
-             val o5: Option[com.mosol.sl.Span[Any]] =  // Span[Any] --> Any is not a legal type argument for Span!
-      */
-
       private def constructorTp = fun.tpe
 
       def isTyped    = fun.isTyped
@@ -600,9 +590,15 @@ trait MatchTranslation {
 
       protected def spliceApply(binder: Symbol): Tree = {
         object splice extends Transformer {
+          def binderRef(pos: Position): Tree =
+            REF(binder) setPos pos
           override def transform(t: Tree) = t match {
+            // duplicated with the extractor Unapplied
             case Apply(x, List(i @ Ident(nme.SELECTOR_DUMMY))) =>
-              treeCopy.Apply(t, x, (REF(binder) setPos i.pos) :: Nil)
+              treeCopy.Apply(t, x, binderRef(i.pos) :: Nil)
+            // SI-7868 Account for numeric widening, e.g. <unappplySelector>.toInt
+            case Apply(x, List(i @ (sel @ Select(Ident(nme.SELECTOR_DUMMY), name)))) =>
+              treeCopy.Apply(t, x, treeCopy.Select(sel, binderRef(i.pos), name) :: Nil)
             case _ =>
               super.transform(t)
           }
@@ -643,13 +639,6 @@ trait MatchTranslation {
         case Alternative(ps)                      => ps forall unapply
         case Typed(PatternBoundToUnderscore(), _) => true
         case _                                    => false
-      }
-    }
-
-    object Bound {
-      def unapply(t: Tree): Option[(Symbol, Tree)] = t match {
-        case t@Bind(n, p) if t.hasExistingSymbol => Some((t.symbol, p)) // pos/t2429 does not satisfy these conditions
-        case _                                   => None
       }
     }
   }

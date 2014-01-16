@@ -7,7 +7,7 @@
 package edu.uvm.scalaness
 
 import edu.uvm.scalaness.parser.ModuleTypeLexer
-import edu.uvm.mininess.MininessTypes._
+import edu.uvm.nest.NesTTypes._
 
 /**
  * Class representing nodes in the AST of a nesT module type.
@@ -93,10 +93,10 @@ object TypeASTNode {
   }
   
   /**
-   * Convert a parsed Mininess module type (from the ModuleType annotations) into the
+   * Convert a parsed nesT module type (from the ModuleType annotations) into the
    * appropriate internal representation for the rules to handle.
    */
-  def toMininessModule(node: TypeASTNode): (Map[TypeVariable, Representation], Module) = {
+  def toNesTModule(node: TypeASTNode): (Map[TypeVariable, Representation], Module) = {
     val TypeASTNode(ModuleTypeLexer.MODULE_TYPE, _, children) = node
     ( getExistentials(children(0)),
          Module(

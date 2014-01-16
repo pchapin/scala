@@ -12,9 +12,7 @@ import edu.uvm.snowstorm.ServiceAuthorizer
 
 object Generator {
 
-   val StubType = new TypeAbbreviation("Hey")
-   
- /* @ModuleType("""{}
+  @ModuleType("""{}
      <; key: Array[UInt8]>
      { send     (buffer    : Array[UInt8]): Void,
        set_key  (aes_key   : Array[UInt8]): Int16,
@@ -27,7 +25,7 @@ object Generator {
                                  val         : UInt16,
                                  nonce       : UInt8 } ] ): Void,
        set_key_done( ): Void,
-       get_cipher(cipher_text: Array[UInt8]): Void }""") */
+       get_cipher(cipher_text: Array[UInt8]): Void }""")
   private def createStub(authorizer: ServiceAuthorizer) = {
     @ModuleType("""{}
        <; key: Array[UInt8]>

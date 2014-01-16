@@ -27,22 +27,21 @@ Top level sections...
    include both the description of the system and implementation specifics in separate
    subsections.
 
-4. Scalaness/nesT Theory
+4. DScalaness/DnesT (Theory)
 
    This chapter contains material from the GPCE paper. It describes the staged approach of
    solving the problem outlined in the introduction. It also includes a description of the type
    theory and formal semantics of nesT from the CC and LCTES submissions.
 
-5. Scalaness/Mininess Implementation
+5. Scalaness/nesT (Implementation)
 
-   This chapter contains a detailed description of the implementation of Scalaness and the
-   realistic version of nesT called Mininess.
+   This chapter contains a detailed description of the implementation of DScalaness and DnesT
+   by way of their realistic versions Scalaness and nesT.
 
 5. Evaluation
 
-   The performance of SpartanRCP/Sprocket and nesT/Scalaness are compared using primarly the
-   extended SnowCloud example. However, other results as reported in our various papers are also
-   include.
+   The performance of Sprocket and Scalaness/nesT are compared using primarly the extended
+   SnowCloud example. However, other results as reported in our various papers are also include.
 
 6. Conclusion
 
