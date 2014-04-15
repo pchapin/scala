@@ -59,17 +59,17 @@ class NesTTyper(
     class TypeException(message: String) extends
       PositionalNesTTypeException(message, node.line, node.positionInLine)
 
-  if (true && (node.parent == None)) TreeConverter.dumpAST(node)
+  if (debugFlag && (node.parent == None)) TreeConverter.dumpAST(node)
       
     val resultType = node match {
       
       case ASTNode(NesTLexer.CASE, _, children, _, _) => {
         val childType = checkNesTExpression(children(0), depth + 1) match {
-          case Some(TypeVariable(t)) => promote(typeVars,t)
+          // case Some(TypeVariable(t)) => promote(typeVars,t)
           case Some(childType) => childType
           case _ => throw new TypeException("Unable to find type for argument of node 'CASE'.")
         }
-        if (areSubtypes(childType, Int32) || areSubtypes(childType, UInt32)) {
+        if (areSubtypes(typeVars, childType, Int32) || areSubtypes(typeVars, childType, UInt32)) {
           val bodyType = checkNesTInclusion(children(1), depth + 1)
           Some(Okay)
         }
@@ -177,11 +177,11 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.FOR_CONDITION, _, children, _, _) => {
         val childType = checkNesTExpression(children(0), depth + 1) match {
-          case Some(TypeVariable(t)) => promote(typeVars, t)
+          // case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
           case _ => throw new TypeException("Unable to find type for argument of node 'FOR_CONDITION'.")
         }
-        if (areSubtypes(childType, Int32) || areSubtypes(childType, UInt32)) {
+        if (areSubtypes(typeVars, childType, Int32) || areSubtypes(typeVars, childType, UInt32)) {
           Some(Okay)
         }
         else throw new TypeException("(Node FOR_CONDITION) Unexpected Type: " + childType + ". Expected: <: Int32 or UInt32.")
@@ -211,11 +211,11 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.IF, _, children, _, _) => {
         val conditionType = checkNesTExpression(children(0), depth + 1) match {
-          case Some(TypeVariable(t)) => promote(typeVars, t)
+          // case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(conditionType) => conditionType
           case _ => throw new TypeException("Unable to find type for argument of node 'IF'.")
         }
-        if (areSubtypes(conditionType, Int32) || areSubtypes(conditionType, UInt32)) {
+        if (areSubtypes(typeVars, conditionType, Int32) || areSubtypes(typeVars, conditionType, UInt32)) {
           val firstChildType = checkNesTInclusion(children(1), depth + 1)
           if (children.length == 3) {
             val secondChildType = checkNesTInclusion(children(2), depth + 1)
@@ -368,11 +368,11 @@ class NesTTyper(
       
       case ASTNode(NesTLexer.SWITCH, _, children, _, _) => {
         val childType = checkNesTExpression(children(0), depth + 1) match {
-          case Some(TypeVariable(t)) => promote(typeVars, t)
+          // case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
           case _ => throw new TypeException("Unable to find type for argument of node 'SWITCH'.")
         }
-        if (areSubtypes(childType, Int32) || areSubtypes(childType, UInt32)) {
+        if (areSubtypes(typeVars, childType, Int32) || areSubtypes(typeVars, childType, UInt32)) {
           val bodyType = checkNesTInclusion(children(1), depth + 1)
           Some(Okay)
         }
@@ -423,11 +423,11 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.WHILE, _, children, _, _) => {
         val conditionType = checkNesTExpression(children(0), depth + 1) match {
-          case Some(TypeVariable(t)) => promote(typeVars, t)
+          // case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(conditionType) => conditionType
           case _ => throw new TypeException("Unable to find type for argument of node 'WHILE'.")
         }
-        if (areSubtypes(conditionType, Int32) || areSubtypes(conditionType, UInt32)) {
+        if (areSubtypes(typeVars, conditionType, Int32) || areSubtypes(typeVars, conditionType, UInt32)) {
           val childType = checkNesTInclusion(children(1), depth + 1)
           Some(Okay)
         }
@@ -491,12 +491,12 @@ class NesTTyper(
       debugFlag: Boolean = false): (Representation, Representation) = {
 
       val firstChildType = checkNesTExpression(children(0), depth + 1) match {
-        case Some(TypeVariable(t)) => promote(typeVars, t) // Place-holder, need to look up typevar Upper bound
+        // case Some(TypeVariable(t)) => promote(typeVars, t) // Place-holder, need to look up typevar Upper bound
         case Some(childType) => childType
         case _ => throw new TypeException("INTERNAL ERROR: Child must have a type")
       }
       val secondChildType = checkNesTExpression(children(1), depth + 1) match {
-        case Some(TypeVariable(t)) => promote(typeVars, t) // Place-holder, need to look up typevar Upper bound
+        // case Some(TypeVariable(t)) => promote(typeVars, t) // Place-holder, need to look up typevar Upper bound
         case Some(childType) => childType
         case _ => throw new TypeException("INTERNAL ERROR: Child must have a type")
       }
@@ -509,7 +509,7 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.ADDRESS_OF, _, children, _, _) => {
         val childType = checkNesTExpression(children(0), depth + 1) match {
-          case Some(TypeVariable(t)) => promote(typeVars, t)
+          // case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
           case _ => throw new TypeException("Unable to find type for argument of node 'ADDRESS_OF'.")
         }
@@ -522,10 +522,10 @@ class NesTTyper(
       // TODO: The type returned by bitwise AND isn't always Int16 (UInt16).
       case ASTNode(NesTLexer.AMP, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(Int16)
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32) && areSubtypes(typeVars, secondChildType, UInt32)) {
           Some(UInt16)
         }
         else throw new TypeException("(Node AMP) Unexpected Types: " + firstChildType + 
@@ -534,10 +534,10 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.AND, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(Int16)
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32) && areSubtypes(typeVars, secondChildType, UInt32)) {
           Some(Int16)
         }
         else throw new TypeException("(Node AND) Unexpected Types: " + firstChildType + 
@@ -546,25 +546,18 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.ARGUMENT_LIST, _, children, parent, _) => {
         val siblingType = getSiblingType(parent, depth)
-        val (returnType, parameterList) = siblingType match {
-          case Some(Function(rt, pl)) => (rt, pl)
+        val (returnType, parameterList) = promote(typeVars, siblingType) match {
+          case Function(rt, pl) => (rt, pl)
           case _ => throw new TypeException("(Node ARGUMENT_LIST) Unexpected Type: " + siblingType + ". Expected: Function type.")
         }
 
         for (i <- 0 until children.length) {
           val childType = checkNesTExpression(children(i), depth + 1) match {
-            case Some(TypeVariable(t)) => promote(typeVars, t)
             case Some(cType) => cType
             case _ => throw new TypeException("Unable to find type for argument of node 'ARGUMENT_LIST'.")
           }
-          
-          val parameterType = parameterList(i) match {
-            case TypeVariable(t) => promote(typeVars, t)
-            case cType => cType
-          }
-           
-          if (!(areSubtypes(childType, parameterType)))
-            throw new TypeException("(Node ARGUMENT_LIST) Unexpected Type: " + childType + ". Expected: " + parameterType + ".")
+          if (!(areSubtypes(typeVars, childType, parameterList(i))))
+            throw new TypeException("(Node ARGUMENT_LIST) Unexpected Type: " + childType + ". Expected: " + parameterList(i) + ".")
         } // Compares each argument type to the parameter being asked for by the function.
           // The argument should be subtype of parameter.
 
@@ -579,29 +572,28 @@ class NesTTyper(
           case Array(_, _) => true
           case _ => false
         }
-        if (isArray && areSubtypes(secondChildType,Int16))
+        if (isArray && areSubtypes(typeVars, secondChildType,Int16))
           Some(firstChildType)
-        else if (isArray && areSubtypes(secondChildType,UInt16))
+        else if (isArray && areSubtypes(typeVars, secondChildType,UInt16))
           Some(firstChildType)
         else throw new TypeException("(Node ARRAY_INC) Unexpected Type: " + secondChildType + ". Expected: <: Int16 or UInt16.")
       }
         
       case ASTNode(NesTLexer.ARRAY_ELEMENT_SELECTION, _, children, parent, _) => {
         val siblingType = getSiblingType(parent, depth)
-        val arrayType = siblingType match {
-          case Some(Array(aType, _)) => aType
+        val arrayType = promote(typeVars, siblingType) match {
+          case Array(aType, _) => aType
           case _ => throw new TypeException("(Node ARRAY_ELEMENT SELECTION) Unexpected Type: " + siblingType + 
                                             ". Expected: Array type.")
         }
         val childType = checkNesTExpression(children(0), depth + 1) match {
-          case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
           case _ => throw new TypeException("Unable to find type for argument of node 'ARRAY_ELEMENT_SELECTION'.")
         }
-        if (areSubtypes(childType,Int16)) {
+        if (areSubtypes(typeVars, childType,Int16)) {
           Some(arrayType)
         }
-        else if (areSubtypes(childType,UInt16)) {
+        else if (areSubtypes(typeVars, childType,UInt16)) {
           Some(arrayType)
         }
         else throw new TypeException("(Node ARRAY_ELEMENT_SELECTION) Unexpected Type: " + childType + 
@@ -611,7 +603,7 @@ class NesTTyper(
       case ASTNode(NesTLexer.ARROW, _, children, parent, _) => {
         val fullSiblingType = getSiblingType(parent, depth)
         val siblingType = fullSiblingType match {
-          case Some(TypeVariable(t)) => promote(typeVars, t)
+          // case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(Pointer(siblingType)) => siblingType
           case _ => throw new TypeException("(Node ARROW) Unexpected Type: " + fullSiblingType + ". Expected: Pointer Type.")
         }
@@ -629,17 +621,15 @@ class NesTTyper(
       case ASTNode(NesTLexer.ASSIGN, _, children, _, _) => {
         if (isLeftValue(children(0))) {
           val leftType = checkNesTExpression(children(0), depth + 1) match {
-            case Some(TypeVariable(t)) => promote(typeVars, t)
             case Some(leftType) => leftType
             case _ => throw new TypeException("Unable to find type for left argument of node 'ASSIGN'.")
           }
           val rightType = checkNesTExpression(children(1), depth + 1) match {
-            case Some(TypeVariable(t)) => promote(typeVars, t)
             case Some(rightType) => rightType
             case _ => throw new TypeException("Unable to find type for right argument of node 'ASSIGN'.")
           }
-          if (areSubtypes(rightType, leftType)) {
-            Some(Okay)
+          if  (areSubtypes(typeVars, rightType, leftType)) {
+            Some(leftType)
           }
           else throw new TypeException("(Node ARGUMENT_LIST) Unexpected Type: " + rightType + ". Expected: " + leftType + ".")
         }
@@ -649,15 +639,15 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.BITANDASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        if (areSubtypes(typeVars, firstChildType, Int32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node BITANDASSIGN) Unexpected Type: " + secondChildType + 
                                        ". Expected: " + firstChildType + ".")
         }
-        else if (areSubtypes(firstChildType, UInt32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node BITANDASSIGN) Unexpected Type: " + secondChildType + 
@@ -670,14 +660,14 @@ class NesTTyper(
       // TODO: The type returned by bitwise complement isn't always Int16 (or UInt16).
       case ASTNode(NesTLexer.BITCOMPLEMENT, _, children, _, _) => {
        val childType = checkNesTExpression(children(0), depth + 1) match {
-          case Some(TypeVariable(t)) => promote(typeVars, t)
+          // case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
           case _ => throw new TypeException("Unable to find type for argument of node 'BITCOMPLEMENT'.")
         }
-       if (areSubtypes(childType, Int32)) {
+       if (areSubtypes(typeVars, childType, Int32)) {
          Some(Int16)
        }
-       else if (areSubtypes(childType, UInt32)) {
+       else if (areSubtypes(typeVars, childType, UInt32)) {
          Some(UInt16)
        }
        else throw new TypeException("(Node BITCOMPLEMENT) Unexpected Type: " + childType + ". Expected: <: Int32 or UInt32.")
@@ -686,10 +676,10 @@ class NesTTyper(
       // TODO: The type returned by bitwise OR isn't always Int16 (UInt16).
       case ASTNode(NesTLexer.BITOR, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(Int16)
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32) && areSubtypes(typeVars, secondChildType, UInt32)) {
           Some(UInt16)
         }
         else throw new TypeException("(Node BITOR) Unexpected Types: " + firstChildType + 
@@ -698,15 +688,15 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.BITORASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        if (areSubtypes(typeVars, firstChildType, Int32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node BITORASSIGN) Unexpected Type: " + secondChildType + 
                                        ". Expected: " + firstChildType + ".")
         }
-        else if (areSubtypes(firstChildType, UInt32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node BITORASSIGN) Unexpected Type: " + secondChildType + 
@@ -719,10 +709,10 @@ class NesTTyper(
       // TODO: The type returned by bitwise XOR isn't always Int16 (UInt16).
       case ASTNode(NesTLexer.BITXOR, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(Int16)
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32) && areSubtypes(typeVars, secondChildType, UInt32)) {
           Some(UInt16)
         }
         else throw new TypeException("(Node BITXOR) Unexpected Types: " + firstChildType + 
@@ -731,15 +721,15 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.BITXORASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        if (areSubtypes(typeVars, firstChildType, Int32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node BITXORASSIGN) Unexpected Type: " + secondChildType + 
                                        ". Expected: " + firstChildType + ".")
         }
-        else if (areSubtypes(firstChildType, UInt32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node BITXORASSIGN) Unexpected Type: " + firstChildType + 
@@ -751,7 +741,7 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.CAST, _, children, _, _) => {
         val childType = checkNesTExpression(children(0), depth + 1) match {
-          case Some(TypeVariable(t)) => promote(typeVars, t)
+          // case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
           case _ => throw new TypeException("Unable to find type for argument of node 'CAST'.")
         }
@@ -761,10 +751,10 @@ class NesTTyper(
         }
  
         if (castType == Uninit) {
-          castType = promote(typeVars, children(1).text)
+          castType = promote(typeVars, typeVars.get(children(1).text)) // LOOK AT THIS
         }
 
-        if (isCompatible(childType,castType,typeRelation))
+        if (isCompatible(typeVars,childType,castType,typeRelation))
           Some(castType)
         else throw new TypeException("(Node CAST) Incompatible cast: " + childType + " => " + castType + ".")
       }
@@ -822,15 +812,15 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.DIVASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        if (areSubtypes(typeVars, firstChildType, Int32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node DIVASSIGN) Unexpected Type: " + secondChildType + 
                                        ". Expected: " + firstChildType + ".")
         }
-        else if (areSubtypes(firstChildType, UInt32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node DIVASSIGN) Unexpected Type: " + secondChildType + 
@@ -842,10 +832,10 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.DIVIDE, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32) && areSubtypes(typeVars, secondChildType, UInt32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
         else throw new TypeException("(Node DIVIDE) Unexpected Types: " + firstChildType + 
@@ -854,7 +844,7 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.DOT, _, children, parent, _) => {
         val siblingType = getSiblingType(parent, depth) match {
-          case Some(TypeVariable(t)) => promote(typeVars, t)
+          // case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(siblingType) => siblingType
           case _ => throw new TypeException("Unable to find type for argument of node 'DOT'.")
         }
@@ -871,8 +861,8 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.EQUAL, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, secondChildType) ||
-            areSubtypes(secondChildType, firstChildType))
+        if (areSubtypes(typeVars, firstChildType, secondChildType) ||
+            areSubtypes(typeVars, secondChildType, firstChildType))
           Some(Int16)
         else throw new TypeException("(Node EQUAL) Unexpected Type: " + secondChildType + 
                                        ". Expected: " + firstChildType + ".")
@@ -881,10 +871,10 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.GREATER, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(Int16)
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32) && areSubtypes(typeVars, secondChildType, UInt32)) {
           Some(Int16)
         }
         else throw new TypeException("(Node GREATER) Unexpected Types: " + firstChildType + 
@@ -893,10 +883,10 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.GREATEREQUAL, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(Int16)
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32) && areSubtypes(typeVars, secondChildType, UInt32)) {
           Some(Int16)
         }
         else throw new TypeException("(Node GREATEREQUAL) Unexpected Types: " + firstChildType + 
@@ -911,10 +901,10 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.LESS, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(Int16)
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32) && areSubtypes(typeVars, secondChildType, UInt32)) {
           Some(Int16)
         }
         else throw new TypeException("(Node LESS) Unexpected Types: " + firstChildType + 
@@ -923,10 +913,10 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.LESSEQUAL, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(Int16)
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32) && areSubtypes(typeVars, secondChildType, UInt32)) {
           Some(Int16)
         }
         else throw new TypeException("(Node LESSEQUAL) Unexpected Types: " + firstChildType + 
@@ -936,10 +926,10 @@ class NesTTyper(
       // Shift count always a subtype of Int32.
       case ASTNode(NesTLexer.LSHIFT, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(firstChildType)
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, Int32)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(firstChildType)
         }
         else throw new TypeException("(Node LSHIFT) Unexpected Types: " + firstChildType + 
@@ -949,8 +939,8 @@ class NesTTyper(
       // Shift count always a subtype of Int32.
       case ASTNode(NesTLexer.LSHIFTASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) || areSubtypes(firstChildType, UInt32)) {
-          if (areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) || areSubtypes(typeVars, firstChildType, UInt32)) {
+          if (areSubtypes(typeVars, secondChildType, Int32)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node LSHIFTASSIGN) Unexpected Type: " + secondChildType + 
@@ -962,10 +952,10 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.MINUS, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType,Int32) && areSubtypes(secondChildType,Int32)) {
+        if (areSubtypes(typeVars, firstChildType,Int32) && areSubtypes(typeVars, secondChildType,Int32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
-        else if (areSubtypes(firstChildType,UInt32) && areSubtypes(secondChildType,UInt32)) {
+        else if (areSubtypes(typeVars, firstChildType,UInt32) && areSubtypes(typeVars, secondChildType,UInt32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
         else throw new TypeException("(Node MINUS) Unexpected Types: " + firstChildType + 
@@ -974,15 +964,15 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.MINUSASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        if (areSubtypes(typeVars, firstChildType, Int32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node MINUSASSIGN) Unexpected Type: " + secondChildType + 
                                        ". Expected: " + firstChildType + ".")
         }
-        else if (areSubtypes(firstChildType, UInt32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node MINUSASSIGN) Unexpected Type: " + secondChildType + 
@@ -994,14 +984,14 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.MINUSMINUS, _, children, parent, _) => {
         val siblingType = getSiblingType(parent, depth) match {
-          case Some(TypeVariable(t)) => promote(typeVars, t)
+          // case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(siblingType) => siblingType
           case _ => throw new TypeException("Unable to find type for argument of node 'MINUSMINUS'.")
         }
-        if (areSubtypes(siblingType, Int32)) {
+        if (areSubtypes(typeVars, siblingType, Int32)) {
           Some(siblingType)
         }
-        else if (areSubtypes(siblingType, UInt32)) {
+        else if (areSubtypes(typeVars, siblingType, UInt32)) {
           Some(siblingType)
         }
         else throw new TypeException("(Node MINUSMINUS) Unexpected Type: " + siblingType + 
@@ -1010,15 +1000,15 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.MODASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        if (areSubtypes(typeVars, firstChildType, Int32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node MODASSIGN) Unexpected Type: " + secondChildType + 
                                        ". Expected: " + firstChildType + ".")
         }
-        else if (areSubtypes(firstChildType, UInt32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node MODASSIGN) Unexpected Type: " + secondChildType + 
@@ -1030,10 +1020,10 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.MODULUS, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32) && areSubtypes(typeVars, secondChildType, UInt32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
         else throw new TypeException("(Node MODULUS) Unexpected Types: " + firstChildType + 
@@ -1042,15 +1032,15 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.MULASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        if (areSubtypes(typeVars, firstChildType, Int32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node MULASSIGN) Unexpected Type: " + secondChildType + 
                                        ". Expected: " + firstChildType + ".")
         }
-        else if (areSubtypes(firstChildType, UInt32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node MULASSIGN) Unexpected Type: " + secondChildType + 
@@ -1062,14 +1052,14 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.NOT, _, children, _, _) => {
         val childType = checkNesTExpression(children(0), depth + 1) match {
-          case Some(TypeVariable(t)) => promote(typeVars, t)
+          // case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
           case _ => throw new TypeException("Unable to find type for argument of node 'NOT'.")
         }
-        if (areSubtypes(childType, Int32)){
+        if (areSubtypes(typeVars, childType, Int32)){
          Some(Int16)
         }
-        else if (areSubtypes(childType, UInt32)){
+        else if (areSubtypes(typeVars, childType, UInt32)){
          Some(Int16)
         }
         else throw new TypeException("(Node NOT) Unexpected Type: " + childType + 
@@ -1078,8 +1068,8 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.NOTEQUAL, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, secondChildType) ||
-            areSubtypes(secondChildType, firstChildType))
+        if (areSubtypes(typeVars, firstChildType, secondChildType) ||
+            areSubtypes(typeVars, secondChildType, firstChildType))
           Some(Int16)
         else throw new TypeException("(Node NOTEQUAL) Unexpected Type: " + secondChildType + 
                                        ". Expected: " + firstChildType + ".")
@@ -1088,10 +1078,10 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.OR, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(Int16)
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32) && areSubtypes(typeVars, secondChildType, UInt32)) {
           Some(Int16)
         }
         else throw new TypeException("(Node OR) Unexpected Types: " + firstChildType + 
@@ -1100,10 +1090,10 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.PLUS, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(leastUpperBound(firstChildType,secondChildType))
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32) && areSubtypes(typeVars, secondChildType, UInt32)) {
           Some(leastUpperBound(firstChildType,secondChildType))
         }
         else throw new TypeException("(Node PLUS) Unexpected Types: " + firstChildType + 
@@ -1112,15 +1102,15 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.PLUSASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        if (areSubtypes(typeVars, firstChildType, Int32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node PLUSASSIGN) Unexpected Type: " + secondChildType + 
                                        ". Expected: " + firstChildType + ".")
         }
-        else if (areSubtypes(firstChildType, UInt32)) {
-          if (areSubtypes(secondChildType, firstChildType)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32)) {
+          if (areSubtypes(typeVars, secondChildType, firstChildType)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node PLUSASSIGN) Unexpected Type: " + secondChildType + 
@@ -1132,14 +1122,14 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.PLUSPLUS, _, children, parent, _) => {
         val siblingType = getSiblingType(parent, depth) match {
-          case Some(TypeVariable(t)) => promote(typeVars, t)
+          // case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(siblingType) => siblingType
           case _ => throw new TypeException("Unable to find type for argument of node 'PLUSPLUS'.")
         }
-        if (areSubtypes(siblingType, Int32)) {
+        if (areSubtypes(typeVars, siblingType, Int32)) {
           Some(siblingType)
         }
-        else if (areSubtypes(siblingType, Int32)) {
+        else if (areSubtypes(typeVars, siblingType, Int32)) {
           Some(siblingType)
         }
         else throw new TypeException("(Node PLUSPLUS) Unexpected Type: " + siblingType + 
@@ -1148,14 +1138,14 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.PRE_DECREMENT, _, children, _, _) => {
         val childType = checkNesTExpression(children(0), depth + 1) match {
-          case Some(TypeVariable(t)) => promote(typeVars, t)
+          // case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
           case _ => throw new TypeException("Unable to find type for argument of node 'PRE_DECREMENT'.")
         }
-        if (areSubtypes(childType, Int32)) {
+        if (areSubtypes(typeVars, childType, Int32)) {
          Some(childType)
         }
-        else if (areSubtypes(childType, UInt32)) {
+        else if (areSubtypes(typeVars, childType, UInt32)) {
          Some(childType)
         }
         else throw new TypeException("(Node PRE_DECREMENT) Unexpected Type: " + childType + 
@@ -1164,14 +1154,14 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.PRE_INCREMENT, _, children, _, _) => {
         val childType = checkNesTExpression(children(0), depth + 1) match {
-          case Some(TypeVariable(t)) => promote(typeVars, t)
+          // case Some(TypeVariable(t)) => promote(typeVars, t)
           case Some(childType) => childType
           case _ => throw new TypeException("Unable to find type for argument of node 'PRE_INCREMENT'.")
         }
-        if (areSubtypes(childType, Int32)) {
+        if (areSubtypes(typeVars, childType, Int32)) {
          Some(childType)
         }
-        else if (areSubtypes(childType, UInt32)) {
+        else if (areSubtypes(typeVars, childType, UInt32)) {
          Some(childType)
         }
         else throw new TypeException("(Node PRE_INCREMENT) Unexpected Type: " + childType + 
@@ -1186,10 +1176,10 @@ class NesTTyper(
       // Shift count always a subtype of Int32.
       case ASTNode(NesTLexer.RSHIFT, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(firstChildType)
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, Int32)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(firstChildType)
         }
         else throw new TypeException("(Node RSHIFT) Unexpected Types: " + firstChildType + 
@@ -1199,8 +1189,8 @@ class NesTTyper(
       // Shift count always a subtype of Int32.
       case ASTNode(NesTLexer.RSHIFTASSIGN, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) || areSubtypes(firstChildType, UInt32)) {
-          if (areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) || areSubtypes(typeVars, firstChildType, UInt32)) {
+          if (areSubtypes(typeVars, secondChildType, Int32)) {
             Some(firstChildType)
           }
           else throw new TypeException("(Node RSHIFTASSIGN) Unexpected Type: " + secondChildType + 
@@ -1242,10 +1232,10 @@ class NesTTyper(
 
       case ASTNode(NesTLexer.STAR, _, children, _, _) => {
         val (firstChildType, secondChildType) = getTwoChildren(children, depth)
-        if (areSubtypes(firstChildType, Int32) && areSubtypes(secondChildType, Int32)) {
+        if (areSubtypes(typeVars, firstChildType, Int32) && areSubtypes(typeVars, secondChildType, Int32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
-        else if (areSubtypes(firstChildType, UInt32) && areSubtypes(secondChildType, UInt32)) {
+        else if (areSubtypes(typeVars, firstChildType, UInt32) && areSubtypes(typeVars, secondChildType, UInt32)) {
           Some(leastUpperBound(firstChildType, secondChildType))
         }
         else throw new TypeException("(Node STAR) Unexpected Types: " + firstChildType + 

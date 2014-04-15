@@ -54,13 +54,21 @@ object NesTTypes {
     exports        : List[Export]) extends Representation
   
   
-  def promote(delta: Map[String, Representation], t: String): Representation = {
-    val finalType = delta.get(t) match {
-      case Some(TypeVariable(tvar)) => promote(delta, tvar)
+  def promote(delta: Map[String, Representation], t: Option[Representation]): Representation = {
+    
+    val tType = t match {
+      case Some(TypeVariable(tvar)) => { 
+        val tvarType = delta.get(tvar) match {
+          case None => throw new NesTTypeException(s"Type Variable $t must exist in Delta")
+          case newType => newType 
+        }
+        promote(delta, tvarType)
+      }
       case Some(structuredType) => structuredType 
       case None => throw new NesTTypeException(s"Type Variable $t must exist in Delta")
     }
-    finalType
+    
+    tType 
   } // Recursively looks up the type variable until a structured type is found or returns Uninit.
     // Changed to take in Map[String,TR], t: string, and promote(delta, tvar) from TypeVariable
 
@@ -141,12 +149,29 @@ object NesTTypes {
       }
     }
   }
+  
+  def lookupTypeVar(delta: Map[String, Representation], s: String): Representation = {
+    delta.get(s) match {
+      case Some(typeRep) => typeRep
+      case None => throw new NesTTypeException(s"Type Variable $s must exist in Delta")
+    }
+  }
 
   /**
    * Returns true if left <: right using nesT subtyping rules.
    */
-  def areSubtypes(left: Representation, right: Representation) = {
-
+  def areSubtypes(delta: Map[String, Representation], left: Representation, right: Representation): Boolean = {
+    val message = s"Subtyping Error: $left $right"
+    
+    val typeCase = (left, right) match {
+      case (TypeVariable(x), TypeVariable(y)) => areSubtypes(delta, lookupTypeVar(delta,x), lookupTypeVar(delta,y))
+      case (TypeVariable(x), _) => areSubtypes(delta, lookupTypeVar(delta,x), right)
+      case (_, TypeVariable(y)) => areSubtypes(delta, left, lookupTypeVar(delta,y))
+      case _ => false
+    }
+    
+    if (typeCase == true) return true
+    
     if (left == right || right == Top) true
     else {
       
@@ -177,21 +202,40 @@ object NesTTypes {
           case _ => false
         }
         
+        /*  This is the case for Function ala the subtyping rules, but should be adapated
+            so that it makes sense for the nesT version of functions with parameters
+        case Function(fType, _) => right match {
+          case Function(fType, _) => true
+          case _ => false        
+        }
+        */
+        
         case Structure(_, leftMemberList) => right match {
           case Structure(_, rightMemberList) => {
             var passedTest = true
+            var tempTypeLeft: Representation = Okay
+            var tempTypeRight: Representation = Okay
             if (leftMemberList.size < rightMemberList.size)
               passedTest = false
             else {
               for (i <- 0 until rightMemberList.size) {
-                if (!(rightMemberList(i) == leftMemberList(i)))
+                val (tempStringLeft, tempTypeLeft) = leftMemberList(i) match {
+                  case (someString, typeRep) => (someString, typeRep)
+                  case _ => throw new NesTTypeException(message)
+                }
+                val (tempStringRight, tempTypeRight) = rightMemberList(i) match {
+                  case (someString, typeRep) => (someString, typeRep)
+                  case _ => throw new NesTTypeException(message)
+                }
+                if ((!(areSubtypes(delta, tempTypeLeft,tempTypeRight))) || (!(tempStringLeft==tempStringRight)))
                   passedTest = false
               }
             }
             passedTest
           }
           case _ => false 
-        } // Updated so now to be a subtype the parameters must be identical and in the exact order to be true.
+        } // To be a subtype, the relevant fields of the structures must occur in the same order
+          // and be at the start of the field list - Hopefully update to be more fluid
 
         
         case _ => false
@@ -229,10 +273,11 @@ object NesTTypes {
   }
    
   def isCompatible(
+    delta: Map[String, Representation],
     left : Representation,
     right: Representation,
     typeRelation: TypeCompatibilityRelation): Boolean = {
-      if (areSubtypes(left, right))
+      if (areSubtypes(delta, left, right))
         return true
       val leftType = left match {
         case Structure(structName, fields) => Structure(structName, List())

@@ -250,11 +250,11 @@ object TypeRules {
   private def seriesSubType(
       listOne: List[Representation],
       listTwo: List[Representation]): Boolean = {
-    
+    val emptyMap: Map[String, Representation] = Map()
     var returnBool = true
     if (listOne.length == listTwo.length) {
       for (i <- 0 until listOne.length) {
-        if (!(areSubtypes(listOne(i), listTwo(i))))
+        if (!(areSubtypes(emptyMap, listOne(i), listTwo(i))))
           returnBool = false
       }
     }
