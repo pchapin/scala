@@ -368,8 +368,8 @@ object TreeTransformer {
           }
           else {
             val sizeType = Symbols.lookupVariable(root, arraySize)
-            if (!(NesTTypes.areSubtypes(sizeType, NesTTypes.Int32) || 
-                  NesTTypes.areSubtypes(sizeType, NesTTypes.UInt32)))
+            if (!(NesTTypes.areSubtypes(Map[String,edu.uvm.nest.NesTTypes.Representation](),sizeType, NesTTypes.Int32) || 
+                  NesTTypes.areSubtypes(Map[String,edu.uvm.nest.NesTTypes.Representation](),sizeType, NesTTypes.UInt32)))
               throw new Exception("Array size must be integer type")
             ASTNode(RAW_IDENTIFIER, arraySize, List(), Some(newNode2), symbolTable)
           }
